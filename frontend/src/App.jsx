@@ -124,8 +124,9 @@ export default function App() {
     setShowForm(true);
   };
 
+  // Keep status in sync with the list but preserve line_items from full fetch
   const selectedReceipt = selected
-    ? (receipts.find((r) => r.id === selected.id) ?? selected)
+    ? { ...selected, status: receipts.find((r) => r.id === selected.id)?.status ?? selected.status }
     : null;
 
   if (!entered) return <LandingPage onEnter={() => setEntered(true)} />;
@@ -390,7 +391,7 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="detail-section" style={{ marginTop: "auto" }}>
+              <div className="detail-section">
                 <button
                   className="btn btn-primary"
                   style={{ width: "100%", marginBottom: 6 }}
