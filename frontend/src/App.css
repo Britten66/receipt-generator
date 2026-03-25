@@ -1,620 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-:root {
-  --bg: #dcdcda;
-  --surface: #e8e8e5;
-  --surface-2: #f0f0ed;
-  --border: #a8a8a4;
-  --border-light: #c4c4c0;
-  --text: #111110;
-  --text-dim: #131311a7;
-  --text-muted: #909090;
-  --paid: #1a5c3a;
-  --sent: #1a3060;
-  --draft: #555552;
-  --voided: #7a1a1a;
-  --mono: "IBM Plex Mono", monospace;
-  --sans: "IBM Plex Sans", sans-serif;
-}
-
-html,
-body,
-#root {
-  height: 100%;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 12px;
-}
-
-/* ── SHELL ── */
-.app-shell {
-  display: grid;
-  grid-template-rows: 36px 1fr;
-  grid-template-columns: 200px 1fr;
-  height: 100vh;
-  overflow: hidden;
-}
-
-/* ── TOPBAR ── */
-.topbar {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-}
-
-.wordmark {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text);
-}
-
-.wordmark span {
-  font-weight: 400;
-  color: var(--text-dim);
-}
-
-.topbar-meta {
-  font-size: 10px;
-  color: var(--text-muted);
-}
-
-/* ── SIDEBAR ── */
-.sidebar {
-  border-right: 1px solid var(--border);
-  background: var(--surface);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  min-width: 0;
-}
-
-.sidebar-section {
-  border-bottom: 1px solid var(--border-light);
-  padding: 12px 0;
-}
-
-.sidebar-label {
-  padding: 0 12px 8px;
-  font-size: 8px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.sidebar-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 12px;
-  font-size: 11px;
-  color: var(--text-dim);
-  cursor: pointer;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  font-family: var(--mono);
-  border-left: 2px solid transparent;
-  transition: background 0.1s;
-}
-
-.sidebar-item:hover {
-  background: var(--bg);
-  color: var(--text);
-}
-.sidebar-item.active {
-  color: var(--text);
-  border-left-color: var(--text);
-  background: var(--bg);
-  font-weight: 600;
-}
-
-.sidebar-count {
-  font-size: 10px;
-  color: var(--text-muted);
-}
-.sidebar-item.active .sidebar-count {
-  color: var(--text-dim);
-}
-
-.stat-block {
-  padding: 8px 12px;
-}
-
-.stat-label {
-  font-size: 8px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 2px;
-}
-
-.stat-value {
-  font-size: 16px;
-  font-weight: 400;
-  color: var(--text);
-}
-
-/* ── MAIN ── */
-.main {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--bg);
-}
-
-/* ── TOOLBAR ── */
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-  flex-shrink: 0;
-}
-
-.toolbar-title {
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-/* ── CONTENT AREA ── */
-.content-area {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-}
-
-/* ── RECEIPT GRID ── */
-.receipt-grid-wrap {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px;
-}
-
-.receipt-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-}
-
-.receipt-card {
-  background: var(--surface-2);
-  padding: 14px;
-  cursor: pointer;
-  transition: background 0.1s;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-height: 120px;
-}
-
-.receipt-card:hover {
-  background: #f5f5f2;
-}
-.receipt-card.selected {
-  background: #fff;
-  outline: 2px solid var(--text);
-  outline-offset: -2px;
-}
-
-.card-num {
-  font-size: 9px;
-  letter-spacing: 0.15em;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
-.card-vendor {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text);
-  line-height: 1.3;
-}
-
-.card-customer {
-  font-size: 10px;
-  color: var(--text-dim);
-}
-
-.card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: auto;
-  gap: 16px; /* Forces space between badge and number */
-}
-
-.card-total {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  white-space: nowrap; /* Prevents the number from wrapping or squishing */
-  text-align: right;
-}
-
-/* ── STAMPS ── */
-.stamp {
-  display: inline-block;
-  font-size: 7px;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 2px 5px;
-  border: 1px solid;
-  font-family: var(--mono);
-}
-
-.stamp.draft {
-  color: var(--draft);
-  border-color: var(--border);
-  background: var(--surface);
-}
-.stamp.sent {
-  color: var(--sent);
-  border-color: #a0b4d0;
-  background: #eef2f8;
-}
-.stamp.paid {
-  color: var(--paid);
-  border-color: #a0c4b0;
-  background: #eef5f0;
-}
-.stamp.voided {
-  color: var(--voided);
-  border-color: #d0a0a0;
-  background: #f8eeee;
-}
-
-/* ── EMPTY ── */
-.empty {
-  padding: 60px 16px;
-  text-align: center;
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  grid-column: 1 / -1;
-}
-
-/* ── DETAIL PANEL ── */
-.detail-panel {
-  width: 320px;
-  border-left: 1px solid var(--border);
-  background: var(--surface-2);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  flex-shrink: 0;
-}
-
-.detail-header {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border-light);
-  background: var(--surface);
-}
-
-.detail-receipt-num {
-  font-size: 8px;
-  letter-spacing: 0.18em;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.detail-vendor {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 2px;
-  font-family: var(--sans);
-}
-
-.detail-customer {
-  font-size: 11px;
-  color: var(--text-dim);
-}
-
-.detail-section {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-light);
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 0;
-}
-
-.detail-key {
-  font-size: 8px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.detail-val {
-  font-size: 11px;
-  color: var(--text);
-}
-
-.line-items-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 10px;
-}
-
-.line-items-table th {
-  font-size: 7px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  text-align: left;
-  padding: 4px 0;
-  border-bottom: 1px solid var(--border);
-  font-weight: 600;
-}
-
-.line-items-table td {
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border-light);
-  color: var(--text-dim);
-  font-size: 10px;
-}
-
-.line-items-table td.number {
-  text-align: right;
-  color: var(--text);
-}
-
-.total-line {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
-}
-
-.total-line .tl-label {
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-.total-line .tl-val {
-  font-size: 10px;
-  color: var(--text-dim);
-}
-
-.total-line.grand {
-  border-top: 1px solid var(--border);
-  margin-top: 4px;
-  padding-top: 8px;
-}
-
-.total-line.grand .tl-label {
-  color: var(--text);
-  font-size: 10px;
-  font-weight: 600;
-}
-.total-line.grand .tl-val {
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 600;
-}
-
-/* ── BUTTONS ── */
-.btn {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  border: 1px solid var(--border);
-  cursor: pointer;
-  padding: 7px 14px;
-  background: var(--surface);
-  color: var(--text);
-  transition: background 0.1s;
-}
-
-.btn:hover {
-  background: var(--bg);
-}
-
-.btn-primary {
-  background: var(--text);
-  color: var(--surface-2);
-  border-color: var(--text);
-}
-.btn-primary:hover {
-  background: #333;
-}
-
-.btn-ghost {
-  background: none;
-  color: var(--text-dim);
-}
-.btn-ghost:hover {
-  background: var(--bg);
-  color: var(--text);
-}
-
-.btn-danger {
-  background: none;
-  color: var(--voided);
-  border-color: #d0a0a0;
-}
-.btn-danger:hover {
-  background: #f8eeee;
-}
-
-.btn-status {
-  background: none;
-  color: var(--text-dim);
-  border-color: var(--border-light);
-  padding: 4px 8px;
-  font-size: 8px;
-}
-.btn-status:hover {
-  border-color: var(--text);
-  color: var(--text);
-}
-
-.btn-icon {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 1;
-  padding: 0;
-  transition: color 0.15s;
-}
-
-.btn-icon:hover {
-  color: var(--text);
-}
-
-/* ── MODAL ── */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-  padding: 24px;
-}
-
-.modal {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  width: 100%;
-  max-width: 540px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 4px 4px 0 var(--border);
-}
-
-.modal-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-title {
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text);
-  font-weight: 600;
-}
-
-.modal-body {
-  padding: 20px;
-  display: grid;
-  gap: 14px;
-}
-
-.modal-footer {
-  padding: 12px 16px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  background: var(--surface);
-}
-
-/* ── FIELDS ── */
-.field-group {
-  display: grid;
-  gap: 4px;
-}
-
-.field-label {
-  font-size: 8px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.field {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 11px;
-  padding: 7px 10px;
-  width: 100%;
-  outline: none;
-  transition: border-color 0.1s;
-}
-
-.field:focus {
-  border-color: var(--text);
-  background: #fff;
-}
-.field::placeholder {
-  color: var(--text-muted);
-}
-
-.field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.line-item-row {
-  display: grid;
-  grid-template-columns: 1fr 60px 80px 80px 24px;
-  gap: 6px;
-  align-items: center;
-}
-
-.line-item-row.header {
-  font-size: 7px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 3px;
-}
-
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-}
 /* ── INDUSTRY SELLABLE MOBILE UI ── */
 @media (max-width: 768px) {
-  /* 1. Base Layout uses dynamic viewport height (fixes mobile Safari/Chrome address bar issues) */
+  /* 1. Base Layout uses dynamic viewport height */
   .app-shell {
     display: flex;
     flex-direction: column;
@@ -622,77 +8,103 @@ body,
     overflow: hidden;
     position: relative;
     padding-bottom: 80px; /* Leaves permanent space for the floating bottom button */
+  } /* <--- THIS WAS THE MISSING BRACKET CAUSING THE BUG */
 
-    /* 7. Industry Sellable Form Footer (Sticky & Tappable) */
-    .modal-footer {
-      position: sticky;
-      bottom: 0;
-      padding: 16px;
-      padding-bottom: max(
-        16px,
-        env(safe-area-inset-bottom)
-      ); /* Respects the iPhone bottom swipe bar */
-      background: var(--surface);
-      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08); /* Casts a shadow upward */
-      z-index: 20;
-      margin-top: auto;
-    }
-    .modal-footer .btn {
-      flex: 1; /* Makes Cancel and Submit exactly 50/50 split */
-      height: 44px; /* Standard Apple touch target height */
-      font-size: 11px;
-      border-radius: 8px;
-    }
-
-    /* 8. The Line Item Card Layout */
-    .line-item-row.header {
-      display: none; /* Hide the horizontal text headers (Qty, Price, etc) */
-    }
-
-    .line-item-row {
-      display: grid;
-      /* Redefines the grid to have 3 equal columns, plus a small one for the 'X' */
-      grid-template-columns: 1fr 1fr 1fr 30px;
-      gap: 8px;
-      background: var(--bg);
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid var(--border-light);
-      margin-bottom: 12px !important;
-    }
-
-    /* Force Description to take up the whole top row */
-    .line-item-row input:nth-child(1) {
-      grid-column: 1 / span 3;
-      grid-row: 1;
-    }
-    /* Put the Delete button on the top right */
-    .line-item-row button {
-      grid-column: 4;
-      grid-row: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* Put Qty, Unit Price, and Total on the bottom row side-by-side */
-    .line-item-row input:nth-child(2),
-    .line-item-row input:nth-child(3),
-    .line-item-row input:nth-child(4) {
-      grid-row: 2;
-      text-align: center;
-    }
-
-    /* Add little labels inside the inputs for mobile only using a CSS trick */
-    .line-item-row input:nth-child(2)::placeholder {
-      color: transparent;
-    }
-    .line-item-row input:nth-child(3)::placeholder {
-      color: transparent;
-    }
+  /* STOP iOS AUTO-ZOOM ON TAP */
+  input.field,
+  textarea.field,
+  select.field {
+    font-size: 16px !important;
   }
 
-  /* 2. Hide the secondary toolbar to save premium vertical space */
+  /* FIX THE "Draft0" SPACING - Automatically adds ( ) around numbers */
+  .sidebar-count {
+    margin-left: 6px;
+  }
+  .sidebar-count::before {
+    content: "( ";
+  }
+  .sidebar-count::after {
+    content: " )";
+  }
+
+  /* FIX RECEIPT CARD SPACING */
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    gap: 16px !important;
+  }
+
+  /* 7. Industry Sellable Form Footer (Sticky & Tappable) */
+  .modal-footer {
+    position: sticky;
+    bottom: 0;
+    padding: 16px;
+    padding-bottom: max(
+      16px,
+      env(safe-area-inset-bottom)
+    ); /* Respects the iPhone bottom swipe bar */
+    background: var(--surface);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08); /* Casts a shadow upward */
+    z-index: 20;
+    margin-top: auto;
+  }
+  .modal-footer .btn {
+    flex: 1; /* Makes Cancel and Submit exactly 50/50 split */
+    height: 44px; /* Standard Apple touch target height */
+    font-size: 11px;
+    border-radius: 8px;
+  }
+
+  /* 8. The Line Item Card Layout */
+  .line-item-row.header {
+    display: none; /* Hide the horizontal text headers */
+  }
+
+  .line-item-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 30px;
+    gap: 8px;
+    background: var(--bg);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    margin-bottom: 12px !important;
+  }
+
+  /* Force Description to take up the whole top row */
+  .line-item-row input:nth-child(1) {
+    grid-column: 1 / span 3;
+    grid-row: 1;
+  }
+  /* Put the Delete button on the top right */
+  .line-item-row button {
+    grid-column: 4;
+    grid-row: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Put Qty, Unit Price, and Total on the bottom row side-by-side */
+  .line-item-row input:nth-child(2),
+  .line-item-row input:nth-child(3),
+  .line-item-row input:nth-child(4) {
+    grid-row: 2;
+    text-align: center;
+  }
+
+  /* Add little labels inside the inputs for mobile only using a CSS trick */
+  .line-item-row input:nth-child(2)::placeholder {
+    color: transparent;
+  }
+  .line-item-row input:nth-child(3)::placeholder {
+    color: transparent;
+  }
+
+  /* 2. Hide the secondary toolbar */
   .toolbar {
     display: none;
   }
@@ -732,13 +144,13 @@ body,
 
   .sidebar-label {
     display: none;
-  } /* Hide the word "View" */
+  }
 
   .sidebar-item {
     white-space: nowrap;
     background: var(--surface-2);
     border: 1px solid var(--border);
-    border-radius: 20px; /* Gives the Pill shape */
+    border-radius: 20px;
     padding: 8px 16px;
     font-size: 11px;
     text-align: center;
@@ -761,11 +173,7 @@ body,
     left: 0;
     width: 100%;
     padding: 16px 20px !important;
-    background: linear-gradient(
-      to top,
-      var(--bg) 60%,
-      transparent
-    ); /* Cool fade effect over the scrolling list */
+    background: linear-gradient(to top, var(--bg) 60%, transparent);
     border-top: none !important;
     z-index: 50;
     margin-top: 0 !important;
@@ -773,14 +181,14 @@ body,
 
   .sidebar > div:last-child .btn-primary {
     height: 48px;
-    border-radius: 24px; /* Big, friendly, tappable shape */
+    border-radius: 24px;
     font-size: 14px;
     font-weight: 600;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2); /* Floating drop shadow */
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
     transition: transform 0.1s;
   }
   .sidebar > div:last-child .btn-primary:active {
-    transform: scale(0.96); /* Satisfying "press" animation */
+    transform: scale(0.96);
   }
 
   /* 5. Content Grid & Cards */
@@ -792,7 +200,7 @@ body,
     padding: 12px;
   }
   .receipt-grid {
-    grid-template-columns: 1fr; /* 1 Column */
+    grid-template-columns: 1fr;
     background: transparent;
     border: none;
     gap: 8px;
@@ -825,6 +233,6 @@ body,
     border-radius: 0;
   }
   .field-row {
-    grid-template-columns: 1fr; /* Stack inputs for easier tapping */
+    grid-template-columns: 1fr;
   }
 }

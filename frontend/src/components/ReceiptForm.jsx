@@ -7,8 +7,8 @@ const EMPTY_ITEM = {
   total: "",
 };
 
-// Set your default tax rate here (0.10 = 10%)
-const TAX_RATE = 0.1;
+// Nova Scotia Tax Rate (15%)
+const TAX_RATE = 0.15;
 
 export default function ReceiptForm({ onSubmit, onClose }) {
   const [form, setForm] = useState({
@@ -27,10 +27,13 @@ export default function ReceiptForm({ onSubmit, onClose }) {
     const next = items.map((item, idx) => {
       if (idx !== i) return item;
       const updated = { ...item, [k]: v };
+
       if (k === "quantity" || k === "unit_price") {
-        const qty = parseFloat(k === "quantity" ? v : updated.quantity) || 0;
+        // Safely handle empty strings so the field doesn't glitch when clearing
+        const qty =
+          updated.quantity === "" ? 0 : parseFloat(updated.quantity) || 0;
         const price =
-          parseFloat(k === "unit_price" ? v : updated.unit_price) || 0;
+          updated.unit_price === "" ? 0 : parseFloat(updated.unit_price) || 0;
         updated.total = (qty * price).toFixed(2);
       }
       return updated;
@@ -42,7 +45,6 @@ export default function ReceiptForm({ onSubmit, onClose }) {
   const removeItem = (i) =>
     setItems((prev) => prev.filter((_, idx) => idx !== i));
 
-  // Auto-Calculating Totals
   const subtotal = items.reduce((s, i) => s + (parseFloat(i.total) || 0), 0);
   const tax = form.isTaxExempt ? 0 : subtotal * TAX_RATE;
   const total = subtotal + tax;
@@ -72,7 +74,7 @@ export default function ReceiptForm({ onSubmit, onClose }) {
     >
       <div className="modal">
         <div className="modal-header">
-          <span className="modal-title">New Receipt</span>
+          <span className="modal-title">Create Document</span>
           <button
             className="btn btn-ghost"
             style={{ padding: "4px 10px" }}
@@ -85,19 +87,19 @@ export default function ReceiptForm({ onSubmit, onClose }) {
         <div className="modal-body">
           <div className="field-row">
             <div className="field-group">
-              <label className="field-label">Vendor Name *</label>
+              <label className="field-label">Issued By (Your Business) *</label>
               <input
                 className="field"
-                placeholder="Your business"
+                placeholder="Business Name"
                 value={form.vendor_name}
                 onChange={(e) => setField("vendor_name", e.target.value)}
               />
             </div>
             <div className="field-group">
-              <label className="field-label">Customer Name *</label>
+              <label className="field-label">Billed To (Client) *</label>
               <input
                 className="field"
-                placeholder="Client name"
+                placeholder="Client Name or Company"
                 value={form.customer_name}
                 onChange={(e) => setField("customer_name", e.target.value)}
               />
@@ -106,7 +108,7 @@ export default function ReceiptForm({ onSubmit, onClose }) {
 
           <div className="field-row">
             <div className="field-group">
-              <label className="field-label">Receipt Number</label>
+              <label className="field-label">Receipt / Invoice #</label>
               <input
                 className="field"
                 value={form.receipt_number}
@@ -114,7 +116,7 @@ export default function ReceiptForm({ onSubmit, onClose }) {
               />
             </div>
             <div className="field-group">
-              <label className="field-label">Date</label>
+              <label className="field-label">Issue Date</label>
               <input
                 className="field"
                 type="date"
@@ -127,12 +129,12 @@ export default function ReceiptForm({ onSubmit, onClose }) {
           {/* LINE ITEMS */}
           <div>
             <div className="field-label" style={{ marginBottom: 10 }}>
-              Line Items
+              Products & Services
             </div>
             <div className="line-item-row header">
               <span>Description</span>
               <span>Qty</span>
-              <span>Unit Price</span>
+              <span>Price</span>
               <span>Total</span>
               <span></span>
             </div>
@@ -144,7 +146,7 @@ export default function ReceiptForm({ onSubmit, onClose }) {
               >
                 <input
                   className="field"
-                  placeholder="Item description"
+                  placeholder="Item or service description"
                   value={item.description}
                   onChange={(e) => setItem(i, "description", e.target.value)}
                 />
@@ -153,7 +155,7 @@ export default function ReceiptForm({ onSubmit, onClose }) {
                   type="number"
                   inputMode="decimal"
                   step="0.01"
-                  placeholder="1"
+                  placeholder="Qty"
                   value={item.quantity}
                   onChange={(e) => setItem(i, "quantity", e.target.value)}
                   onFocus={(e) => e.target.select()}
@@ -171,20 +173,26 @@ export default function ReceiptForm({ onSubmit, onClose }) {
                 <input
                   className="field"
                   readOnly
-                  value={item.total ? `$${item.total}` : ""}
-                  style={{ color: "var(--text-dim)" }}
+                  value={
+                    item.total && item.total !== "0.00" ? `$${item.total}` : ""
+                  }
+                  placeholder="$0.00"
+                  style={{
+                    color: "var(--text-dim)",
+                    backgroundColor: "transparent",
+                  }}
                 />
                 <button className="btn-icon" onClick={() => removeItem(i)}>
-                  ×
+                  ✕
                 </button>
               </div>
             ))}
             <button
               className="btn btn-ghost"
-              style={{ marginTop: 8, fontSize: 9, padding: "6px 12px" }}
+              style={{ marginTop: 8, fontSize: 10, padding: "8px 12px" }}
               onClick={addItem}
             >
-              + Add Item
+              + Add Line Item
             </button>
           </div>
 
@@ -201,7 +209,7 @@ export default function ReceiptForm({ onSubmit, onClose }) {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                fontSize: 11,
+                fontSize: 12,
                 color: "var(--text-dim)",
               }}
             >
@@ -223,8 +231,8 @@ export default function ReceiptForm({ onSubmit, onClose }) {
                 className={`btn ${form.isTaxExempt ? "btn-status" : "btn-ghost"}`}
                 onClick={() => setField("isTaxExempt", !form.isTaxExempt)}
                 style={{
-                  fontSize: 9,
-                  padding: "4px 8px",
+                  fontSize: 10,
+                  padding: "6px 10px",
                   color: form.isTaxExempt
                     ? "var(--voided)"
                     : "var(--text-muted)",
@@ -236,10 +244,10 @@ export default function ReceiptForm({ onSubmit, onClose }) {
                 style={{
                   textAlign: "right",
                   color: "var(--text-dim)",
-                  fontSize: 11,
+                  fontSize: 12,
                 }}
               >
-                Tax ({(TAX_RATE * 100).toFixed(0)}%):{" "}
+                NS Tax ({(TAX_RATE * 100).toFixed(0)}%):{" "}
                 <span style={{ fontFamily: "var(--mono)" }}>
                   ${tax.toFixed(2)}
                 </span>
@@ -250,35 +258,36 @@ export default function ReceiptForm({ onSubmit, onClose }) {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                fontSize: 14,
+                fontSize: 16,
                 fontFamily: "var(--mono)",
                 color: "var(--accent)",
                 borderTop: "1px solid var(--border)",
-                paddingTop: 10,
+                paddingTop: 12,
               }}
             >
               <span
                 style={{
-                  fontSize: 9,
+                  fontSize: 11,
                   letterSpacing: "0.2em",
                   textTransform: "uppercase",
                   color: "var(--text)",
                   alignSelf: "center",
+                  fontWeight: 600,
                 }}
               >
-                Total
+                Total Amount
               </span>
-              <span>${total.toFixed(2)}</span>
+              <span style={{ fontWeight: 600 }}>${total.toFixed(2)}</span>
             </div>
           </div>
 
-          <div className="field-group" style={{ marginTop: 8 }}>
-            <label className="field-label">Notes</label>
+          <div className="field-group" style={{ marginTop: 12 }}>
+            <label className="field-label">Additional Notes & Terms</label>
             <textarea
               className="field"
               rows={2}
               style={{ resize: "none" }}
-              placeholder="Payment terms, reference numbers..."
+              placeholder="Payment due upon receipt, thank you for your business..."
               value={form.notes}
               onChange={(e) => setField("notes", e.target.value)}
             />
@@ -290,7 +299,7 @@ export default function ReceiptForm({ onSubmit, onClose }) {
             Cancel
           </button>
           <button className="btn btn-primary" onClick={handleSubmit}>
-            Issue Receipt
+            Generate Receipt
           </button>
         </div>
       </div>
