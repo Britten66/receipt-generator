@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const EMPTY_ITEM = {
   description: "",
@@ -10,7 +10,7 @@ const EMPTY_ITEM = {
 // Nova Scotia Tax Rate (15%)
 const TAX_RATE = 0.15;
 
-export default function ReceiptForm({ onSubmit, onClose }) {
+export default function ReceiptForm({ onSubmit, onClose, initialData }) {
   const [form, setForm] = useState({
     vendor_name: "",
     customer_name: "",
@@ -18,8 +18,37 @@ export default function ReceiptForm({ onSubmit, onClose }) {
     date: new Date().toISOString().split("T")[0],
     isTaxExempt: false,
     notes: "",
+    id: null,
   });
+
   const [items, setItems] = useState([{ ...EMPTY_ITEM }]);
+
+  // Load existing data if we are editing
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        vendor_name: initialData.vendor_name || "",
+        customer_name: initialData.customer_name || "",
+        receipt_number: initialData.receipt_number || "",
+        date: initialData.date
+          ? new Date(initialData.date).toISOString().split("T")[0]
+          : "",
+        isTaxExempt: parseFloat(initialData.tax) === 0,
+        notes: initialData.notes || "",
+        id: initialData.id,
+      });
+      if (initialData.line_items?.length) {
+        setItems(
+          initialData.line_items.map((i) => ({
+            ...i,
+            quantity: i.quantity.toString(),
+            unit_price: i.unit_price.toString(),
+            total: i.total.toString(),
+          })),
+        );
+      }
+    }
+  }, [initialData]);
 
   const setField = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -50,7 +79,13 @@ export default function ReceiptForm({ onSubmit, onClose }) {
   const total = subtotal + tax;
 
   const handleSubmit = () => {
-    if (!form.vendor_name || !form.customer_name) return;
+    if (!form.vendor_name || !form.customer_name) {
+      alert(
+        "Missing Information: Please fill in both 'Issued By' and 'Billed To'.",
+      );
+      return;
+    }
+
     onSubmit({
       ...form,
       subtotal,
@@ -74,7 +109,9 @@ export default function ReceiptForm({ onSubmit, onClose }) {
     >
       <div className="modal">
         <div className="modal-header">
-          <span className="modal-title">Create Document</span>
+          <span className="modal-title">
+            {form.id ? "Edit Document" : "Create Document"}
+          </span>
           <button
             className="btn btn-ghost"
             style={{ padding: "4px 10px" }}
@@ -126,7 +163,6 @@ export default function ReceiptForm({ onSubmit, onClose }) {
             </div>
           </div>
 
-          {/* LINE ITEMS */}
           <div>
             <div className="field-label" style={{ marginBottom: 10 }}>
               Products & Services
@@ -196,7 +232,6 @@ export default function ReceiptForm({ onSubmit, onClose }) {
             </button>
           </div>
 
-          {/* TOTALS */}
           <div
             style={{
               borderTop: "1px solid var(--border)",
@@ -299,7 +334,7 @@ export default function ReceiptForm({ onSubmit, onClose }) {
             Cancel
           </button>
           <button className="btn btn-primary" onClick={handleSubmit}>
-            Generate Receipt
+            {form.id ? "Save Changes" : "Generate Receipt"}
           </button>
         </div>
       </div>

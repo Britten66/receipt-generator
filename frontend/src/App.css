@@ -242,14 +242,14 @@ body,
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
-  gap: 16px; /* Forces space between badge and number */
+  gap: 16px;
 }
 
 .card-total {
   font-size: 14px;
   font-weight: 600;
   color: var(--text);
-  white-space: nowrap; /* Prevents the number from wrapping or squishing */
+  white-space: nowrap;
   text-align: right;
 }
 
@@ -537,6 +537,9 @@ body,
   padding: 20px;
   display: grid;
   gap: 14px;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-footer {
@@ -622,7 +625,7 @@ body,
     height: 100dvh;
     overflow: hidden;
     position: relative;
-    padding-bottom: 80px; /* Leaves permanent space for the floating bottom button */
+    padding-bottom: 80px;
   }
 
   /* STOP iOS AUTO-ZOOM ON TAP */
@@ -632,7 +635,7 @@ body,
     font-size: 16px !important;
   }
 
-  /* FIX THE "Draft0" SPACING - Automatically adds ( ) around numbers */
+  /* FIX THE SPACING - Automatically adds ( ) around numbers */
   .sidebar-count {
     margin-left: 6px;
   }
@@ -657,30 +660,26 @@ body,
     position: sticky;
     bottom: 0;
     padding: 16px;
-    padding-bottom: max(
-      16px,
-      env(safe-area-inset-bottom)
-    ); /* Respects the iPhone bottom swipe bar */
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
     background: var(--surface);
-    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08); /* Casts a shadow upward */
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
     z-index: 20;
     margin-top: auto;
   }
   .modal-footer .btn {
-    flex: 1; /* Makes Cancel and Submit exactly 50/50 split */
-    height: 44px; /* Standard Apple touch target height */
+    flex: 1;
+    height: 44px;
     font-size: 11px;
     border-radius: 8px;
   }
 
   /* 8. The Line Item Card Layout */
   .line-item-row.header {
-    display: none; /* Hide the horizontal text headers (Qty, Price, etc) */
+    display: none;
   }
 
   .line-item-row {
     display: grid;
-    /* Redefines the grid to have 3 equal columns, plus a small one for the 'X' */
     grid-template-columns: 1fr 1fr 1fr 30px;
     gap: 8px;
     background: var(--bg);
@@ -720,7 +719,7 @@ body,
     color: transparent;
   }
 
-  /* 2. Hide the secondary toolbar to save premium vertical space */
+  /* 2. Hide the secondary toolbar */
   .toolbar {
     display: none;
   }
@@ -752,7 +751,7 @@ body,
     padding: 12px 16px;
     gap: 8px;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Hide scrollbar */
+    scrollbar-width: none;
   }
   .sidebar-section:nth-child(2)::-webkit-scrollbar {
     display: none;
@@ -760,13 +759,13 @@ body,
 
   .sidebar-label {
     display: none;
-  } /* Hide the word "View" */
+  }
 
   .sidebar-item {
     white-space: nowrap;
     background: var(--surface-2);
     border: 1px solid var(--border);
-    border-radius: 20px; /* Gives the Pill shape */
+    border-radius: 20px;
     padding: 8px 16px;
     font-size: 11px;
     text-align: center;
@@ -789,11 +788,7 @@ body,
     left: 0;
     width: 100%;
     padding: 16px 20px !important;
-    background: linear-gradient(
-      to top,
-      var(--bg) 60%,
-      transparent
-    ); /* Cool fade effect over the scrolling list */
+    background: linear-gradient(to top, var(--bg) 60%, transparent);
     border-top: none !important;
     z-index: 50;
     margin-top: 0 !important;
@@ -801,14 +796,14 @@ body,
 
   .sidebar > div:last-child .btn-primary {
     height: 48px;
-    border-radius: 24px; /* Big, friendly, tappable shape */
+    border-radius: 24px;
     font-size: 14px;
     font-weight: 600;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2); /* Floating drop shadow */
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
     transition: transform 0.1s;
   }
   .sidebar > div:last-child .btn-primary:active {
-    transform: scale(0.96); /* Satisfying "press" animation */
+    transform: scale(0.96);
   }
 
   /* 5. Content Grid & Cards */
@@ -820,7 +815,7 @@ body,
     padding: 12px;
   }
   .receipt-grid {
-    grid-template-columns: 1fr; /* 1 Column */
+    grid-template-columns: 1fr;
     background: transparent;
     border: none;
     gap: 8px;
@@ -831,7 +826,7 @@ body,
     margin-bottom: 2px;
   }
 
-  /* 6. Modals (Detail View and Form) Take Over Full Screen */
+  /* 6. Modals Take Over Full Screen */
   .detail-panel {
     position: fixed;
     inset: 0;
@@ -853,6 +848,6 @@ body,
     border-radius: 0;
   }
   .field-row {
-    grid-template-columns: 1fr; /* Stack inputs for easier tapping */
+    grid-template-columns: 1fr;
   }
 }

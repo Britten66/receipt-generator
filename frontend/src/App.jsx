@@ -29,7 +29,11 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
   const [selected, setSelected] = useState(null);
+
+  // Controls the modal and passes data if editing
   const [showForm, setShowForm] = useState(false);
+  const [editingReceipt, setEditingReceipt] = useState(null);
+
   const [toast, setToast] = useState(null);
 
   const showToast = useCallback((msg, type = "error") => {
@@ -64,21 +68,27 @@ export default function App() {
     [receipts, filter],
   );
 
-  const handleCreate = async (data) => {
+  const handleSaveReceipt = async (data) => {
     try {
-      const result = await createReceipt(data);
-      if (result?.error) {
-        showToast("Failed to save receipt. Check all fields.");
-        return;
-      }
-      if (result?.id) {
+      if (data.id) {
+        // Update existing receipt
+        const result = await updateReceipt(data.id, data);
+        if (result?.error) throw new Error("Failed to update");
+        setReceipts((prev) => prev.map((r) => (r.id === data.id ? result : r)));
+        setSelected(result);
+        showToast("Receipt updated.", "success");
+      } else {
+        // Create new receipt
+        const result = await createReceipt(data);
+        if (result?.error) throw new Error("Failed to save");
         setReceipts((prev) => [result, ...prev]);
         setSelected(result);
         showToast("Receipt created.", "success");
       }
       setShowForm(false);
+      setEditingReceipt(null);
     } catch (err) {
-      showToast("Could not connect to server.");
+      showToast("Failed to save. Check all fields.");
     }
   };
 
@@ -96,6 +106,16 @@ export default function App() {
     await deleteReceipt(id);
     setReceipts((prev) => prev.filter((r) => r.id !== id));
     if (selected?.id === id) setSelected(null);
+  };
+
+  const openNewReceipt = () => {
+    setEditingReceipt(null);
+    setShowForm(true);
+  };
+
+  const openEditReceipt = (receipt) => {
+    setEditingReceipt(receipt);
+    setShowForm(true);
   };
 
   const selectedReceipt = selected
@@ -152,7 +172,7 @@ export default function App() {
           <button
             className="btn btn-primary"
             style={{ width: "100%" }}
-            onClick={() => setShowForm(true)}
+            onClick={openNewReceipt}
           >
             + New Receipt
           </button>
@@ -227,6 +247,18 @@ export default function App() {
                     ×
                   </button>
                 </div>
+                {/* NEW EDIT BUTTON */}
+                <button
+                  className="btn btn-ghost"
+                  style={{
+                    width: "100%",
+                    marginTop: 12,
+                    border: "1px solid var(--border)",
+                  }}
+                  onClick={() => openEditReceipt(selectedReceipt)}
+                >
+                  ✎ Edit Details
+                </button>
               </div>
 
               <div className="detail-section">
@@ -374,7 +406,8 @@ export default function App() {
 
       {showForm && (
         <ReceiptForm
-          onSubmit={handleCreate}
+          initialData={editingReceipt}
+          onSubmit={handleSaveReceipt}
           onClose={() => setShowForm(false)}
         />
       )}
