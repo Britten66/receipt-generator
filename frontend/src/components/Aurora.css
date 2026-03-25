@@ -1,0 +1,16 @@
+.aurora-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+}
+.glass-card {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+.aurora-container canvas {
+  transition: opacity 0.8s ease;
+}
