@@ -57,8 +57,10 @@ export const createReceipt = async (req, res) => {
   if (!device_id) return res.status(400).json({ error: "Missing device ID" });
 
   const parsed = receiptSchema.safeParse(req.body);
-  if (!parsed.success)
+  if (!parsed.success) {
+    console.log("ZOD ERROR:", JSON.stringify(parsed.error.flatten(), null, 2));
     return res.status(400).json({ error: parsed.error.flatten() });
+  }
 
   const {
     vendor_name,

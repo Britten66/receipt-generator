@@ -50,7 +50,14 @@ export default function ReceiptForm({ onSubmit, onClose }) {
       subtotal,
       tax,
       total,
-      line_items: items.filter((i) => i.description),
+      line_items: items
+        .filter((i) => i.description)
+        .map((i) => ({
+          description: i.description,
+          quantity: parseFloat(i.quantity) || 0,
+          unit_price: parseFloat(i.unit_price) || 0,
+          total: parseFloat(i.total) || 0,
+        })),
     });
   };
 

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { downloadReceiptPDF } from "./components/ReceiptPDF";
 import {
   fetchReceipts,
@@ -10,10 +10,10 @@ import ReceiptForm from "./components/ReceiptForm";
 import "./App.css";
 
 const STATUS_CONFIG = {
-  draft: { label: "Draft", color: "var(--draft)" },
-  sent: { label: "Sent", color: "var(--sent)" },
-  paid: { label: "Paid", color: "var(--paid)" },
-  voided: { label: "Voided", color: "var(--voided)" },
+  draft: { label: "Draft" },
+  sent: { label: "Sent" },
+  paid: { label: "Paid" },
+  voided: { label: "Voided" },
 };
 
 const NAV = [
@@ -30,6 +30,12 @@ export default function App() {
   const [filter, setFilter] = useState("ALL");
   const [selected, setSelected] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  const showToast = useCallback((msg, type = "error") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3500);
+  }, []);
 
   useEffect(() => {
     fetchReceipts()
@@ -59,12 +65,21 @@ export default function App() {
   );
 
   const handleCreate = async (data) => {
-    const result = await createReceipt(data);
-    if (result?.id) {
-      setReceipts((prev) => [result, ...prev]);
-      setSelected(result);
+    try {
+      const result = await createReceipt(data);
+      if (result?.error) {
+        showToast("Failed to save receipt. Check all fields.");
+        return;
+      }
+      if (result?.id) {
+        setReceipts((prev) => [result, ...prev]);
+        setSelected(result);
+        showToast("Receipt created.", "success");
+      }
+      setShowForm(false);
+    } catch (err) {
+      showToast("Could not connect to server.");
     }
-    setShowForm(false);
   };
 
   const handleStatusChange = async (id, status) => {
@@ -90,9 +105,6 @@ export default function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="wordmark">
-          Receipt <span>Generator</span>
-        </div>
         <div className="topbar-meta">
           {new Date().toLocaleDateString("en-CA", {
             year: "numeric",
@@ -105,17 +117,17 @@ export default function App() {
       <aside className="sidebar">
         <div className="sidebar-section">
           <div className="stat-block">
-            <div className="stat-label">Total Revenue</div>
-            <div className="stat-value accent">${revenue.toFixed(2)}</div>
+            <div className="stat-label">Revenue</div>
+            <div className="stat-value">${revenue.toFixed(2)}</div>
           </div>
           <div className="stat-block">
-            <div className="stat-label">Total Receipts</div>
+            <div className="stat-label">Receipts</div>
             <div className="stat-value">{receipts.length}</div>
           </div>
         </div>
 
         <div className="sidebar-section">
-          <div className="sidebar-label">Filter</div>
+          <div className="sidebar-label">View</div>
           {NAV.map((n) => (
             <button
               key={n.key}
@@ -130,281 +142,234 @@ export default function App() {
           ))}
         </div>
 
-        <div className="sidebar-section" style={{ marginTop: "auto" }}>
-          <div style={{ padding: "12px 16px" }}>
-            <button
-              className="btn btn-primary"
-              style={{ width: "100%" }}
-              onClick={() => setShowForm(true)}
-            >
-              + New Receipt
-            </button>
-          </div>
+        <div
+          style={{
+            marginTop: "auto",
+            padding: 12,
+            borderTop: "1px solid var(--border-light)",
+          }}
+        >
+          <button
+            className="btn btn-primary"
+            style={{ width: "100%" }}
+            onClick={() => setShowForm(true)}
+          >
+            + New Receipt
+          </button>
         </div>
       </aside>
 
-      <main className="main" style={{ display: "flex", overflow: "hidden" }}>
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-          }}
-        >
-          <div className="toolbar">
-            <span className="toolbar-title">
-              {filter === "ALL" ? "All Receipts" : STATUS_CONFIG[filter]?.label}{" "}
-              — {filtered.length} record{filtered.length !== 1 ? "s" : ""}
-            </span>
-          </div>
-
-          <div className="ledger">
-            <div className="ledger-head">
-              {[
-                "Receipt #",
-                "Vendor",
-                "Customer",
-                "Status",
-                "Total",
-                "Date",
-                "",
-              ].map((h) => (
-                <div key={h} className="ledger-head-cell">
-                  {h}
-                </div>
-              ))}
-            </div>
-
-            {loading ? (
-              <div className="empty">Loading...</div>
-            ) : filtered.length === 0 ? (
-              <div className="empty">No receipts found</div>
-            ) : (
-              filtered.map((r) => (
-                <div
-                  key={r.id}
-                  className={`ledger-row${selectedReceipt?.id === r.id ? " selected" : ""}`}
-                  onClick={() => setSelected(r)}
-                >
-                  <div
-                    className="ledger-cell mono"
-                    style={{ color: "var(--accent)", fontSize: 10 }}
-                  >
-                    {r.receipt_number}
-                  </div>
-                  <div className="ledger-cell">{r.vendor_name}</div>
-                  <div className="ledger-cell dim">{r.customer_name}</div>
-                  <div className="ledger-cell">
-                    <span className={`stamp ${r.status}`}>{r.status}</span>
-                  </div>
-                  <div className="ledger-cell number">
-                    ${parseFloat(r.total).toFixed(2)}
-                  </div>
-                  <div className="ledger-cell dim" style={{ fontSize: 10 }}>
-                    {r.date
-                      ? new Date(r.date).toLocaleDateString("en-CA")
-                      : "—"}
-                  </div>
-                  <div className="ledger-cell">
-                    <button
-                      className="btn-icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(r.id);
-                      }}
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+      <main className="main">
+        <div className="toolbar">
+          <span className="toolbar-title">
+            {filter === "ALL" ? "All" : STATUS_CONFIG[filter]?.label} —{" "}
+            {filtered.length} receipt{filtered.length !== 1 ? "s" : ""}
+          </span>
         </div>
 
-        {selectedReceipt && (
-          <div className="detail-panel">
-            <div className="detail-header">
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                }}
-              >
-                <div>
-                  <div className="detail-receipt-num">
-                    Receipt / {selectedReceipt.receipt_number}
+        <div className="content-area">
+          <div className="receipt-grid-wrap">
+            {loading ? (
+              <div className="empty">Loading...</div>
+            ) : (
+              <div className="receipt-grid">
+                {filtered.length === 0 ? (
+                  <div className="empty">No receipts found</div>
+                ) : (
+                  filtered.map((r) => (
+                    <div
+                      key={r.id}
+                      className={`receipt-card${selectedReceipt?.id === r.id ? " selected" : ""}`}
+                      onClick={() => setSelected(r)}
+                    >
+                      <div className="card-num">{r.receipt_number}</div>
+                      <div className="card-vendor">{r.vendor_name}</div>
+                      <div className="card-customer">{r.customer_name}</div>
+                      <div className="card-footer">
+                        <span className={`stamp ${r.status}`}>{r.status}</span>
+                        <span className="card-total">
+                          ${parseFloat(r.total).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          {selectedReceipt && (
+            <div className="detail-panel">
+              <div className="detail-header">
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <div>
+                    <div className="detail-receipt-num">
+                      Receipt / {selectedReceipt.receipt_number}
+                    </div>
+                    <div className="detail-vendor">
+                      {selectedReceipt.vendor_name}
+                    </div>
+                    <div className="detail-customer">
+                      Issued to: {selectedReceipt.customer_name}
+                    </div>
                   </div>
-                  <div className="detail-vendor">
-                    {selectedReceipt.vendor_name}
+                  <button
+                    onClick={() => setSelected(null)}
+                    className="btn-icon"
+                    style={{ fontSize: 18, marginLeft: 8 }}
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+
+              <div className="detail-section">
+                <div className="detail-row">
+                  <span className="detail-key">Status</span>
+                  <span className={`stamp ${selectedReceipt.status}`}>
+                    {selectedReceipt.status}
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-key">Date</span>
+                  <span className="detail-val">
+                    {selectedReceipt.date
+                      ? new Date(selectedReceipt.date).toLocaleDateString(
+                          "en-CA",
+                        )
+                      : "—"}
+                  </span>
+                </div>
+                {selectedReceipt.notes && (
+                  <div
+                    className="detail-row"
+                    style={{ alignItems: "flex-start", gap: 12, marginTop: 4 }}
+                  >
+                    <span className="detail-key">Notes</span>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        color: "var(--text-dim)",
+                        textAlign: "right",
+                        maxWidth: 180,
+                      }}
+                    >
+                      {selectedReceipt.notes}
+                    </span>
                   </div>
-                  <div className="detail-customer">
-                    Issued to: {selectedReceipt.customer_name}
+                )}
+              </div>
+
+              <div className="detail-section">
+                <table className="line-items-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th style={{ textAlign: "right" }}>Qty</th>
+                      <th style={{ textAlign: "right" }}>Unit</th>
+                      <th style={{ textAlign: "right" }}>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedReceipt.line_items?.length ? (
+                      selectedReceipt.line_items.map((li) => (
+                        <tr key={li.id}>
+                          <td>{li.description}</td>
+                          <td className="number">{li.quantity}</td>
+                          <td className="number">
+                            ${parseFloat(li.unit_price).toFixed(2)}
+                          </td>
+                          <td className="number">
+                            ${parseFloat(li.total).toFixed(2)}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          style={{
+                            color: "var(--text-muted)",
+                            paddingTop: 10,
+                            fontSize: 9,
+                            letterSpacing: "0.15em",
+                          }}
+                        >
+                          No line items
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+
+                <div style={{ marginTop: 12 }}>
+                  <div className="total-line">
+                    <span className="tl-label">Subtotal</span>
+                    <span className="tl-val">
+                      ${parseFloat(selectedReceipt.subtotal || 0).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="total-line">
+                    <span className="tl-label">Tax</span>
+                    <span className="tl-val">
+                      ${parseFloat(selectedReceipt.tax || 0).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="total-line grand">
+                    <span className="tl-label">Total</span>
+                    <span className="tl-val">
+                      ${parseFloat(selectedReceipt.total || 0).toFixed(2)}
+                    </span>
                   </div>
                 </div>
+              </div>
+
+              <div className="detail-section">
+                <div className="stat-label" style={{ marginBottom: 8 }}>
+                  Update Status
+                </div>
+                <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                  {Object.keys(STATUS_CONFIG)
+                    .filter((s) => s !== selectedReceipt.status)
+                    .map((s) => (
+                      <button
+                        key={s}
+                        className="btn btn-status"
+                        onClick={() =>
+                          handleStatusChange(selectedReceipt.id, s)
+                        }
+                      >
+                        → {s}
+                      </button>
+                    ))}
+                </div>
+              </div>
+
+              <div className="detail-section" style={{ marginTop: "auto" }}>
                 <button
-                  onClick={() => setSelected(null)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "var(--text-muted)",
-                    fontSize: 18,
-                    lineHeight: 1,
-                    padding: 0,
-                    flexShrink: 0,
-                    transition: "color 0.15s",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "var(--text)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "var(--text-muted)")
-                  }
+                  className="btn btn-primary"
+                  style={{ width: "100%", marginBottom: 6 }}
+                  onClick={() => downloadReceiptPDF(selectedReceipt)}
                 >
-                  ×
+                  ↓ Download PDF
+                </button>
+                <button
+                  className="btn btn-danger"
+                  style={{ width: "100%" }}
+                  onClick={() => handleDelete(selectedReceipt.id)}
+                >
+                  Delete Receipt
                 </button>
               </div>
             </div>
-
-            <div className="detail-section">
-              <div className="detail-row">
-                <span className="detail-key">Status</span>
-                <span className={`stamp ${selectedReceipt.status}`}>
-                  {selectedReceipt.status}
-                </span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-key">Date</span>
-                <span className="detail-val">
-                  {selectedReceipt.date
-                    ? new Date(selectedReceipt.date).toLocaleDateString("en-CA")
-                    : "—"}
-                </span>
-              </div>
-              {selectedReceipt.notes && (
-                <div
-                  className="detail-row"
-                  style={{ alignItems: "flex-start", gap: 16 }}
-                >
-                  <span className="detail-key">Notes</span>
-                  <span
-                    style={{
-                      fontSize: 10,
-                      color: "var(--text-dim)",
-                      textAlign: "right",
-                      maxWidth: 200,
-                    }}
-                  >
-                    {selectedReceipt.notes}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <div className="detail-section">
-              <table className="line-items-table">
-                <thead>
-                  <tr>
-                    <th>Description</th>
-                    <th style={{ textAlign: "right" }}>Qty</th>
-                    <th style={{ textAlign: "right" }}>Unit</th>
-                    <th style={{ textAlign: "right" }}>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedReceipt.line_items?.length ? (
-                    selectedReceipt.line_items.map((li) => (
-                      <tr key={li.id}>
-                        <td>{li.description}</td>
-                        <td className="number">{li.quantity}</td>
-                        <td className="number">
-                          ${parseFloat(li.unit_price).toFixed(2)}
-                        </td>
-                        <td className="number">
-                          ${parseFloat(li.total).toFixed(2)}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        style={{
-                          color: "var(--text-muted)",
-                          fontSize: 9,
-                          letterSpacing: "0.15em",
-                          paddingTop: 12,
-                        }}
-                      >
-                        No line items
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-
-              <div style={{ marginTop: 16 }}>
-                <div className="total-line">
-                  <span className="tl-label">Subtotal</span>
-                  <span className="tl-val">
-                    ${parseFloat(selectedReceipt.subtotal || 0).toFixed(2)}
-                  </span>
-                </div>
-                <div className="total-line">
-                  <span className="tl-label">Tax</span>
-                  <span className="tl-val">
-                    ${parseFloat(selectedReceipt.tax || 0).toFixed(2)}
-                  </span>
-                </div>
-                <div className="total-line grand">
-                  <span className="tl-label">Total</span>
-                  <span className="tl-val">
-                    ${parseFloat(selectedReceipt.total || 0).toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="detail-section">
-              <div className="stat-label" style={{ marginBottom: 10 }}>
-                Update Status
-              </div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {Object.keys(STATUS_CONFIG)
-                  .filter((s) => s !== selectedReceipt.status)
-                  .map((s) => (
-                    <button
-                      key={s}
-                      className="btn btn-status"
-                      onClick={() => handleStatusChange(selectedReceipt.id, s)}
-                    >
-                      → {s}
-                    </button>
-                  ))}
-              </div>
-            </div>
-
-            <div className="detail-section" style={{ marginTop: "auto" }}>
-              <button
-                className="btn btn-primary"
-                style={{ width: "100%", marginBottom: 8 }}
-                onClick={() => downloadReceiptPDF(selectedReceipt)}
-              >
-                ↓ Download PDF
-              </button>
-              <button
-                className="btn btn-danger"
-                style={{ width: "100%" }}
-                onClick={() => handleDelete(selectedReceipt.id)}
-              >
-                Delete Receipt
-              </button>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </main>
 
       {showForm && (
@@ -412,6 +377,31 @@ export default function App() {
           onSubmit={handleCreate}
           onClose={() => setShowForm(false)}
         />
+      )}
+
+      {toast && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background:
+              toast.type === "success" ? "var(--paid)" : "var(--voided)",
+            color: "#fff",
+            padding: "10px 20px",
+            fontSize: 10,
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            fontFamily: "var(--mono)",
+            zIndex: 500,
+            border: "1px solid rgba(0,0,0,0.2)",
+            boxShadow: "2px 2px 0 rgba(0,0,0,0.15)",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {toast.msg}
+        </div>
       )}
     </div>
   );
