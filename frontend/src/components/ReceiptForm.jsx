@@ -12,7 +12,7 @@ const TAX_RATE = 0.15;
 
 export default function ReceiptForm({ onSubmit, onClose, initialData }) {
   const [form, setForm] = useState({
-    vendor_name: "",
+    vendor_name: localStorage.getItem("last_vendor") ?? "",
     customer_name: "",
     receipt_number: `REC-${Date.now().toString().slice(-6)}`,
     date: new Date().toISOString().split("T")[0],
@@ -85,6 +85,8 @@ export default function ReceiptForm({ onSubmit, onClose, initialData }) {
       );
       return;
     }
+
+    if (form.vendor_name) localStorage.setItem("last_vendor", form.vendor_name);
 
     onSubmit({
       ...form,

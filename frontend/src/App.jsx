@@ -249,10 +249,9 @@ export default function App() {
                   </div>
                   <button
                     onClick={() => setSelected(null)}
-                    className="btn-icon"
-                    style={{ fontSize: 18, marginLeft: 8 }}
+                    className="btn-icon close-btn"
                   >
-                    ×
+                    ✕
                   </button>
                 </div>
                 {/* NEW EDIT BUTTON */}

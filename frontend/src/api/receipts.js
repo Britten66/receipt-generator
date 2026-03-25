@@ -32,7 +32,7 @@ export const createReceipt = (data) =>
 
 export const updateReceipt = (id, data) =>
   fetch(`${API_URL}/api/receipts/${id}`, {
-    method: "PUT",
+    method: "PATCH",
     headers: headers(),
     body: JSON.stringify(data),
   }).then((r) => r.json());
