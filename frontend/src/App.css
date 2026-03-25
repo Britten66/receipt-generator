@@ -242,12 +242,15 @@ body,
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
+  gap: 16px; /* Forces space between badge and number */
 }
 
 .card-total {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text);
+  white-space: nowrap; /* Prevents the number from wrapping or squishing */
+  text-align: right;
 }
 
 /* ── STAMPS ── */

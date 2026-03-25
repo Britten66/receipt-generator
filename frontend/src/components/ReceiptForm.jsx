@@ -7,13 +7,16 @@ const EMPTY_ITEM = {
   total: "",
 };
 
+// Set your default tax rate here (0.10 = 10%)
+const TAX_RATE = 0.1;
+
 export default function ReceiptForm({ onSubmit, onClose }) {
   const [form, setForm] = useState({
     vendor_name: "",
     customer_name: "",
     receipt_number: `REC-${Date.now().toString().slice(-6)}`,
     date: new Date().toISOString().split("T")[0],
-    tax: "0",
+    isTaxExempt: false,
     notes: "",
   });
   const [items, setItems] = useState([{ ...EMPTY_ITEM }]);
@@ -39,8 +42,9 @@ export default function ReceiptForm({ onSubmit, onClose }) {
   const removeItem = (i) =>
     setItems((prev) => prev.filter((_, idx) => idx !== i));
 
+  // Auto-Calculating Totals
   const subtotal = items.reduce((s, i) => s + (parseFloat(i.total) || 0), 0);
-  const tax = parseFloat(form.tax) || 0;
+  const tax = form.isTaxExempt ? 0 : subtotal * TAX_RATE;
   const total = subtotal + tax;
 
   const handleSubmit = () => {
@@ -146,15 +150,23 @@ export default function ReceiptForm({ onSubmit, onClose }) {
                 />
                 <input
                   className="field"
+                  type="number"
+                  inputMode="decimal"
+                  step="0.01"
                   placeholder="1"
                   value={item.quantity}
                   onChange={(e) => setItem(i, "quantity", e.target.value)}
+                  onFocus={(e) => e.target.select()}
                 />
                 <input
                   className="field"
+                  type="number"
+                  inputMode="decimal"
+                  step="0.01"
                   placeholder="0.00"
                   value={item.unit_price}
                   onChange={(e) => setItem(i, "unit_price", e.target.value)}
+                  onFocus={(e) => e.target.select()}
                 />
                 <input
                   className="field"
@@ -182,7 +194,7 @@ export default function ReceiptForm({ onSubmit, onClose }) {
               borderTop: "1px solid var(--border)",
               paddingTop: 16,
               display: "grid",
-              gap: 8,
+              gap: 12,
             }}
           >
             <div
@@ -198,6 +210,7 @@ export default function ReceiptForm({ onSubmit, onClose }) {
                 ${subtotal.toFixed(2)}
               </span>
             </div>
+
             <div
               style={{
                 display: "flex",
@@ -205,24 +218,34 @@ export default function ReceiptForm({ onSubmit, onClose }) {
                 alignItems: "center",
               }}
             >
-              <span
+              <button
+                type="button"
+                className={`btn ${form.isTaxExempt ? "btn-status" : "btn-ghost"}`}
+                onClick={() => setField("isTaxExempt", !form.isTaxExempt)}
                 style={{
                   fontSize: 9,
-                  letterSpacing: "0.15em",
-                  textTransform: "uppercase",
-                  color: "var(--text-muted)",
+                  padding: "4px 8px",
+                  color: form.isTaxExempt
+                    ? "var(--voided)"
+                    : "var(--text-muted)",
                 }}
               >
-                Tax
-              </span>
-              <input
-                className="field"
-                style={{ width: 100, textAlign: "right" }}
-                placeholder="0.00"
-                value={form.tax}
-                onChange={(e) => setField("tax", e.target.value)}
-              />
+                {form.isTaxExempt ? "✓ TAX EXEMPT" : "MAKE TAX EXEMPT"}
+              </button>
+              <div
+                style={{
+                  textAlign: "right",
+                  color: "var(--text-dim)",
+                  fontSize: 11,
+                }}
+              >
+                Tax ({(TAX_RATE * 100).toFixed(0)}%):{" "}
+                <span style={{ fontFamily: "var(--mono)" }}>
+                  ${tax.toFixed(2)}
+                </span>
+              </div>
             </div>
+
             <div
               style={{
                 display: "flex",
@@ -249,7 +272,7 @@ export default function ReceiptForm({ onSubmit, onClose }) {
             </div>
           </div>
 
-          <div className="field-group">
+          <div className="field-group" style={{ marginTop: 8 }}>
             <label className="field-label">Notes</label>
             <textarea
               className="field"
