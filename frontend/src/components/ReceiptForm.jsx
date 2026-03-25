@@ -22,6 +22,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData }) {
   });
 
   const [items, setItems] = useState([{ ...EMPTY_ITEM }]);
+  const [showNotes, setShowNotes] = useState(false);
 
   // Load existing data if we are editing
   useEffect(() => {
@@ -37,6 +38,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData }) {
         notes: initialData.notes || "",
         id: initialData.id,
       });
+      if (initialData.notes) setShowNotes(true);
       if (initialData.line_items?.length) {
         setItems(
           initialData.line_items.map((i) => ({
@@ -318,17 +320,39 @@ export default function ReceiptForm({ onSubmit, onClose, initialData }) {
             </div>
           </div>
 
-          <div className="field-group" style={{ marginTop: 12 }}>
-            <label className="field-label">Additional Notes & Terms</label>
-            <textarea
-              className="field"
-              rows={2}
-              style={{ resize: "none" }}
-              placeholder="Payment due upon receipt, thank you for your business..."
-              value={form.notes}
-              onChange={(e) => setField("notes", e.target.value)}
-            />
-          </div>
+          {showNotes ? (
+            <div className="field-group" style={{ marginTop: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                <label className="field-label">Note</label>
+                <button
+                  type="button"
+                  className="btn-icon"
+                  style={{ fontSize: 11, color: "var(--text-muted)" }}
+                  onClick={() => { setShowNotes(false); setField("notes", ""); }}
+                >
+                  ✕
+                </button>
+              </div>
+              <textarea
+                className="field"
+                rows={2}
+                autoFocus
+                style={{ resize: "none" }}
+                placeholder="Payment due upon receipt, thank you for your business..."
+                value={form.notes}
+                onChange={(e) => setField("notes", e.target.value)}
+              />
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={{ marginTop: 8, fontSize: 10, padding: "6px 12px" }}
+              onClick={() => setShowNotes(true)}
+            >
+              + Add Note
+            </button>
+          )}
         </div>
 
         <div className="modal-footer">

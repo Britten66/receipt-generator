@@ -98,12 +98,20 @@ export default function App() {
     }
   };
 
+  const STATUS_LABELS = {
+    draft: "Saved as draft",
+    sent: "Marked as sent",
+    paid: "Marked as paid",
+    voided: "Receipt voided",
+  };
+
   const handleStatusChange = async (id, status) => {
     await updateReceipt(id, { status });
     setReceipts((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status } : r)),
     );
     if (selected?.id === id) setSelected((s) => ({ ...s, status }));
+    showToast(STATUS_LABELS[status] ?? `Status → ${status}`, "success");
   };
 
   const handleDelete = async (id) => {
