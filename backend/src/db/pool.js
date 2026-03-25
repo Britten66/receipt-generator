@@ -10,6 +10,5 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   ssl: { rejectUnauthorized: false },
 });
-console.log("DB_USER:", process.env.DB_USER);
-console.log("DB_HOST:", process.env.DB_HOST);
+
 export default pool;
