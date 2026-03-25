@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { downloadReceiptPDF } from "./components/ReceiptPDF";
 import {
   fetchReceipts,
+  fetchReceiptById,
   createReceipt,
   updateReceipt,
   deleteReceipt,
@@ -70,21 +71,24 @@ export default function App() {
     [receipts, filter],
   );
 
+  const selectFull = async (id) => {
+    const full = await fetchReceiptById(id);
+    setSelected(full);
+  };
+
   const handleSaveReceipt = async (data) => {
     try {
       if (data.id) {
-        // Update existing receipt
         const result = await updateReceipt(data.id, data);
         if (result?.error) throw new Error("Failed to update");
         setReceipts((prev) => prev.map((r) => (r.id === data.id ? result : r)));
-        setSelected(result);
+        await selectFull(data.id);
         showToast("Receipt updated.", "success");
       } else {
-        // Create new receipt
         const result = await createReceipt(data);
         if (result?.error) throw new Error("Failed to save");
         setReceipts((prev) => [result, ...prev]);
-        setSelected(result);
+        await selectFull(result.id);
         showToast("Receipt created.", "success");
       }
       setShowForm(false);
@@ -204,7 +208,7 @@ export default function App() {
                     <div
                       key={r.id}
                       className={`receipt-card${selectedReceipt?.id === r.id ? " selected" : ""}`}
-                      onClick={() => setSelected(r)}
+                      onClick={() => selectFull(r.id)}
                     >
                       <div className="card-num">{r.receipt_number}</div>
                       <div className="card-vendor">{r.vendor_name}</div>
