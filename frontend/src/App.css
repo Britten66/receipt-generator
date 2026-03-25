@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;500;600&family=Noto+Sans:wght@400;500;600&display=swap");
 
 *,
 *::before,
@@ -21,8 +21,8 @@
   --sent: #1a3060;
   --draft: #555552;
   --voided: #7a1a1a;
-  --mono: "IBM Plex Mono", monospace;
-  --sans: "IBM Plex Sans", sans-serif;
+  --mono: "Noto Sans Mono", monospace;
+  --sans: "Noto Sans", sans-serif;
 }
 
 html,
@@ -865,5 +865,44 @@ body,
   }
   .field-row {
     grid-template-columns: 1fr;
+  }
+
+  /* ── SWIPE TO DELETE ── */
+  .swipe-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 2px;
+  }
+
+  .swipe-delete-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 76px;
+    background: #c0392b;
+    color: #fff;
+    border: none;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .receipt-card {
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 0;
+    position: relative;
+    z-index: 1;
+    background: var(--surface-2);
+  }
+
+  .receipt-card.swiped {
+    transform: translateX(-76px);
   }
 }

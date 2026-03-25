@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { downloadReceiptPDF } from "./components/ReceiptPDF";
 import {
   fetchReceipts,
@@ -27,7 +27,9 @@ const NAV = [
 ];
 
 export default function App() {
-  const [entered, setEntered] = useState(false);
+  const [entered, setEntered] = useState(() => !!localStorage.getItem("app_entered"));
+  const [swipedId, setSwipedId] = useState(null);
+  const touchStartX = useRef(0);
   const [receipts, setReceipts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
@@ -137,7 +139,12 @@ export default function App() {
     ? { ...selected, status: receipts.find((r) => r.id === selected.id)?.status ?? selected.status }
     : null;
 
-  if (!entered) return <LandingPage onEnter={() => setEntered(true)} />;
+  if (!entered) return (
+    <LandingPage onEnter={() => {
+      localStorage.setItem("app_entered", "1");
+      setEntered(true);
+    }} />
+  );
 
   return (
     <div className="app-shell">
@@ -214,19 +221,49 @@ export default function App() {
                   <div className="empty">No receipts found</div>
                 ) : (
                   filtered.map((r) => (
-                    <div
-                      key={r.id}
-                      className={`receipt-card${selectedReceipt?.id === r.id ? " selected" : ""}`}
-                      onClick={() => selectFull(r.id)}
-                    >
-                      <div className="card-num">{r.receipt_number}</div>
-                      <div className="card-vendor">{r.vendor_name}</div>
-                      <div className="card-customer">{r.customer_name}</div>
-                      <div className="card-footer">
-                        <span className={`stamp ${r.status}`}>{r.status}</span>
-                        <span className="card-total">
-                          ${parseFloat(r.total).toFixed(2)}
-                        </span>
+                    <div key={r.id} className="swipe-wrapper">
+                      <button
+                        className="swipe-delete-btn"
+                        onClick={(e) => { e.stopPropagation(); handleDelete(r.id); }}
+                      >
+                        Delete
+                      </button>
+                      <div
+                        className={`receipt-card${selectedReceipt?.id === r.id ? " selected" : ""}${swipedId === r.id ? " swiped" : ""}`}
+                        onTouchStart={(e) => {
+                          touchStartX.current = e.touches[0].clientX;
+                        }}
+                        onTouchMove={(e) => {
+                          const dx = e.touches[0].clientX - touchStartX.current;
+                          const base = swipedId === r.id ? -76 : 0;
+                          const clamped = Math.max(Math.min(base + dx, 0), -76);
+                          e.currentTarget.style.transition = "none";
+                          e.currentTarget.style.transform = `translateX(${clamped}px)`;
+                        }}
+                        onTouchEnd={(e) => {
+                          const dx = e.changedTouches[0].clientX - touchStartX.current;
+                          e.currentTarget.style.transition = "";
+                          e.currentTarget.style.transform = "";
+                          if (swipedId === r.id) {
+                            if (dx > 30) setSwipedId(null);
+                          } else {
+                            if (dx < -40) setSwipedId(r.id);
+                          }
+                        }}
+                        onClick={() => {
+                          if (swipedId === r.id) { setSwipedId(null); return; }
+                          selectFull(r.id);
+                        }}
+                      >
+                        <div className="card-num">{r.receipt_number}</div>
+                        <div className="card-vendor">{r.vendor_name}</div>
+                        <div className="card-customer">{r.customer_name}</div>
+                        <div className="card-footer">
+                          <span className={`stamp ${r.status}`}>{r.status}</span>
+                          <span className="card-total">
+                            ${parseFloat(r.total).toFixed(2)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))
