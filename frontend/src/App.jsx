@@ -7,6 +7,7 @@ import {
   deleteReceipt,
 } from "./api/receipts";
 import ReceiptForm from "./components/ReceiptForm";
+import LandingPage from "./components/LandingPage";
 import "./App.css";
 
 const STATUS_CONFIG = {
@@ -25,6 +26,7 @@ const NAV = [
 ];
 
 export default function App() {
+  const [entered, setEntered] = useState(false);
   const [receipts, setReceipts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
@@ -121,6 +123,8 @@ export default function App() {
   const selectedReceipt = selected
     ? (receipts.find((r) => r.id === selected.id) ?? selected)
     : null;
+
+  if (!entered) return <LandingPage onEnter={() => setEntered(true)} />;
 
   return (
     <div className="app-shell">

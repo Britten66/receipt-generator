@@ -20,43 +20,55 @@ export function downloadReceiptPDF(receipt) {
   doc.setTextColor(180, 175, 165);
   doc.text(`#${receipt.receipt_number}`, pageW - m, 11, { align: "right" });
 
-  // vendor / customer block
-  doc.setFontSize(13);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(30, 28, 24);
-  doc.text(receipt.vendor_name, m, 32);
+  // vendor name (only if present)
+  let cursorY = 32;
+  if (receipt.vendor_name) {
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(30, 28, 24);
+    doc.text(receipt.vendor_name, m, cursorY);
+  }
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(100, 96, 90);
-  doc.text("ISSUED TO", pageW - m - 60, 26);
-  doc.setFontSize(11);
-  doc.setTextColor(30, 28, 24);
-  doc.text(receipt.customer_name, pageW - m - 60, 32);
+  // customer block (only if present)
+  if (receipt.customer_name) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(100, 96, 90);
+    doc.text("ISSUED TO", pageW - m - 60, 26);
+    doc.setFontSize(11);
+    doc.setTextColor(30, 28, 24);
+    doc.text(receipt.customer_name, pageW - m - 60, 32);
+  }
 
-  // meta row
+  // meta row — only show date/status if meaningful
+  const hasDate = !!receipt.date;
+  const metaY = 40;
   doc.setFontSize(8);
   doc.setTextColor(100, 96, 90);
-  const date = receipt.date
-    ? new Date(receipt.date).toLocaleDateString("en-CA")
-    : "—";
-  doc.text(`Date: ${date}`, m, 40);
-  doc.text(`Status: ${receipt.status.toUpperCase()}`, m + 50, 40);
+
+  if (hasDate) {
+    const date = new Date(receipt.date).toLocaleDateString("en-CA");
+    doc.text(`Date: ${date}`, m, metaY);
+    doc.text(`Status: ${receipt.status.toUpperCase()}`, m + 50, metaY);
+  } else {
+    doc.text(`Status: ${receipt.status.toUpperCase()}`, m, metaY);
+  }
 
   // divider
   doc.setDrawColor(200, 196, 188);
   doc.setLineWidth(0.3);
   doc.line(m, 45, pageW - m, 45);
 
-  // line items table
-  const items = receipt.line_items?.length
+  // line items table — skip placeholder row if no items
+  const hasItems = receipt.line_items?.length > 0;
+  const items = hasItems
     ? receipt.line_items.map((li) => [
-        li.description,
+        li.description || "—",
         String(li.quantity),
         `$${parseFloat(li.unit_price).toFixed(2)}`,
         `$${parseFloat(li.total).toFixed(2)}`,
       ])
-    : [["—", "", "", ""]];
+    : [["No line items", "", "", ""]];
 
   autoTable(doc, {
     startY: 50,
@@ -84,24 +96,27 @@ export function downloadReceiptPDF(receipt) {
 
   const y = doc.lastAutoTable.finalY + 6;
 
-  // totals — right aligned block
+  // totals block — only render rows with actual values
+  const subtotal = parseFloat(receipt.subtotal || 0);
+  const tax = parseFloat(receipt.tax || 0);
+  const total = parseFloat(receipt.total || 0);
+
   const col1 = pageW - m - 40;
   const col2 = pageW - m;
 
   doc.setDrawColor(200, 196, 188);
   doc.line(col1 - 5, y, col2, y);
 
-  const rows = [
-    ["Subtotal", `$${parseFloat(receipt.subtotal || 0).toFixed(2)}`],
-    ["Tax", `$${parseFloat(receipt.tax || 0).toFixed(2)}`],
-    ["Total", `$${parseFloat(receipt.total || 0).toFixed(2)}`],
-  ];
+  const totalRows = [];
+  if (subtotal > 0) totalRows.push(["Subtotal", `$${subtotal.toFixed(2)}`]);
+  if (tax > 0) totalRows.push(["Tax", `$${tax.toFixed(2)}`]);
+  totalRows.push(["Total", `$${total.toFixed(2)}`]);
 
-  rows.forEach(([label, val], i) => {
+  totalRows.forEach(([label, val], i) => {
     const ry = y + 8 + i * 8;
     const isTotal = label === "Total";
 
-    if (isTotal) {
+    if (isTotal && totalRows.length > 1) {
       doc.setDrawColor(150, 146, 138);
       doc.line(col1 - 5, ry - 4, col2, ry - 4);
     }
@@ -113,9 +128,9 @@ export function downloadReceiptPDF(receipt) {
     doc.text(val, col2, ry, { align: "right" });
   });
 
-  // notes
-  if (receipt.notes) {
-    const ny = y + 40;
+  // notes (only if present)
+  if (receipt.notes?.trim()) {
+    const ny = y + 8 + totalRows.length * 8 + 10;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(130, 126, 118);
