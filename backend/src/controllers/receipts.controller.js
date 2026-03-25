@@ -11,6 +11,16 @@ const receiptSchema = z.object({
   tax: z.number().min(0),
   total: z.number().min(0),
   notes: z.string().optional(),
+  line_items: z
+    .array(
+      z.object({
+        description: z.string().min(1),
+        quantity: z.number().min(0),
+        unit_price: z.number().min(0),
+        total: z.number().min(0),
+      }),
+    )
+    .optional(),
 });
 
 export const getReceipts = async (req, res) => {
@@ -60,26 +70,57 @@ export const createReceipt = async (req, res) => {
     tax,
     total,
     notes,
+    line_items,
   } = parsed.data;
 
-  const result = await pool.query(
-    `INSERT INTO receipts (vendor_name, customer_name, receipt_number, status, date, subtotal, tax, total, notes, device_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
-    [
-      vendor_name,
-      customer_name,
-      receipt_number,
-      status ?? "draft",
-      date ?? new Date(),
-      subtotal,
-      tax,
-      total,
-      notes ?? null,
-      device_id,
-    ],
-  );
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
 
-  res.status(201).json(result.rows[0]);
+    const receiptResult = await client.query(
+      `INSERT INTO receipts (vendor_name, customer_name, receipt_number, status, date, subtotal, tax, total, notes, device_id)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+      [
+        vendor_name,
+        customer_name,
+        receipt_number,
+        status ?? "draft",
+        date ?? new Date(),
+        subtotal,
+        tax,
+        total,
+        notes ?? null,
+        device_id,
+      ],
+    );
+
+    const receipt = receiptResult.rows[0];
+
+    if (line_items?.length) {
+      for (const item of line_items) {
+        await client.query(
+          `INSERT INTO line_items (receipt_id, description, quantity, unit_price, total)
+           VALUES ($1,$2,$3,$4,$5)`,
+          [
+            receipt.id,
+            item.description,
+            item.quantity,
+            item.unit_price,
+            item.total,
+          ],
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+    res.status(201).json(receipt);
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error(err);
+    res.status(500).json({ error: "Failed to create receipt" });
+  } finally {
+    client.release();
+  }
 };
 
 export const updateReceipt = async (req, res) => {
@@ -90,7 +131,7 @@ export const updateReceipt = async (req, res) => {
   if (!parsed.success)
     return res.status(400).json({ error: parsed.error.flatten() });
 
-  const fields = Object.keys(parsed.data);
+  const fields = Object.keys(parsed.data).filter((f) => f !== "line_items");
   if (!fields.length)
     return res.status(400).json({ error: "No fields to update" });
 
