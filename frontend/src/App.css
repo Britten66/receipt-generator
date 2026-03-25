@@ -609,95 +609,151 @@ body,
 ::-webkit-scrollbar-thumb {
   background: var(--border);
 }
-/* ── MOBILE RESPONSIVE WRAPPER ── */
+/* ── INDUSTRY SELLABLE MOBILE UI ── */
 @media (max-width: 768px) {
-  /* 1. Stack the main layout top-to-bottom instead of left-to-right */
+  /* 1. Base Layout uses dynamic viewport height (fixes mobile Safari/Chrome address bar issues) */
   .app-shell {
-    grid-template-columns: 1fr;
-    grid-template-rows: 36px auto 1fr;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+    position: relative;
+    padding-bottom: 80px; /* Leaves permanent space for the floating bottom button */
   }
 
-  /* 2. Turn the vertical Sidebar into a horizontal swipeable menu */
-  .sidebar {
-    flex-direction: row;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none; /* Hides scrollbar for clean look */
-  }
-  .sidebar::-webkit-scrollbar {
+  /* 2. Hide the secondary toolbar to save premium vertical space */
+  .toolbar {
     display: none;
   }
 
-  .sidebar-section {
+  /* 3. Rebuild Sidebar into a Top Dashboard */
+  .sidebar {
+    flex-direction: column;
+    border-right: none;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--surface);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  /* Stats Panel: Split evenly side-by-side */
+  .sidebar-section:first-child {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 12px 16px;
+    gap: 12px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  /* Navigation: Modern swipeable 'Pills' instead of a list */
+  .sidebar-section:nth-child(2) {
     display: flex;
     flex-direction: row;
-    align-items: center;
-    border-bottom: none;
-    border-right: 1px solid var(--border-light);
-    padding: 8px 12px;
-    min-width: max-content;
+    overflow-x: auto;
+    padding: 12px 16px;
+    gap: 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Hide scrollbar */
+  }
+  .sidebar-section:nth-child(2)::-webkit-scrollbar {
+    display: none;
   }
 
-  /* Fix the label and buttons inside the horizontal nav */
   .sidebar-label {
-    padding: 0 12px 0 0;
-  }
+    display: none;
+  } /* Hide the word "View" */
+
   .sidebar-item {
+    white-space: nowrap;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 20px; /* Gives the Pill shape */
+    padding: 8px 16px;
+    font-size: 11px;
+    text-align: center;
     width: auto;
-    border-left: none;
-    border-bottom: 2px solid transparent;
-    padding: 4px 8px;
-    margin-right: 4px;
+    margin: 0;
   }
   .sidebar-item.active {
-    border-left-color: transparent;
-    border-bottom-color: var(--text);
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+  }
+  .sidebar-item.active .sidebar-count {
+    color: var(--surface);
   }
 
-  /* Override inline styles on the "New Receipt" button container */
+  /* 4. THE MONEY MAKER: Floating 'Center Mass' Action Button */
   .sidebar > div:last-child {
-    margin-top: 0 !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 16px 20px !important;
+    background: linear-gradient(
+      to top,
+      var(--bg) 60%,
+      transparent
+    ); /* Cool fade effect over the scrolling list */
     border-top: none !important;
-    display: flex;
-    align-items: center;
-    padding: 8px 12px !important;
+    z-index: 50;
+    margin-top: 0 !important;
   }
 
-  /* 3. Detail Panel takes over full screen like a mobile app view */
+  .sidebar > div:last-child .btn-primary {
+    height: 48px;
+    border-radius: 24px; /* Big, friendly, tappable shape */
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2); /* Floating drop shadow */
+    transition: transform 0.1s;
+  }
+  .sidebar > div:last-child .btn-primary:active {
+    transform: scale(0.96); /* Satisfying "press" animation */
+  }
+
+  /* 5. Content Grid & Cards */
+  .content-area {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .receipt-grid-wrap {
+    padding: 12px;
+  }
+  .receipt-grid {
+    grid-template-columns: 1fr; /* 1 Column */
+    background: transparent;
+    border: none;
+    gap: 8px;
+  }
+  .receipt-card {
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 2px;
+  }
+
+  /* 6. Modals (Detail View and Form) Take Over Full Screen */
   .detail-panel {
     position: fixed;
-    inset: 0; /* top, left, right, bottom: 0 */
+    inset: 0;
     width: 100%;
-    height: 100vh;
+    height: 100dvh;
     z-index: 100;
     border-left: none;
   }
-
-  /* 4. Single column receipt list */
-  .receipt-grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* 5. Make the New Receipt form full-screen on mobile */
   .modal-backdrop {
     padding: 0;
   }
   .modal {
     max-width: 100%;
-    height: 100vh;
-    max-height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     border: none;
     display: flex;
     flex-direction: column;
+    border-radius: 0;
   }
-  .modal-body {
-    overflow-y: auto;
-  }
-
-  /* Stack 2-column inputs into 1 column to save space */
   .field-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Stack inputs for easier tapping */
   }
 }
