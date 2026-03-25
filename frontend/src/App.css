@@ -619,6 +619,74 @@ body,
     overflow: hidden;
     position: relative;
     padding-bottom: 80px; /* Leaves permanent space for the floating bottom button */
+
+    /* 7. Industry Sellable Form Footer (Sticky & Tappable) */
+    .modal-footer {
+      position: sticky;
+      bottom: 0;
+      padding: 16px;
+      padding-bottom: max(
+        16px,
+        env(safe-area-inset-bottom)
+      ); /* Respects the iPhone bottom swipe bar */
+      background: var(--surface);
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08); /* Casts a shadow upward */
+      z-index: 20;
+      margin-top: auto;
+    }
+    .modal-footer .btn {
+      flex: 1; /* Makes Cancel and Submit exactly 50/50 split */
+      height: 44px; /* Standard Apple touch target height */
+      font-size: 11px;
+      border-radius: 8px;
+    }
+
+    /* 8. The Line Item Card Layout */
+    .line-item-row.header {
+      display: none; /* Hide the horizontal text headers (Qty, Price, etc) */
+    }
+
+    .line-item-row {
+      display: grid;
+      /* Redefines the grid to have 3 equal columns, plus a small one for the 'X' */
+      grid-template-columns: 1fr 1fr 1fr 30px;
+      gap: 8px;
+      background: var(--bg);
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-light);
+      margin-bottom: 12px !important;
+    }
+
+    /* Force Description to take up the whole top row */
+    .line-item-row input:nth-child(1) {
+      grid-column: 1 / span 3;
+      grid-row: 1;
+    }
+    /* Put the Delete button on the top right */
+    .line-item-row button {
+      grid-column: 4;
+      grid-row: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Put Qty, Unit Price, and Total on the bottom row side-by-side */
+    .line-item-row input:nth-child(2),
+    .line-item-row input:nth-child(3),
+    .line-item-row input:nth-child(4) {
+      grid-row: 2;
+      text-align: center;
+    }
+
+    /* Add little labels inside the inputs for mobile only using a CSS trick */
+    .line-item-row input:nth-child(2)::placeholder {
+      color: transparent;
+    }
+    .line-item-row input:nth-child(3)::placeholder {
+      color: transparent;
+    }
   }
 
   /* 2. Hide the secondary toolbar to save premium vertical space */
