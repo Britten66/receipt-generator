@@ -102,6 +102,10 @@ export default function App() {
 
   const revenue = receipts
     .filter((r) => r.status === "paid")
+    .reduce((s, r) => s + parseFloat(r.subtotal || 0), 0);
+
+  const outstanding = receipts
+    .filter((r) => r.status === "sent")
     .reduce((s, r) => s + parseFloat(r.total || 0), 0);
 
   const filtered = useMemo(
@@ -234,8 +238,12 @@ export default function App() {
       <aside className="sidebar">
         <div className="sidebar-section">
           <div className="stat-block">
-            <div className="stat-label">Revenue</div>
+            <div className="stat-label">Revenue <span className="stat-sublabel">paid · excl. tax</span></div>
             <div className="stat-value">${revenue.toFixed(2)}</div>
+          </div>
+          <div className="stat-block">
+            <div className="stat-label">Outstanding <span className="stat-sublabel">sent · incl. tax</span></div>
+            <div className="stat-value">${outstanding.toFixed(2)}</div>
           </div>
           <div className="stat-block">
             <div className="stat-label">Receipts</div>
