@@ -60,11 +60,12 @@ export default function App() {
       if (!session) {
         supabase.auth.signInAnonymously().then(({ data }) => {
           setSession(data.session);
+          setAuthLoading(false);
         });
       } else {
         setSession(session);
+        setAuthLoading(false);
       }
-      setAuthLoading(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, newSession) => {
       if (!newSession) {
@@ -134,7 +135,7 @@ export default function App() {
       setShowForm(false);
       setEditingReceipt(null);
     } catch (err) {
-      showToast("Failed to save. Check all fields.");
+      showToast(err.message ?? "Failed to save. Check all fields.");
     }
   };
 
