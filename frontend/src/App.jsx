@@ -213,25 +213,25 @@ export default function App() {
             day: "numeric",
           })}
         </div>
-        <div className="topbar-wordmark">Receipt Gen</div>
+        {!isAnon && (
+          <div className="topbar-greeting">
+            {(() => {
+              const h = new Date().getHours();
+              const salutation = h >= 5 && h < 12 ? "Good morning" : h >= 12 && h < 17 ? "Good afternoon" : "Good evening";
+              const name = profile?.business_name || session?.user?.email?.split("@")[0] || "";
+              return name ? `${salutation}, ${name}` : salutation;
+            })()}
+          </div>
+        )}
         <div className="topbar-right">
-          {isAnon ? (
-            <span style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
-              Guest
-            </span>
-          ) : (
-            <>
-              <span style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
-                {session.user.email}
-              </span>
-              <button
-                className="btn btn-ghost"
-                style={{ padding: "3px 10px", fontSize: 10 }}
-                onClick={() => supabase.auth.signOut()}
-              >
-                Sign Out
-              </button>
-            </>
+          {!isAnon && (
+            <button
+              className="btn btn-ghost"
+              style={{ padding: "3px 10px", fontSize: 10 }}
+              onClick={() => supabase.auth.signOut()}
+            >
+              Sign Out
+            </button>
           )}
         </div>
       </header>
