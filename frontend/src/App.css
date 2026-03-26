@@ -228,49 +228,84 @@ body,
 
 .receipt-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 8px;
+}
+
+/* Hide the old mobile-only delete button on desktop */
+.swipe-delete-btn {
+  display: none;
 }
 
 .receipt-card {
-  background: var(--surface-2);
+  background: #fafaf8;
+  border: 1px solid rgba(0,0,0,0.09);
+  border-radius: 8px;
   padding: 14px;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: box-shadow 0.15s, border-color 0.15s;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-height: 120px;
+  gap: 7px;
+  min-height: 116px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  position: relative;
 }
 
 .receipt-card:hover {
-  background: #f5f5f2;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.09);
+  border-color: rgba(0,0,0,0.16);
 }
 .receipt-card.selected {
   background: #fff;
-  outline: 2px solid var(--text);
-  outline-offset: -2px;
+  border-color: var(--text);
+  box-shadow: 0 0 0 1.5px var(--text), 0 3px 10px rgba(0,0,0,0.09);
+}
+
+.card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .card-num {
   font-size: 9px;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
   color: var(--text-muted);
   text-transform: uppercase;
 }
 
+/* Desktop hover-reveal delete */
+.card-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 0;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+}
+.receipt-card:hover .card-delete {
+  opacity: 1;
+}
+.card-delete:hover {
+  color: var(--voided);
+}
+
 .card-vendor {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text);
   line-height: 1.3;
+  font-family: var(--sans);
 }
 
 .card-customer {
   font-size: 10px;
-  color: var(--text-dim);
+  color: var(--text-muted);
+  font-family: var(--sans);
 }
 
 .card-footer {
@@ -278,49 +313,64 @@ body,
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
-  gap: 16px;
+  gap: 8px;
 }
 
 .card-total {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text);
   white-space: nowrap;
   text-align: right;
-}
-
-/* ── STAMPS ── */
-.stamp {
-  display: inline-block;
-  font-size: 7px;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 2px 5px;
-  border: 1px solid;
   font-family: var(--mono);
 }
 
+/* ── STATUS PILLS ── */
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-family: var(--sans);
+  text-transform: capitalize;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.stamp::before {
+  content: "";
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 .stamp.draft {
-  color: var(--draft);
-  border-color: var(--border);
-  background: var(--surface);
+  color: #555;
+  background: rgba(0,0,0,0.06);
 }
+.stamp.draft::before { background: #999; }
+
 .stamp.sent {
-  color: var(--sent);
-  border-color: #a0b4d0;
-  background: #eef2f8;
+  color: #1a3060;
+  background: rgba(26,48,96,0.08);
 }
+.stamp.sent::before { background: #4a70c0; }
+
 .stamp.paid {
-  color: var(--paid);
-  border-color: #a0c4b0;
-  background: #eef5f0;
+  color: #1a5c3a;
+  background: rgba(26,92,58,0.08);
 }
+.stamp.paid::before { background: #2e9e5e; }
+
 .stamp.voided {
-  color: var(--voided);
-  border-color: #d0a0a0;
-  background: #f8eeee;
+  color: #7a1a1a;
+  background: rgba(122,26,26,0.08);
 }
+.stamp.voided::before { background: #c04a4a; }
 
 /* ── EMPTY ── */
 .empty {
@@ -462,14 +512,15 @@ body,
 .btn {
   font-family: var(--mono);
   font-size: 9px;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   border: 1px solid var(--border);
+  border-radius: 6px;
   cursor: pointer;
   padding: 7px 14px;
   background: var(--surface);
   color: var(--text);
-  transition: background 0.1s;
+  transition: background 0.1s, box-shadow 0.1s;
 }
 
 .btn:hover {
@@ -478,11 +529,13 @@ body,
 
 .btn-primary {
   background: var(--text);
-  color: var(--surface-2);
+  color: #f5f4f0;
   border-color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
 }
 .btn-primary:hover {
-  background: #333;
+  background: #222;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.22);
 }
 
 .btn-ghost {
@@ -912,6 +965,9 @@ body,
   }
 
   .swipe-delete-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
     right: 0;
     top: 0;
@@ -926,6 +982,11 @@ body,
     letter-spacing: 0.12em;
     text-transform: uppercase;
     cursor: pointer;
+  }
+
+  /* Hide the card-level delete on mobile — swipe handles it */
+  .card-delete {
+    display: none;
   }
 
   .receipt-card {

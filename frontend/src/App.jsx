@@ -78,12 +78,13 @@ export default function App() {
 
   useEffect(() => {
     if (!session) return;
+    const token = session.access_token;
     setLoading(true);
-    fetchReceipts()
+    fetchReceipts(token)
       .then((d) => setReceipts(Array.isArray(d) ? d : []))
       .finally(() => setLoading(false));
     if (!session.user.is_anonymous) {
-      fetchProfile().then((p) => setProfile(p ?? null));
+      fetchProfile(token).then((p) => setProfile(p ?? null));
     }
   }, [session]);
 
@@ -108,21 +109,23 @@ export default function App() {
     [receipts, filter],
   );
 
+  const token = session?.access_token ?? null;
+
   const selectFull = async (id) => {
-    const full = await fetchReceiptById(id);
+    const full = await fetchReceiptById(id, token);
     setSelected(full);
   };
 
   const handleSaveReceipt = async (data) => {
     try {
       if (data.id) {
-        const result = await updateReceipt(data.id, data);
+        const result = await updateReceipt(data.id, data, token);
         if (result?.error) throw new Error("Failed to update");
         setReceipts((prev) => prev.map((r) => (r.id === data.id ? result : r)));
         await selectFull(data.id);
         showToast("Receipt updated.", "success");
       } else {
-        const result = await createReceipt(data);
+        const result = await createReceipt(data, token);
         if (result?.error) throw new Error("Failed to save");
         setReceipts((prev) => [result, ...prev]);
         await selectFull(result.id);
@@ -143,7 +146,7 @@ export default function App() {
   };
 
   const handleStatusChange = async (id, status) => {
-    await updateReceipt(id, { status });
+    await updateReceipt(id, { status }, token);
     setReceipts((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status } : r)),
     );
@@ -154,7 +157,7 @@ export default function App() {
   const handleDelete = async (id) => {
     const r = receipts.find((r) => r.id === id);
     if (!window.confirm(`Delete receipt ${r?.receipt_number}?`)) return;
-    await deleteReceipt(id);
+    await deleteReceipt(id, token);
     setReceipts((prev) => prev.filter((r) => r.id !== id));
     if (selected?.id === id) setSelected(null);
   };
@@ -344,7 +347,14 @@ export default function App() {
                           selectFull(r.id);
                         }}
                       >
-                        <div className="card-num">{r.receipt_number}</div>
+                        <div className="card-top-row">
+                          <span className="card-num">{r.receipt_number}</span>
+                          <button
+                            className="card-delete"
+                            onClick={(e) => { e.stopPropagation(); handleDelete(r.id); }}
+                            title="Delete"
+                          >✕</button>
+                        </div>
                         <div className="card-vendor">{r.vendor_name}</div>
                         <div className="card-customer">{r.customer_name}</div>
                         <div className="card-footer">
@@ -562,6 +572,7 @@ export default function App() {
       {showProfileModal && (
         <ProfileModal
           profile={profile}
+          token={token}
           onSave={(p) => setProfile(p)}
           onClose={() => setShowProfileModal(false)}
         />

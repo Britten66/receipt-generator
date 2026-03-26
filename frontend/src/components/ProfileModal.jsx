@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { saveProfile } from "../api/profile";
 
-export default function ProfileModal({ profile, onSave, onClose }) {
+export default function ProfileModal({ profile, token, onSave, onClose }) {
   const [form, setForm] = useState({
     business_name: profile?.business_name ?? "",
     address: profile?.address ?? "",
@@ -14,7 +14,7 @@ export default function ProfileModal({ profile, onSave, onClose }) {
 
   const handleSave = async () => {
     setSaving(true);
-    const result = await saveProfile(form);
+    const result = await saveProfile(form, token);
     setSaving(false);
     onSave(result);
     onClose();
