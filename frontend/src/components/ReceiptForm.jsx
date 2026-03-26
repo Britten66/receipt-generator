@@ -14,7 +14,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile })
   const [form, setForm] = useState({
     vendor_name: initialData ? "" : (profile?.business_name ?? ""),
     customer_name: "",
-    receipt_number: `REC-${Date.now().toString().slice(-6)}`,
+    receipt_number: "",
     date: new Date().toISOString().split("T")[0],
     isTaxExempt: false,
     notes: "",
@@ -153,6 +153,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile })
                 className="field"
                 value={form.receipt_number}
                 onChange={(e) => setField("receipt_number", e.target.value)}
+                placeholder={form.id ? "" : "Auto — REC-001"}
               />
             </div>
             <div className="field-group">

@@ -13,10 +13,20 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const { vendor_name, customer_name, receipt_number, status, date, subtotal, tax, total, notes, line_items } = req.body;
+    const { vendor_name, customer_name, status, date, subtotal, tax, total, notes, line_items } = req.body;
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
+      const numRes = await client.query(
+        `SELECT COALESCE(MAX(
+          CASE WHEN receipt_number ~ '^REC-[0-9]+$'
+          THEN CAST(SUBSTRING(receipt_number FROM 5) AS INTEGER)
+          ELSE 0 END
+        ), 0) + 1 AS next_num FROM receipts WHERE user_id = $1`,
+        [user.id]
+      );
+      const nextNum = numRes.rows[0].next_num;
+      const receipt_number = `REC-${String(nextNum).padStart(3, "0")}`;
       const r = await client.query(
         `INSERT INTO receipts (vendor_name, customer_name, receipt_number, status, date, subtotal, tax, total, notes, user_id)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
