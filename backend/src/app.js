@@ -17,6 +17,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
+app.get('/health', (_req, res) => res.json({ ok: true }));
 app.use('/api/receipts', receiptRoutes);
 app.use('/api/profile', profileRoutes);
 

@@ -56,6 +56,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/health`).catch(() => {});
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         supabase.auth.signInAnonymously().then(({ data }) => {
