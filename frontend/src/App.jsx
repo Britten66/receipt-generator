@@ -14,6 +14,7 @@ import ProfileModal from "./components/ProfileModal";
 import PasswordUpdateModal from "./components/PasswordUpdateModal";
 import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
+import { QRCodeSVG } from "qrcode.react";
 import "./App.css";
 
 const STATUS_CONFIG = {
@@ -551,6 +552,21 @@ export default function App() {
                     ))}
                 </div>
               </div>
+
+              {profile?.payment_url && !["paid", "voided"].includes(selectedReceipt.status) && (
+                <div className="detail-section" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "16px 14px" }}>
+                  <QRCodeSVG
+                    value={profile.payment_url}
+                    size={130}
+                    bgColor="#ffffff"
+                    fgColor="#111110"
+                    level="M"
+                  />
+                  <div style={{ fontSize: 10, color: "var(--text-muted)", textAlign: "center", letterSpacing: "0.05em" }}>
+                    Scan to pay · ${parseFloat(selectedReceipt.total || 0).toFixed(2)}
+                  </div>
+                </div>
+              )}
 
               <div className="detail-section">
                 <button

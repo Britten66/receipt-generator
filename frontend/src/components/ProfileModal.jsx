@@ -7,6 +7,7 @@ export default function ProfileModal({ profile, token, userEmail, onSave, onClos
     business_name: profile?.business_name ?? "",
     bio: profile?.bio ?? "",
     website: profile?.website ?? "",
+    payment_url: profile?.payment_url ?? "",
     address: profile?.address ?? "",
     email: profile?.email ?? "",
     phone: profile?.phone ?? "",
@@ -57,6 +58,11 @@ export default function ProfileModal({ profile, token, userEmail, onSave, onClos
           <div className="field-group">
             <label className="field-label">Website</label>
             <input className="field" placeholder="https://yoursite.com" value={form.website} onChange={(e) => set("website", e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Payment Link</label>
+            <input className="field" placeholder="https://buy.stripe.com/... or paypal.me/..." value={form.payment_url} onChange={(e) => set("payment_url", e.target.value)} />
+            <span style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4, display: "block" }}>Paste your Stripe Payment Link or PayPal.me — a QR code will appear on unpaid receipts</span>
           </div>
 
           <div className="profile-section-label" style={{ marginTop: 16 }}>Contact</div>

@@ -6,14 +6,12 @@ export default function LandingPage({ onEnter }) {
       <div className="landing-card">
         <p className="landing-eyebrow">Keep Track - Invoice Tracking</p>
         <h1 className="landing-title">
-          Easy to use
+          Stay on top
           <br />
-          Free Forever
+          Of every invoice
         </h1>
         <p className="landing-desc">
-          Generate professional, tailored specific receipts in seconds. Free for
-          basic use, with a free account unlocking custom logo branding and
-          detailed generation stats.
+          Stop losing invoices, chasing payments, and guessing what’s outstanding. Quickly generate clear, professional receipts and keep every invoice organized so you get paid faster with less admin stress.
         </p>
 
         <button className="landing-bubble" onClick={onEnter}>

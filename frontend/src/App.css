@@ -98,9 +98,10 @@ body,
   justify-content: flex-end;
 }
 
-.topbar-guest {
+.topbar.topbar-guest {
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .topbar-greeting {
@@ -774,6 +775,15 @@ body,
     padding-bottom: 80px;
   }
 
+  .topbar.topbar-guest {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .topbar-meta {
+    text-align: inherit;
+  }
+
   /* STOP iOS AUTO-ZOOM ON TAP */
   input.field,
   textarea.field,
@@ -883,10 +893,28 @@ body,
   /* Stats Panel: Split evenly side-by-side */
   .sidebar-section:first-child {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     padding: 12px 16px;
-    gap: 12px;
+    gap: 8px;
     border-bottom: 1px solid var(--border-light);
+  }
+
+  .stat-block {
+    padding: 6px 8px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 15px;
+  }
+
+  .stat-label {
+    font-size: 8px;
+    letter-spacing: 0.1em;
+  }
+
+  .stat-sublabel {
+    display: none;
   }
 
   /* Navigation: Modern swipeable 'Pills' instead of a list */
