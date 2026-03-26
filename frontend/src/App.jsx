@@ -121,13 +121,13 @@ export default function App() {
     try {
       if (data.id) {
         const result = await updateReceipt(data.id, data, token);
-        if (result?.error) throw new Error("Failed to update");
+        if (result?.error) throw new Error(result.error);
         setReceipts((prev) => prev.map((r) => (r.id === data.id ? result : r)));
         await selectFull(data.id);
         showToast("Receipt updated.", "success");
       } else {
         const result = await createReceipt(data, token);
-        if (result?.error) throw new Error("Failed to save");
+        if (result?.error) throw new Error(result.error);
         setReceipts((prev) => [result, ...prev]);
         await selectFull(result.id);
         showToast("Receipt created.", "success");
