@@ -215,17 +215,17 @@ export default function App() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {isAnon ? (
-            <span style={{ fontSize: 9, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
+            <span style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
               Logged in as: Guest
             </span>
           ) : (
             <>
-              <span style={{ fontSize: 9, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
                 {session.user.email}
               </span>
               <button
                 className="btn btn-ghost"
-                style={{ padding: "3px 10px", fontSize: 9 }}
+                style={{ padding: "3px 10px", fontSize: 10 }}
                 onClick={() => supabase.auth.signOut()}
               >
                 Sign Out
@@ -280,7 +280,7 @@ export default function App() {
           {isAnon ? (
             <button
               className="btn btn-ghost"
-              style={{ width: "100%", fontSize: 9, letterSpacing: "0.1em" }}
+              style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em" }}
               onClick={() => setShowAuthModal(true)}
             >
               Save receipts  ·  Create account
@@ -288,7 +288,7 @@ export default function App() {
           ) : (
             <button
               className="btn btn-ghost"
-              style={{ width: "100%", fontSize: 9, letterSpacing: "0.1em" }}
+              style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em" }}
               onClick={() => setShowProfileModal(true)}
             >
               {profile?.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
