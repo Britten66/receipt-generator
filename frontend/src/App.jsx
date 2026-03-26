@@ -11,6 +11,7 @@ import ReceiptForm from "./components/ReceiptForm";
 import LandingPage from "./components/LandingPage";
 import AuthModal from "./components/AuthModal";
 import ProfileModal from "./components/ProfileModal";
+import PasswordUpdateModal from "./components/PasswordUpdateModal";
 import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
 import "./App.css";
@@ -34,6 +35,7 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
   const [entered, setEntered] = useState(() => !!localStorage.getItem("app_entered"));
   const [swipedId, setSwipedId] = useState(null);
   const touchStartX = useRef(0);
@@ -67,7 +69,12 @@ export default function App() {
         setAuthLoading(false);
       }
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, newSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setShowPasswordUpdate(true);
+        setSession(newSession);
+        return;
+      }
       if (!newSession) {
         supabase.auth.signInAnonymously().then(({ data }) => setSession(data.session));
       } else {
@@ -205,7 +212,7 @@ export default function App() {
           </span>
         </div>
       )}
-      <header className="topbar">
+      <header className={`topbar${isAnon ? " topbar-guest" : ""}`}>
         <div className="topbar-meta">
           {new Date().toLocaleDateString("en-CA", {
             year: "numeric",
@@ -577,6 +584,10 @@ export default function App() {
 
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} />
+      )}
+
+      {showPasswordUpdate && (
+        <PasswordUpdateModal onClose={() => setShowPasswordUpdate(false)} />
       )}
 
       {showProfileModal && (
