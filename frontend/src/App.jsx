@@ -9,8 +9,10 @@ import {
 } from "./api/receipts";
 import ReceiptForm from "./components/ReceiptForm";
 import LandingPage from "./components/LandingPage";
-import AuthPage from "./components/AuthPage";
+import AuthModal from "./components/AuthModal";
+import ProfileModal from "./components/ProfileModal";
 import { supabase } from "./lib/supabase";
+import { fetchProfile } from "./api/profile";
 import "./App.css";
 
 const STATUS_CONFIG = {
@@ -31,6 +33,7 @@ const NAV = [
 export default function App() {
   const [session, setSession] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [entered, setEntered] = useState(() => !!localStorage.getItem("app_entered"));
   const [swipedId, setSwipedId] = useState(null);
   const touchStartX = useRef(0);
@@ -40,6 +43,8 @@ export default function App() {
   const [selected, setSelected] = useState(null);
 
   // Controls the modal and passes data if editing
+  const [profile, setProfile] = useState(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingReceipt, setEditingReceipt] = useState(null);
 
@@ -52,11 +57,21 @@ export default function App() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+      if (!session) {
+        supabase.auth.signInAnonymously().then(({ data }) => {
+          setSession(data.session);
+        });
+      } else {
+        setSession(session);
+      }
       setAuthLoading(false);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      setSession(session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, newSession) => {
+      if (!newSession) {
+        supabase.auth.signInAnonymously().then(({ data }) => setSession(data.session));
+      } else {
+        setSession(newSession);
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -67,6 +82,9 @@ export default function App() {
     fetchReceipts()
       .then((d) => setReceipts(Array.isArray(d) ? d : []))
       .finally(() => setLoading(false));
+    if (!session.user.is_anonymous) {
+      fetchProfile().then((p) => setProfile(p ?? null));
+    }
   }, [session]);
 
   const counts = useMemo(
@@ -156,6 +174,8 @@ export default function App() {
     ? { ...selected, status: receipts.find((r) => r.id === selected.id)?.status ?? selected.status }
     : null;
 
+  const isAnon = session?.user?.is_anonymous ?? true;
+
   if (authLoading) return null;
 
   if (!entered) return (
@@ -165,10 +185,18 @@ export default function App() {
     }} />
   );
 
-  if (!session) return <AuthPage />;
-
   return (
-    <div className="app-shell">
+    <div className={`app-shell${isAnon ? " has-ticker" : ""}`}>
+      {isAnon && (
+        <div className="ticker-bar">
+          <span className="ticker-static">
+            Auto-fill your business profile —{" "}
+            <button className="ticker-link" onClick={() => setShowAuthModal(true)}>
+              create an account here
+            </button>
+          </span>
+        </div>
+      )}
       <header className="topbar">
         <div className="topbar-meta">
           {new Date().toLocaleDateString("en-CA", {
@@ -178,16 +206,24 @@ export default function App() {
           })}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 9, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
-            {session.user.email}
-          </span>
-          <button
-            className="btn btn-ghost"
-            style={{ padding: "3px 10px", fontSize: 9 }}
-            onClick={() => supabase.auth.signOut()}
-          >
-            Sign Out
-          </button>
+          {isAnon ? (
+            <span style={{ fontSize: 9, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
+              Logged in as: Guest
+            </span>
+          ) : (
+            <>
+              <span style={{ fontSize: 9, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
+                {session.user.email}
+              </span>
+              <button
+                className="btn btn-ghost"
+                style={{ padding: "3px 10px", fontSize: 9 }}
+                onClick={() => supabase.auth.signOut()}
+              >
+                Sign Out
+              </button>
+            </>
+          )}
         </div>
       </header>
 
@@ -224,8 +260,28 @@ export default function App() {
             marginTop: "auto",
             padding: 12,
             borderTop: "1px solid var(--border-light)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
           }}
         >
+          {isAnon ? (
+            <button
+              className="btn btn-ghost"
+              style={{ width: "100%", fontSize: 9, letterSpacing: "0.1em" }}
+              onClick={() => setShowAuthModal(true)}
+            >
+              Save receipts  ·  Create account
+            </button>
+          ) : (
+            <button
+              className="btn btn-ghost"
+              style={{ width: "100%", fontSize: 9, letterSpacing: "0.1em" }}
+              onClick={() => setShowProfileModal(true)}
+            >
+              {profile?.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
+            </button>
+          )}
           <button
             className="btn btn-primary"
             style={{ width: "100%" }}
@@ -493,8 +549,21 @@ export default function App() {
       {showForm && (
         <ReceiptForm
           initialData={editingReceipt}
+          profile={profile}
           onSubmit={handleSaveReceipt}
           onClose={() => setShowForm(false)}
+        />
+      )}
+
+      {showAuthModal && (
+        <AuthModal onClose={() => setShowAuthModal(false)} />
+      )}
+
+      {showProfileModal && (
+        <ProfileModal
+          profile={profile}
+          onSave={(p) => setProfile(p)}
+          onClose={() => setShowProfileModal(false)}
         />
       )}
 

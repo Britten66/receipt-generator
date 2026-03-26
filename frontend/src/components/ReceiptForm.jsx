@@ -10,9 +10,9 @@ const EMPTY_ITEM = {
 // Nova Scotia Tax Rate (15%)
 const TAX_RATE = 0.15;
 
-export default function ReceiptForm({ onSubmit, onClose, initialData }) {
+export default function ReceiptForm({ onSubmit, onClose, initialData, profile }) {
   const [form, setForm] = useState({
-    vendor_name: "",
+    vendor_name: initialData ? "" : (profile?.business_name ?? ""),
     customer_name: "",
     receipt_number: `REC-${Date.now().toString().slice(-6)}`,
     date: new Date().toISOString().split("T")[0],

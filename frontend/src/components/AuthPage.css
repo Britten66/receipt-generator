@@ -172,3 +172,21 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* Upgrade modal perks list */
+.auth-perks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.perk-item {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}

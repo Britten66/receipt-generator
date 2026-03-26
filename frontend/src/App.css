@@ -43,6 +43,42 @@ body,
   height: 100vh;
   overflow: hidden;
 }
+.app-shell.has-ticker {
+  grid-template-rows: 20px 36px 1fr;
+}
+
+/* ── TICKER ── */
+.ticker-bar {
+  grid-column: 1 / -1;
+  height: 20px;
+  background: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ticker-static {
+  font-size: 8px;
+  font-family: var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+}
+.ticker-link {
+  background: none;
+  border: none;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0;
+}
+.ticker-link:hover {
+  opacity: 0.8;
+}
 
 /* ── TOPBAR ── */
 .topbar {
