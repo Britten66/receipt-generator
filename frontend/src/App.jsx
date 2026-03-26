@@ -582,6 +582,7 @@ export default function App() {
         <ProfileModal
           profile={profile}
           token={token}
+          userEmail={session?.user?.email}
           onSave={(p) => setProfile(p)}
           onClose={() => setShowProfileModal(false)}
         />

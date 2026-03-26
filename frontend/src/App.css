@@ -665,6 +665,17 @@ body,
   background: var(--surface);
 }
 
+/* ── PROFILE SECTION LABEL ── */
+.profile-section-label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+
 /* ── FIELDS ── */
 .field-group {
   display: grid;
