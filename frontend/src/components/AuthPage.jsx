@@ -105,6 +105,19 @@ export default function AuthPage() {
             {loading ? "..." : mode === "login" ? "Sign In" : "Create Account"}
           </button>
         </form>
+
+        <button
+          className="auth-guest"
+          onClick={async () => {
+            setLoading(true);
+            const { error } = await supabase.auth.signInAnonymously();
+            if (error) setError(error.message);
+            setLoading(false);
+          }}
+          disabled={loading}
+        >
+          Continue without an account
+        </button>
       </div>
     </div>
   );

@@ -151,3 +151,24 @@
   cursor: not-allowed;
   transform: none;
 }
+
+.auth-guest {
+  background: none;
+  border: none;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 4px 0;
+  transition: color 0.15s;
+}
+.auth-guest:hover {
+  color: var(--text-dim);
+}
+.auth-guest:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
