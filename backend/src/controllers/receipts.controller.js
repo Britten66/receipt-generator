@@ -25,12 +25,10 @@ const receiptSchema = z.object({
 
 export const getReceipts = async (req, res) => {
   try {
-    const device_id = req.headers["x-device-id"];
-    if (!device_id) return res.status(400).json({ error: "Missing device ID" });
-
+    const user_id = req.user.id;
     const result = await pool.query(
-      "SELECT * FROM receipts WHERE device_id = $1 ORDER BY created_at DESC",
-      [device_id],
+      "SELECT * FROM receipts WHERE user_id = $1 ORDER BY created_at DESC",
+      [user_id],
     );
     res.json(result.rows);
   } catch (err) {
@@ -41,12 +39,12 @@ export const getReceipts = async (req, res) => {
 
 export const getReceiptById = async (req, res) => {
   try {
-    const device_id = req.headers["x-device-id"];
+    const user_id = req.user.id;
     const { id } = req.params;
 
     const receipt = await pool.query(
-      "SELECT * FROM receipts WHERE id = $1 AND device_id = $2",
-      [id, device_id],
+      "SELECT * FROM receipts WHERE id = $1 AND user_id = $2",
+      [id, user_id],
     );
     if (!receipt.rows.length) return res.status(404).json({ error: "Not found" });
 
@@ -64,12 +62,10 @@ export const getReceiptById = async (req, res) => {
 
 export const createReceipt = async (req, res) => {
   try {
-    const device_id = req.headers["x-device-id"];
-    if (!device_id) return res.status(400).json({ error: "Missing device ID" });
+    const user_id = req.user.id;
 
     const parsed = receiptSchema.safeParse(req.body);
     if (!parsed.success) {
-      console.log("ZOD ERROR:", JSON.stringify(parsed.error.flatten(), null, 2));
       return res.status(400).json({ error: parsed.error.flatten() });
     }
 
@@ -83,10 +79,10 @@ export const createReceipt = async (req, res) => {
       await client.query("BEGIN");
 
       const receiptResult = await client.query(
-        `INSERT INTO receipts (vendor_name, customer_name, receipt_number, status, date, subtotal, tax, total, notes, device_id)
+        `INSERT INTO receipts (vendor_name, customer_name, receipt_number, status, date, subtotal, tax, total, notes, user_id)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
         [vendor_name, customer_name, receipt_number, status ?? "draft",
-         date ?? new Date(), subtotal, tax, total, notes ?? null, device_id],
+         date ?? new Date(), subtotal, tax, total, notes ?? null, user_id],
       );
 
       const receipt = receiptResult.rows[0];
@@ -117,7 +113,7 @@ export const createReceipt = async (req, res) => {
 
 export const updateReceipt = async (req, res) => {
   try {
-    const device_id = req.headers["x-device-id"];
+    const user_id = req.user.id;
     const { id } = req.params;
 
     const parsed = receiptSchema.partial().safeParse(req.body);
@@ -132,8 +128,8 @@ export const updateReceipt = async (req, res) => {
     const values = fields.map((f) => parsed.data[f]);
 
     const result = await pool.query(
-      `UPDATE receipts SET ${setClauses} WHERE id = $${fields.length + 1} AND device_id = $${fields.length + 2} RETURNING *`,
-      [...values, id, device_id],
+      `UPDATE receipts SET ${setClauses} WHERE id = $${fields.length + 1} AND user_id = $${fields.length + 2} RETURNING *`,
+      [...values, id, user_id],
     );
 
     if (!result.rows.length) return res.status(404).json({ error: "Not found" });
@@ -146,12 +142,12 @@ export const updateReceipt = async (req, res) => {
 
 export const deleteReceipt = async (req, res) => {
   try {
-    const device_id = req.headers["x-device-id"];
+    const user_id = req.user.id;
     const { id } = req.params;
 
     const result = await pool.query(
-      "DELETE FROM receipts WHERE id = $1 AND device_id = $2 RETURNING *",
-      [id, device_id],
+      "DELETE FROM receipts WHERE id = $1 AND user_id = $2 RETURNING *",
+      [id, user_id],
     );
 
     if (!result.rows.length) return res.status(404).json({ error: "Not found" });

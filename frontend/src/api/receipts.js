@@ -1,44 +1,37 @@
+import { supabase } from "../lib/supabase";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
-const getDeviceId = () =>
-  localStorage.getItem("device_id") ??
-  (() => {
-    const id = crypto.randomUUID();
-    localStorage.setItem("device_id", id);
-    return id;
-  })();
+const headers = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  return {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${session?.access_token ?? ""}`,
+  };
+};
 
-const headers = () => ({
-  "Content-Type": "application/json",
-  "x-device-id": getDeviceId(),
-});
+export const fetchReceipts = async () =>
+  fetch(`${API_URL}/api/receipts`, { headers: await headers() }).then((r) => r.json());
 
-export const fetchReceipts = () =>
-  fetch(`${API_URL}/api/receipts`, { headers: headers() }).then((r) =>
-    r.json(),
-  );
+export const fetchReceiptById = async (id) =>
+  fetch(`${API_URL}/api/receipts/${id}`, { headers: await headers() }).then((r) => r.json());
 
-export const fetchReceiptById = (id) =>
-  fetch(`${API_URL}/api/receipts/${id}`, { headers: headers() }).then((r) =>
-    r.json(),
-  );
-
-export const createReceipt = (data) =>
+export const createReceipt = async (data) =>
   fetch(`${API_URL}/api/receipts`, {
     method: "POST",
-    headers: headers(),
+    headers: await headers(),
     body: JSON.stringify(data),
   }).then((r) => r.json());
 
-export const updateReceipt = (id, data) =>
+export const updateReceipt = async (id, data) =>
   fetch(`${API_URL}/api/receipts/${id}`, {
     method: "PATCH",
-    headers: headers(),
+    headers: await headers(),
     body: JSON.stringify(data),
   }).then((r) => r.json());
 
-export const deleteReceipt = (id) =>
+export const deleteReceipt = async (id) =>
   fetch(`${API_URL}/api/receipts/${id}`, {
     method: "DELETE",
-    headers: headers(),
+    headers: await headers(),
   }).then((r) => r.json());

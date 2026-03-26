@@ -1,17 +1,23 @@
-export const validateDeviceId = (req, res, next) => {
-  const deviceId = req.headers["x-device-id"];
+import { createClient } from "@supabase/supabase-js";
 
-  if (!deviceId) {
-    return res.status(401).json({ error: "Unauthorized: Missing device ID" });
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+export const authenticate = async (req, res, next) => {
+  const auth = req.headers.authorization;
+  if (!auth?.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
-  // Basic validation: ensure it's not too short or too long
-  if (deviceId.length < 10 || deviceId.length > 255) {
-    return res.status(400).json({ error: "Invalid device ID format" });
+  const token = auth.slice(7);
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+
+  if (error || !user) {
+    return res.status(401).json({ error: "Invalid or expired token" });
   }
 
-  // For future: this can be easily upgraded to JWT verification
-  // req.user = { id: deviceId };
-
+  req.user = user;
   next();
 };

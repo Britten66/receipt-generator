@@ -9,6 +9,8 @@ import {
 } from "./api/receipts";
 import ReceiptForm from "./components/ReceiptForm";
 import LandingPage from "./components/LandingPage";
+import AuthPage from "./components/AuthPage";
+import { supabase } from "./lib/supabase";
 import "./App.css";
 
 const STATUS_CONFIG = {
@@ -27,6 +29,8 @@ const NAV = [
 ];
 
 export default function App() {
+  const [session, setSession] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [entered, setEntered] = useState(() => !!localStorage.getItem("app_entered"));
   const [swipedId, setSwipedId] = useState(null);
   const touchStartX = useRef(0);
@@ -47,10 +51,23 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSession(session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!session) return;
+    setLoading(true);
     fetchReceipts()
       .then((d) => setReceipts(Array.isArray(d) ? d : []))
       .finally(() => setLoading(false));
-  }, []);
+  }, [session]);
 
   const counts = useMemo(
     () =>
@@ -139,12 +156,16 @@ export default function App() {
     ? { ...selected, status: receipts.find((r) => r.id === selected.id)?.status ?? selected.status }
     : null;
 
+  if (authLoading) return null;
+
   if (!entered) return (
     <LandingPage onEnter={() => {
       localStorage.setItem("app_entered", "1");
       setEntered(true);
     }} />
   );
+
+  if (!session) return <AuthPage />;
 
   return (
     <div className="app-shell">
@@ -155,6 +176,18 @@ export default function App() {
             month: "long",
             day: "numeric",
           })}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 9, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
+            {session.user.email}
+          </span>
+          <button
+            className="btn btn-ghost"
+            style={{ padding: "3px 10px", fontSize: 9 }}
+            onClick={() => supabase.auth.signOut()}
+          >
+            Sign Out
+          </button>
         </div>
       </header>
 
