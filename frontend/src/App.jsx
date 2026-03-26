@@ -213,10 +213,11 @@ export default function App() {
             day: "numeric",
           })}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div className="topbar-wordmark">Receipt Gen</div>
+        <div className="topbar-right">
           {isAnon ? (
             <span style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
-              Logged in as: Guest
+              Guest
             </span>
           ) : (
             <>
