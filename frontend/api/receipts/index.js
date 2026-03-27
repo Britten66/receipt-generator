@@ -44,9 +44,9 @@ export default async function handler(req, res) {
       await client.query("COMMIT");
       return res.status(201).json(receipt);
     } catch (err) {
-      await client.query("ROLLBACK");
+      try { await client.query("ROLLBACK"); } catch (_) {}
       console.error("createReceipt:", err.message);
-      return res.status(500).json({ error: "Failed to create receipt" });
+      return res.status(500).json({ error: err.message });
     } finally {
       client.release();
     }
