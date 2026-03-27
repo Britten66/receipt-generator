@@ -104,14 +104,6 @@ body,
   align-items: center;
 }
 
-.topbar-greeting {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text);
-  text-align: center;
-  font-family: var(--sans);
-  letter-spacing: 0.01em;
-}
 
 .wordmark {
   font-size: 11px;
@@ -537,6 +529,94 @@ body,
   color: var(--text);
   font-size: 16px;
   font-weight: 600;
+}
+
+/* ── AVATAR + DROPDOWN ── */
+.avatar-btn {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.avatar-btn:hover { border-color: var(--text); }
+
+.avatar-fallback {
+  width: 28px;
+  height: 28px;
+  background: var(--text);
+  color: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-family: var(--sans);
+}
+
+.dropdown-content {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
+  z-index: 999;
+  animation: dropIn 0.12s ease;
+}
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 4px 8px 6px;
+  letter-spacing: 0.05em;
+  font-family: var(--mono);
+}
+
+.dropdown-sep {
+  height: 1px;
+  background: var(--border-light);
+  margin: 4px 0;
+}
+
+.dropdown-item {
+  font-size: 12px;
+  font-family: var(--sans);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  letter-spacing: 0;
+}
+.dropdown-item:hover, .dropdown-item[data-highlighted] {
+  background: var(--surface);
+}
+.dropdown-item-danger { color: var(--voided); }
+.dropdown-item-danger:hover, .dropdown-item-danger[data-highlighted] {
+  background: #fdf2f2;
+}
+
+/* ── TOOLBAR GREETING ── */
+.toolbar-greeting {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  font-family: var(--sans);
+  margin-right: auto;
 }
 
 /* ── BUTTONS ── */

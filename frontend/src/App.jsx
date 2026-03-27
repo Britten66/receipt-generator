@@ -16,6 +16,7 @@ import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
 import { QRCodeSVG } from "qrcode.react";
 import md5 from "md5";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import "./App.css";
 
 const STATUS_CONFIG = {
@@ -215,42 +216,38 @@ export default function App() {
       )}
       <header className={`topbar${isAnon ? " topbar-guest" : ""}`}>
         <div className="topbar-meta">
-          {new Date().toLocaleDateString("en-CA", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
+          {new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })}
         </div>
-        {!isAnon && (
-          <div className="topbar-greeting">
-            {(() => {
-              const h = new Date().getHours();
-              const salutation = h >= 5 && h < 12 ? "Good morning" : h >= 12 && h < 17 ? "Good afternoon" : "Good evening";
-              const name = profile?.business_name || session?.user?.email?.split("@")[0] || "";
-              const email = session?.user?.email ?? "";
-              const hash = email ? md5(email.trim().toLowerCase()) : null;
-              const avatarUrl = hash ? `https://www.gravatar.com/avatar/${hash}?s=28&d=identicon` : null;
-              return (
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  {avatarUrl && (
-                    <img src={avatarUrl} alt="" width={24} height={24} style={{ borderRadius: "50%", border: "1px solid var(--border)" }} />
-                  )}
-                  <span>{name ? `${salutation}, ${name}` : salutation}</span>
-                </div>
-              );
-            })()}
-          </div>
-        )}
         <div className="topbar-right">
-          {!isAnon && (
-            <button
-              className="btn btn-ghost"
-              style={{ padding: "3px 10px", fontSize: 10 }}
-              onClick={() => supabase.auth.signOut()}
-            >
-              Sign Out
-            </button>
-          )}
+          {!isAnon && (() => {
+            const email = session?.user?.email ?? "";
+            const hash = email ? md5(email.trim().toLowerCase()) : null;
+            const avatarUrl = hash ? `https://www.gravatar.com/avatar/${hash}?s=56&d=identicon` : null;
+            return (
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger asChild>
+                  <button className="avatar-btn" aria-label="User menu">
+                    {avatarUrl
+                      ? <img src={avatarUrl} alt="" width={28} height={28} style={{ borderRadius: "50%", display: "block" }} />
+                      : <div className="avatar-fallback">{email[0]?.toUpperCase()}</div>
+                    }
+                  </button>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Portal>
+                  <DropdownMenu.Content className="dropdown-content" sideOffset={8} align="end">
+                    <div className="dropdown-label">{email}</div>
+                    <DropdownMenu.Separator className="dropdown-sep" />
+                    <DropdownMenu.Item className="dropdown-item" onSelect={() => setShowProfileModal(true)}>
+                      Profile &amp; Settings
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item className="dropdown-item dropdown-item-danger" onSelect={() => supabase.auth.signOut()}>
+                      Sign Out
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Portal>
+              </DropdownMenu.Root>
+            );
+          })()}
         </div>
       </header>
 
@@ -325,6 +322,12 @@ export default function App() {
 
       <main className="main">
         <div className="toolbar">
+          {!isAnon && (() => {
+            const h = new Date().getHours();
+            const salutation = h >= 5 && h < 12 ? "Good morning" : h >= 12 && h < 17 ? "Good afternoon" : "Good evening";
+            const name = profile?.business_name || session?.user?.email?.split("@")[0] || "";
+            return <span className="toolbar-greeting">{name ? `${salutation}, ${name}` : salutation}</span>;
+          })()}
           <span className="toolbar-title">
             {filter === "ALL" ? "All" : STATUS_CONFIG[filter]?.label} —{" "}
             {filtered.length} receipt{filtered.length !== 1 ? "s" : ""}
