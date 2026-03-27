@@ -142,7 +142,6 @@ export default function App() {
         const result = await createReceipt(data, token);
         if (result?.error) throw new Error(result.error);
         setReceipts((prev) => [result, ...prev]);
-        await selectFull(result.id);
         showToast("Receipt created.", "success");
       }
       setShowForm(false);

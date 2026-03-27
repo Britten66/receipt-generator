@@ -918,16 +918,76 @@ body,
   }
 
   .stat-value {
-    font-size: 15px;
+    font-size: 17px;
   }
 
   .stat-label {
-    font-size: 8px;
-    letter-spacing: 0.1em;
+    font-size: 9px;
+    letter-spacing: 0.08em;
   }
 
   .stat-sublabel {
     display: none;
+  }
+
+  /* Card text — bigger and more readable on mobile */
+  .card-vendor {
+    font-size: 16px;
+  }
+
+  .card-customer {
+    font-size: 13px;
+  }
+
+  .card-num {
+    font-size: 11px;
+  }
+
+  .card-total {
+    font-size: 16px;
+  }
+
+  .stamp {
+    font-size: 12px;
+    padding: 3px 10px;
+  }
+
+  /* Detail panel text */
+  .detail-vendor {
+    font-size: 18px;
+  }
+
+  .detail-customer {
+    font-size: 14px;
+  }
+
+  .detail-key {
+    font-size: 11px;
+  }
+
+  .detail-val {
+    font-size: 14px;
+  }
+
+  .line-items-table {
+    font-size: 13px;
+  }
+
+  .total-line .tl-label {
+    font-size: 12px;
+  }
+
+  .total-line .tl-val {
+    font-size: 13px;
+  }
+
+  .total-line.grand .tl-val {
+    font-size: 20px;
+  }
+
+  .btn {
+    font-size: 12px;
+    padding: 10px 16px;
   }
 
   /* Navigation: Modern swipeable 'Pills' instead of a list */
