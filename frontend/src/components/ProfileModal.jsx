@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { saveProfile } from "../api/profile";
 import { supabase } from "../lib/supabase";
+import LegalModal from "./LegalModal";
 
-export default function ProfileModal({ profile, token, userEmail, onSave, onClose }) {
+export default function ProfileModal({ profile, token, userEmail, onSave, onClose, isPro, onUpgrade }) {
   const [form, setForm] = useState({
     business_name: profile?.business_name ?? "",
     bio: profile?.bio ?? "",
@@ -11,12 +12,30 @@ export default function ProfileModal({ profile, token, userEmail, onSave, onClos
     address: profile?.address ?? "",
     email: profile?.email ?? "",
     phone: profile?.phone ?? "",
+    logo_url: profile?.logo_url ?? "",
   });
   const [saving, setSaving] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+  const [legal, setLegal] = useState(null);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const logoInputRef = useRef(null);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoUploading(true);
+    const ext = file.name.split(".").pop();
+    const path = `${userEmail?.replace(/[^a-z0-9]/gi, "_")}/logo.${ext}`;
+    const { error } = await supabase.storage.from("logos").upload(path, file, { upsert: true });
+    if (!error) {
+      const { data } = supabase.storage.from("logos").getPublicUrl(path);
+      set("logo_url", data.publicUrl);
+    }
+    setLogoUploading(false);
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -50,6 +69,29 @@ export default function ProfileModal({ profile, token, userEmail, onSave, onClos
           <div className="field-group">
             <label className="field-label">Business Name</label>
             <input className="field" placeholder="Acme Co." value={form.business_name} onChange={(e) => set("business_name", e.target.value)} autoFocus />
+          </div>
+
+          <div className="field-group">
+            <label className="field-label">Logo (appears on PDF) {!isPro && <span style={{ fontSize: 9, background: "var(--accent)", color: "#fff", borderRadius: 3, padding: "1px 5px", marginLeft: 4, letterSpacing: "0.05em" }}>PRO</span>}</label>
+            {isPro ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                {form.logo_url && (
+                  <img src={form.logo_url} alt="Logo" style={{ height: 36, maxWidth: 80, objectFit: "contain", borderRadius: 4, border: "1px solid var(--border)" }} />
+                )}
+                <button type="button" className="btn btn-ghost" style={{ fontSize: 10, padding: "6px 12px" }} onClick={() => logoInputRef.current?.click()} disabled={logoUploading}>
+                  {logoUploading ? "Uploading..." : form.logo_url ? "Change Logo" : "Upload Logo"}
+                </button>
+                {form.logo_url && (
+                  <button type="button" className="btn-icon" style={{ fontSize: 11 }} onClick={() => set("logo_url", "")}>✕</button>
+                )}
+                <input ref={logoInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleLogoUpload} />
+              </div>
+            ) : (
+              <button type="button" className="btn btn-ghost" style={{ fontSize: 10, padding: "6px 12px" }} onClick={onUpgrade}>
+                ⚡ Upgrade to Pro to add your logo
+              </button>
+            )}
+            <span style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4, display: "block" }}>PNG or JPG, ideally under 500 KB</span>
           </div>
           <div className="field-group">
             <label className="field-label">Bio / Tagline</label>
@@ -102,13 +144,22 @@ export default function ProfileModal({ profile, token, userEmail, onSave, onClos
           </div>
         </div>
 
-        <div className="modal-footer">
-          <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
-          <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-            {saving ? "Saving..." : "Save Profile"}
-          </button>
+        <div className="modal-footer" style={{ flexDirection: "column", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8, width: "100%" }}>
+            <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+              {saving ? "Saving..." : "Save Profile"}
+            </button>
+          </div>
+          <div style={{ fontSize: 10, color: "var(--text-muted)", textAlign: "center" }}>
+            <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", textDecoration: "underline", cursor: "pointer", fontSize: 10, padding: 0 }}>Terms of Service</button>
+            {" · "}
+            <button onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", color: "var(--text-muted)", textDecoration: "underline", cursor: "pointer", fontSize: 10, padding: 0 }}>Privacy Policy</button>
+          </div>
         </div>
       </div>
+
+      {legal && <LegalModal type={legal} onClose={() => setLegal(null)} />}
     </div>
   );
 }

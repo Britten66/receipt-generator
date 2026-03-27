@@ -1,6 +1,10 @@
+import { useState } from "react";
+import LegalModal from "./LegalModal";
 import "./LandingPage.css";
 
 export default function LandingPage({ onEnter }) {
+  const [legal, setLegal] = useState(null);
+
   return (
     <div className="landing">
       <div className="landing-card">
@@ -17,7 +21,16 @@ export default function LandingPage({ onEnter }) {
         <button className="landing-bubble" onClick={onEnter}>
           Start Now
         </button>
+
+        <p style={{ marginTop: 24, fontSize: 10, color: "rgba(255,255,255,0.4)" }}>
+          By continuing you agree to our{" "}
+          <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", textDecoration: "underline", cursor: "pointer", fontSize: 10, padding: 0 }}>Terms</button>
+          {" "}and{" "}
+          <button onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", textDecoration: "underline", cursor: "pointer", fontSize: 10, padding: 0 }}>Privacy Policy</button>
+        </p>
       </div>
+
+      {legal && <LegalModal type={legal} onClose={() => setLegal(null)} />}
     </div>
   );
 }

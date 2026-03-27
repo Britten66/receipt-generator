@@ -12,6 +12,7 @@ import LandingPage from "./components/LandingPage";
 import AuthModal from "./components/AuthModal";
 import ProfileModal from "./components/ProfileModal";
 import PasswordUpdateModal from "./components/PasswordUpdateModal";
+import UpgradeModal from "./components/UpgradeModal";
 import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
 import { QRCodeSVG } from "qrcode.react";
@@ -50,10 +51,14 @@ export default function App() {
   // Controls the modal and passes data if editing
   const [profile, setProfile] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingReceipt, setEditingReceipt] = useState(null);
 
   const [toast, setToast] = useState(null);
+  const [sendInvoiceEmail, setSendInvoiceEmail] = useState("");
+  const [sendInvoiceTarget, setSendInvoiceTarget] = useState(null);
+  const [sendingInvoice, setSendingInvoice] = useState(false);
 
   const showToast = useCallback((msg, type = "error") => {
     setToast({ msg, type });
@@ -176,6 +181,38 @@ export default function App() {
     if (selected?.id === id) setSelected(null);
   };
 
+  const handleSendInvoice = async () => {
+    if (!sendInvoiceEmail) return;
+    setSendingInvoice(true);
+    try {
+      const r = sendInvoiceTarget;
+      const res = await fetch("/api/send-invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          to: sendInvoiceEmail,
+          vendor_name: r.vendor_name,
+          customer_name: r.customer_name,
+          receipt_number: r.receipt_number,
+          date: r.date,
+          line_items: r.line_items,
+          subtotal: r.subtotal,
+          tax: r.tax,
+          total: r.total,
+          notes: r.notes,
+          payment_url: profile?.payment_url,
+        }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      showToast("Invoice sent.", "success");
+      setSendInvoiceTarget(null);
+      setSendInvoiceEmail("");
+    } catch (err) {
+      showToast(err.message ?? "Failed to send invoice.");
+    }
+    setSendingInvoice(false);
+  };
+
   const openNewReceipt = () => {
     setEditingReceipt(null);
     setShowForm(true);
@@ -240,6 +277,19 @@ export default function App() {
                     <DropdownMenu.Item className="dropdown-item" onSelect={() => setShowProfileModal(true)}>
                       Profile &amp; Settings
                     </DropdownMenu.Item>
+                    {profile?.plan === "pro" ? (
+                      <DropdownMenu.Item className="dropdown-item" onSelect={async () => {
+                        const r = await fetch("/api/billing?action=portal", { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+                        const { url } = await r.json();
+                        if (url) window.location.href = url;
+                      }}>
+                        Manage Billing
+                      </DropdownMenu.Item>
+                    ) : (
+                      <DropdownMenu.Item className="dropdown-item" onSelect={() => setShowUpgradeModal(true)}>
+                        ⚡ Upgrade to Pro
+                      </DropdownMenu.Item>
+                    )}
                     <DropdownMenu.Item className="dropdown-item dropdown-item-danger" onSelect={() => supabase.auth.signOut()}>
                       Sign Out
                     </DropdownMenu.Item>
@@ -582,11 +632,39 @@ export default function App() {
               )}
 
               <div className="detail-section">
+                {sendInvoiceTarget?.id === selectedReceipt.id ? (
+                  <div style={{ marginBottom: 6 }}>
+                    <input
+                      className="field"
+                      type="email"
+                      placeholder="Client email address"
+                      autoFocus
+                      value={sendInvoiceEmail}
+                      onChange={(e) => setSendInvoiceEmail(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSendInvoice()}
+                      style={{ marginBottom: 6 }}
+                    />
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => { setSendInvoiceTarget(null); setSendInvoiceEmail(""); }}>Cancel</button>
+                      <button className="btn btn-primary" style={{ flex: 2 }} onClick={handleSendInvoice} disabled={sendingInvoice}>
+                        {sendingInvoice ? "Sending..." : "Send Invoice"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    className="btn btn-ghost"
+                    style={{ width: "100%", marginBottom: 6 }}
+                    onClick={() => profile?.plan === "pro" ? (setSendInvoiceTarget(selectedReceipt), setSendInvoiceEmail("")) : setShowUpgradeModal(true)}
+                  >
+                    ✉ Send to Client
+                  </button>
+                )}
                 {"share" in navigator && (
                   <button
                     className="btn btn-ghost"
                     style={{ width: "100%", marginBottom: 6 }}
-                    onClick={() => shareReceiptPDF(selectedReceipt)}
+                    onClick={() => shareReceiptPDF({ ...selectedReceipt, logo_url: profile?.logo_url })}
                   >
                     ↑ Share Receipt
                   </button>
@@ -594,7 +672,7 @@ export default function App() {
                 <button
                   className="btn btn-primary"
                   style={{ width: "100%", marginBottom: 6 }}
-                  onClick={() => downloadReceiptPDF(selectedReceipt)}
+                  onClick={() => downloadReceiptPDF({ ...selectedReceipt, logo_url: profile?.logo_url })}
                 >
                   ↓ Download PDF
                 </button>
@@ -628,11 +706,17 @@ export default function App() {
         <PasswordUpdateModal onClose={() => setShowPasswordUpdate(false)} />
       )}
 
+      {showUpgradeModal && (
+        <UpgradeModal token={token} onClose={() => setShowUpgradeModal(false)} />
+      )}
+
       {showProfileModal && (
         <ProfileModal
           profile={profile}
           token={token}
           userEmail={session?.user?.email}
+          isPro={profile?.plan === "pro"}
+          onUpgrade={() => { setShowProfileModal(false); setShowUpgradeModal(true); }}
           onSave={(p) => setProfile(p)}
           onClose={() => setShowProfileModal(false)}
         />

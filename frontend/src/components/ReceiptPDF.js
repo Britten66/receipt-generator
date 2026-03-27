@@ -1,7 +1,23 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-function buildDoc(receipt) {
+async function loadImageAsDataUrl(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      canvas.getContext("2d").drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+async function buildDoc(receipt) {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const m = 20;
   const pageW = doc.internal.pageSize.getWidth();
@@ -10,10 +26,23 @@ function buildDoc(receipt) {
   doc.setFillColor(30, 28, 24);
   doc.rect(0, 0, pageW, 18, "F");
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.setTextColor(255, 255, 255);
-  doc.text("RECEIPT", m, 11);
+  // logo in header (left side) or fallback RECEIPT wordmark
+  if (receipt.logo_url) {
+    const dataUrl = await loadImageAsDataUrl(receipt.logo_url);
+    if (dataUrl) {
+      doc.addImage(dataUrl, "PNG", m, 2, 0, 14); // height 14mm, width auto
+    } else {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      doc.text("RECEIPT", m, 11);
+    }
+  } else {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(255, 255, 255);
+    doc.text("RECEIPT", m, 11);
+  }
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
@@ -149,12 +178,13 @@ function buildDoc(receipt) {
   return doc;
 }
 
-export function downloadReceiptPDF(receipt) {
-  buildDoc(receipt).save(`receipt-${receipt.receipt_number}.pdf`);
+export async function downloadReceiptPDF(receipt) {
+  const doc = await buildDoc(receipt);
+  doc.save(`receipt-${receipt.receipt_number}.pdf`);
 }
 
 export async function shareReceiptPDF(receipt) {
-  const doc = buildDoc(receipt);
+  const doc = await buildDoc(receipt);
   const blob = doc.output("blob");
   const file = new File([blob], `receipt-${receipt.receipt_number}.pdf`, { type: "application/pdf" });
   if (navigator.canShare?.({ files: [file] })) {
