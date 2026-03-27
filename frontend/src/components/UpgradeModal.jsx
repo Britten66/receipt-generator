@@ -39,14 +39,17 @@ export default function UpgradeModal({ token, onClose }) {
           </ul>
 
           <div style={{ fontSize: 24, fontWeight: 700, color: "var(--accent)", marginBottom: 4 }}>
-            $7 <span style={{ fontSize: 13, fontWeight: 400, color: "var(--text-dim)" }}>/month</span>
+            Free for 30 days
           </div>
+          <p style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 4 }}>
+            then $7/month — cancel any time
+          </p>
           <p style={{ fontSize: 10, color: "var(--text-muted)", marginBottom: 20 }}>
-            Cancel any time · Billed via Stripe
+            No charge today · Billed via Stripe
           </p>
 
           <button className="btn btn-primary" style={{ width: "100%", padding: "12px" }} onClick={handleUpgrade}>
-            Upgrade to Pro →
+            Start Free Trial →
           </button>
         </div>
       </div>

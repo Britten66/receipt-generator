@@ -40,6 +40,7 @@ export default async function handler(req, res) {
       customer: customerId,
       mode: "subscription",
       line_items: [{ price: PRO_PRICE_ID, quantity: 1 }],
+      subscription_data: { trial_period_days: 30 },
       success_url: `${process.env.APP_URL ?? req.headers.origin}?upgraded=1`,
       cancel_url: `${process.env.APP_URL ?? req.headers.origin}`,
     });
