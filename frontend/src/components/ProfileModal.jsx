@@ -3,7 +3,7 @@ import { saveProfile } from "../api/profile";
 import { supabase } from "../lib/supabase";
 import LegalModal from "./LegalModal";
 
-export default function ProfileModal({ profile, token, userEmail, onSave, onClose, isPro, onUpgrade }) {
+export default function ProfileModal({ profile, token, userEmail, onSave, onClose }) {
   const [form, setForm] = useState({
     business_name: profile?.business_name ?? "",
     bio: profile?.bio ?? "",
@@ -72,25 +72,19 @@ export default function ProfileModal({ profile, token, userEmail, onSave, onClos
           </div>
 
           <div className="field-group">
-            <label className="field-label">Logo (appears on PDF) {!isPro && <span style={{ fontSize: 9, background: "var(--accent)", color: "#fff", borderRadius: 3, padding: "1px 5px", marginLeft: 4, letterSpacing: "0.05em" }}>PRO</span>}</label>
-            {isPro ? (
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                {form.logo_url && (
-                  <img src={form.logo_url} alt="Logo" style={{ height: 36, maxWidth: 80, objectFit: "contain", borderRadius: 4, border: "1px solid var(--border)" }} />
-                )}
-                <button type="button" className="btn btn-ghost" style={{ fontSize: 10, padding: "6px 12px" }} onClick={() => logoInputRef.current?.click()} disabled={logoUploading}>
-                  {logoUploading ? "Uploading..." : form.logo_url ? "Change Logo" : "Upload Logo"}
-                </button>
-                {form.logo_url && (
-                  <button type="button" className="btn-icon" style={{ fontSize: 11 }} onClick={() => set("logo_url", "")}>✕</button>
-                )}
-                <input ref={logoInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleLogoUpload} />
-              </div>
-            ) : (
-              <button type="button" className="btn btn-ghost" style={{ fontSize: 10, padding: "6px 12px" }} onClick={onUpgrade}>
-                ⚡ Upgrade to Pro to add your logo
+            <label className="field-label">Logo (appears on PDF)</label>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              {form.logo_url && (
+                <img src={form.logo_url} alt="Logo" style={{ height: 36, maxWidth: 80, objectFit: "contain", borderRadius: 4, border: "1px solid var(--border)" }} />
+              )}
+              <button type="button" className="btn btn-ghost" style={{ fontSize: 10, padding: "6px 12px" }} onClick={() => logoInputRef.current?.click()} disabled={logoUploading}>
+                {logoUploading ? "Uploading..." : form.logo_url ? "Change Logo" : "Upload Logo"}
               </button>
-            )}
+              {form.logo_url && (
+                <button type="button" className="btn-icon" style={{ fontSize: 11 }} onClick={() => set("logo_url", "")}>✕</button>
+              )}
+              <input ref={logoInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleLogoUpload} />
+            </div>
             <span style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4, display: "block" }}>PNG or JPG, ideally under 500 KB</span>
           </div>
           <div className="field-group">

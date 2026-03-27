@@ -12,7 +12,6 @@ import LandingPage from "./components/LandingPage";
 import AuthModal from "./components/AuthModal";
 import ProfileModal from "./components/ProfileModal";
 import PasswordUpdateModal from "./components/PasswordUpdateModal";
-import UpgradeModal from "./components/UpgradeModal";
 import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
 import { QRCodeSVG } from "qrcode.react";
@@ -51,7 +50,6 @@ export default function App() {
   // Controls the modal and passes data if editing
   const [profile, setProfile] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingReceipt, setEditingReceipt] = useState(null);
 
@@ -277,19 +275,6 @@ export default function App() {
                     <DropdownMenu.Item className="dropdown-item" onSelect={() => setShowProfileModal(true)}>
                       Profile &amp; Settings
                     </DropdownMenu.Item>
-                    {profile?.plan === "pro" ? (
-                      <DropdownMenu.Item className="dropdown-item" onSelect={async () => {
-                        const r = await fetch("/api/billing?action=portal", { method: "POST", headers: { Authorization: `Bearer ${token}` } });
-                        const { url } = await r.json();
-                        if (url) window.location.href = url;
-                      }}>
-                        Manage Billing
-                      </DropdownMenu.Item>
-                    ) : (
-                      <DropdownMenu.Item className="dropdown-item" onSelect={() => setShowUpgradeModal(true)}>
-                        ⚡ Upgrade to Pro
-                      </DropdownMenu.Item>
-                    )}
                     <DropdownMenu.Item className="dropdown-item dropdown-item-danger" onSelect={() => supabase.auth.signOut()}>
                       Sign Out
                     </DropdownMenu.Item>
@@ -655,7 +640,7 @@ export default function App() {
                   <button
                     className="btn btn-ghost"
                     style={{ width: "100%", marginBottom: 6 }}
-                    onClick={() => profile?.plan === "pro" ? (setSendInvoiceTarget(selectedReceipt), setSendInvoiceEmail("")) : setShowUpgradeModal(true)}
+                    onClick={() => { setSendInvoiceTarget(selectedReceipt); setSendInvoiceEmail(""); }}
                   >
                     ✉ Send to Client
                   </button>
@@ -706,17 +691,11 @@ export default function App() {
         <PasswordUpdateModal onClose={() => setShowPasswordUpdate(false)} />
       )}
 
-      {showUpgradeModal && (
-        <UpgradeModal token={token} onClose={() => setShowUpgradeModal(false)} />
-      )}
-
       {showProfileModal && (
         <ProfileModal
           profile={profile}
           token={token}
           userEmail={session?.user?.email}
-          isPro={profile?.plan === "pro"}
-          onUpgrade={() => { setShowProfileModal(false); setShowUpgradeModal(true); }}
           onSave={(p) => setProfile(p)}
           onClose={() => setShowProfileModal(false)}
         />
