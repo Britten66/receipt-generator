@@ -17,6 +17,7 @@ export default async function handler(req, res) {
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
+      await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [user.id]);
       const numRes = await client.query(
         `SELECT COALESCE(MAX(
           CASE WHEN receipt_number ~ '^REC-[0-9]+$'
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
     } catch (err) {
       try { await client.query("ROLLBACK"); } catch (_) {}
       console.error("createReceipt:", err.message);
-      return res.status(500).json({ error: err.message });
+      return res.status(500).json({ error: "Failed to create receipt" });
     } finally {
       client.release();
     }
