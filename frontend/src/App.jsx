@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
-import { downloadReceiptPDF } from "./components/ReceiptPDF";
+import { downloadReceiptPDF, shareReceiptPDF } from "./components/ReceiptPDF";
 import {
   fetchReceipts,
   fetchReceiptById,
@@ -582,6 +582,15 @@ export default function App() {
               )}
 
               <div className="detail-section">
+                {"share" in navigator && (
+                  <button
+                    className="btn btn-ghost"
+                    style={{ width: "100%", marginBottom: 6 }}
+                    onClick={() => shareReceiptPDF(selectedReceipt)}
+                  >
+                    ↑ Share Receipt
+                  </button>
+                )}
                 <button
                   className="btn btn-primary"
                   style={{ width: "100%", marginBottom: 6 }}
