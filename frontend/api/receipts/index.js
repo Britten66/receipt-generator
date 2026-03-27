@@ -16,20 +16,21 @@ export default async function handler(req, res) {
     const { vendor_name, customer_name, status, date, subtotal, tax, total, notes, line_items } = req.body;
     const client = await pool.connect();
     try {
+      const existing = await client.query(
+        "SELECT receipt_number FROM receipts WHERE user_id = $1",
+        [user.id]
+      );
+      const maxNum = existing.rows.reduce((max, row) => {
+        const m = row.receipt_number?.match(/^REC-(\d+)$/);
+        return m ? Math.max(max, parseInt(m[1], 10)) : max;
+      }, 0);
+
       let receipt = null;
       let attempts = 0;
       while (!receipt && attempts < 5) {
         try {
           await client.query("BEGIN");
-          const numRes = await client.query(
-            `SELECT COALESCE(MAX(
-              CASE WHEN receipt_number ~ '^REC-[0-9]+$'
-              THEN CAST(SUBSTRING(receipt_number FROM 5) AS INTEGER)
-              ELSE 0 END
-            ), 0) + 1 AS next_num FROM receipts WHERE user_id = $1`,
-            [user.id]
-          );
-          const receipt_number = `REC-${String(numRes.rows[0].next_num).padStart(3, "0")}`;
+          const receipt_number = `REC-${String(maxNum + 1 + attempts).padStart(3, "0")}`;
           const r = await client.query(
             `INSERT INTO receipts (vendor_name, customer_name, receipt_number, status, date, subtotal, tax, total, notes, user_id)
              VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
