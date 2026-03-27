@@ -14,7 +14,10 @@ export default async function handler(req, res) {
 
   if (req.method === "POST") {
     const { vendor_name, customer_name, status, date, subtotal, tax, total, notes, line_items } = req.body;
-    const client = await pool.connect();
+    let client;
+    try { client = await pool.connect(); } catch(e) {
+      return res.status(500).json({ error: `pool.connect: ${e.message}` });
+    }
     try {
       await client.query("BEGIN");
       await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [user.id]);
@@ -47,7 +50,7 @@ export default async function handler(req, res) {
     } catch (err) {
       try { await client.query("ROLLBACK"); } catch (_) {}
       console.error("createReceipt:", err.message);
-      return res.status(500).json({ error: "Failed to create receipt" });
+      return res.status(500).json({ error: err.message ?? "unknown" });
     } finally {
       client.release();
     }
