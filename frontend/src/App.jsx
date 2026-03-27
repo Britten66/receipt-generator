@@ -383,8 +383,8 @@ export default function App() {
                             title="Delete"
                           >✕</button>
                         </div>
-                        <div className="card-vendor">{r.vendor_name}</div>
-                        <div className="card-customer">{r.customer_name}</div>
+                        <div className="card-vendor">{r.customer_name}</div>
+                        <div className="card-customer">{r.vendor_name}</div>
                         <div className="card-footer">
                           <span className={`stamp ${r.status}`}>{r.status}</span>
                           <span className="card-total">
