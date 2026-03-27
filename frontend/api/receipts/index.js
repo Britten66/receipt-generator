@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         [user.id]
       );
       const maxNum = existing.rows.reduce((max, row) => {
-        const m = row.receipt_number?.match(/^REC-(\d+)$/);
+        const m = row.receipt_number?.match(/^REC-0*(\d+)$/);
         return m ? Math.max(max, parseInt(m[1], 10)) : max;
       }, 0);
 
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       while (!receipt && attempts < 5) {
         try {
           await client.query("BEGIN");
-          const receipt_number = `REC-${String(maxNum + 1 + attempts).padStart(3, "0")}`;
+          const receipt_number = `REC-${String(maxNum + 1 + attempts).padStart(6, "0")}`;
           const r = await client.query(
             `INSERT INTO receipts (vendor_name, customer_name, receipt_number, status, date, subtotal, tax, total, notes, user_id)
              VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,

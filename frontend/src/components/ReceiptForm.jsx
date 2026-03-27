@@ -153,7 +153,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile })
                 className="field"
                 value={form.receipt_number}
                 onChange={(e) => setField("receipt_number", e.target.value)}
-                placeholder={form.id ? "" : "Auto — REC-001"}
+                placeholder={form.id ? "" : "Auto — REC-000001"}
               />
             </div>
             <div className="field-group">
