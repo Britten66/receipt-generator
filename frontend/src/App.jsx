@@ -15,6 +15,7 @@ import PasswordUpdateModal from "./components/PasswordUpdateModal";
 import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
 import { QRCodeSVG } from "qrcode.react";
+import md5 from "md5";
 import "./App.css";
 
 const STATUS_CONFIG = {
@@ -227,7 +228,17 @@ export default function App() {
               const h = new Date().getHours();
               const salutation = h >= 5 && h < 12 ? "Good morning" : h >= 12 && h < 17 ? "Good afternoon" : "Good evening";
               const name = profile?.business_name || session?.user?.email?.split("@")[0] || "";
-              return name ? `${salutation}, ${name}` : salutation;
+              const email = session?.user?.email ?? "";
+              const hash = email ? md5(email.trim().toLowerCase()) : null;
+              const avatarUrl = hash ? `https://www.gravatar.com/avatar/${hash}?s=28&d=identicon` : null;
+              return (
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {avatarUrl && (
+                    <img src={avatarUrl} alt="" width={24} height={24} style={{ borderRadius: "50%", border: "1px solid var(--border)" }} />
+                  )}
+                  <span>{name ? `${salutation}, ${name}` : salutation}</span>
+                </div>
+              );
             })()}
           </div>
         )}

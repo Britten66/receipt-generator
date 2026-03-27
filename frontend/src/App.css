@@ -784,6 +784,19 @@ body,
     text-align: inherit;
   }
 
+  .ticker-bar {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    padding: 0 16px;
+  }
+
+  .ticker-static {
+    text-align: center;
+    width: 100%;
+    display: block;
+  }
+
   /* STOP iOS AUTO-ZOOM ON TAP */
   input.field,
   textarea.field,
