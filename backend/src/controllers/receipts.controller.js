@@ -69,9 +69,20 @@ export const createReceipt = async (req, res) => {
   try {
     const user_id = req.user.id;
 
-    const parsed = receiptSchema.safeParse(req.body);
+    /*
+      Strip empty strings for optional fields before Zod sees them.
+      The form sends receipt_number: "" when left blank — Zod's .optional()
+      allows undefined but NOT empty string, so we convert it here rather
+      than fighting the schema.
+    */
+    const body = { ...req.body };
+    if (body.receipt_number === "") delete body.receipt_number;
+    if (body.notes === "") delete body.notes;
+
+    const parsed = receiptSchema.safeParse(body);
     if (!parsed.success) {
-      return res.status(400).json({ error: parsed.error.flatten() });
+      const messages = parsed.error.issues.map((i) => i.message).join(", ");
+      return res.status(400).json({ error: messages || "Invalid receipt data" });
     }
 
     let {
@@ -155,7 +166,7 @@ export const updateReceipt = async (req, res) => {
 
     const parsed = receiptSchema.partial().safeParse(req.body);
     if (!parsed.success)
-      return res.status(400).json({ error: parsed.error.flatten() });
+      return res.status(400).json({ error: parsed.error.issues.map((i) => i.message).join(", ") });
 
     const fields = Object.keys(parsed.data).filter((f) => f !== "line_items");
     if (!fields.length)
