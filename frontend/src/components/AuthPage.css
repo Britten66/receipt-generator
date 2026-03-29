@@ -180,20 +180,62 @@
   cursor: not-allowed;
 }
 
-/* Perks list shown on the sign up / sign in form */
-.auth-perks {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  background: var(--bg);
-  border: 1px solid var(--border-light);
+/* Input fields inside the auth modal — warm beige so they don't go stark white */
+.auth-field {
+  width: 100%;
+  background: #f5f0e8;
+  border: 1px solid rgba(60, 50, 30, 0.15);
   border-radius: 0;
-  padding: 12px 14px;
+  padding: 11px 14px;
+  font-size: 13px;
+  color: #2a2520;
+  font-family: var(--sans);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.auth-field:focus        { border-color: rgba(140, 100, 50, 0.4); }
+.auth-field::placeholder { color: rgba(42, 37, 32, 0.35); }
+
+/* Plain text-link button — "Forgot password?" / "Back to sign in" */
+.auth-text-btn {
+  background: none;
+  border: none;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 4px 0;
+  transition: color 0.15s;
+}
+.auth-text-btn:hover { color: var(--text-dim); }
+
+/* ── Dark mode overrides ───────────────────────────────────────────────────── */
+
+/* Card background — use surface-2 (#26292B) instead of white-ish glass */
+[data-theme="dark"] .auth-card {
+  background: var(--surface-2);
+  border-color: var(--border);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
 
-.perk-item {
-  font-size: 10px;
-  color: var(--text-dim);
-  letter-spacing: 0.04em;
-  line-height: 1.5;
+/* Active toggle tab — dark surface instead of #fff */
+[data-theme="dark"] .auth-toggle button.active {
+  background: var(--surface);
+  color: var(--text);
 }
+
+/* Inputs — dark muted background, sand text */
+[data-theme="dark"] .auth-field {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .auth-field::placeholder { color: var(--text-muted); }
+[data-theme="dark"] .auth-field:focus        { border-color: rgba(180, 140, 90, 0.4); }
+
+/* Error / success banners */
+[data-theme="dark"] .auth-error   { background: rgba(192, 74, 74, 0.12); border-color: #7a3030; }
+[data-theme="dark"] .auth-message { background: rgba(46, 158, 94, 0.12); border-color: #2a6040; }

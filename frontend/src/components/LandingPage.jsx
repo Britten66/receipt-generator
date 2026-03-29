@@ -18,16 +18,30 @@ export default function LandingPage({ onEnter }) {
           Stop losing invoices, chasing payments, and guessing what’s outstanding. Quickly generate clear, professional receipts and keep every invoice organized so you get paid faster with less admin stress.
         </p>
 
+        {/* Perks — short, plain, no fluff */}
+        <ul className="landing-perks">
+          <li>Save receipts — access them anywhere</li>
+          <li>Track paid, sent, draft, and voided invoices</li>
+          <li>Export to PDF in one click</li>
+          <li>Your data stays yours, no ads</li>
+        </ul>
+
         <button className="landing-bubble" onClick={onEnter}>
           Start Now
         </button>
 
-        <p style={{ marginTop: 24, fontSize: 10, color: "rgba(255,255,255,0.4)" }}>
-          By continuing you agree to our{" "}
-          <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", textDecoration: "underline", cursor: "pointer", fontSize: 10, padding: 0 }}>Terms</button>
-          {" "}and{" "}
-          <button onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", textDecoration: "underline", cursor: "pointer", fontSize: 10, padding: 0 }}>Privacy Policy</button>
-        </p>
+        <div style={{ marginTop: 24, textAlign: "center", display: "flex", flexDirection: "column", gap: 6 }}>
+          <p style={{ margin: 0, fontSize: 10, color: "rgba(255,255,255,0.4)" }}>
+            By continuing you agree to our{" "}
+            <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", textDecoration: "underline", cursor: "pointer", fontSize: 10, padding: 0 }}>Terms</button>
+            {" "}and{" "}
+            <button onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", textDecoration: "underline", cursor: "pointer", fontSize: 10, padding: 0 }}>Privacy Policy</button>
+          </p>
+          <p style={{ margin: 0, fontSize: 9, color: "rgba(255,255,255,0.25)", lineHeight: 1.6 }}>
+            For personal record-keeping only. Not a substitute for professional accounting or tax advice.
+            Receipts generated here may not be legally valid in all jurisdictions.
+          </p>
+        </div>
       </div>
 
       {legal && <LegalModal type={legal} onClose={() => setLegal(null)} />}

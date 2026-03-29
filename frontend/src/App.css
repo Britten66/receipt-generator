@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;500;600&family=Noto+Sans:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&display=swap");
 
 /* Reset — remove browser default margins and padding from every element */
 *,
@@ -29,8 +29,80 @@
   --sent: #1a3060;         /* blue — sent status */
   --draft: #555552;        /* grey — draft status */
   --voided: #7a1a1a;       /* red — voided status */
-  --mono: "Noto Sans Mono", monospace;
-  --sans: "Noto Sans", sans-serif;
+  --mono: ui-monospace, "Courier New", monospace;
+  --sans: "Public Sans", sans-serif;
+}
+
+/* Dark mode — applied when <html data-theme="dark"> is set */
+[data-theme="dark"] {
+  --bg: #2c3032;           /* full page background */
+  --surface: #181a1b;      /* header, sidebar, topbar */
+  --surface-2: #26292b;    /* detail panel, modal body, cards */
+  --border: #3d4145;       /* strong borders */
+  --border-light: #2e3235; /* subtle dividers */
+  --text: #e8dcc8;         /* cream sand — primary text */
+  --text-dim: #c4b99a;     /* secondary text */
+  --text-muted: #7a7672;   /* labels, placeholders */
+  --paid: #2e9e5e;
+  --sent: #4a70c0;
+  --draft: #888884;
+  --voided: #c04a4a;
+}
+
+/* In dark mode the primary button background becomes cream — force black text so it's actually readable */
+[data-theme="dark"] .btn-primary {
+  color: #000;
+}
+
+/* Ghost buttons have no background by default — in dark mode give them a subtle fill so they stand out from the surface */
+[data-theme="dark"] .btn-ghost {
+  background: var(--surface-2);
+}
+
+/*
+  Dark mode hover overrides.
+
+  The rule: anything that gets a background on hover should switch to
+  cream (#e7ddc7) with dark text (#1a1a1a) — like inverting into a warm light mode.
+  Anything that only changes text color on hover should go to #e7ddc7 instead
+  of the usual var(--text), so it stands out against the dark surface.
+*/
+
+/* Buttons that fill a background on hover */
+[data-theme="dark"] .btn:hover,
+[data-theme="dark"] .btn-primary:hover,
+[data-theme="dark"] .btn-ghost:hover,
+[data-theme="dark"] .close-btn:hover {
+  background: #e7ddc7;
+  color: #1a1a1a;
+  border-color: #e7ddc7;
+}
+
+/* Sidebar nav items */
+[data-theme="dark"] .sidebar-item:hover {
+  background: #e7ddc7;
+  color: #1a1a1a;
+}
+
+/* Avatar dropdown items */
+[data-theme="dark"] .dropdown-item:hover,
+[data-theme="dark"] .dropdown-item[data-highlighted] {
+  background: #e7ddc7;
+  color: #1a1a1a;
+}
+
+/* Text/icon-only elements that just change color on hover */
+[data-theme="dark"] .dark-toggle:hover,
+[data-theme="dark"] .help-btn:hover,
+[data-theme="dark"] .btn-icon:hover,
+[data-theme="dark"] .win-btn:hover {
+  color: #e7ddc7;
+  border-color: #e7ddc7;
+}
+
+/* Avatar button border on hover */
+[data-theme="dark"] .avatar-btn:hover {
+  border-color: #e7ddc7;
 }
 
 /* Base styles applied to the whole page */
@@ -61,8 +133,8 @@ body,
 
 /* TOPBAR */
 /*
-  The thin bar across the top showing the date and the user's avatar menu.
-  Uses a 3-column grid: left (date) | center (empty) | right (avatar).
+  The thin bar across the top.
+  3-column grid: left (dark toggle) | center (date) | right (avatar).
   When the user is not signed in (.topbar-guest), it centers the date instead.
 */
 .topbar {
@@ -80,22 +152,8 @@ body,
   gap: 12px;
   justify-content: flex-end;
 }
-.topbar.topbar-guest {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.wordmark {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text);
-}
-.wordmark span {
-  font-weight: 400;
-  color: var(--text-dim);
-}
+/* When the user is not signed in, the right column is empty.
+   The date stays centered and the toggle stays far left — no change needed. */
 .topbar-meta {
   font-family: "Oswald", sans-serif;
   font-size: 12px;
@@ -103,6 +161,59 @@ body,
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--text-muted);
+}
+
+/* Dark mode toggle button — far left of the topbar */
+.dark-toggle {
+  /* Use --surface so the button always matches the topbar background in both modes */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: color 0.1s, border-color 0.1s;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.25);
+}
+.dark-toggle:hover {
+  color: var(--text);
+  border-color: var(--text);
+}
+.dark-toggle:active {
+  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.2);
+  transform: translate(1px, 1px);
+}
+
+/* Date text is too dim in dark mode — bump it up to text-dim */
+[data-theme="dark"] .topbar-meta {
+  color: var(--text-dim);
+}
+
+/* Help button — circled ? in the topbar */
+.help-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  padding: 0;
+  line-height: 1;
+}
+.help-btn:hover {
+  color: var(--text);
+  border-color: var(--text-dim);
 }
 
 /* SIDEBAR */
@@ -716,6 +827,133 @@ body,
   overflow-y: auto;
   box-shadow: 4px 4px 0 var(--border);
 }
+
+/* ── Win95-style draggable/resizable help window ────────────────────────── */
+
+.win-modal {
+  position: fixed;
+  background: var(--surface-2);
+  /* Raised bevel outer border */
+  border: 2px solid;
+  border-color: rgba(255,255,255,0.12) rgba(0,0,0,0.5) rgba(0,0,0,0.5) rgba(255,255,255,0.12);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.6), inset 1px 1px 0 rgba(255,255,255,0.06);
+  width: 360px;
+  min-width: 240px;
+  min-height: 80px;
+  /* CSS resize — shows native grip in bottom-right corner */
+  resize: both;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Title bar — the drag handle strip */
+.win-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  cursor: move;
+  /* Don't let text get selected while dragging */
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.win-titlebar-title {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* Small Win95-style square titlebar buttons */
+.win-btn {
+  background: var(--surface-2);
+  border: 1px solid;
+  border-color: rgba(255,255,255,0.15) rgba(0,0,0,0.4) rgba(0,0,0,0.4) rgba(255,255,255,0.15);
+  color: var(--text-dim);
+  width: 16px;
+  height: 14px;
+  font-size: 8px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.win-btn:hover  { color: var(--text); }
+.win-btn:active { border-color: rgba(0,0,0,0.4) rgba(255,255,255,0.15) rgba(255,255,255,0.15) rgba(0,0,0,0.4); }
+
+/* Scrollable content area */
+.win-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.win-divider {
+  border-top: 1px solid var(--border-light);
+  margin: 14px 0;
+}
+
+/* Tiny resize-grip indicator in the corner (decorative — CSS resize does the work) */
+.win-resize-grip {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 8px;
+  height: 8px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--border) 0px, var(--border) 1px,
+    transparent 1px, transparent 3px
+  );
+  pointer-events: none;
+}
+
+/* Help section heading */
+.help-heading {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+/* Bullet list */
+.help-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  text-align: center;
+}
+.help-list li {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.03em;
+  line-height: 1.55;
+}
+
+/* Footer sign-up nudge */
+.help-footer {
+  margin-top: 16px;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
 .modal-header {
   padding: 12px 16px;
   border-bottom: 1px solid var(--border);
@@ -738,12 +976,13 @@ body,
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  font-family: var(--sans);
 }
 .modal-footer {
   padding: 12px 16px;
   border-top: 1px solid var(--border);
   display: flex;
-  gap: 8px;
+  gap: 12px;
   justify-content: flex-end;
   background: var(--surface);
 }
@@ -771,24 +1010,36 @@ body,
   text-transform: uppercase;
   color: var(--text-muted);
 }
+/*
+  .field is used on every input inside the receipt form modal.
+  Public Sans matches the auth modal — keeping font consistent across all forms.
+  Cream background (#f5f0e8) matches .auth-field so nothing blinds you with stark white.
+  In dark mode, background falls back to var(--surface) via the override below.
+*/
 .field {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-family: var(--mono);
+  background: #f5f0e8;
+  border: 1px solid rgba(60, 50, 30, 0.15);
+  color: #2a2520;
+  font-family: var(--sans);
   font-size: 11px;
   padding: 7px 10px;
   width: 100%;
   outline: none;
-  transition: border-color 0.1s;
+  transition: border-color 0.2s;
 }
 .field:focus {
-  border-color: var(--text);
-  background: #fff;
+  border-color: rgba(140, 100, 50, 0.4);
 }
 .field::placeholder {
-  color: var(--text-muted);
+  color: rgba(42, 37, 32, 0.35);
 }
+[data-theme="dark"] .field {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .field::placeholder { color: var(--text-muted); }
+[data-theme="dark"] .field:focus        { border-color: rgba(180, 140, 90, 0.4); }
 /* Two-column layout for side-by-side fields (e.g. receipt number + date) */
 .field-row {
   display: grid;

@@ -4,7 +4,12 @@ import { z } from "zod";
 const receiptSchema = z.object({
   vendor_name: z.string().min(1),
   customer_name: z.string().min(1),
-  receipt_number: z.string().min(1),
+  /*
+    receipt_number is optional — the UI shows "Auto — REC-000001" as a placeholder
+    meaning the user can leave it blank and let the server generate one.
+    If they do provide one it must be a non-empty string.
+  */
+  receipt_number: z.string().min(1).optional(),
   status: z.enum(["draft", "sent", "paid", "voided"]).optional(),
   date: z.string().optional(),
   subtotal: z.number().min(0),
@@ -69,10 +74,26 @@ export const createReceipt = async (req, res) => {
       return res.status(400).json({ error: parsed.error.flatten() });
     }
 
-    const {
+    let {
       vendor_name, customer_name, receipt_number, status, date,
       subtotal, tax, total, notes, line_items,
     } = parsed.data;
+
+    /*
+      If the user left receipt_number blank, generate one automatically.
+      We count how many receipts this user already has and pad to 6 digits.
+      e.g. their 3rd receipt becomes "REC-000003".
+      This isn't a guaranteed unique sequence (concurrent inserts could collide)
+      but it's good enough for a single-user receipts tracker.
+    */
+    if (!receipt_number) {
+      const countResult = await pool.query(
+        "SELECT COUNT(*) FROM receipts WHERE user_id = $1",
+        [user_id]
+      );
+      const next = parseInt(countResult.rows[0].count, 10) + 1;
+      receipt_number = `REC-${String(next).padStart(6, "0")}`;
+    }
 
     const client = await pool.connect();
     try {

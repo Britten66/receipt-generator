@@ -284,7 +284,7 @@ export default function ProfileModal({ profile, token, userEmail, onSave, onClos
                 <img
                   src={form.logo_url}
                   alt="Logo"
-                  style={{ height: 36, maxWidth: 80, objectFit: "contain", borderRadius: 4, border: "1px solid var(--border)" }}
+                  style={{ height: 36, maxWidth: 80, objectFit: "contain", borderRadius: 0, border: "1px solid var(--border)" }}
                 />
               )}
 

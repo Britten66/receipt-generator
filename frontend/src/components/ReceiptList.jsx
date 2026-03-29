@@ -99,7 +99,7 @@ export default function ReceiptList({ receipts, STATUS_CONFIG, onDelete }) {
               fontWeight: 700,
               letterSpacing: "0.12em",
               padding: "2px 6px",
-              borderRadius: 3,
+              borderRadius: 0,
               background: `${statusConfig.color}18`,  // 18 = 10% opacity in hex
               color: statusConfig.color,
               border: `1px solid ${statusConfig.color}30`,  // 30 = 19% opacity in hex

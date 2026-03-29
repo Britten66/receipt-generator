@@ -32,6 +32,7 @@ import LandingPage from "./components/LandingPage";
 import AuthModal from "./components/AuthModal";
 import ProfileModal from "./components/ProfileModal";
 import PasswordUpdateModal from "./components/PasswordUpdateModal";
+import HelpModal from "./components/HelpModal";
 import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
 import { QRCodeSVG } from "qrcode.react";
@@ -80,6 +81,31 @@ const STATUS_LABELS = {
 
 export default function App() {
 
+  /*
+    darkMode — true when the user has switched to dark mode.
+    We read the saved preference from localStorage on first load so it
+    persists between sessions. The value is stored as the string "1".
+  */
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem("dark_mode") === "1";
+  });
+
+  /*
+    Apply or remove the dark mode attribute on the <html> element.
+    CSS variables in App.css are scoped to [data-theme="dark"],
+    so setting this attribute is all that's needed to switch the palette.
+    This runs whenever darkMode changes.
+  */
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.setAttribute("data-theme", "dark");
+      localStorage.setItem("dark_mode", "1");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+      localStorage.setItem("dark_mode", "0");
+    }
+  }, [darkMode]);
+
   // Supabase session. Null until auth check is done.
   const [session, setSession] = useState(null);
 
@@ -127,6 +153,9 @@ export default function App() {
 
   // Controls whether the profile settings modal is open.
   const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // Controls whether the help modal is open.
+  const [showHelp, setShowHelp] = useState(false);
 
   // Controls whether the create/edit receipt form modal is open.
   const [showForm, setShowForm] = useState(false);
@@ -536,12 +565,25 @@ export default function App() {
   return (
     <div className="app-shell">
 
-      {/* Top bar: date on the left, avatar dropdown on the right for signed-in users */}
-      <header className={`topbar${isAnon ? " topbar-guest" : ""}`}>
-        <div className="topbar-meta">
-          {new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })}
+      {/* Top bar: 3 columns — dark toggle far left | date centered | avatar far right */}
+      <header className="topbar">
+
+        {/* Column 1 — far left */}
+        <div>
+          <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)}>
+            {darkMode ? "Light" : "Dark"}
+          </button>
         </div>
+
+        {/* Column 2 — center */}
+        <div className="topbar-meta">
+          {new Date().toLocaleDateString("en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+        </div>
+
+        {/* Column 3 — far right */}
         <div className="topbar-right">
+          {/* Help button — circled ? */}
+          <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help">?</button>
           {/* Avatar dropdown — only shown when the user is signed in */}
           {!isAnon && (
             <DropdownMenu.Root>
@@ -614,7 +656,8 @@ export default function App() {
               style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em" }}
               onClick={() => setShowAuthModal(true)}
             >
-              Save receipts · Create account
+              Save receipts  <br></br>
+                Create account
             </button>
           ) : (
             <>
@@ -659,12 +702,16 @@ export default function App() {
           <div className="receipt-grid-wrap">
             {loading ? (
               <div className="empty">Loading...</div>
+            ) : filtered.length === 0 ? (
+              /*
+                Rendered outside the grid intentionally — the grid uses auto-fill columns
+                so anything inside it only spans one cell and ends up left-aligned.
+                Putting the empty state here lets it stretch the full container width.
+              */
+              <div className="empty" style={{ textAlign: "center", width: "100%" }}>No receipts found</div>
             ) : (
               <div className="receipt-grid">
-                {filtered.length === 0 ? (
-                  <div className="empty">No receipts found</div>
-                ) : (
-                  filtered.map((r) => (
+                {filtered.map((r) => (
                     <div key={r.id} className="swipe-wrapper">
 
                       {/* Mobile swipe-to-delete button (visible after swiping left) */}
@@ -726,7 +773,7 @@ export default function App() {
                       </div>
                     </div>
                   ))
-                )}
+                }
               </div>
             )}
           </div>
@@ -954,6 +1001,9 @@ export default function App() {
       {showPasswordUpdate && (
         <PasswordUpdateModal onClose={() => setShowPasswordUpdate(false)} />
       )}
+
+      {/* Help modal */}
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
 
       {/* Profile / settings modal */}
       {showProfileModal && (
