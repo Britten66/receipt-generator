@@ -49,8 +49,14 @@
   --voided: #c04a4a;
 }
 
-/* Primary button is cream in both modes — keep text dark on dark mode too */
+/* Dark mode: cream button, dark text */
 [data-theme="dark"] .btn-primary {
+  background: #e7ddc7;
+  color: #1a1a1a;
+  border-color: #c8b89a;
+}
+[data-theme="dark"] .btn-primary:hover {
+  background: #d6ccb4;
   color: #1a1a1a;
 }
 
@@ -732,22 +738,19 @@ body,
   box-shadow: inset 1px 1px 0 rgba(0,0,0,0.3);
   transform: translate(1px, 1px);
 }
-/*
-  Primary button — cream/sand background with dark text in both light and dark mode.
-  This way there's never white text on a light surface; it's always readable.
-*/
+/* Light mode: dark button, white text */
 .btn-primary {
-  background: #e7ddc7;
-  color: #1a1a1a;
-  border-color: #c8b89a;
-  box-shadow: 1px 1px 0 rgba(255,255,255,0.3), 2px 2px 0 rgba(0,0,0,0.35);
+  background: #1a1a1a;
+  color: #f5f4f0;
+  border-color: #1a1a1a;
+  box-shadow: 1px 1px 0 rgba(255,255,255,0.12), 2px 2px 0 rgba(0,0,0,0.5);
 }
 .btn-primary:hover {
-  background: #d6ccb4;
-  color: #1a1a1a;
+  background: #333;
+  color: #f5f4f0;
 }
 .btn-primary:active {
-  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.3);
+  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.4);
   transform: translate(1px, 1px);
 }
 .btn-ghost {

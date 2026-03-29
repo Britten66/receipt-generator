@@ -136,8 +136,8 @@
   align-items: center;
   justify-content: center;
   padding: 17px 54px;
-  background: #e7ddc7;
-  color: #1a1a1a;
+  background: #1a1a1a;
+  color: #f5f4f0;
   font-family: var(--mono);
   font-size: 10px;
   font-weight: 600;
@@ -156,8 +156,8 @@
 }
 
 .landing-bubble:hover {
-  background: #d6ccb4;
-  color: #1a1a1a;
+  background: #333;
+  color: #f5f4f0;
   transform: translateY(-3px);
   box-shadow:
     0 1px 0 rgba(255,255,255,0.12) inset,

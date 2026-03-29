@@ -81,10 +81,8 @@ export const createReceipt = async (req, res) => {
 
     /*
       If the user left receipt_number blank, generate one automatically.
-      We count how many receipts this user already has and pad to 6 digits.
+      We count all receipts (including voided) for this user and pad to 6 digits.
       e.g. their 3rd receipt becomes "REC-000003".
-      This isn't a guaranteed unique sequence (concurrent inserts could collide)
-      but it's good enough for a single-user receipts tracker.
     */
     if (!receipt_number) {
       const countResult = await pool.query(
@@ -94,6 +92,24 @@ export const createReceipt = async (req, res) => {
       const next = parseInt(countResult.rows[0].count, 10) + 1;
       receipt_number = `REC-${String(next).padStart(6, "0")}`;
     }
+
+    /*
+      If the receipt_number already exists for this user (e.g. a voided receipt kept
+      its number), append a suffix rather than hard-failing with a DB unique error.
+      We check and increment until we find a free slot.
+    */
+    let finalNumber = receipt_number;
+    let suffix = 1;
+    while (true) {
+      const exists = await pool.query(
+        "SELECT id FROM receipts WHERE user_id = $1 AND receipt_number = $2",
+        [user_id, finalNumber]
+      );
+      if (!exists.rows.length) break;
+      finalNumber = `${receipt_number}-${suffix}`;
+      suffix++;
+    }
+    receipt_number = finalNumber;
 
     const client = await pool.connect();
     try {

@@ -20,7 +20,7 @@ export default function LandingPage({ onEnter }) {
 
         {/* Perks — short, plain, no fluff */}
         <ul className="landing-perks">
-          <li>Save receipts — access them anywhere</li>
+          <li>Save receipts, access them anywhere</li>
           <li>Track paid, sent, draft, and voided invoices</li>
           <li>Export to PDF in one click</li>
           <li>Your data stays yours, no ads</li>
