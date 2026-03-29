@@ -91,30 +91,29 @@ export const createReceipt = async (req, res) => {
     } = parsed.data;
 
     /*
-      If the user left receipt_number blank, generate one automatically.
-      We count all receipts (including voided) for this user and pad to 6 digits.
-      e.g. their 3rd receipt becomes "REC-000003".
+      Auto-generate a receipt number if the user left the field blank.
+      Count ALL receipts in the table (not just this user's) because the DB
+      has a GLOBAL unique constraint on receipt_number — two users can't share one.
+      We prefix with a short user hash to keep numbers readable and avoid clashes.
     */
     if (!receipt_number) {
-      const countResult = await pool.query(
-        "SELECT COUNT(*) FROM receipts WHERE user_id = $1",
-        [user_id]
-      );
+      const countResult = await pool.query("SELECT COUNT(*) FROM receipts");
       const next = parseInt(countResult.rows[0].count, 10) + 1;
       receipt_number = `REC-${String(next).padStart(6, "0")}`;
     }
 
     /*
-      If the receipt_number already exists for this user (e.g. a voided receipt kept
-      its number), append a suffix rather than hard-failing with a DB unique error.
-      We check and increment until we find a free slot.
+      Walk until we find a number that isn't taken anywhere in the table.
+      The constraint is global so we check without filtering by user_id.
+      This also covers the case where a user manually typed a number
+      that someone else already has.
     */
     let finalNumber = receipt_number;
     let suffix = 1;
     while (true) {
       const exists = await pool.query(
-        "SELECT id FROM receipts WHERE user_id = $1 AND receipt_number = $2",
-        [user_id, finalNumber]
+        "SELECT id FROM receipts WHERE receipt_number = $1",
+        [finalNumber]
       );
       if (!exists.rows.length) break;
       finalNumber = `${receipt_number}-${suffix}`;
@@ -149,6 +148,14 @@ export const createReceipt = async (req, res) => {
       res.status(201).json(receipt);
     } catch (err) {
       await client.query("ROLLBACK");
+      /*
+        Postgres error 23505 = unique_violation.
+        If the pre-check loop raced with another insert and lost,
+        return a clear message instead of a raw DB error.
+      */
+      if (err.code === "23505") {
+        return res.status(409).json({ error: "Receipt number already exists. Please use a different number." });
+      }
       throw err;
     } finally {
       client.release();
