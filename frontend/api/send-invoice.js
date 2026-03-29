@@ -3,6 +3,30 @@ import { authenticate } from "./_lib.js";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+/*
+  Escape any characters that have special meaning in HTML.
+  This is applied to every piece of user-supplied data before it is
+  interpolated into the email template — without this, a vendor name
+  like `<script>alert(1)</script>` would execute in the recipient's
+  email client (stored XSS via email).
+*/
+function escapeHtml(str) {
+  if (str == null) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/*
+  Basic email format check. Not exhaustive — real validation happens
+  at Resend's end — but this catches obvious bad input early and returns
+  a clear 400 instead of burning an API call on a garbage address.
+*/
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
@@ -24,20 +48,40 @@ export default async function handler(req, res) {
   } = req.body;
 
   if (!to) return res.status(400).json({ error: "Recipient email is required" });
+  if (!EMAIL_RE.test(to)) return res.status(400).json({ error: "Invalid recipient email address" });
+
+  /*
+    Escape all user-supplied strings before inserting them into the HTML.
+    payment_url is intentionally NOT escaped here — it needs to remain
+    a valid URL for the href attribute. We validate it separately below.
+  */
+  const safe = {
+    to:             escapeHtml(to),
+    vendor_name:    escapeHtml(vendor_name),
+    customer_name:  escapeHtml(customer_name),
+    receipt_number: escapeHtml(receipt_number),
+    notes:          escapeHtml(notes),
+  };
+
+  /*
+    Only allow http/https URLs for the Pay Now button.
+    javascript: and data: URIs can execute arbitrary code in email clients.
+  */
+  const safePaymentUrl = (payment_url && /^https?:\/\//i.test(payment_url))
+    ? payment_url
+    : null;
 
   const fmt = (n) => `$${parseFloat(n || 0).toFixed(2)}`;
-  const dateStr = date ? new Date(date).toLocaleDateString("en-CA") : "—";
+  const dateStr = date ? new Date(date).toLocaleDateString("en-CA") : "";
 
   const itemRows = (line_items ?? [])
-    .map(
-      (li) => `
+    .map((li) => `
       <tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #e8e6e1;">${li.description || "—"}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #e8e6e1;text-align:right;">${li.quantity}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e8e6e1;">${escapeHtml(li.description) || ""}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e8e6e1;text-align:right;">${escapeHtml(String(li.quantity))}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #e8e6e1;text-align:right;">${fmt(li.unit_price)}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #e8e6e1;text-align:right;">${fmt(li.total)}</td>
-      </tr>`
-    )
+      </tr>`)
     .join("");
 
   const html = `
@@ -49,7 +93,7 @@ export default async function handler(req, res) {
 
     <div style="background:#1e1c18;padding:20px 28px;">
       <span style="color:#fff;font-size:13px;font-weight:700;letter-spacing:0.1em;">RECEIPT</span>
-      <span style="color:#b4afa5;font-size:11px;float:right;line-height:20px;">#${receipt_number}</span>
+      <span style="color:#b4afa5;font-size:11px;float:right;line-height:20px;">#${safe.receipt_number}</span>
     </div>
 
     <div style="padding:24px 28px 0;">
@@ -57,18 +101,18 @@ export default async function handler(req, res) {
         <tr>
           <td style="vertical-align:top;">
             <div style="font-size:11px;color:#908e8a;margin-bottom:4px;">FROM</div>
-            <div style="font-size:14px;font-weight:700;color:#1e1c18;">${vendor_name || "—"}</div>
+            <div style="font-size:14px;font-weight:700;color:#1e1c18;">${safe.vendor_name || ""}</div>
           </td>
           <td style="vertical-align:top;text-align:right;">
             <div style="font-size:11px;color:#908e8a;margin-bottom:4px;">ISSUED TO</div>
-            <div style="font-size:14px;font-weight:700;color:#1e1c18;">${customer_name || "—"}</div>
+            <div style="font-size:14px;font-weight:700;color:#1e1c18;">${safe.customer_name || ""}</div>
           </td>
         </tr>
       </table>
       <div style="font-size:11px;color:#908e8a;margin-bottom:20px;">Date: ${dateStr}</div>
     </div>
 
-    <table width="100%" style="border-collapse:collapse;margin:0 0 0 0;">
+    <table width="100%" style="border-collapse:collapse;">
       <thead>
         <tr style="background:#f0ede8;">
           <th style="padding:8px 12px;text-align:left;font-size:10px;color:#908e8a;font-weight:600;">DESCRIPTION</th>
@@ -86,15 +130,15 @@ export default async function handler(req, res) {
       <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;color:#1e1c18;border-top:1px solid #e8e6e1;padding-top:12px;">
         <span>Total</span><span>${fmt(total)}</span>
       </div>
-      ${notes ? `<div style="margin-top:20px;font-size:11px;color:#908e8a;border-top:1px solid #e8e6e1;padding-top:16px;"><strong>Note:</strong> ${notes}</div>` : ""}
-      ${payment_url ? `
+      ${safe.notes ? `<div style="margin-top:20px;font-size:11px;color:#908e8a;border-top:1px solid #e8e6e1;padding-top:16px;"><strong>Note:</strong> ${safe.notes}</div>` : ""}
+      ${safePaymentUrl ? `
       <div style="text-align:center;margin-top:24px;">
-        <a href="${payment_url}" style="display:inline-block;background:#1e1c18;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;">Pay Now</a>
+        <a href="${safePaymentUrl}" style="display:inline-block;background:#1e1c18;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;">Pay Now</a>
       </div>` : ""}
     </div>
 
     <div style="background:#f5f4f0;padding:14px 28px;text-align:center;font-size:10px;color:#b4afa5;">
-      Generated by Keep Track · Receipt Generator
+      Generated by Keep Track
     </div>
   </div>
 </body>
@@ -103,14 +147,14 @@ export default async function handler(req, res) {
   try {
     await resend.emails.send({
       from: "invoices@keeptrack.app",
-      to,
-      subject: `Invoice #${receipt_number} from ${vendor_name || "your vendor"}`,
+      to: safe.to,
+      subject: `Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`,
       html,
       reply_to: user.email || undefined,
     });
     return res.json({ ok: true });
   } catch (err) {
     console.error("send-invoice:", err.message);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: "Failed to send invoice. Please try again." });
   }
 }

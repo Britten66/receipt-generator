@@ -17,7 +17,13 @@ const supabase = createClient(
 export async function authenticate(req, res) {
   const token = req.headers.authorization?.slice(7);
   if (!token) { res.status(401).json({ error: "Unauthorized" }); return null; }
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) { res.status(401).json({ error: "Unauthorized" }); return null; }
-  return user;
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) { res.status(401).json({ error: "Unauthorized" }); return null; }
+    return user;
+  } catch (err) {
+    console.error("authenticate:", err.message);
+    res.status(401).json({ error: "Unauthorized" });
+    return null;
+  }
 }
