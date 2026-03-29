@@ -519,8 +519,8 @@ body,
   border-radius: 0;
   padding: 0;
   cursor: pointer;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -529,11 +529,11 @@ body,
 }
 .avatar-btn:hover { border-color: var(--text); }
 .avatar-fallback {
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   background: var(--text);
   color: var(--surface);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   display: flex;
   align-items: center;

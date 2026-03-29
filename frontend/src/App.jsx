@@ -548,7 +548,7 @@ export default function App() {
               <DropdownMenu.Trigger asChild>
                 <button className="avatar-btn" aria-label="User menu">
                   {avatarUrl
-                    ? <img src={avatarUrl} alt="" width={28} height={28} style={{ display: "block", objectFit: "cover" }} />
+                    ? <img src={avatarUrl} alt="" width={34} height={34} style={{ display: "block", objectFit: "cover" }} />
                     : <div className="avatar-fallback">{userEmail[0] ? userEmail[0].toUpperCase() : "?"}</div>
                   }
                 </button>
