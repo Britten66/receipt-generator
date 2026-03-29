@@ -617,13 +617,22 @@ export default function App() {
               Save receipts · Create account
             </button>
           ) : (
-            <button
-              className="btn btn-ghost"
-              style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em" }}
-              onClick={() => setShowProfileModal(true)}
-            >
-              {profile?.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
-            </button>
+            <>
+              <button
+                className="btn btn-ghost"
+                style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em" }}
+                onClick={() => setShowProfileModal(true)}
+              >
+                {profile && profile.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
+              </button>
+              <button
+                className="btn btn-ghost"
+                style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em", color: "var(--text-muted)" }}
+                onClick={() => supabase.auth.signOut()}
+              >
+                Sign Out
+              </button>
+            </>
           )}
           <button className="btn btn-primary" style={{ width: "100%" }} onClick={openNewReceipt}>
             + New Receipt
