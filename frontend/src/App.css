@@ -97,7 +97,11 @@ body,
   color: var(--text-dim);
 }
 .topbar-meta {
-  font-size: 11px;
+  font-family: "Oswald", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   color: var(--text-muted);
 }
 
