@@ -1,0 +1,171 @@
+API QUERIES AND ASYNC FUNCTIONS
+================================
+
+Every API call in this app follows the same pattern:
+  1. The frontend sends an HTTP request with the user's JWT token in the header
+  2. The server checks the token to confirm who the user is (authenticate)
+  3. The server runs a database query and returns the result as JSON
+
+The token is the login credential. Every request must include it or the server
+returns 401 Unauthorized and does nothing.
+
+
+AUTHENTICATION  (_lib.js)
+--------------------------
+authenticate(req, res)
+
+  Called at the top of every API handler before anything else runs.
+  Reads the JWT token from the Authorization header, asks Supabase to verify it,
+  and returns the user object if valid. If the token is missing or invalid,
+  it sends back a 401 error and returns null so the handler stops immediately.
+
+  Used by: all API routes
+
+
+DATABASE CONNECTION  (_lib.js)
+-------------------------------
+pool (PostgreSQL connection pool)
+
+  A shared pool of database connections. Instead of opening a new connection
+  for every request, the pool keeps a small set of connections open and reuses them.
+  max: 1 means only one connection at a time (appropriate for serverless functions).
+
+  Used by: all API routes that query the database
+
+
+RECEIPTS  (api/receipts/index.js)
+----------------------------------
+GET /api/receipts
+  Returns all receipts belonging to the logged-in user, newest first.
+  No input needed — the user is identified from the token.
+  Returns: array of receipt rows
+
+POST /api/receipts
+  Creates a new receipt and its line items in the database.
+  Automatically generates the next receipt number (REC-000001, REC-000002, etc.)
+  by finding the highest existing number for this user and adding 1.
+  The insert is wrapped in a transaction so if the line items fail,
+  the receipt is also rolled back (nothing is half-saved).
+  Input:  vendor_name, customer_name, status, date, subtotal, tax, total, notes, line_items
+  Returns: the newly created receipt row
+
+
+SINGLE RECEIPT  (api/receipts/[id].js)
+----------------------------------------
+GET /api/receipts/:id
+  Returns one receipt by its ID, including all its line items.
+  The line items are fetched in a second query and attached to the receipt object.
+  Returns 404 if the receipt does not exist or belongs to a different user.
+  Returns: receipt row with a line_items array attached
+
+PATCH /api/receipts/:id
+  Updates one or more fields on an existing receipt.
+  Accepts any combination of fields in the request body (e.g. just { status: "paid" }).
+  Builds the SQL SET clause dynamically from whatever fields were sent.
+  Returns 404 if the receipt does not exist or belongs to a different user.
+  Returns: the updated receipt row
+
+DELETE /api/receipts/:id
+  Permanently deletes a receipt from the database.
+  Returns 404 if the receipt does not exist or belongs to a different user.
+  Returns: { message: "Deleted" }
+
+
+PROFILE  (api/profile.js)
+---------------------------
+GET /api/profile
+  Returns the profile row for the logged-in user.
+  Returns an empty object {} if the user has not set up their profile yet.
+  Returns: profile row or {}
+
+PUT /api/profile
+  Creates or updates the profile for the logged-in user.
+  Uses INSERT ... ON CONFLICT DO UPDATE, which means:
+    - If no profile exists yet, it creates one
+    - If a profile already exists, it updates it
+  This is sometimes called an "upsert" (update or insert).
+  Input:  business_name, address, email, phone, bio, website, payment_url, logo_url
+  Returns: the saved profile row
+
+
+SEND INVOICE EMAIL  (api/send-invoice.js)
+------------------------------------------
+POST /api/send-invoice
+  Sends a formatted HTML invoice email to the client using Resend.
+  Requires RESEND_API_KEY to be set in Vercel environment variables.
+  Builds the email HTML on the server (not the client) so it can include
+  all the receipt data in a clean table layout.
+  If the profile has a payment_url, a "Pay Now" button is included in the email.
+  Input:  to (client email), vendor_name, customer_name, receipt_number, date,
+          line_items, subtotal, tax, total, notes, payment_url
+  Returns: { ok: true } on success
+
+
+FRONTEND API FUNCTIONS  (src/api/receipts.js and src/api/profile.js)
+----------------------------------------------------------------------
+These are the functions the React app calls. They are thin wrappers around
+fetch() that add the Authorization header automatically.
+
+fetchReceipts(token)
+  Calls GET /api/receipts
+  Returns the array of all receipts for the logged-in user
+
+fetchReceiptById(id, token)
+  Calls GET /api/receipts/:id
+  Returns one receipt with its line_items attached
+
+createReceipt(data, token)
+  Calls POST /api/receipts
+  Creates a new receipt and returns the saved receipt object
+
+updateReceipt(id, data, token)
+  Calls PATCH /api/receipts/:id
+  Updates fields on an existing receipt, returns the updated receipt
+
+deleteReceipt(id, token)
+  Calls DELETE /api/receipts/:id
+  Deletes a receipt, returns { message: "Deleted" }
+
+fetchProfile(token)
+  Calls GET /api/profile
+  Returns the user's saved profile, or {} if not set up yet
+
+saveProfile(data, token)
+  Calls PUT /api/profile
+  Creates or updates the profile, returns the saved profile object
+
+
+SUPABASE AUTH CALLS  (used directly in components, not via the API)
+---------------------------------------------------------------------
+These call Supabase directly from the frontend — they do not go through
+the Vercel serverless functions.
+
+supabase.auth.getSession()
+  Checks if the user already has an active session (e.g. after a page refresh).
+  Called once on app load.
+
+supabase.auth.signInAnonymously()
+  Creates a temporary anonymous session so the user can use the app
+  without signing up. Their data is stored under a random user ID and
+  will be lost if they clear their browser storage.
+
+supabase.auth.signUp({ email, password })
+  Creates a new account. Sends a confirmation email.
+
+supabase.auth.signInWithPassword({ email, password })
+  Logs into an existing account.
+
+supabase.auth.signOut()
+  Ends the session. The app then creates a new anonymous session automatically.
+
+supabase.auth.resetPasswordForEmail(email)
+  Sends a password reset email. The link in the email brings the user back
+  to the app where PasswordUpdateModal lets them set a new password.
+
+supabase.auth.updateUser({ password })
+  Sets a new password. Called from PasswordUpdateModal after the user
+  arrives via a password reset link.
+
+supabase.auth.onAuthStateChange(callback)
+  Listens for any auth event (login, logout, password reset link clicked)
+  and calls the callback so the app can react. Set up once on app load.
