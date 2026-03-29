@@ -49,9 +49,9 @@
   --voided: #c04a4a;
 }
 
-/* In dark mode the primary button background becomes cream — force black text so it's actually readable */
+/* Primary button is cream in both modes — keep text dark on dark mode too */
 [data-theme="dark"] .btn-primary {
-  color: #000;
+  color: #1a1a1a;
 }
 
 /* Ghost buttons have no background by default — in dark mode give them a subtle fill so they stand out from the surface */
@@ -653,7 +653,7 @@ body,
   font-family: var(--sans);
 }
 .dropdown-content {
-  background: #fff;
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 0;
   padding: 6px;
@@ -732,17 +732,22 @@ body,
   box-shadow: inset 1px 1px 0 rgba(0,0,0,0.3);
   transform: translate(1px, 1px);
 }
+/*
+  Primary button — cream/sand background with dark text in both light and dark mode.
+  This way there's never white text on a light surface; it's always readable.
+*/
 .btn-primary {
-  background: var(--text);
-  color: #f5f4f0;
-  border-color: var(--text);
-  box-shadow: 1px 1px 0 rgba(255,255,255,0.2), 2px 2px 0 rgba(0,0,0,0.5);
+  background: #e7ddc7;
+  color: #1a1a1a;
+  border-color: #c8b89a;
+  box-shadow: 1px 1px 0 rgba(255,255,255,0.3), 2px 2px 0 rgba(0,0,0,0.35);
 }
 .btn-primary:hover {
-  background: #222;
+  background: #d6ccb4;
+  color: #1a1a1a;
 }
 .btn-primary:active {
-  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.4);
+  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.3);
   transform: translate(1px, 1px);
 }
 .btn-ghost {
@@ -1399,5 +1404,52 @@ body,
   /* When swiped, the card slides 76px left to reveal the delete button */
   .receipt-card.swiped {
     transform: translateX(-76px);
+  }
+
+  /*
+    Topbar date is too long on mobile (full weekday + date string).
+    Truncate with ellipsis so it doesn't crush the toggle and avatar.
+  */
+  .topbar-meta {
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+
+  /*
+    The help window is designed for desktop dragging.
+    On mobile, lock it to center and full-width so it behaves like a normal modal.
+    Disable resize (resize: none) and dragging has no effect since it's static.
+  */
+  .win-modal {
+    position: fixed !important;
+    left: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    resize: none !important;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+  .win-titlebar { cursor: default; } /* no drag affordance on touch */
+}
+
+/*
+  Extra-small phones (< 400px) — stack the two-column field row to one column
+  so receipt number and date fields don't get too cramped.
+  768px already does this, but just in case it's referenced from other breakpoints.
+*/
+@media (max-width: 400px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+  .topbar-meta {
+    max-width: 120px;
+    font-size: 9px;
   }
 }

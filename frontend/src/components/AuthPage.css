@@ -128,23 +128,22 @@
   margin-top: 4px;
   width: 100%;
   padding: 13px;
-  background: var(--text);
-  color: #f5f4f0;
+  background: #e7ddc7;
+  color: #1a1a1a;
+  border: 1px solid #c8b89a;
   font-family: var(--mono);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  border: none;
   border-radius: 0;
   cursor: pointer;
-  /* Win95 bevel shadow */
-  box-shadow: 1px 1px 0 rgba(255,255,255,0.15), 2px 2px 0 rgba(0,0,0,0.4);
+  box-shadow: 1px 1px 0 rgba(255,255,255,0.3), 2px 2px 0 rgba(0,0,0,0.35);
   transition: background 0.15s, opacity 0.15s;
 }
 
 .auth-submit:hover {
-  background: #1e1d1b;
+  background: #d6ccb4;
 }
 
 .auth-submit:active {
