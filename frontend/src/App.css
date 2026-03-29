@@ -50,7 +50,6 @@ body,
   On desktop:
     Row 1: topbar (36px tall, full width)
     Row 2: sidebar (200px wide) + main content (rest of width)
-  When the ticker bar is showing (anonymous user), an extra 20px row is added at the top.
 */
 .app-shell {
   display: grid;
@@ -58,46 +57,6 @@ body,
   grid-template-columns: 200px 1fr;
   height: 100vh;
   overflow: hidden;
-}
-.app-shell.has-ticker {
-  grid-template-rows: 20px 36px 1fr;
-}
-
-/* TICKER BAR */
-/*
-  Thin banner at the very top shown only to anonymous (not signed in) users.
-  Prompts them to create an account to save their receipts.
-*/
-.ticker-bar {
-  grid-column: 1 / -1; /* span full width */
-  height: 20px;
-  background: var(--text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.ticker-static {
-  font-size: 9px;
-  font-family: var(--mono);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.6);
-}
-.ticker-link {
-  background: none;
-  border: none;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #fff;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  padding: 0;
-}
-.ticker-link:hover {
-  opacity: 0.8;
 }
 
 /* TOPBAR */
@@ -387,7 +346,7 @@ body,
   font-size: 11px;
   font-weight: 500;
   padding: 2px 8px;
-  border-radius: 20px;
+  border-radius: 0;
   font-family: var(--sans);
   text-transform: capitalize;
   white-space: nowrap;
@@ -546,14 +505,14 @@ body,
 
 /* AVATAR + DROPDOWN MENU */
 /*
-  The circular avatar button in the top-right corner.
-  Shows the user's Gravatar image or their initial as a fallback.
+  Square avatar button in the top-right corner.
+  Shows the user's logo if uploaded, or their initial as a fallback.
   Clicking it opens a dropdown with Profile and Sign Out options.
 */
 .avatar-btn {
   background: none;
   border: 1.5px solid var(--border);
-  border-radius: 50%;
+  border-radius: 0;
   padding: 0;
   cursor: pointer;
   width: 30px;
@@ -575,13 +534,13 @@ body,
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: 0;
   font-family: var(--sans);
 }
 .dropdown-content {
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 0;
   padding: 6px;
   min-width: 200px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
@@ -641,25 +600,35 @@ body,
   letter-spacing: 0.12em;
   text-transform: uppercase;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 0;
   cursor: pointer;
   padding: 7px 14px;
   background: var(--surface);
   color: var(--text);
   transition: background 0.1s, box-shadow 0.1s;
+  /* Classic Windows bevel shadow: light top-left edge, dark bottom-right edge */
+  box-shadow: 1px 1px 0 rgba(255,255,255,0.12), 2px 2px 0 rgba(0,0,0,0.35);
 }
 .btn:hover {
   background: var(--bg);
+}
+.btn:active {
+  /* On click, flip the shadow inward to simulate pressing a physical button */
+  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.3);
+  transform: translate(1px, 1px);
 }
 .btn-primary {
   background: var(--text);
   color: #f5f4f0;
   border-color: var(--text);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  box-shadow: 1px 1px 0 rgba(255,255,255,0.2), 2px 2px 0 rgba(0,0,0,0.5);
 }
 .btn-primary:hover {
   background: #222;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.22);
+}
+.btn-primary:active {
+  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.4);
+  transform: translate(1px, 1px);
 }
 .btn-ghost {
   background: none;
@@ -701,7 +670,7 @@ body,
 .btn-icon:hover {
   color: var(--text);
 }
-/* Close button (the ✕ in the detail panel header) — circular on hover */
+/* Close button (the ✕ in the detail panel header) */
 .close-btn {
   width: 28px;
   height: 28px;
@@ -709,7 +678,7 @@ body,
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  border-radius: 50%;
+  border-radius: 0;
   flex-shrink: 0;
   transition: background 0.12s, color 0.12s;
 }
@@ -875,19 +844,6 @@ body,
     text-align: inherit;
   }
 
-  /* Keep the ticker text centered on mobile */
-  .ticker-bar {
-    width: 100%;
-    text-align: center;
-    justify-content: center;
-    padding: 0 16px;
-  }
-  .ticker-static {
-    text-align: center;
-    width: 100%;
-    display: block;
-  }
-
   /*
     Prevent iOS from zooming in when the user taps an input field.
     iOS zooms in when an input has font-size < 16px.
@@ -929,7 +885,7 @@ body,
     flex: 1;
     height: 44px;
     font-size: 11px;
-    border-radius: 8px;
+    border-radius: 0;
   }
 
   /* Hide the column headers on mobile — layout is stacked instead */
@@ -1050,7 +1006,7 @@ body,
     white-space: nowrap;
     background: var(--surface-2);
     border: 1px solid var(--border);
-    border-radius: 20px;
+    border-radius: 0;
     padding: 8px 16px;
     font-size: 11px;
     text-align: center;
@@ -1083,7 +1039,7 @@ body,
   }
   .sidebar > div:last-child .btn-primary {
     height: 48px;
-    border-radius: 24px;
+    border-radius: 0;
     font-size: 14px;
     font-weight: 600;
     box-shadow: 0 4px 14px rgba(0,0,0,0.2);

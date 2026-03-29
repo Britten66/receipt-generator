@@ -1,28 +1,27 @@
 # Receipt Generator
 
-A lightweight invoicing tool built for freelance developers. Create, send, and track receipts without the bloat of enterprise billing software.
+A lightweight invoicing tool for freelancers. Create, send, and track receipts.
 
-## MVP
+## Features
 
 - Create and manage receipts with line items, tax, subtotal, and totals
-- Sequential receipt numbers (REC-001, REC-002...)
-- Status workflow — Draft → Sent → Paid → Voided
+- Sequential receipt numbers (REC-000001, REC-000002...)
+- Status workflow: Draft, Sent, Paid, Voided
 - Business profile that auto-fills vendor info on every receipt
-- QR code on unpaid receipts linked to your Stripe Payment Link
-- PDF download of any receipt
-- Time-based greeting with Gravatar avatar
-- Anonymous use with upgrade path to a full account
+- QR code on unpaid receipts linked to your payment link
+- PDF download and mobile share sheet
+- Anonymous use with an account upgrade path
 - Password reset and account management
-- Responsive — works on desktop and mobile
+- Works on desktop and mobile
 
 ## Stack
 
-- **Frontend** — React (Vite), deployed on Vercel
-- **API** — Vercel serverless functions
-- **Database** — PostgreSQL via Supabase
-- **Auth** — Supabase Auth (anonymous + email/password)
-- **PDF** — jsPDF + jspdf-autotable
+- Frontend: React (Vite), deployed on Vercel
+- API: Vercel serverless functions
+- Database: PostgreSQL via Supabase
+- Auth: Supabase Auth (anonymous + email/password)
+- PDF: jsPDF + jspdf-autotable
 
-## AI
+## Notes
 
-Claude was used to help duplicate boilerplate structure and assist with configuring the password reset and auth screens — specifically the data flow changes needed when authorizing reset tokens during the MVP launch configuration.
+Claude was used to help with boilerplate structure and configuring the password reset and auth screens.

@@ -35,7 +35,6 @@ import PasswordUpdateModal from "./components/PasswordUpdateModal";
 import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
 import { QRCodeSVG } from "qrcode.react";
-import md5 from "md5";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import "./App.css";
 
@@ -480,32 +479,17 @@ export default function App() {
     );
   }
 
-  /*
-    Gravatar avatar URL — Gravatar is a service where users can upload a profile
-    photo tied to their email address. We hash the email with MD5 (a standard
-    checksum algorithm) and pass that hash to Gravatar's image URL.
-    If the user has no Gravatar photo, the "d=identicon" parameter makes it
-    return a unique geometric pattern instead.
-
-    We only show the avatar for signed-in (non-anonymous) users.
-
-    Example:
-      userEmail    = "chris@example.com"
-      gravatarHash = md5("chris@example.com") → "some hex string"
-      avatarUrl    = "https://www.gravatar.com/avatar/somehexstring?s=56&d=identicon"
-  */
+  // The email address of the logged-in user (empty string if anonymous or not loaded yet)
   const userEmail = session && session.user ? session.user.email : "";
 
-  let gravatarHash = null;
-  if (userEmail) {
-    // md5() takes a string and returns a hex hash — Gravatar uses this to find the photo
-    gravatarHash = md5(userEmail.trim().toLowerCase());
-  }
-
+  /*
+    Avatar image — shown in the top-right dropdown button.
+    If the user has uploaded a business logo in their profile, we use that as the avatar.
+    Otherwise, the button falls back to showing the first letter of their email.
+  */
   let avatarUrl = null;
-  if (gravatarHash) {
-    // s=56 sets the image size to 56px, d=identicon sets the fallback style
-    avatarUrl = `https://www.gravatar.com/avatar/${gravatarHash}?s=56&d=identicon`;
+  if (profile && profile.logo_url) {
+    avatarUrl = profile.logo_url;
   }
 
   /*
@@ -550,19 +534,7 @@ export default function App() {
   }
 
   return (
-    <div className={`app-shell${isAnon ? " has-ticker" : ""}`}>
-
-      {/* Banner shown to anonymous users prompting them to create an account */}
-      {isAnon && (
-        <div className="ticker-bar">
-          <span className="ticker-static">
-            Auto-fill your business profile —{" "}
-            <button className="ticker-link" onClick={() => setShowAuthModal(true)}>
-              create an account here
-            </button>
-          </span>
-        </div>
-      )}
+    <div className="app-shell">
 
       {/* Top bar: date on the left, avatar dropdown on the right for signed-in users */}
       <header className={`topbar${isAnon ? " topbar-guest" : ""}`}>
@@ -576,8 +548,8 @@ export default function App() {
               <DropdownMenu.Trigger asChild>
                 <button className="avatar-btn" aria-label="User menu">
                   {avatarUrl
-                    ? <img src={avatarUrl} alt="" width={28} height={28} style={{ borderRadius: "50%", display: "block" }} />
-                    : <div className="avatar-fallback">{userEmail[0]?.toUpperCase()}</div>
+                    ? <img src={avatarUrl} alt="" width={28} height={28} style={{ display: "block", objectFit: "cover" }} />
+                    : <div className="avatar-fallback">{userEmail[0] ? userEmail[0].toUpperCase() : "?"}</div>
                   }
                 </button>
               </DropdownMenu.Trigger>
