@@ -90,12 +90,8 @@ export default function App() {
     return localStorage.getItem("dark_mode") === "1";
   });
 
-  /*
-    Apply or remove the dark mode attribute on the <html> element.
-    CSS variables in App.css are scoped to [data-theme="dark"],
-    so setting this attribute is all that's needed to switch the palette.
-    This runs whenever darkMode changes.
-  */
+  // Apply dark mode by toggling a data attribute on <html>.
+  // CSS variables in App.css are scoped to [data-theme="dark"].
   useEffect(() => {
     if (darkMode) {
       document.documentElement.setAttribute("data-theme", "dark");
@@ -106,93 +102,48 @@ export default function App() {
     }
   }, [darkMode]);
 
-  // Supabase session. Null until auth check is done.
-  const [session, setSession] = useState(null);
-
-  // True while we wait for Supabase to check if the user is logged in.
-  // We render nothing during this time to avoid a flash of wrong UI.
-  const [authLoading, setAuthLoading] = useState(true);
-
-  // Controls whether the sign-in / sign-up modal is visible.
-  const [showAuthModal, setShowAuthModal] = useState(false);
-
-  // Controls the "set new password" modal shown after the user clicks a password reset link.
+  const [session, setSession]                   = useState(null);
+  const [authLoading, setAuthLoading]           = useState(true);
+  const [showAuthModal, setShowAuthModal]       = useState(false);
   const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
 
   /*
-    "entered" tracks whether the user has passed the landing page.
-    We store this in localStorage so refreshing the page skips the landing page.
-    Value is the string "1" if they have clicked "Start Now", otherwise absent.
+    "entered" persists in localStorage so a page refresh skips the landing screen.
   */
   const [entered, setEntered] = useState(() => !!localStorage.getItem("app_entered"));
 
-  // The id of whichever receipt card is currently swiped open (mobile only).
-  const [swipedId, setSwipedId] = useState(null);
-
-  // Used to calculate how far the user has swiped a card left.
-  const touchStartX = useRef(0);
-
-  // All receipts fetched from the API for the logged-in user.
-  const [receipts, setReceipts] = useState([]);
-
-  // True while the receipts are being fetched on first load.
-  const [loading, setLoading] = useState(true);
-
-  // Which status tab is active in the sidebar. "ALL" shows everything.
-  const [filter, setFilter] = useState("ALL");
+  const [swipedId, setSwipedId]       = useState(null);
+  const touchStartX                   = useRef(0);
+  const [receipts, setReceipts]       = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [filter, setFilter]           = useState("ALL");
 
   /*
-    The currently selected receipt (shown in the detail panel).
-    This is the full receipt object including line_items, fetched by ID.
-    Null means no receipt is selected and the detail panel is hidden.
+    selected: the full receipt object shown in the detail panel, fetched by ID
+    (includes line_items). Null hides the panel.
   */
-  const [selected, setSelected] = useState(null);
-
-  // The logged-in user's profile (business name, contact info, logo, etc.)
-  const [profile, setProfile] = useState(null);
-
-  // Controls whether the profile settings modal is open.
+  const [selected, setSelected]           = useState(null);
+  const [profile, setProfile]             = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
-
-  // Controls whether the help modal is open.
-  const [showHelp, setShowHelp] = useState(false);
-
-  // Controls whether the create/edit receipt form modal is open.
-  const [showForm, setShowForm] = useState(false);
-
-  /*
-    When editing an existing receipt we put it here so the form knows to
-    pre-fill the fields. Null when creating a new receipt.
-  */
+  const [showHelp, setShowHelp]           = useState(false);
+  const [showForm, setShowForm]           = useState(false);
   const [editingReceipt, setEditingReceipt] = useState(null);
 
-  /*
-    Toast notification: { msg: string, type: "success" | "error" }
-    Shown as a small banner at the bottom of the screen for 3.5 seconds.
-    Null means no toast is currently visible.
-  */
+  // Toast: { msg, type: "success" | "error" }. Auto-clears after 3.5s.
   const [toast, setToast] = useState(null);
 
   /*
-    sendInvoiceTarget: the receipt we are about to email to the client.
-    When set, the email input row replaces the "Send to Client" button.
-    Null means the email row is hidden.
+    sendInvoiceTarget: receipt currently being emailed to a client.
+    When set, the "Send to Client" button is replaced by an email input row.
   */
   const [sendInvoiceTarget, setSendInvoiceTarget] = useState(null);
-
-  // The email address typed into the send-invoice input.
-  const [sendInvoiceEmail, setSendInvoiceEmail] = useState("");
-
-  // True while the email is being sent to prevent double-clicking.
-  const [sendingInvoice, setSendingInvoice] = useState(false);
+  const [sendInvoiceEmail, setSendInvoiceEmail]   = useState("");
+  const [sendingInvoice, setSendingInvoice]       = useState(false);
 
   /*
-    showToast(msg, type) — show a temporary banner message.
+    showToast(msg, type) — show a small banner at the bottom of the screen for 3.5s.
     type is "success" (green) or "error" (red). Defaults to "error".
-
-    Example:
-      showToast("Receipt created.", "success")
-      showToast("Failed to save. Check all fields.")
+    Example: showToast("Receipt created.", "success")
   */
   function showToast(msg, type = "error") {
     setToast({ msg, type });
@@ -272,10 +223,9 @@ export default function App() {
   }, [session]);
 
   /*
-    counts — how many receipts are in each status.
-    Used to show the number badge next to each filter item in the sidebar.
-
-    Example result: { draft: 2, sent: 1, paid: 5, voided: 0 }
+    Badge counts per status — recalculated only when the receipts array changes.
+    useMemo prevents this loop from running on every render (e.g. when a modal opens).
+    Result shape: { draft: 2, sent: 1, paid: 5, voided: 0 }
   */
   const counts = useMemo(() => {
     const result = {};
@@ -285,42 +235,28 @@ export default function App() {
     return result;
   }, [receipts]);
 
-  /*
-    revenue — total of all PAID receipts, using subtotal (before tax).
-    Shown in the sidebar stats block.
-  */
+  // Revenue: sum of paid receipts using subtotal (pre-tax).
   const revenue = receipts
     .filter((r) => r.status === "paid")
     .reduce((sum, r) => sum + parseFloat(r.subtotal || 0), 0);
 
-  /*
-    outstanding — total of all SENT receipts (invoiced but not yet paid), including tax.
-    Shown in the sidebar stats block.
-  */
+  // Outstanding: sum of sent receipts (invoiced, not yet paid), including tax.
   const outstanding = receipts
     .filter((r) => r.status === "sent")
     .reduce((sum, r) => sum + parseFloat(r.total || 0), 0);
 
-  /*
-    filtered — the receipts shown in the current view.
-    When filter is "ALL" every receipt is shown.
-    Otherwise only receipts matching the selected status are shown.
-  */
   const filtered = useMemo(() => {
     if (filter === "ALL") return receipts;
     return receipts.filter((r) => r.status === filter);
   }, [receipts, filter]);
 
-  // The JWT token from the current session, passed to every API call.
-  // If the session doesn't exist yet, token is null.
+  // JWT from the current session — passed to every API call. Null until auth resolves.
   let token = null;
-  if (session) {
-    token = session.access_token;
-  }
+  if (session) token = session.access_token;
 
   /*
-    selectFull(id) — fetch a receipt by id (includes line_items) and open the detail panel.
-    The list view only has summary data, so we fetch the full object here.
+    Fetch a receipt by ID (includes line_items) and open the detail panel.
+    The list view only carries summary data, so we need a separate fetch for the full object.
   */
   async function selectFull(id) {
     const full = await fetchReceiptById(id, token);
@@ -328,87 +264,55 @@ export default function App() {
   }
 
   /*
-    handleSaveReceipt(data) — called when the receipt form is submitted.
-    If data.id exists we're editing, otherwise we're creating a new receipt.
-    On success the list is updated in-place without a full reload.
+    Called when the receipt form is submitted.
+    data.id present = editing existing; absent = creating new.
+    The list is updated in-place — no full reload needed.
   */
   async function handleSaveReceipt(data) {
     try {
       if (data.id) {
-        // Editing an existing receipt
         const result = await updateReceipt(data.id, data, token);
         if (result?.error) throw new Error(result.error);
         setReceipts((prev) => prev.map((r) => (r.id === data.id ? result : r)));
-        await selectFull(data.id); // refresh the detail panel with updated data
+        await selectFull(data.id);
         showToast("Receipt updated.", "success");
       } else {
-        // Creating a new receipt
         const result = await createReceipt(data, token);
         if (result?.error) throw new Error(result.error);
-        setReceipts((prev) => [result, ...prev]); // add to top of list
+        setReceipts((prev) => [result, ...prev]);
         showToast("Receipt created.", "success");
       }
       setShowForm(false);
       setEditingReceipt(null);
     } catch (err) {
-      // err.message is the specific error from the server, e.g. "duplicate receipt number"
-      // If there's no message we fall back to a generic one
-      const errorMessage = err.message || "Failed to save. Check all fields.";
-      showToast(errorMessage);
+      showToast(err.message || "Failed to save. Check all fields.");
     }
   }
 
   /*
-    handleStatusChange(id, status) — change the status of a receipt.
-    Updates both the list and the detail panel immediately without a reload.
-
-    Example:
-      handleStatusChange("abc-123", "paid")
-      → receipt "abc-123" is now marked as paid
-      → toast: "Marked as paid"
+    Update a receipt's status optimistically — we update the local list immediately
+    so the UI feels instant, without waiting for the server to confirm.
+    If the server call fails silently the user will see the wrong status until
+    they refresh, but that's an acceptable tradeoff vs showing a loading state
+    on every status tap.
   */
   async function handleStatusChange(id, status) {
     await updateReceipt(id, { status }, token);
-    // Update the status in the list without re-fetching everything
-    setReceipts((prev) => prev.map((r) => {
-      if (r.id === id) {
-        return { ...r, status }; // return a copy of this receipt with the new status
-      }
-      return r; // all other receipts stay the same
-    }));
-
-    // If this receipt is currently open in the detail panel, update that too
-    if (selected && selected.id === id) {
-      setSelected((s) => ({ ...s, status }));
-    }
-
-    // Show a toast message — use the label from STATUS_LABELS, or a generic fallback
-    const toastMessage = STATUS_LABELS[status] || "Status updated";
-    showToast(toastMessage, "success");
+    setReceipts((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+    if (selected && selected.id === id) setSelected((s) => ({ ...s, status }));
+    showToast(STATUS_LABELS[status] || "Status updated", "success");
   }
 
   /*
-    handleDelete(id) — delete a receipt after a confirmation dialog.
-    Removes it from the list and closes the detail panel if it was selected.
+    Ask for confirmation before deleting — shows the receipt number so the user
+    knows exactly what they're about to lose. This cannot be undone.
   */
   async function handleDelete(id) {
-    // Find the receipt so we can show its number in the confirm dialog
-    const receiptToDelete = receipts.find((r) => r.id === id);
-    const receiptNumber = receiptToDelete ? receiptToDelete.receipt_number : id;
-
-    // Ask the user to confirm before deleting — this cannot be undone
-    const confirmed = window.confirm(`Delete receipt ${receiptNumber}?`);
-    if (!confirmed) return;
-
+    const rec = receipts.find((r) => r.id === id);
+    if (!window.confirm(`Delete receipt ${rec?.receipt_number ?? id}?`)) return;
     await deleteReceipt(id, token);
-
-    // Remove it from the list
     setReceipts((prev) => prev.filter((r) => r.id !== id));
-
-    // If it was open in the detail panel, close the panel
-    if (selected && selected.id === id) {
-      setSelected(null);
-    }
+    if (selected && selected.id === id) setSelected(null);
   }
 
   /*
@@ -454,51 +358,25 @@ export default function App() {
     setSendingInvoice(false);
   }
 
-  // Open the new receipt form (no pre-filled data).
-  function openNewReceipt() {
-    setEditingReceipt(null);
-    setShowForm(true);
-  }
-
-  // Open the form pre-filled with an existing receipt's data for editing.
-  function openEditReceipt(receipt) {
-    setEditingReceipt(receipt);
-    setShowForm(true);
-  }
+  function openNewReceipt()        { setEditingReceipt(null);    setShowForm(true); }
+  function openEditReceipt(receipt) { setEditingReceipt(receipt); setShowForm(true); }
 
   /*
-    selectedReceipt — the full receipt object shown in the detail panel.
-
-    We store two separate things:
-      - selected: the full receipt fetched by ID (includes line_items)
-      - receipts: the list of summary receipts (status updates here in real time)
-
-    When you click a status button, it updates the receipts list immediately.
-    But selected still has the old status from when we fetched it.
-    So we merge them: take everything from selected, but use the status from the list.
-
-    If nothing is selected, selectedReceipt is null and the panel is hidden.
+    Merge `selected` (full object with line_items) with the live status from the list.
+    Status buttons update `receipts` optimistically, but `selected` holds a snapshot
+    from when we fetched it — merging gives us the latest status without re-fetching.
   */
   let selectedReceipt = null;
   if (selected) {
-    const liveVersion = receipts.find((r) => r.id === selected.id);
-    const currentStatus = liveVersion ? liveVersion.status : selected.status;
-    selectedReceipt = { ...selected, status: currentStatus };
+    const live = receipts.find((r) => r.id === selected.id);
+    selectedReceipt = { ...selected, status: live ? live.status : selected.status };
   }
 
-  /*
-    isAnon — true if the user has not signed in and is using an anonymous session.
-    Anonymous users can still create receipts, but their data is tied to the browser
-    and will be lost if they clear their storage.
-    session.user.is_anonymous is set by Supabase when we call signInAnonymously().
-    The ?? true fallback handles the case where session is null.
-  */
-  const isAnon = session && session.user ? session.user.is_anonymous : true;
+  // True for anonymous sessions (guest users). Supabase sets is_anonymous on signInAnonymously().
+  const isAnon = session?.user ? session.user.is_anonymous : true;
 
-  // Show nothing while we check if a session exists. Avoids a flash of wrong content.
   if (authLoading) return null;
 
-  // Show the landing page until the user clicks "Start Now".
   if (!entered) {
     return (
       <LandingPage onEnter={() => {
@@ -508,59 +386,18 @@ export default function App() {
     );
   }
 
-  // The email address of the logged-in user (empty string if anonymous or not loaded yet)
-  const userEmail = session && session.user ? session.user.email : "";
+  const userEmail = session?.user?.email ?? "";
+  const avatarUrl = profile?.logo_url ?? null;
 
   /*
-    Avatar image — shown in the top-right dropdown button.
-    If the user has uploaded a business logo in their profile, we use that as the avatar.
-    Otherwise, the button falls back to showing the first letter of their email.
-  */
-  let avatarUrl = null;
-  if (profile && profile.logo_url) {
-    avatarUrl = profile.logo_url;
-  }
-
-  /*
-    Time-based greeting shown above the receipt list.
-    We get the current hour (0-23) and pick the right word.
-    Then we add the user's name if we have one.
-
-    Hour ranges:
-       5 to 11 = morning
-      12 to 16 = afternoon
-      17 to  4 = evening (wraps past midnight)
-
-    Name fallback order:
-      1. profile.business_name if set in profile settings
-      2. The part of their email before the @ sign
-      3. Nothing (just show "Good morning" with no name)
+    Time-based greeting. Name priority: business_name > email username > nothing.
   */
   const hour = new Date().getHours();
-  let salutation;
-  if (hour >= 5 && hour < 12) {
-    salutation = "Good morning";
-  } else if (hour >= 12 && hour < 17) {
-    salutation = "Good afternoon";
-  } else {
-    salutation = "Good evening";
-  }
-
-  // Pick the display name: business name, email username, or empty string
-  let greetingName = "";
-  if (profile && profile.business_name) {
-    greetingName = profile.business_name;
-  } else if (userEmail) {
-    greetingName = userEmail.split("@")[0];
-  }
-
-  // Build the full greeting string
-  let greeting;
-  if (greetingName) {
-    greeting = `${salutation}, ${greetingName}`;
-  } else {
-    greeting = salutation;
-  }
+  const salutation = hour >= 5 && hour < 12 ? "Good morning"
+                   : hour >= 12 && hour < 17 ? "Good afternoon"
+                   : "Good evening";
+  const greetingName = profile?.business_name || userEmail.split("@")[0] || "";
+  const greeting = greetingName ? `${salutation}, ${greetingName}` : salutation;
 
   return (
     <div className="app-shell">
@@ -692,7 +529,7 @@ export default function App() {
             <span className="toolbar-greeting">{greeting}</span>
           )}
           <span className="toolbar-title">
-            {filter === "ALL" ? "All" : STATUS_CONFIG[filter]?.label} — {filtered.length} receipt{filtered.length !== 1 ? "s" : ""}
+            {filter === "ALL" ? "All" : STATUS_CONFIG[filter]?.label}: {filtered.length} receipt{filtered.length !== 1 ? "s" : ""}
           </span>
         </div>
 
@@ -755,16 +592,13 @@ export default function App() {
                       >
                         <div className="card-top-row">
                           <span className="card-num">{r.receipt_number}</span>
-                          {/* Desktop delete button — only visible on hover */}
-                          <button
+                            <button
                             className="card-delete"
                             onClick={(e) => { e.stopPropagation(); handleDelete(r.id); }}
                             title="Delete"
                           >✕</button>
                         </div>
-                        {/* Client name shown bold — the most important identifier when scanning a list */}
                         <div className="card-vendor">{r.customer_name}</div>
-                        {/* Issuing business name shown smaller below */}
                         <div className="card-customer">{r.vendor_name}</div>
                         <div className="card-footer">
                           <span className={`stamp ${r.status}`}>{r.status}</span>
@@ -812,7 +646,7 @@ export default function App() {
                   <span className="detail-val">
                     {selectedReceipt.date
                       ? new Date(selectedReceipt.date).toLocaleDateString("en-CA")
-                      : "—"}
+                      : ""}
                   </span>
                 </div>
                 {selectedReceipt.notes && (

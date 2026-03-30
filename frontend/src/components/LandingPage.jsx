@@ -15,10 +15,9 @@ export default function LandingPage({ onEnter }) {
           Of every invoice
         </h1>
         <p className="landing-desc">
-          Stop losing invoices, chasing payments, and guessing what’s outstanding. Quickly generate clear, professional receipts and keep every invoice organized so you get paid faster with less admin stress.
+          Create receipts, track what’s paid, what’s outstanding, and send invoices directly to clients.
         </p>
 
-        {/* Perks — short, plain, no fluff */}
         <ul className="landing-perks">
           <li>Save receipts, access them anywhere</li>
           <li>Track paid, sent, draft, and voided invoices</li>

@@ -61,7 +61,7 @@ export default function ReceiptList({ receipts, STATUS_CONFIG, onDelete }) {
     if (receipt.date) {
       formattedDate = new Date(receipt.date).toLocaleDateString();
     } else {
-      formattedDate = "—";
+      formattedDate = "";
     }
 
     return (
@@ -121,7 +121,7 @@ export default function ReceiptList({ receipts, STATUS_CONFIG, onDelete }) {
           ${parseFloat(receipt.total).toFixed(2)}
         </div>
 
-        {/* Date — formatted above, or "—" if missing */}
+        {/* Date, if set */}
         <div style={{ fontSize: 10, color: "rgba(232,226,217,0.3)" }}>
           {formattedDate}
         </div>

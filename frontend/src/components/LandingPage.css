@@ -121,9 +121,8 @@
   position: relative;
 }
 
-/* Simple dash marker */
 .landing-perks li::before {
-  content: "–";
+  content: "·";
   position: absolute;
   left: 0;
   color: var(--text-muted);
