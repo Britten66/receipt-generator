@@ -97,13 +97,6 @@ Set these in Vercel project settings:
 | `RESEND_API_KEY` | Resend API key for sending invoice emails |
 
 
-## Deployment
 
-The app deploys from the `frontend/` directory. Since the Vercel GitHub integration was disconnected when the repo was renamed, deploy manually:
-
-```bash
-cd frontend
-vercel --prod
-```
 
 To reconnect auto-deploy: Vercel dashboard → project settings → Git → reconnect to `Britten66/receipt-generator`.
