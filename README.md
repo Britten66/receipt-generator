@@ -1,6 +1,37 @@
-# Keep Track — Invoice & Receipt Generator
+
+
+
+# Keep Track: Invoice & Receipt Generator
 
 A lightweight invoicing tool for freelancers and small businesses. Create, send, and track receipts from any device.
+
+
+
+## Known Issues & Help Wanted
+
+### Invoice Numbering (biggest open problem)
+
+The current system generates invoice numbers globally across all users (e.g. REC-000001). This means:
+
+- Two users creating receipts at the same time will get non-sequential numbers (one gets 001, the other gets 002, the first user's next receipt is 003 — their own sequence has a gap)
+- All users share one number pool, so a new user's first invoice might be REC-004731
+- The number format (REC-000001) is hardcoded and not customisable
+
+**What the right solution looks like:**
+- Per-user sequential numbering so each user's invoices are always 001, 002, 003...
+- User-defined prefix set in profile settings (e.g. `SMITH`, `ACME`, or `INV`)
+- Optional year prefix (e.g. `2026-001`) which resets each year — standard in professional invoicing
+- A starting number field in profile so existing businesses can continue from where they left off
+- DB constraint changed from `UNIQUE(receipt_number)` to `UNIQUE(user_id, receipt_number)`
+
+If you have a clean implementation of this, please open a PR. The relevant files are:
+- `frontend/api/receipts/index.js` — where the number is generated on POST
+- `frontend/api/profile.js` — where profile fields are saved
+- `frontend/src/components/ProfileModal.jsx` — the profile settings UI
+- The `profiles` table in Supabase would need `invoice_prefix` and `invoice_start` columns
+
+
+
 
 ## Features
 
@@ -65,28 +96,6 @@ Set these in Vercel project settings:
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-side only) |
 | `RESEND_API_KEY` | Resend API key for sending invoice emails |
 
-## Known Issues — Help Wanted
-
-### Invoice Numbering (biggest open problem)
-
-The current system generates invoice numbers globally across all users (e.g. REC-000001). This means:
-
-- Two users creating receipts at the same time will get non-sequential numbers (one gets 001, the other gets 002, the first user's next receipt is 003 — their own sequence has a gap)
-- All users share one number pool, so a new user's first invoice might be REC-004731
-- The number format (REC-000001) is hardcoded and not customisable
-
-**What the right solution looks like:**
-- Per-user sequential numbering so each user's invoices are always 001, 002, 003...
-- User-defined prefix set in profile settings (e.g. `SMITH`, `ACME`, or `INV`)
-- Optional year prefix (e.g. `2026-001`) which resets each year — standard in professional invoicing
-- A starting number field in profile so existing businesses can continue from where they left off
-- DB constraint changed from `UNIQUE(receipt_number)` to `UNIQUE(user_id, receipt_number)`
-
-If you have a clean implementation of this, please open a PR. The relevant files are:
-- `frontend/api/receipts/index.js` — where the number is generated on POST
-- `frontend/api/profile.js` — where profile fields are saved
-- `frontend/src/components/ProfileModal.jsx` — the profile settings UI
-- The `profiles` table in Supabase would need `invoice_prefix` and `invoice_start` columns
 
 ## Deployment
 
