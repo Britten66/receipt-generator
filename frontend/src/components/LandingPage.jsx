@@ -107,8 +107,13 @@ export default function LandingPage({ onEnter, darkMode, onToggleDark }) {
           <p className="lv2-sub">Free forever · No credit card required</p>
         </div>
 
-        <div className="lv2-hero-preview" ref={scrollRef}>
-          <MockInvoice />
+        <div className="lv2-preview-wrap">
+          <div className="lv2-hero-preview" ref={scrollRef}>
+            <MockInvoice />
+          </div>
+          <div className="lv2-hero-reflection" aria-hidden="true">
+            <MockInvoice />
+          </div>
         </div>
       </section>
 

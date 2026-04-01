@@ -101,6 +101,30 @@
   background: linear-gradient(to top, var(--surface-2), transparent);
 }
 
+/* Preview + reflection wrapper */
+.lv2-preview-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Reflection — flipped bottom edge of the card, bleeds into the page */
+.lv2-hero-reflection {
+  height: 90px;
+  overflow: hidden;
+  transform: scaleY(-1);
+  filter: blur(8px) saturate(0.7) brightness(1.05);
+  opacity: 0.35;
+  pointer-events: none;
+  margin-top: 0;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 85%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 85%);
+}
+
+[data-theme="dark"] .lv2-hero-reflection {
+  filter: blur(10px) saturate(0.5) brightness(0.85);
+  opacity: 0.22;
+}
+
 /* ── MOCK INVOICE ── */
 .mock-invoice {
   background: #fff;

@@ -164,7 +164,9 @@ export default function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
-        setShowAuthModal(true);
+        // No session — send them to the landing page, not the bare auth modal
+        localStorage.removeItem("app_entered");
+        setEntered(false);
         setAuthLoading(false);
       } else {
         setSession(session);
@@ -182,7 +184,10 @@ export default function App() {
       }
       if (!newSession) {
         setSession(null);
-        setShowAuthModal(true);
+        // Send back to landing on sign-out, not the bare auth modal
+        localStorage.removeItem("app_entered");
+        setEntered(false);
+        setShowAuthModal(false);
       } else {
         setSession(newSession);
       }
@@ -354,8 +359,10 @@ export default function App() {
   }
 
   function openNewReceipt() {
-    if (profile?.tier !== "pro" && !isAnon && receipts.length >= 3) {
-      startCheckout(token);
+    if (profile?.tier !== "pro" && receipts.length >= 3) {
+      startCheckout(token).catch(() =>
+        showToast("Couldn't open checkout. Check your connection and try again.")
+      );
       return;
     }
     setEditingReceipt(null);
@@ -378,7 +385,9 @@ export default function App() {
 
   if (authLoading) return null;
 
-  if (!entered) {
+  // Show landing whenever not entered OR entered but no session yet.
+  // This ensures the AuthModal always has a back button (onBack resets to landing).
+  if (!entered || !session) {
     return (
       <>
         <LandingPage
@@ -390,31 +399,16 @@ export default function App() {
             if (!session) setShowAuthModal(true);
           }}
         />
-        {showAuthModal && <AuthModal
-          onBack={() => {
-            setShowAuthModal(false);
-            localStorage.removeItem("app_entered");
-            setEntered(false);
-          }}
-          onClose={() => {
-            setShowAuthModal(false);
-            localStorage.removeItem("app_entered");
-            setEntered(false);
-          }}
-        />}
-      </>
-    );
-  }
-
-  if (!session) {
-    return (
-      <>
-        <div style={{ position: "fixed", top: 12, right: 12, zIndex: 10 }}>
-          <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)}>
-            {darkMode ? "Light" : "Dark"}
-          </button>
-        </div>
-        <AuthModal onClose={() => {}} />
+        {showAuthModal && (
+          <AuthModal
+            onBack={() => {
+              setShowAuthModal(false);
+              localStorage.removeItem("app_entered");
+              setEntered(false);
+            }}
+            onClose={() => setShowAuthModal(false)}
+          />
+        )}
       </>
     );
   }
