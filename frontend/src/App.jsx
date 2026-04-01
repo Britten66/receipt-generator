@@ -188,7 +188,7 @@ export default function App() {
       } else {
         setSession(newSession);
         setProIntent((prev) => {
-          if (prev) startCheckout(newSession.access_token).catch(() => {});
+          if (prev) startCheckout().catch(() => {});
           return false;
         });
       }
@@ -206,7 +206,7 @@ export default function App() {
     if (!session) return;
     const token = session.access_token;
     setLoading(true);
-    fetchReceipts(token)
+    fetchReceipts()
       .then((data) => {
         // The API should always return an array, but we check just in case
         // something goes wrong and it returns null or an error object instead
@@ -218,7 +218,7 @@ export default function App() {
       })
       .finally(() => setLoading(false));
 
-    fetchProfile(token).then((p) => {
+    fetchProfile().then((p) => {
       setProfile(p || null);
     });
   }, [session]);
@@ -260,7 +260,7 @@ export default function App() {
     The list view only carries summary data, so we need a separate fetch for the full object.
   */
   async function selectFull(id) {
-    const full = await fetchReceiptById(id, token);
+    const full = await fetchReceiptById(id);
     setSelected(full);
   }
 
@@ -272,13 +272,13 @@ export default function App() {
   async function handleSaveReceipt(data) {
     try {
       if (data.id) {
-        const result = await updateReceipt(data.id, data, token);
+        const result = await updateReceipt(data.id, data);
         if (result?.error) throw new Error(result.error);
         setReceipts((prev) => prev.map((r) => (r.id === data.id ? result : r)));
         await selectFull(data.id);
         showToast("Receipt updated.", "success");
       } else {
-        const result = await createReceipt(data, token);
+        const result = await createReceipt(data);
         if (result?.error) throw new Error(result.error);
         setReceipts((prev) => [result, ...prev]);
         showToast("Receipt created.", "success");
@@ -298,7 +298,7 @@ export default function App() {
     on every status tap.
   */
   async function handleStatusChange(id, status) {
-    await updateReceipt(id, { status }, token);
+    await updateReceipt(id, { status });
     setReceipts((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     if (selected && selected.id === id) setSelected((s) => ({ ...s, status }));
     showToast(STATUS_LABELS[status] || "Status updated", "success");
@@ -311,7 +311,7 @@ export default function App() {
   async function handleDelete(id) {
     const rec = receipts.find((r) => r.id === id);
     if (!window.confirm(`Delete receipt ${rec?.receipt_number ?? id}?`)) return;
-    await deleteReceipt(id, token);
+    await deleteReceipt(id);
     setReceipts((prev) => prev.filter((r) => r.id !== id));
     if (selected && selected.id === id) setSelected(null);
   }
@@ -328,10 +328,9 @@ export default function App() {
     setSendingInvoice(true);
     try {
       const r = sendInvoiceTarget;
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invoice`, {
+      const { error: invokeError } = await supabase.functions.invoke("send-invoice", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
-        body: JSON.stringify({
+        body: {
           to: sendInvoiceEmail,
           vendor_name: r.vendor_name,
           customer_name: r.customer_name,
@@ -344,12 +343,9 @@ export default function App() {
           notes: r.notes,
           payment_url: profile?.payment_url,
           tier: profile?.tier ?? "free",
-        }),
+        },
       });
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error);
-      }
+      if (invokeError) throw new Error(invokeError.message);
       showToast("Invoice sent.", "success");
       setSendInvoiceTarget(null);
       setSendInvoiceEmail("");
@@ -362,7 +358,7 @@ export default function App() {
 
   function openNewReceipt() {
     if (profile?.tier !== "pro" && receipts.length >= 3) {
-      startCheckout(token).catch(() =>
+      startCheckout().catch(() =>
         showToast("Couldn't open checkout. Check your connection and try again.")
       );
       return;
@@ -406,7 +402,7 @@ export default function App() {
             setEntered(true);
             if (session) {
               // Already logged in — go straight to checkout
-              startCheckout(session.access_token).catch(() =>
+              startCheckout().catch(() =>
                 showToast("Couldn't open checkout. Try again.")
               );
             } else {
@@ -538,7 +534,7 @@ export default function App() {
               <button
                 className="btn btn-primary"
                 style={{ width: "100%", fontSize: 11 }}
-                onClick={() => startCheckout(token)}
+                onClick={() => startCheckout()}
               >
                 Upgrade to Pro
               </button>
@@ -821,7 +817,7 @@ export default function App() {
                   <button
                     className="btn btn-ghost"
                     style={{ width: "100%", marginBottom: 6, opacity: 0.5 }}
-                    onClick={() => startCheckout(token)}
+                    onClick={() => startCheckout()}
                   >
                     ✉ Send to Client — Pro
                   </button>

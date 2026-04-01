@@ -1,35 +1,28 @@
-const BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+import { supabase } from "../lib/supabase";
 
-function headers(token) {
-  return {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token ?? ""}`,
-    "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
-  };
-}
+export const fetchReceipts = () =>
+  supabase.functions.invoke("receipts", { method: "GET" }).then(({ data }) => data ?? []);
 
-export const fetchReceipts = (token) =>
-  fetch(`${BASE}/receipts`, { headers: headers(token) }).then((r) => r.json());
+export const fetchReceiptById = (id) =>
+  supabase.functions.invoke("receipts", {
+    method: "GET",
+    headers: { "x-receipt-id": id },
+  }).then(({ data }) => data);
 
-export const fetchReceiptById = (id, token) =>
-  fetch(`${BASE}/receipts?id=${id}`, { headers: headers(token) }).then((r) => r.json());
-
-export const createReceipt = (data, token) =>
-  fetch(`${BASE}/receipts`, {
+export const createReceipt = (data) =>
+  supabase.functions.invoke("receipts", {
     method: "POST",
-    headers: headers(token),
-    body: JSON.stringify(data),
-  }).then((r) => r.json());
+    body: data,
+  }).then(({ data: result }) => result);
 
-export const updateReceipt = (id, data, token) =>
-  fetch(`${BASE}/receipts?id=${id}`, {
+export const updateReceipt = (id, data) =>
+  supabase.functions.invoke("receipts", {
     method: "PATCH",
-    headers: headers(token),
-    body: JSON.stringify(data),
-  }).then((r) => r.json());
+    body: { id, ...data },
+  }).then(({ data: result }) => result);
 
-export const deleteReceipt = (id, token) =>
-  fetch(`${BASE}/receipts?id=${id}`, {
+export const deleteReceipt = (id) =>
+  supabase.functions.invoke("receipts", {
     method: "DELETE",
-    headers: headers(token),
-  }).then((r) => r.json());
+    body: { id },
+  }).then(({ data: result }) => result);

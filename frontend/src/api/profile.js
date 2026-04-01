@@ -1,19 +1,10 @@
-const BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+import { supabase } from "../lib/supabase";
 
-function headers(token) {
-  return {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token ?? ""}`,
-    "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
-  };
-}
+export const fetchProfile = () =>
+  supabase.functions.invoke("profile", { method: "GET" }).then(({ data }) => data);
 
-export const fetchProfile = (token) =>
-  fetch(`${BASE}/profile`, { headers: headers(token) }).then((r) => r.json());
-
-export const saveProfile = (data, token) =>
-  fetch(`${BASE}/profile`, {
+export const saveProfile = (data) =>
+  supabase.functions.invoke("profile", {
     method: "PUT",
-    headers: headers(token),
-    body: JSON.stringify(data),
-  }).then((r) => r.json());
+    body: data,
+  }).then(({ data: result }) => result);

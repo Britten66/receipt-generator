@@ -18,16 +18,17 @@ Deno.serve(async (req) => {
   }
 
   const url = new URL(req.url);
-  const id = url.searchParams.get("id");
+  // id from query param (legacy fetch), x-receipt-id header (invoke GET), or body (invoke PATCH/DELETE)
+  const queryId = url.searchParams.get("id") || req.headers.get("x-receipt-id");
 
   // GET — list all or fetch one by id
   if (req.method === "GET") {
-    if (id) {
+    if (queryId) {
       const { data: receipt, error } = await supabase
-        .from("receipts").select("*").eq("id", id).single();
+        .from("receipts").select("*").eq("id", queryId).single();
       if (error || !receipt) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
 
-      const { data: items } = await supabase.from("line_items").select("*").eq("receipt_id", id);
+      const { data: items } = await supabase.from("line_items").select("*").eq("receipt_id", queryId);
       return new Response(JSON.stringify({ ...receipt, line_items: items ?? [] }), { headers: corsHeaders });
     }
 
@@ -38,7 +39,6 @@ Deno.serve(async (req) => {
   }
 
   // POST — create receipt + line items
-  // receipt_number is set by DB trigger — do not pass it
   if (req.method === "POST") {
     const { vendor_name, customer_name, status, date, subtotal, tax, total, notes, line_items } = await req.json();
     if (!vendor_name || !customer_name) {
@@ -72,9 +72,12 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify(receipt), { status: 201, headers: corsHeaders });
   }
 
-  // PATCH — update fields (whitelist enforced)
-  if (req.method === "PATCH" && id) {
+  // PATCH — update fields (whitelist enforced), id from body or query param
+  if (req.method === "PATCH") {
     const body = await req.json();
+    const id = queryId || body.id;
+    if (!id) return new Response(JSON.stringify({ error: "Missing id" }), { status: 400, headers: corsHeaders });
+
     const updates: Record<string, unknown> = {};
     for (const key of ALLOWED_FIELDS) {
       if (key in body) updates[key] = body[key];
@@ -88,8 +91,12 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify(data), { headers: corsHeaders });
   }
 
-  // DELETE
-  if (req.method === "DELETE" && id) {
+  // DELETE — id from body or query param
+  if (req.method === "DELETE") {
+    const body = req.headers.get("content-length") !== "0" ? await req.json().catch(() => ({})) : {};
+    const id = queryId || body.id;
+    if (!id) return new Response(JSON.stringify({ error: "Missing id" }), { status: 400, headers: corsHeaders });
+
     const { error } = await supabase.from("receipts").delete().eq("id", id);
     if (error) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
     return new Response(JSON.stringify({ message: "Deleted" }), { headers: corsHeaders });
