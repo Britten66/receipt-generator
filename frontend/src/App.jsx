@@ -163,35 +163,23 @@ export default function App() {
        signs out, or clicks a password reset link.
   */
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        // No session — send them to the landing page, not the bare auth modal
-        localStorage.removeItem("app_entered");
-        setEntered(false);
-        setAuthLoading(false);
-      } else {
-        setSession(session);
-        setAuthLoading(false);
-      }
-    });
-
+    // onAuthStateChange fires immediately on mount with the current session
+    // (INITIAL_SESSION event) — always a fresh/refreshed token, unlike getSession()
+    // which reads localStorage and can return expired tokens.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
       if (event === "PASSWORD_RECOVERY") {
-        // User clicked a password reset link in their email.
-        // Show the "set new password" modal instead of logging them in normally.
         setShowPasswordUpdate(true);
         setSession(newSession);
+        setAuthLoading(false);
         return;
       }
       if (!newSession) {
         setSession(null);
-        // Send back to landing on sign-out, not the bare auth modal
         localStorage.removeItem("app_entered");
         setEntered(false);
         setShowAuthModal(false);
       } else {
         setSession(newSession);
-        // If user signed in via the "Get Pro" button, send them straight to checkout
         setProIntent((prev) => {
           if (prev) {
             startCheckout(newSession.access_token).catch(() => {});
@@ -199,6 +187,7 @@ export default function App() {
           return false;
         });
       }
+      setAuthLoading(false);
     });
 
     return () => subscription.unsubscribe();
