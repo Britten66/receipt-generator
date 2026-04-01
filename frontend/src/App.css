@@ -373,7 +373,7 @@ body,
 */
 .receipt-card {
   background: var(--surface-2);
-  border: 1px solid rgba(0,0,0,0.09);
+  border: 1px solid var(--border-light);
   border-radius: 0;
   padding: 14px;
   cursor: pointer;
@@ -387,7 +387,7 @@ body,
 }
 .receipt-card:hover {
   box-shadow: 0 3px 10px rgba(0,0,0,0.09);
-  border-color: rgba(0,0,0,0.16);
+  border-color: var(--border);
 }
 .receipt-card.selected {
   background: var(--surface-2);

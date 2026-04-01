@@ -1,0 +1,113 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Resend } from "https://esm.sh/resend@3";
+import { corsHeaders } from "../_shared/cors.ts";
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY")!);
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function escapeHtml(str: unknown): string {
+  if (str == null) return "";
+  return String(str)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: corsHeaders });
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: req.headers.get("Authorization")! } } }
+  );
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+
+  const { to, vendor_name, customer_name, receipt_number, date, line_items, subtotal, tax, total, notes, payment_url, tier } = await req.json();
+
+  if (!to) return new Response(JSON.stringify({ error: "Recipient email is required" }), { status: 400, headers: corsHeaders });
+  if (!EMAIL_RE.test(to)) return new Response(JSON.stringify({ error: "Invalid recipient email" }), { status: 400, headers: corsHeaders });
+
+  const safe = {
+    to: escapeHtml(to),
+    vendor_name: escapeHtml(vendor_name),
+    customer_name: escapeHtml(customer_name),
+    receipt_number: escapeHtml(receipt_number),
+    notes: escapeHtml(notes),
+  };
+
+  const safePaymentUrl = (payment_url && /^https?:\/\//i.test(payment_url)) ? payment_url : null;
+  const fmt = (n: unknown) => `$${parseFloat(String(n || 0)).toFixed(2)}`;
+  const dateStr = date ? new Date(date).toLocaleDateString("en-CA") : "";
+
+  const itemRows = ((line_items as Array<{ description: string; quantity: number; unit_price: number; total: number }>) ?? [])
+    .map((li) => `
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #e8e6e1;">${escapeHtml(li.description)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e8e6e1;text-align:right;">${escapeHtml(String(li.quantity))}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e8e6e1;text-align:right;">${fmt(li.unit_price)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e8e6e1;text-align:right;">${fmt(li.total)}</td>
+      </tr>`).join("");
+
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f5f4f0;font-family:helvetica,arial,sans-serif;">
+  <div style="max-width:560px;margin:32px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+    <div style="background:#1e1c18;padding:20px 28px;">
+      <span style="color:#fff;font-size:13px;font-weight:700;letter-spacing:0.1em;">RECEIPT</span>
+      <span style="color:#b4afa5;font-size:11px;float:right;line-height:20px;">#${safe.receipt_number}</span>
+    </div>
+    <div style="padding:24px 28px 0;">
+      <table width="100%" style="margin-bottom:20px;">
+        <tr>
+          <td style="vertical-align:top;">
+            <div style="font-size:11px;color:#908e8a;margin-bottom:4px;">FROM</div>
+            <div style="font-size:14px;font-weight:700;color:#1e1c18;">${safe.vendor_name}</div>
+          </td>
+          <td style="vertical-align:top;text-align:right;">
+            <div style="font-size:11px;color:#908e8a;margin-bottom:4px;">ISSUED TO</div>
+            <div style="font-size:14px;font-weight:700;color:#1e1c18;">${safe.customer_name}</div>
+          </td>
+        </tr>
+      </table>
+      <div style="font-size:11px;color:#908e8a;margin-bottom:20px;">Date: ${dateStr}</div>
+    </div>
+    <table width="100%" style="border-collapse:collapse;">
+      <thead>
+        <tr style="background:#f0ede8;">
+          <th style="padding:8px 12px;text-align:left;font-size:10px;color:#908e8a;font-weight:600;">DESCRIPTION</th>
+          <th style="padding:8px 12px;text-align:right;font-size:10px;color:#908e8a;font-weight:600;">QTY</th>
+          <th style="padding:8px 12px;text-align:right;font-size:10px;color:#908e8a;font-weight:600;">PRICE</th>
+          <th style="padding:8px 12px;text-align:right;font-size:10px;color:#908e8a;font-weight:600;">TOTAL</th>
+        </tr>
+      </thead>
+      <tbody>${itemRows || `<tr><td colspan="4" style="padding:12px;color:#908e8a;font-size:12px;">No line items</td></tr>`}</tbody>
+    </table>
+    <div style="padding:20px 28px;">
+      ${parseFloat(String(subtotal)) > 0 ? `<div style="display:flex;justify-content:space-between;font-size:12px;color:#908e8a;margin-bottom:6px;"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>` : ""}
+      ${parseFloat(String(tax)) > 0 ? `<div style="display:flex;justify-content:space-between;font-size:12px;color:#908e8a;margin-bottom:10px;"><span>Tax</span><span>${fmt(tax)}</span></div>` : ""}
+      <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;color:#1e1c18;border-top:1px solid #e8e6e1;padding-top:12px;">
+        <span>Total</span><span>${fmt(total)}</span>
+      </div>
+      ${safe.notes ? `<div style="margin-top:20px;font-size:11px;color:#908e8a;border-top:1px solid #e8e6e1;padding-top:16px;"><strong>Note:</strong> ${safe.notes}</div>` : ""}
+      ${safePaymentUrl ? `<div style="text-align:center;margin-top:24px;"><a href="${safePaymentUrl}" style="display:inline-block;background:#1e1c18;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;">Pay Now</a></div>` : ""}
+    </div>
+    ${tier !== "pro" ? `<div style="background:#f5f4f0;padding:14px 28px;text-align:center;font-size:10px;color:#b4afa5;">Created with <a href="https://keeptrack.app" style="color:#b4afa5;">Keep Track</a></div>` : ""}
+  </div>
+</body></html>`;
+
+  try {
+    await resend.emails.send({
+      from: "invoices@keeptrack.app",
+      to: safe.to,
+      subject: `Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`,
+      html,
+      reply_to: user.email ?? undefined,
+    });
+    return new Response(JSON.stringify({ ok: true }), { headers: corsHeaders });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: "Failed to send invoice" }), { status: 500, headers: corsHeaders });
+  }
+});

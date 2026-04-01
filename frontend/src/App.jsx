@@ -35,6 +35,7 @@ import PasswordUpdateModal from "./components/PasswordUpdateModal";
 import HelpModal from "./components/HelpModal";
 import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
+import { startCheckout } from "./api/billing";
 import { QRCodeSVG } from "qrcode.react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import "./App.css";
@@ -327,7 +328,7 @@ export default function App() {
     setSendingInvoice(true);
     try {
       const r = sendInvoiceTarget;
-      const res = await fetch("/api/send-invoice", {
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invoice`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -341,7 +342,8 @@ export default function App() {
           tax: r.tax,
           total: r.total,
           notes: r.notes,
-          payment_url: profile?.payment_url, // optional Pay Now link from profile settings
+          payment_url: profile?.payment_url,
+          tier: profile?.tier ?? "free",
         }),
       });
       if (!res.ok) {
@@ -358,7 +360,14 @@ export default function App() {
     setSendingInvoice(false);
   }
 
-  function openNewReceipt()        { setEditingReceipt(null);    setShowForm(true); }
+  function openNewReceipt() {
+    if (profile?.tier !== "pro" && !isAnon && receipts.length >= 3) {
+      startCheckout(token);
+      return;
+    }
+    setEditingReceipt(null);
+    setShowForm(true);
+  }
   function openEditReceipt(receipt) { setEditingReceipt(receipt); setShowForm(true); }
 
   /*
@@ -505,6 +514,15 @@ export default function App() {
               >
                 {profile && profile.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
               </button>
+              {profile?.tier !== "pro" && (
+                <button
+                  className="btn btn-primary"
+                  style={{ width: "100%", fontSize: 11 }}
+                  onClick={() => startCheckout(token)}
+                >
+                  Upgrade to Pro
+                </button>
+              )}
               <button
                 className="btn btn-ghost"
                 style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em", color: "var(--text-muted)" }}
@@ -774,13 +792,21 @@ export default function App() {
                       </button>
                     </div>
                   </div>
-                ) : (
+                ) : profile?.tier === "pro" ? (
                   <button
                     className="btn btn-ghost"
                     style={{ width: "100%", marginBottom: 6 }}
                     onClick={() => { setSendInvoiceTarget(selectedReceipt); setSendInvoiceEmail(""); }}
                   >
                     ✉ Send to Client
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-ghost"
+                    style={{ width: "100%", marginBottom: 6, opacity: 0.5 }}
+                    onClick={() => startCheckout(token)}
+                  >
+                    ✉ Send to Client — Pro
                   </button>
                 )}
 
@@ -789,7 +815,7 @@ export default function App() {
                   <button
                     className="btn btn-ghost"
                     style={{ width: "100%", marginBottom: 6 }}
-                    onClick={() => shareReceiptPDF({ ...selectedReceipt, logo_url: profile?.logo_url })}
+                    onClick={() => shareReceiptPDF({ ...selectedReceipt, logo_url: profile?.logo_url, tier: profile?.tier })}
                   >
                     Share Receipt
                   </button>
@@ -798,7 +824,7 @@ export default function App() {
                 <button
                   className="btn btn-primary"
                   style={{ width: "100%", marginBottom: 6 }}
-                  onClick={() => downloadReceiptPDF({ ...selectedReceipt, logo_url: profile?.logo_url })}
+                  onClick={() => downloadReceiptPDF({ ...selectedReceipt, logo_url: profile?.logo_url, tier: profile?.tier })}
                 >
                   Download PDF
                 </button>
