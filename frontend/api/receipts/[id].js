@@ -24,7 +24,8 @@ export default async function handler(req, res) {
   if (req.method === "PATCH") {
     try {
       const body = req.body;
-      const fields = Object.keys(body).filter((f) => f !== "line_items");
+      const ALLOWED_FIELDS = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency", "receipt_number"];
+      const fields = Object.keys(body).filter((f) => ALLOWED_FIELDS.includes(f));
       if (!fields.length) return res.status(400).json({ error: "No fields to update" });
       const setClauses = fields.map((f, i) => `${f} = $${i + 1}`).join(", ");
       const values = fields.map((f) => body[f]);

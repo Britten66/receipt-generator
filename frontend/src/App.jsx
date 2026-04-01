@@ -240,10 +240,10 @@ export default function App() {
     .filter((r) => r.status === "paid")
     .reduce((sum, r) => sum + parseFloat(r.subtotal || 0), 0);
 
-  // Outstanding: sum of sent receipts (invoiced, not yet paid), including tax.
+  // Outstanding: sum of sent receipts (invoiced, not yet paid), pre-tax.
   const outstanding = receipts
     .filter((r) => r.status === "sent")
-    .reduce((sum, r) => sum + parseFloat(r.total || 0), 0);
+    .reduce((sum, r) => sum + parseFloat(r.subtotal || 0), 0);
 
   const filtered = useMemo(() => {
     if (filter === "ALL") return receipts;
@@ -455,11 +455,11 @@ export default function App() {
         {/* Stats block: revenue (paid, pre-tax), outstanding (sent, inc. tax), total count */}
         <div className="sidebar-section">
           <div className="stat-block">
-            <div className="stat-label">Revenue <span className="stat-sublabel">paid · excl. tax</span></div>
+            <div className="stat-label">Revenue</div>
             <div className="stat-value">${revenue.toFixed(2)}</div>
           </div>
           <div className="stat-block">
-            <div className="stat-label">Outstanding <span className="stat-sublabel">sent · incl. tax</span></div>
+            <div className="stat-label">Outstanding</div>
             <div className="stat-value">${outstanding.toFixed(2)}</div>
           </div>
           <div className="stat-block">

@@ -43,7 +43,10 @@ GET /api/receipts
 POST /api/receipts
   Creates a new receipt and its line items in the database.
   Automatically generates the next receipt number (REC-000001, REC-000002, etc.)
-  by finding the highest existing number for this user and adding 1.
+  by finding the highest existing number across ALL users in the table and adding 1.
+  The receipt_number constraint is global (not per-user), so numbers are unique
+  across the entire database — two different users cannot share the same number.
+  If a collision occurs (race condition), it retries up to 10 times with the next number.
   The insert is wrapped in a transaction so if the line items fail,
   the receipt is also rolled back (nothing is half-saved).
   Input:  vendor_name, customer_name, status, date, subtotal, tax, total, notes, line_items

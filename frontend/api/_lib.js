@@ -5,8 +5,8 @@ const { Pool } = pg;
 
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-  max: 1,
+  ssl: { rejectUnauthorized: true },
+  max: 10,
 });
 
 const supabase = createClient(
