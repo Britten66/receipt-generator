@@ -163,9 +163,6 @@ export default function App() {
        signs out, or clicks a password reset link.
   */
   useEffect(() => {
-    // onAuthStateChange fires immediately on mount with the current session
-    // (INITIAL_SESSION event) — always a fresh/refreshed token, unlike getSession()
-    // which reads localStorage and can return expired tokens.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
       if (event === "PASSWORD_RECOVERY") {
         setShowPasswordUpdate(true);
@@ -173,6 +170,16 @@ export default function App() {
         setAuthLoading(false);
         return;
       }
+
+      // INITIAL_SESSION can carry an expired access_token before the refresh fires.
+      // If the token is already expired, skip it and wait for TOKEN_REFRESHED.
+      if (event === "INITIAL_SESSION" && newSession) {
+        try {
+          const { exp } = JSON.parse(atob(newSession.access_token.split(".")[1]));
+          if (exp * 1000 < Date.now()) return; // expired — TOKEN_REFRESHED will follow
+        } catch { /* malformed token, fall through */ }
+      }
+
       if (!newSession) {
         setSession(null);
         localStorage.removeItem("app_entered");
@@ -181,9 +188,7 @@ export default function App() {
       } else {
         setSession(newSession);
         setProIntent((prev) => {
-          if (prev) {
-            startCheckout(newSession.access_token).catch(() => {});
-          }
+          if (prev) startCheckout(newSession.access_token).catch(() => {});
           return false;
         });
       }
