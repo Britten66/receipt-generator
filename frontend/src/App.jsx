@@ -164,11 +164,8 @@ export default function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
-        // No existing session — sign in anonymously
-        supabase.auth.signInAnonymously().then(({ data }) => {
-          setSession(data.session);
-          setAuthLoading(false);
-        });
+        setShowAuthModal(true);
+        setAuthLoading(false);
       } else {
         setSession(session);
         setAuthLoading(false);
@@ -184,8 +181,8 @@ export default function App() {
         return;
       }
       if (!newSession) {
-        // Session ended (e.g. signed out) — fall back to anonymous
-        supabase.auth.signInAnonymously().then(({ data }) => setSession(data.session));
+        setSession(null);
+        setShowAuthModal(true);
       } else {
         setSession(newSession);
       }
@@ -214,13 +211,9 @@ export default function App() {
       })
       .finally(() => setLoading(false));
 
-    // Only load the profile for real accounts, not anonymous sessions
-    if (!session.user.is_anonymous) {
-      fetchProfile(token).then((p) => {
-        // p can be null if the user hasn't set up their profile yet
-        setProfile(p || null);
-      });
-    }
+    fetchProfile(token).then((p) => {
+      setProfile(p || null);
+    });
   }, [session]);
 
   /*
@@ -381,17 +374,48 @@ export default function App() {
     selectedReceipt = { ...selected, status: live ? live.status : selected.status };
   }
 
-  // True for anonymous sessions (guest users). Supabase sets is_anonymous on signInAnonymously().
-  const isAnon = session?.user ? session.user.is_anonymous : true;
+  const isAnon = false;
 
   if (authLoading) return null;
 
   if (!entered) {
     return (
-      <LandingPage onEnter={() => {
-        localStorage.setItem("app_entered", "1");
-        setEntered(true);
-      }} />
+      <>
+        <LandingPage
+          darkMode={darkMode}
+          onToggleDark={() => setDarkMode(!darkMode)}
+          onEnter={() => {
+            localStorage.setItem("app_entered", "1");
+            setEntered(true);
+            if (!session) setShowAuthModal(true);
+          }}
+        />
+        {showAuthModal && <AuthModal
+          onBack={() => {
+            setShowAuthModal(false);
+            localStorage.removeItem("app_entered");
+            setEntered(false);
+          }}
+          onClose={() => {
+            setShowAuthModal(false);
+            localStorage.removeItem("app_entered");
+            setEntered(false);
+          }}
+        />}
+      </>
+    );
+  }
+
+  if (!session) {
+    return (
+      <>
+        <div style={{ position: "fixed", top: 12, right: 12, zIndex: 10 }}>
+          <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)}>
+            {darkMode ? "Light" : "Dark"}
+          </button>
+        </div>
+        <AuthModal onClose={() => {}} />
+      </>
     );
   }
 
@@ -430,31 +454,28 @@ export default function App() {
         <div className="topbar-right">
           {/* Help button — circled ? */}
           <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help">?</button>
-          {/* Avatar dropdown — only shown when the user is signed in */}
-          {!isAnon && (
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild>
-                <button className="avatar-btn" aria-label="User menu">
-                  {avatarUrl
-                    ? <img src={avatarUrl} alt="" width={34} height={34} style={{ display: "block", objectFit: "cover" }} />
-                    : <div className="avatar-fallback">{userEmail[0] ? userEmail[0].toUpperCase() : "?"}</div>
-                  }
-                </button>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Portal>
-                <DropdownMenu.Content className="dropdown-content" sideOffset={8} align="end">
-                  <div className="dropdown-label">{userEmail}</div>
-                  <DropdownMenu.Separator className="dropdown-sep" />
-                  <DropdownMenu.Item className="dropdown-item" onSelect={() => setShowProfileModal(true)}>
-                    Profile &amp; Settings
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item className="dropdown-item dropdown-item-danger" onSelect={() => supabase.auth.signOut()}>
-                    Sign Out
-                  </DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Portal>
-            </DropdownMenu.Root>
-          )}
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button className="avatar-btn" aria-label="User menu">
+                {avatarUrl
+                  ? <img src={avatarUrl} alt="" width={34} height={34} style={{ display: "block", objectFit: "cover" }} />
+                  : <div className="avatar-fallback">{userEmail[0] ? userEmail[0].toUpperCase() : "?"}</div>
+                }
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content className="dropdown-content" sideOffset={8} align="end">
+                <div className="dropdown-label">{userEmail}</div>
+                <DropdownMenu.Separator className="dropdown-sep" />
+                <DropdownMenu.Item className="dropdown-item" onSelect={() => setShowProfileModal(true)}>
+                  Profile &amp; Settings
+                </DropdownMenu.Item>
+                <DropdownMenu.Item className="dropdown-item dropdown-item-danger" onSelect={() => supabase.auth.signOut()}>
+                  Sign Out
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         </div>
       </header>
 
@@ -496,42 +517,31 @@ export default function App() {
 
         {/* Bottom of sidebar: profile shortcut and + New Receipt button */}
         <div style={{ marginTop: "auto", padding: 12, borderTop: "1px solid var(--border-light)", display: "flex", flexDirection: "column", gap: 8 }}>
-          {isAnon ? (
+          <>
             <button
               className="btn btn-ghost"
               style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em" }}
-              onClick={() => setShowAuthModal(true)}
+              onClick={() => setShowProfileModal(true)}
             >
-              Save receipts  <br></br>
-                Create account
+              {profile?.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
             </button>
-          ) : (
-            <>
+            {profile?.tier !== "pro" && (
               <button
-                className="btn btn-ghost"
-                style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em" }}
-                onClick={() => setShowProfileModal(true)}
+                className="btn btn-primary"
+                style={{ width: "100%", fontSize: 11 }}
+                onClick={() => startCheckout(token)}
               >
-                {profile && profile.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
+                Upgrade to Pro
               </button>
-              {profile?.tier !== "pro" && (
-                <button
-                  className="btn btn-primary"
-                  style={{ width: "100%", fontSize: 11 }}
-                  onClick={() => startCheckout(token)}
-                >
-                  Upgrade to Pro
-                </button>
-              )}
-              <button
-                className="btn btn-ghost"
-                style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em", color: "var(--text-muted)" }}
-                onClick={() => supabase.auth.signOut()}
-              >
-                Sign Out
-              </button>
-            </>
-          )}
+            )}
+            <button
+              className="btn btn-ghost"
+              style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em", color: "var(--text-muted)" }}
+              onClick={() => supabase.auth.signOut()}
+            >
+              Sign Out
+            </button>
+          </>
           <button className="btn btn-primary" style={{ width: "100%" }} onClick={openNewReceipt}>
             + New Receipt
           </button>
@@ -543,9 +553,7 @@ export default function App() {
 
         {/* Toolbar: greeting on the left, receipt count on the right */}
         <div className="toolbar">
-          {!isAnon && (
-            <span className="toolbar-greeting">{greeting}</span>
-          )}
+          <span className="toolbar-greeting">{greeting}</span>
           <span className="toolbar-title">
             {filter === "ALL" ? "All" : STATUS_CONFIG[filter]?.label}: {filtered.length} receipt{filtered.length !== 1 ? "s" : ""}
           </span>

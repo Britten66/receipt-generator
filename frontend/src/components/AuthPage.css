@@ -218,6 +218,23 @@
 }
 .auth-text-btn:hover { color: var(--text-dim); }
 
+/* Back button — top-left of auth card */
+.auth-back-btn {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  background: none;
+  border: none;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s;
+}
+.auth-back-btn:hover { color: var(--text-dim); }
+
 /* ── Dark mode overrides ───────────────────────────────────────────────────── */
 
 /* Card background — use surface-2 (#26292B) instead of white-ish glass */
