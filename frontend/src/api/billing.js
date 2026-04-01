@@ -5,7 +5,7 @@ const BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 export async function startCheckout(token) {
   const res = await fetch(`${BASE}/stripe-checkout`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
     body: JSON.stringify({ return_url: window.location.origin }),
   });
   const { url, error } = await res.json();
