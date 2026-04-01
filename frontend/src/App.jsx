@@ -107,6 +107,7 @@ export default function App() {
   const [authLoading, setAuthLoading]           = useState(true);
   const [showAuthModal, setShowAuthModal]       = useState(false);
   const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
+  const [proIntent, setProIntent]               = useState(false);
 
   /*
     "entered" persists in localStorage so a page refresh skips the landing screen.
@@ -190,6 +191,13 @@ export default function App() {
         setShowAuthModal(false);
       } else {
         setSession(newSession);
+        // If user signed in via the "Get Pro" button, send them straight to checkout
+        setProIntent((prev) => {
+          if (prev) {
+            startCheckout(newSession.access_token).catch(() => {});
+          }
+          return false;
+        });
       }
     });
 
@@ -397,6 +405,19 @@ export default function App() {
             localStorage.setItem("app_entered", "1");
             setEntered(true);
             if (!session) setShowAuthModal(true);
+          }}
+          onEnterPro={() => {
+            setProIntent(true);
+            localStorage.setItem("app_entered", "1");
+            setEntered(true);
+            if (session) {
+              // Already logged in — go straight to checkout
+              startCheckout(session.access_token).catch(() =>
+                showToast("Couldn't open checkout. Try again.")
+              );
+            } else {
+              setShowAuthModal(true);
+            }
           }}
         />
         {showAuthModal && (

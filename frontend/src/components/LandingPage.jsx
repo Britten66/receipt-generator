@@ -70,7 +70,7 @@ function MockInvoice() {
   );
 }
 
-export default function LandingPage({ onEnter, darkMode, onToggleDark }) {
+export default function LandingPage({ onEnter, onEnterPro, darkMode, onToggleDark }) {
   const [legal, setLegal] = useState(null);
   const scrollRef = useRef(null);
 
@@ -148,7 +148,7 @@ export default function LandingPage({ onEnter, darkMode, onToggleDark }) {
               <li>Pay Now button — get paid faster</li>
               <li>One tool. Every invoice. Done.</li>
             </ul>
-            <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnter}>Get Pro — $9/mo</button>
+            <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro ?? onEnter}>Get Pro — $9/mo</button>
           </div>
 
         </div>
