@@ -8,7 +8,8 @@ export async function startCheckout(token) {
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
     body: JSON.stringify({ return_url: window.location.origin }),
   });
-  const { url, error } = await res.json();
-  if (error) throw new Error(error);
-  window.location.href = url;
+  const body = await res.json();
+  if (body.error) throw new Error(body.error);
+  if (!body.url) throw new Error("No checkout URL returned — check Stripe secrets in Supabase.");
+  window.location.href = body.url;
 }

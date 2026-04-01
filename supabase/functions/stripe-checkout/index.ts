@@ -22,15 +22,19 @@ Deno.serve(async (req) => {
 
   const { return_url } = await req.json();
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    payment_method_types: ["card"],
-    line_items: [{ price: Deno.env.get("STRIPE_PRO_PRICE_ID")!, quantity: 1 }],
-    success_url: `${return_url}?upgraded=true`,
-    cancel_url: return_url,
-    client_reference_id: user.id,
-    customer_email: user.email,
-  });
-
-  return new Response(JSON.stringify({ url: session.url }), { headers: corsHeaders });
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      payment_method_types: ["card"],
+      line_items: [{ price: Deno.env.get("STRIPE_PRO_PRICE_ID")!, quantity: 1 }],
+      success_url: `${return_url}?upgraded=true`,
+      cancel_url: return_url,
+      client_reference_id: user.id,
+      customer_email: user.email,
+    });
+    return new Response(JSON.stringify({ url: session.url }), { headers: corsHeaders });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Stripe error";
+    return new Response(JSON.stringify({ error: msg }), { status: 500, headers: corsHeaders });
+  }
 });
