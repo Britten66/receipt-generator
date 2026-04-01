@@ -153,14 +153,10 @@ export default function App() {
   }
 
   /*
-    Auth setup — runs once on mount.
-
-    1. Check if a session already exists (e.g. the user refreshed the page).
-    2. If no session exists, sign in anonymously so the user can use the app
-       without creating an account. Receipts created anonymously are tied to
-       the anonymous user_id and will be lost if they clear their browser.
-    3. Listen for auth state changes so we can react when the user signs in,
-       signs out, or clicks a password reset link.
+    Auth — runs once on mount via onAuthStateChange.
+    Using invoke (supabase.functions.invoke) for all Edge Function calls so the
+    client manages the auth token internally — no manual token passing needed.
+    INITIAL_SESSION check skips expired tokens and waits for TOKEN_REFRESHED.
   */
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
@@ -198,13 +194,10 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  /*
-    Load receipts whenever the session changes (login, logout, anonymous sign-in).
-    Also load the profile if the user is not anonymous.
-  */
+  // Load receipts and profile whenever session changes (login, token refresh, sign-out).
+  // supabase.functions.invoke handles auth automatically — no token arg needed.
   useEffect(() => {
     if (!session) return;
-    const token = session.access_token;
     setLoading(true);
     fetchReceipts()
       .then((data) => {
@@ -250,10 +243,6 @@ export default function App() {
     if (filter === "ALL") return receipts;
     return receipts.filter((r) => r.status === filter);
   }, [receipts, filter]);
-
-  // JWT from the current session — passed to every API call. Null until auth resolves.
-  let token = null;
-  if (session) token = session.access_token;
 
   /*
     Fetch a receipt by ID (includes line_items) and open the detail panel.
@@ -318,10 +307,8 @@ export default function App() {
 
   /*
     handleSendInvoice() — email the selected receipt to the client.
-    Calls the /api/send-invoice serverless function which uses Resend to send
-    a formatted HTML email with the invoice details and a Pay Now button.
-
-    Requires RESEND_API_KEY to be set in Vercel environment variables.
+    Calls the send-invoice Supabase Edge Function which uses Resend.
+    Requires RESEND_API_KEY set in Supabase Edge Function secrets.
   */
   async function handleSendInvoice() {
     if (!sendInvoiceEmail) return;
