@@ -32,7 +32,7 @@ Invoicing SaaS for freelancers, contractors, and small businesses. Create, send,
 | Layer | Tech |
 |---|---|
 | Frontend | React 19 + Vite 7 |
-| Hosting | Vercel |
+| Hosting | Cloudflare Pages |
 | Backend | Supabase Edge Functions (Deno) |
 | Database | PostgreSQL via Supabase |
 | Auth | Supabase Auth |

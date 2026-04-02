@@ -8,7 +8,8 @@
 
   Declaration order matters for Rollup's production build — it converts function
   declarations to const assignments, so callee must come before caller.
-  Order: PALETTE_KEYS → MANAGED_VARS → PALETTE_META → PALETTES → clearPalette → applyPalette
+  Order: PALETTE_KEYS → MANAGED_VARS → PALETTES → PALETTE_META → PALETTE_ENTRIES
+       → clearPalette → applyPalette → readPaletteFromStorage
 */
 
 // Hardcoded allowlist — never computed from PALETTES to avoid init-order issues
@@ -22,197 +23,193 @@ const MANAGED_VARS = [
   "--accent", "--accent-dim",
 ];
 
-// Display info for the picker UI — swatch bg and accent per mode
-export const PALETTE_META = {
-  earth:  { label: "Earth",  lightAccent: "#8b3a0f", darkAccent: "#d4803c", lightBg: "#ede0cc", darkBg: "#1a100a" },
-  water:  { label: "Water",  lightAccent: "#0e5c9c", darkAccent: "#4898d8", lightBg: "#d8e8f4", darkBg: "#060e1a" },
-  fire:   { label: "Fire",   lightAccent: "#c82c08", darkAccent: "#f04820", lightBg: "#ede4d8", darkBg: "#180800" },
-  forest: { label: "Forest", lightAccent: "#1a6828", darkAccent: "#4cc860", lightBg: "#d8e8d4", darkBg: "#060e04" },
-  dusk:   { label: "Dusk",   lightAccent: "#5820a0", darkAccent: "#9060e0", lightBg: "#e4daf0", darkBg: "#0c0614" },
-  stone:  { label: "Stone",  lightAccent: "#2a4060", darkAccent: "#6090c8", lightBg: "#d8dade", darkBg: "#10141a" },
-};
-
 const PALETTES = {
   earth: {
     light: {
-      "--bg":          "#ede0cc",   /* warm parchment */
-      "--surface":     "#d4c0a4",   /* clay tan — left nav */
-      "--surface-2":   "#f5ede0",   /* cream — top nav, cards */
+      "--bg":          "#ede0cc",
+      "--surface":     "#d4c0a4",
+      "--surface-2":   "#f5ede0",
       "--border":      "#9c7c58",
       "--border-light":"#c0a07c",
       "--text":        "#2a1800",
       "--text-dim":    "#4a3010",
       "--text-muted":  "#7a5c3c",
-      "--accent":      "#8b3a0f",   /* burnt sienna */
+      "--accent":      "#8b3a0f",
       "--accent-dim":  "rgba(139,58,15,0.12)",
     },
     dark: {
-      "--bg":          "#1a100a",   /* very dark clay */
-      "--surface":     "#0e0804",   /* near-black brown */
-      "--surface-2":   "#261810",   /* dark clay */
+      "--bg":          "#1a100a",
+      "--surface":     "#0e0804",
+      "--surface-2":   "#261810",
       "--border":      "#5c3018",
       "--border-light":"#3c2010",
       "--text":        "#f0e0c4",
       "--text-dim":    "#c8a878",
       "--text-muted":  "#907050",
-      "--accent":      "#d4803c",   /* warm amber */
+      "--accent":      "#d4803c",
       "--accent-dim":  "rgba(212,128,60,0.15)",
     },
   },
 
   water: {
     light: {
-      "--bg":          "#d8e8f4",   /* pale ocean */
-      "--surface":     "#b8d0e8",   /* slate blue — left nav */
-      "--surface-2":   "#e8f2fc",   /* light seafoam — top nav, cards */
+      "--bg":          "#d8e8f4",
+      "--surface":     "#b8d0e8",
+      "--surface-2":   "#e8f2fc",
       "--border":      "#5880a8",
       "--border-light":"#80a8cc",
       "--text":        "#0a1828",
       "--text-dim":    "#1c3048",
       "--text-muted":  "#486888",
-      "--accent":      "#0e5c9c",   /* deep ocean */
+      "--accent":      "#0e5c9c",
       "--accent-dim":  "rgba(14,92,156,0.12)",
     },
     dark: {
-      "--bg":          "#060e1a",   /* near-black navy */
-      "--surface":     "#040810",   /* deepest navy */
-      "--surface-2":   "#0c1828",   /* dark ocean */
+      "--bg":          "#060e1a",
+      "--surface":     "#040810",
+      "--surface-2":   "#0c1828",
       "--border":      "#18385c",
       "--border-light":"#102440",
       "--text":        "#c8e0f4",
       "--text-dim":    "#80b0d0",
       "--text-muted":  "#406888",
-      "--accent":      "#4898d8",   /* bright ocean */
+      "--accent":      "#4898d8",
       "--accent-dim":  "rgba(72,152,216,0.15)",
     },
   },
 
   fire: {
     light: {
-      "--bg":          "#ede4d8",   /* warm ash */
-      "--surface":     "#d4c4b0",   /* ash gray — left nav */
-      "--surface-2":   "#f4ece0",   /* pale smoke — top nav, cards */
+      "--bg":          "#ede4d8",
+      "--surface":     "#d4c4b0",
+      "--surface-2":   "#f4ece0",
       "--border":      "#a87050",
       "--border-light":"#cc9878",
       "--text":        "#200800",
       "--text-dim":    "#3c1808",
       "--text-muted":  "#7c4828",
-      "--accent":      "#c82c08",   /* hot ember */
+      "--accent":      "#c82c08",
       "--accent-dim":  "rgba(200,44,8,0.12)",
     },
     dark: {
-      "--bg":          "#180800",   /* charcoal black-red */
-      "--surface":     "#0c0400",   /* near black */
-      "--surface-2":   "#240e04",   /* dark coal */
+      "--bg":          "#180800",
+      "--surface":     "#0c0400",
+      "--surface-2":   "#240e04",
       "--border":      "#5c1c08",
       "--border-light":"#3c1004",
       "--text":        "#f8dcc8",
       "--text-dim":    "#d09070",
       "--text-muted":  "#906040",
-      "--accent":      "#f04820",   /* hot orange-red */
+      "--accent":      "#f04820",
       "--accent-dim":  "rgba(240,72,32,0.15)",
     },
   },
 
   forest: {
     light: {
-      "--bg":          "#d8e8d4",   /* pale sage */
-      "--surface":     "#b8d0b0",   /* soft moss — left nav */
-      "--surface-2":   "#e8f4e4",   /* light fern — top nav, cards */
+      "--bg":          "#d8e8d4",
+      "--surface":     "#b8d0b0",
+      "--surface-2":   "#e8f4e4",
       "--border":      "#507850",
       "--border-light":"#78a870",
       "--text":        "#081808",
       "--text-dim":    "#183018",
       "--text-muted":  "#407840",
-      "--accent":      "#1a6828",   /* deep forest */
+      "--accent":      "#1a6828",
       "--accent-dim":  "rgba(26,104,40,0.12)",
     },
     dark: {
-      "--bg":          "#060e04",   /* near-black green */
-      "--surface":     "#040804",   /* deepest woodland */
-      "--surface-2":   "#0c180a",   /* dark fern */
+      "--bg":          "#060e04",
+      "--surface":     "#040804",
+      "--surface-2":   "#0c180a",
       "--border":      "#1c401c",
       "--border-light":"#102c10",
       "--text":        "#c8f0c8",
       "--text-dim":    "#88c880",
       "--text-muted":  "#488048",
-      "--accent":      "#4cc860",   /* bright fern */
+      "--accent":      "#4cc860",
       "--accent-dim":  "rgba(76,200,96,0.15)",
     },
   },
 
   dusk: {
     light: {
-      "--bg":          "#e4daf0",   /* pale lavender */
-      "--surface":     "#c8b8e0",   /* muted purple — left nav */
-      "--surface-2":   "#f0e8fc",   /* soft violet — top nav, cards */
+      "--bg":          "#e4daf0",
+      "--surface":     "#c8b8e0",
+      "--surface-2":   "#f0e8fc",
       "--border":      "#7050a0",
       "--border-light":"#9878c8",
       "--text":        "#100818",
       "--text-dim":    "#201030",
       "--text-muted":  "#604878",
-      "--accent":      "#5820a0",   /* deep indigo */
+      "--accent":      "#5820a0",
       "--accent-dim":  "rgba(88,32,160,0.12)",
     },
     dark: {
-      "--bg":          "#0c0614",   /* near-black purple */
-      "--surface":     "#08040c",   /* deepest indigo */
-      "--surface-2":   "#160a1e",   /* dark violet */
+      "--bg":          "#0c0614",
+      "--surface":     "#08040c",
+      "--surface-2":   "#160a1e",
       "--border":      "#381060",
       "--border-light":"#240840",
       "--text":        "#ecdcf8",
       "--text-dim":    "#b090d8",
       "--text-muted":  "#806898",
-      "--accent":      "#9060e0",   /* bright violet */
+      "--accent":      "#9060e0",
       "--accent-dim":  "rgba(144,96,224,0.15)",
     },
   },
 
   stone: {
     light: {
-      "--bg":          "#d8dade",   /* cool concrete */
-      "--surface":     "#c0c4ca",   /* steel gray — left nav */
-      "--surface-2":   "#eaecf0",   /* light slate — top nav, cards */
+      "--bg":          "#d8dade",
+      "--surface":     "#c0c4ca",
+      "--surface-2":   "#eaecf0",
       "--border":      "#6a7080",
       "--border-light":"#909aaa",
       "--text":        "#101418",
       "--text-dim":    "#202830",
       "--text-muted":  "#546070",
-      "--accent":      "#2a4060",   /* dark steel blue */
+      "--accent":      "#2a4060",
       "--accent-dim":  "rgba(42,64,96,0.12)",
     },
     dark: {
-      "--bg":          "#10141a",   /* dark steel */
-      "--surface":     "#08090e",   /* near-black slate */
-      "--surface-2":   "#1c2028",   /* dark concrete */
+      "--bg":          "#10141a",
+      "--surface":     "#08090e",
+      "--surface-2":   "#1c2028",
       "--border":      "#2c3440",
       "--border-light":"#1c2430",
       "--text":        "#d0d8e4",
       "--text-dim":    "#9098a8",
       "--text-muted":  "#5c6878",
-      "--accent":      "#6090c8",   /* bright steel blue */
+      "--accent":      "#6090c8",
       "--accent-dim":  "rgba(96,144,200,0.15)",
     },
   },
 };
 
-/*
-  clearPalette() — declared before applyPalette so Rollup's const-inlining
-  doesn't hit a TDZ when applyPalette calls it.
-*/
+// Derived from PALETTES — single source of truth for swatch display colors.
+// label is titleCase of the key; accent/bg come directly from the palette data.
+export const PALETTE_META = Object.fromEntries(
+  Object.entries(PALETTES).map(([key, modes]) => [
+    key,
+    {
+      label:       key[0].toUpperCase() + key.slice(1),
+      lightAccent: modes.light["--accent"],
+      darkAccent:  modes.dark["--accent"],
+      lightBg:     modes.light["--bg"],
+      darkBg:      modes.dark["--bg"],
+    },
+  ])
+);
+
+// Precomputed — avoids creating a new array on every render that maps over palettes.
+export const PALETTE_ENTRIES = Object.entries(PALETTE_META);
+
 export function clearPalette() {
   const root = document.documentElement;
   MANAGED_VARS.forEach((v) => root.style.removeProperty(v));
 }
 
-/*
-  applyPalette(key, mode)
-  key  — a PALETTE_KEYS value, or null/"default" to reset
-  mode — "light" | "dark"
-
-  Only call when the user is inside the app (entered === true).
-  Never call with raw user-supplied colour values.
-*/
 export function applyPalette(key, mode) {
   if (!key || key === "default" || !PALETTE_KEYS.has(key)) {
     clearPalette();
@@ -223,4 +220,10 @@ export function applyPalette(key, mode) {
   MANAGED_VARS.forEach((v) => {
     if (vars[v] !== undefined) root.style.setProperty(v, vars[v]);
   });
+}
+
+// Reads a saved palette key from localStorage; returns null if absent or invalid.
+export function readPaletteFromStorage(storageKey) {
+  const saved = localStorage.getItem(storageKey);
+  return saved && PALETTE_KEYS.has(saved) ? saved : null;
 }

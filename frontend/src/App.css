@@ -197,6 +197,13 @@ body,
   transform: translate(1px, 1px);
 }
 
+/* ── Topbar left column — mode toggle + palette picker ──────────────────── */
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 /* ── Palette picker ──────────────────────────────────────────────────────── */
 
 /* Row of swatches sitting next to the dark-toggle */

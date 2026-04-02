@@ -37,7 +37,7 @@ import LegalModal from "./components/LegalModal";
 import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
 import { startCheckout } from "./api/billing";
-import { applyPalette, clearPalette, PALETTE_META, PALETTE_KEYS } from "./lib/themes";
+import { applyPalette, clearPalette, PALETTE_ENTRIES, PALETTE_KEYS, readPaletteFromStorage } from "./lib/themes";
 import { QRCodeSVG } from "qrcode.react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import "./App.css";
@@ -110,20 +110,13 @@ export default function App() {
     null = "default" (uses App.css :root / [data-theme="dark"] values).
     Only keys from PALETTE_KEYS are accepted; anything else is silently ignored.
   */
-  const [lightPalette, setLightPaletteState] = useState(() => {
-    const saved = localStorage.getItem("theme_light_palette");
-    return saved && PALETTE_KEYS.has(saved) ? saved : null;
-  });
-  const [darkPalette, setDarkPaletteState] = useState(() => {
-    const saved = localStorage.getItem("theme_dark_palette");
-    return saved && PALETTE_KEYS.has(saved) ? saved : null;
-  });
+  const [lightPalette, setLightPaletteState] = useState(() => readPaletteFromStorage("theme_light_palette"));
+  const [darkPalette,  setDarkPaletteState]  = useState(() => readPaletteFromStorage("theme_dark_palette"));
 
-  // currentPalette is whichever key is active for the current mode
   const currentPalette = darkMode ? darkPalette : lightPalette;
 
   function setPalette(key) {
-    // key must be from PALETTE_KEYS, or null to reset
+    // applyPalette() validates the key — only normalize null here and persist.
     const safe = key && PALETTE_KEYS.has(key) ? key : null;
     if (darkMode) {
       setDarkPaletteState(safe);
@@ -513,7 +506,7 @@ export default function App() {
       <header className="topbar">
 
         {/* Column 1 — far left: mode toggle + palette picker */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div className="topbar-left">
           <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)}>
             {darkMode ? "Light" : "Dark"}
           </button>
@@ -531,7 +524,7 @@ export default function App() {
             />
 
             {/* Named palette swatches */}
-            {Object.entries(PALETTE_META).map(([key, meta]) => {
+            {PALETTE_ENTRIES.map(([key, meta]) => {
               const bg     = darkMode ? meta.darkBg     : meta.lightBg;
               const accent = darkMode ? meta.darkAccent : meta.lightAccent;
               return (
