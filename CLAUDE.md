@@ -5,7 +5,7 @@
 Invoicing SaaS for freelancers, contractors, and small businesses. Create, send, and track invoices. Built solo as a real-world workflow and architecture exercise.
 
 **Domain:** invoiceprepper.com (bought, live)
-**App:** React frontend on Vercel + Supabase Edge Functions backend
+**App:** React frontend on Cloudflare Pages + Supabase Edge Functions backend
 
 ---
 
@@ -109,7 +109,7 @@ docs/
 - PATCH on receipts uses an `ALLOWED_FIELDS` whitelist — no arbitrary column writes
 - HTML escaping (`escapeHtml`) on all user fields in email HTML
 - CORS allowlist: `invoiceprepper.com`, `www.invoiceprepper.com`, `localhost:5173`, `localhost:3000`
-- Vercel headers: `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options`, HSTS, Referrer-Policy, Permissions-Policy
+- Cloudflare Pages headers: `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options`, HSTS, Referrer-Policy, Permissions-Policy
 - Bot filtering + DDoS protection at edge (Cloudflare — see commit `afb2f7e`)
 
 ---

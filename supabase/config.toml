@@ -1,3 +1,6 @@
+[functions.notify-signup]
+verify_jwt = false
+
 [functions.send-invoice]
 verify_jwt = false
 

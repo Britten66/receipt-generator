@@ -88,6 +88,27 @@ The edge function filters the request body through `ALLOWED_FIELDS` before the d
 
 ---
 
+### Signup Notification Webhook Integrity
+
+**File:** `frontend/src/__tests__/security/notify-signup.test.js`
+
+The `notify-signup` edge function fires when a new user registers. It receives a POST request from Supabase Auth Hooks and sends an email to the owner via Resend. Because this function has no CORS protection (it's server-to-server), it relies entirely on HMAC-SHA256 request signing. Without signature verification, any attacker who discovers the URL could forge fake signup events or probe for valid accounts.
+
+Supabase signs every Auth Hook request with a shared secret. The function derives the expected signature using the same secret and compares it using a constant-time algorithm (`crypto.subtle.verify` in production, reproduced with Node's `createHmac` in tests).
+
+**Verified:**
+- A correctly signed payload passes verification
+- A tampered body (different content) fails — signature no longer matches
+- A wrong secret fails — made with a different key
+- Empty, null, undefined, and single-space signature headers all fail
+- A single byte flipped in the signature fails
+- Both Supabase payload shapes are handled: `{ user: {...} }` and flat user object
+- Missing user fields fall back to "unknown" without throwing
+- `EMAIL_RE` is documented as a loose format check only — Supabase's stricter RFC validator is the real guard against injection in stored emails
+- Constant-time comparison behaviour is verified for both length-mismatch and same-length wrong signatures
+
+---
+
 ## CI Pipeline
 
 **File:** `.github/workflows/ci.yml`
@@ -112,7 +133,8 @@ The dependency audit step runs at `--audit-level=high`. It is set to `continue-o
 | validation.test.js | 36 |
 | cors.test.js | 38 |
 | fields-whitelist.test.js | 29 |
-| **Total** | **130** |
+| notify-signup.test.js | 19 |
+| **Total** | **149** |
 
 ---
 
@@ -126,3 +148,4 @@ If you change any of the following in an edge function, update the corresponding
 - `ALLOWED_ORIGINS` in `_shared/cors.ts`
 - `ALLOWED_FIELDS` in `receipts/index.ts`
 - Any body size limit constant
+- HMAC verification logic in `notify-signup/index.ts`
