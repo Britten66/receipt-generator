@@ -19,7 +19,12 @@
 */
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import { downloadReceiptPDF, shareReceiptPDF, previewReceiptPDF, buildPDFBase64 } from "./components/ReceiptPDF";
+import {
+  downloadReceiptPDF,
+  shareReceiptPDF,
+  previewReceiptPDF,
+  buildPDFBase64,
+} from "./components/ReceiptPDF";
 import {
   fetchReceipts,
   fetchReceiptById,
@@ -39,6 +44,7 @@ import { fetchProfile } from "./api/profile";
 import { startCheckout } from "./api/billing";
 import { QRCodeSVG } from "qrcode.react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import ThemePicker from "./components/ThemePicker";
 import "./App.css";
 
 /*
@@ -53,9 +59,9 @@ import "./App.css";
 */
 const STATUS_CONFIG = {
   draft: { label: "Draft" },
-  sent:  { label: "Sent" },
-  paid:  { label: "Paid" },
-  voided:{ label: "Voided" },
+  sent: { label: "Sent" },
+  paid: { label: "Paid" },
+  voided: { label: "Voided" },
 };
 
 /*
@@ -63,10 +69,10 @@ const STATUS_CONFIG = {
   "ALL" shows every receipt regardless of status.
 */
 const NAV = [
-  { key: "ALL",    label: "All Invoices" },
-  { key: "draft",  label: "Draft" },
-  { key: "sent",   label: "Sent" },
-  { key: "paid",   label: "Paid" },
+  { key: "ALL", label: "All Invoices" },
+  { key: "draft", label: "Draft" },
+  { key: "sent", label: "Sent" },
+  { key: "paid", label: "Paid" },
   { key: "voided", label: "Voided" },
 ];
 
@@ -75,19 +81,20 @@ const NAV = [
   Example: marking a receipt as paid shows "Marked as paid" in the toast.
 */
 const STATUS_LABELS = {
-  draft:  "Saved as draft",
-  sent:   "Marked as sent",
-  paid:   "Marked as paid",
+  draft: "Saved as draft",
+  sent: "Marked as sent",
+  paid: "Marked as paid",
   voided: "Invoice voided",
 };
 
 export default function App() {
-
   /*
     darkMode — true when the user has switched to dark mode.
     We read the saved preference from localStorage on first load so it
     persists between sessions. The value is stored as the string "1".
   */
+  const [profile, setProfile] = useState(null);
+
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem("dark_mode") === "1";
   });
@@ -102,36 +109,49 @@ export default function App() {
       document.documentElement.removeAttribute("data-theme");
       localStorage.setItem("dark_mode", "0");
     }
-  }, [darkMode]);
+    // Re-apply saved theme vars for the new mode — scoped to .app-shell only
+    const theme = profile?.theme;
+    if (theme) {
+      const vars = darkMode ? theme.dark : theme.light;
+      if (vars) {
+        const shell = document.querySelector(".app-shell");
+        if (shell)
+          Object.entries(vars).forEach(([k, v]) =>
+            shell.style.setProperty(k, v),
+          );
+      }
+    }
+  }, [darkMode, profile]);
 
-  const [session, setSession]                   = useState(null);
-  const [authLoading, setAuthLoading]           = useState(true);
-  const [showAuthModal, setShowAuthModal]       = useState(false);
+  const [session, setSession] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
-  const [proIntent, setProIntent]               = useState(false);
+  const [proIntent, setProIntent] = useState(false);
 
   /*
     "entered" persists in localStorage so a page refresh skips the landing screen.
   */
-  const [entered, setEntered] = useState(() => !!localStorage.getItem("app_entered"));
+  const [entered, setEntered] = useState(
+    () => !!localStorage.getItem("app_entered"),
+  );
 
-  const [swipedId, setSwipedId]       = useState(null);
-  const touchStartX                   = useRef(0);
-  const [receipts, setReceipts]       = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [filter, setFilter]           = useState("ALL");
+  const [swipedId, setSwipedId] = useState(null);
+  const touchStartX = useRef(0);
+  const [receipts, setReceipts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("ALL");
 
   /*
     selected: the full receipt object shown in the detail panel, fetched by ID
     (includes line_items). Null hides the panel.
   */
-  const [selected, setSelected]           = useState(null);
-  const [profile, setProfile]             = useState(null);
+  const [selected, setSelected] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showHelp, setShowHelp]           = useState(false);
-  const [showForm, setShowForm]           = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [editingReceipt, setEditingReceipt] = useState(null);
-  const [legal, setLegal]                 = useState(null);
+  const [legal, setLegal] = useState(null);
 
   // Toast: { msg, type: "success" | "error" }. Auto-clears after 3.5s.
   const [toast, setToast] = useState(null);
@@ -141,8 +161,8 @@ export default function App() {
     When set, the "Send to Client" button is replaced by an email input row.
   */
   const [sendInvoiceTarget, setSendInvoiceTarget] = useState(null);
-  const [sendInvoiceEmail, setSendInvoiceEmail]   = useState("");
-  const [sendingInvoice, setSendingInvoice]       = useState(false);
+  const [sendInvoiceEmail, setSendInvoiceEmail] = useState("");
+  const [sendingInvoice, setSendingInvoice] = useState(false);
 
   /*
     showToast(msg, type) — show a small banner at the bottom of the screen for 3.5s.
@@ -159,7 +179,9 @@ export default function App() {
     INITIAL_SESSION check skips expired tokens and waits for TOKEN_REFRESHED.
   */
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, newSession) => {
       if (event === "PASSWORD_RECOVERY") {
         setShowPasswordUpdate(true);
         setSession(newSession);
@@ -171,9 +193,13 @@ export default function App() {
       // If the token is already expired, skip it and wait for TOKEN_REFRESHED.
       if (event === "INITIAL_SESSION" && newSession) {
         try {
-          const { exp } = JSON.parse(atob(newSession.access_token.split(".")[1]));
+          const { exp } = JSON.parse(
+            atob(newSession.access_token.split(".")[1]),
+          );
           if (exp * 1000 < Date.now()) return; // expired — TOKEN_REFRESHED will follow
-        } catch { /* malformed token, fall through */ }
+        } catch {
+          /* malformed token, fall through */
+        }
       }
 
       if (!newSession) {
@@ -214,6 +240,8 @@ export default function App() {
 
     fetchProfile().then((p) => {
       setProfile(p || null);
+      if (p?.theme)
+        applyTheme(p.theme, localStorage.getItem("dark_mode") === "1");
     });
   }, [session]);
 
@@ -269,6 +297,30 @@ export default function App() {
     return receipts.filter((r) => r.status === filter);
   }, [receipts, filter]);
 
+  function applyTheme(theme, isDark) {
+    const vars = isDark ? theme.dark : theme.light;
+    if (!vars) return;
+    const shell = document.querySelector(".app-shell");
+    if (!shell) return;
+    Object.entries(vars).forEach(([k, v]) => shell.style.setProperty(k, v));
+  }
+
+  async function handleSaveTheme(theme) {
+    const {
+      data: { session: s },
+    } = await supabase.auth.getSession();
+    await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${s?.access_token ?? ""}`,
+        apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({ theme }),
+    });
+    setProfile((prev) => ({ ...prev, theme }));
+  }
+
   /*
     Fetch a receipt by ID (includes line_items) and open the detail panel.
     The list view only carries summary data, so we need a separate fetch for the full object.
@@ -313,7 +365,9 @@ export default function App() {
   */
   async function handleStatusChange(id, status) {
     await updateReceipt(id, { status });
-    setReceipts((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+    setReceipts((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, status } : r)),
+    );
     if (selected && selected.id === id) setSelected((s) => ({ ...s, status }));
     showToast(STATUS_LABELS[status] || "Status updated", "success");
   }
@@ -349,33 +403,41 @@ export default function App() {
         tier: profile?.tier ?? "free",
       });
 
-      const { data: { session: _s } } = await supabase.auth.getSession();
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invoice`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${_s?.access_token ?? ""}`,
-          "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
+      const {
+        data: { session: _s },
+      } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invoice`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${_s?.access_token ?? ""}`,
+            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({
+            to: sendInvoiceEmail,
+            vendor_name: r.vendor_name,
+            customer_name: r.customer_name,
+            receipt_number: r.receipt_number,
+            date: r.date,
+            line_items: r.line_items,
+            subtotal: r.subtotal,
+            tax: r.tax,
+            total: r.total,
+            notes: r.notes,
+            payment_url: profile?.payment_url,
+            tier: profile?.tier ?? "free",
+            logo_url: r.logo_url || profile?.logo_url || null,
+            logo_corner: r.logo_corner || null,
+            pdf_base64: pdfBase64,
+          }),
         },
-        body: JSON.stringify({
-          to: sendInvoiceEmail,
-          vendor_name: r.vendor_name,
-          customer_name: r.customer_name,
-          receipt_number: r.receipt_number,
-          date: r.date,
-          line_items: r.line_items,
-          subtotal: r.subtotal,
-          tax: r.tax,
-          total: r.total,
-          notes: r.notes,
-          payment_url: profile?.payment_url,
-          tier: profile?.tier ?? "free",
-          logo_url: r.logo_url || profile?.logo_url || null,
-          logo_corner: r.logo_corner || null,
-          pdf_base64: pdfBase64,
-        }),
-      });
-      if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error ?? "Send failed"); }
+      );
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({}));
+        throw new Error(e.error ?? "Send failed");
+      }
       showToast("Invoice sent.", "success");
       setSendInvoiceTarget(null);
       setSendInvoiceEmail("");
@@ -390,7 +452,10 @@ export default function App() {
     setEditingReceipt(null);
     setShowForm(true);
   }
-  function openEditReceipt(receipt) { setEditingReceipt(receipt); setShowForm(true); }
+  function openEditReceipt(receipt) {
+    setEditingReceipt(receipt);
+    setShowForm(true);
+  }
 
   /*
     Merge `selected` (full object with line_items) with the live status from the list.
@@ -400,7 +465,10 @@ export default function App() {
   let selectedReceipt = null;
   if (selected) {
     const live = receipts.find((r) => r.id === selected.id);
-    selectedReceipt = { ...selected, status: live ? live.status : selected.status };
+    selectedReceipt = {
+      ...selected,
+      status: live ? live.status : selected.status,
+    };
   }
 
   if (authLoading) return null;
@@ -425,7 +493,7 @@ export default function App() {
             setEntered(true);
             if (session) {
               startCheckout().catch(() =>
-                showToast("Couldn't open checkout. Try again.")
+                showToast("Couldn't open checkout. Try again."),
               );
             } else {
               setShowAuthModal(true);
@@ -453,28 +521,37 @@ export default function App() {
     Time-based greeting. Name priority: business_name > email username > nothing.
   */
   const hour = new Date().getHours();
-  const salutation = hour >= 5 && hour < 12 ? "Good morning"
-                   : hour >= 12 && hour < 17 ? "Good afternoon"
-                   : "Good evening";
+  const salutation =
+    hour >= 5 && hour < 12
+      ? "Good morning"
+      : hour >= 12 && hour < 17
+        ? "Good afternoon"
+        : "Good evening";
   const greetingName = profile?.business_name || userEmail.split("@")[0] || "";
   const greeting = greetingName ? `${salutation}, ${greetingName}` : salutation;
 
   return (
     <div className="app-shell">
-
       {/* Top bar: 3 columns — dark toggle far left | date centered | avatar far right */}
       <header className="topbar">
-
         {/* Column 1 — far left */}
         <div>
-          <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)}>
+          <button
+            className="dark-toggle"
+            onClick={() => setDarkMode(!darkMode)}
+          >
             {darkMode ? "Light" : "Dark"}
           </button>
         </div>
 
         {/* Column 2 — center */}
         <div className="topbar-meta">
-          {new Date().toLocaleDateString("en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+          {new Date().toLocaleDateString("en-CA", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
         </div>
 
         {/* Column 3 — far right */}
@@ -484,22 +561,48 @@ export default function App() {
               <button
                 className="avatar-btn"
                 aria-label="User menu"
-                style={profile?.tier === "pro" ? { border: "2px solid #D4AF37", boxShadow: "0 0 0 1px rgba(212,175,55,0.25)" } : undefined}
-              >
-                {avatarUrl
-                  ? <img src={avatarUrl} alt="" width={34} height={34} style={{ display: "block", objectFit: "cover" }} />
-                  : <div className="avatar-fallback">{userEmail[0] ? userEmail[0].toUpperCase() : "?"}</div>
+                style={
+                  profile?.tier === "pro"
+                    ? {
+                        border: "2px solid #D4AF37",
+                        boxShadow: "0 0 0 1px rgba(212,175,55,0.25)",
+                      }
+                    : undefined
                 }
+              >
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt=""
+                    width={34}
+                    height={34}
+                    style={{ display: "block", objectFit: "cover" }}
+                  />
+                ) : (
+                  <div className="avatar-fallback">
+                    {userEmail[0] ? userEmail[0].toUpperCase() : "?"}
+                  </div>
+                )}
               </button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
-              <DropdownMenu.Content className="dropdown-content" sideOffset={8} align="end">
+              <DropdownMenu.Content
+                className="dropdown-content"
+                sideOffset={8}
+                align="end"
+              >
                 <div className="dropdown-label">{userEmail}</div>
                 <DropdownMenu.Separator className="dropdown-sep" />
-                <DropdownMenu.Item className="dropdown-item" onSelect={() => setShowProfileModal(true)}>
+                <DropdownMenu.Item
+                  className="dropdown-item"
+                  onSelect={() => setShowProfileModal(true)}
+                >
                   Profile &amp; Settings
                 </DropdownMenu.Item>
-                <DropdownMenu.Item className="dropdown-item dropdown-item-danger" onSelect={() => supabase.auth.signOut()}>
+                <DropdownMenu.Item
+                  className="dropdown-item dropdown-item-danger"
+                  onSelect={() => supabase.auth.signOut()}
+                >
                   Sign Out
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
@@ -510,7 +613,6 @@ export default function App() {
 
       {/* Sidebar — stats, filter nav, and the + New Receipt button */}
       <aside className="sidebar">
-
         {/* Stats block: revenue (paid, pre-tax), outstanding (sent, inc. tax), total count */}
         <div className="sidebar-section">
           <div className="stat-block">
@@ -545,15 +647,35 @@ export default function App() {
           ))}
         </div>
 
+        {/* Theme picker — Pro only, sits above the profile/action buttons */}
+        {profile?.tier === "pro" && (
+          <ThemePicker
+            darkMode={darkMode}
+            profile={profile}
+            onSaveTheme={handleSaveTheme}
+          />
+        )}
+
         {/* Bottom of sidebar: profile shortcut and + New Receipt button */}
-        <div style={{ marginTop: "auto", padding: 12, borderTop: "1px solid var(--border-light)", display: "flex", flexDirection: "column", gap: 8 }}>
+        <div
+          style={{
+            marginTop: "auto",
+            padding: 12,
+            borderTop: "1px solid var(--border-light)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
+        >
           <>
             <button
               className="btn btn-ghost"
               style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em" }}
               onClick={() => setShowProfileModal(true)}
             >
-              {profile?.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
+              {profile?.business_name
+                ? `✎ ${profile.business_name}`
+                : "+ Add Business Profile"}
             </button>
             {profile?.tier !== "pro" && (
               <button
@@ -566,36 +688,88 @@ export default function App() {
             )}
             <button
               className="btn btn-ghost"
-              style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em", color: "var(--text-muted)" }}
+              style={{
+                width: "100%",
+                fontSize: 10,
+                letterSpacing: "0.1em",
+                color: "var(--text-muted)",
+              }}
               onClick={() => supabase.auth.signOut()}
             >
               Sign Out
             </button>
           </>
-          <button className="btn btn-primary" style={{ width: "100%" }} onClick={openNewReceipt}>
+          <button
+            className="btn btn-primary"
+            style={{ width: "100%" }}
+            onClick={openNewReceipt}
+          >
             + New Invoice
           </button>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, paddingTop: 4, position: "relative" }}>
-            <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
-            <button onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Privacy</button>
-            <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help" style={{ position: "absolute", right: 0 }}>?</button>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 12,
+              paddingTop: 4,
+              position: "relative",
+            }}
+          >
+            <button
+              onClick={() => setLegal("terms")}
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--text-muted)",
+                fontSize: 9,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                padding: 0,
+              }}
+            >
+              Terms
+            </button>
+            <button
+              onClick={() => setLegal("privacy")}
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--text-muted)",
+                fontSize: 9,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                padding: 0,
+              }}
+            >
+              Privacy
+            </button>
+            <button
+              className="help-btn"
+              onClick={() => setShowHelp(true)}
+              aria-label="Help"
+              style={{ position: "absolute", right: 0 }}
+            >
+              ?
+            </button>
           </div>
         </div>
       </aside>
 
       {/* Main content area: toolbar greeting + receipt grid + optional detail panel */}
       <main className="main">
-
         {/* Toolbar: greeting on the left, receipt count on the right */}
         <div className="toolbar">
           <span className="toolbar-greeting">{greeting}</span>
           <span className="toolbar-title">
-            {filter === "ALL" ? "All" : STATUS_CONFIG[filter]?.label}: {filtered.length} invoice{filtered.length !== 1 ? "s" : ""}
+            {filter === "ALL" ? "All" : STATUS_CONFIG[filter]?.label}:{" "}
+            {filtered.length} invoice{filtered.length !== 1 ? "s" : ""}
           </span>
         </div>
 
         <div className="content-area">
-
           {/* Receipt grid — each card shows client name, receipt number, status, total */}
           <div className="receipt-grid-wrap">
             {loading ? (
@@ -606,69 +780,86 @@ export default function App() {
                 so anything inside it only spans one cell and ends up left-aligned.
                 Putting the empty state here lets it stretch the full container width.
               */
-              <div className="empty" style={{ textAlign: "center", width: "100%" }}>No receipts found</div>
+              <div
+                className="empty"
+                style={{ textAlign: "center", width: "100%" }}
+              >
+                No receipts found
+              </div>
             ) : (
               <div className="receipt-grid">
                 {filtered.map((r) => (
-                    <div key={r.id} className="swipe-wrapper">
+                  <div key={r.id} className="swipe-wrapper">
+                    {/* Mobile swipe-to-delete button (visible after swiping left) */}
+                    <button
+                      className="swipe-delete-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(r.id);
+                      }}
+                    >
+                      Delete
+                    </button>
 
-                      {/* Mobile swipe-to-delete button (visible after swiping left) */}
-                      <button
-                        className="swipe-delete-btn"
-                        onClick={(e) => { e.stopPropagation(); handleDelete(r.id); }}
-                      >
-                        Delete
-                      </button>
-
-                      <div
-                        className={`receipt-card${selectedReceipt?.id === r.id ? " selected" : ""}${swipedId === r.id ? " swiped" : ""}`}
-                        onTouchStart={(e) => {
-                          // Record where the finger started so we can calculate swipe distance
-                          touchStartX.current = e.touches[0].clientX;
-                        }}
-                        onTouchMove={(e) => {
-                          // Move the card left as the user swipes, clamped between -76px and 0
-                          const dx = e.touches[0].clientX - touchStartX.current;
-                          const base = swipedId === r.id ? -76 : 0;
-                          const clamped = Math.max(Math.min(base + dx, 0), -76);
-                          e.currentTarget.style.transition = "none";
-                          e.currentTarget.style.transform = `translateX(${clamped}px)`;
-                        }}
-                        onTouchEnd={(e) => {
-                          // Snap open (swiped) if moved > 40px left, snap closed if moved > 30px right
-                          const dx = e.changedTouches[0].clientX - touchStartX.current;
-                          e.currentTarget.style.transition = "";
-                          e.currentTarget.style.transform = "";
-                          if (swipedId === r.id) {
-                            if (dx > 30) setSwipedId(null);
-                          } else {
-                            if (dx < -40) setSwipedId(r.id);
-                          }
-                        }}
-                        onClick={() => {
-                          // If the card is swiped open, close it instead of opening the receipt
-                          if (swipedId === r.id) { setSwipedId(null); return; }
-                          selectFull(r.id);
-                        }}
-                      >
-                        <div className="card-top-row">
-                          <span className="card-num">{r.receipt_number}</span>
-                            <button
-                            className="card-delete"
-                            onClick={(e) => { e.stopPropagation(); handleDelete(r.id); }}
-                            title="Delete"
-                          >✕</button>
-                        </div>
-                        <div className="card-vendor">{r.customer_name}</div>
-                        <div className="card-customer">{r.vendor_name}</div>
-                        <div className="card-footer">
-                          <span className={`stamp ${r.status}`}>{r.status}</span>
-                          <span className="card-total">${parseFloat(r.total).toFixed(2)}</span>
-                        </div>
+                    <div
+                      className={`receipt-card${selectedReceipt?.id === r.id ? " selected" : ""}${swipedId === r.id ? " swiped" : ""}`}
+                      onTouchStart={(e) => {
+                        // Record where the finger started so we can calculate swipe distance
+                        touchStartX.current = e.touches[0].clientX;
+                      }}
+                      onTouchMove={(e) => {
+                        // Move the card left as the user swipes, clamped between -76px and 0
+                        const dx = e.touches[0].clientX - touchStartX.current;
+                        const base = swipedId === r.id ? -76 : 0;
+                        const clamped = Math.max(Math.min(base + dx, 0), -76);
+                        e.currentTarget.style.transition = "none";
+                        e.currentTarget.style.transform = `translateX(${clamped}px)`;
+                      }}
+                      onTouchEnd={(e) => {
+                        // Snap open (swiped) if moved > 40px left, snap closed if moved > 30px right
+                        const dx =
+                          e.changedTouches[0].clientX - touchStartX.current;
+                        e.currentTarget.style.transition = "";
+                        e.currentTarget.style.transform = "";
+                        if (swipedId === r.id) {
+                          if (dx > 30) setSwipedId(null);
+                        } else {
+                          if (dx < -40) setSwipedId(r.id);
+                        }
+                      }}
+                      onClick={() => {
+                        // If the card is swiped open, close it instead of opening the receipt
+                        if (swipedId === r.id) {
+                          setSwipedId(null);
+                          return;
+                        }
+                        selectFull(r.id);
+                      }}
+                    >
+                      <div className="card-top-row">
+                        <span className="card-num">{r.receipt_number}</span>
+                        <button
+                          className="card-delete"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(r.id);
+                          }}
+                          title="Delete"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="card-vendor">{r.customer_name}</div>
+                      <div className="card-customer">{r.vendor_name}</div>
+                      <div className="card-footer">
+                        <span className={`stamp ${r.status}`}>{r.status}</span>
+                        <span className="card-total">
+                          ${parseFloat(r.total).toFixed(2)}
+                        </span>
                       </div>
                     </div>
-                  ))
-                }
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -676,16 +867,32 @@ export default function App() {
           {/* Detail panel — shown when a receipt card is tapped/clicked */}
           {selectedReceipt && (
             <div className="detail-panel">
-
               {/* Header: receipt number, vendor, client, edit + delete buttons */}
               <div className="detail-header">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                  }}
+                >
                   <div>
-                    <div className="detail-receipt-num">Invoice / {selectedReceipt.receipt_number}</div>
-                    <div className="detail-vendor">{selectedReceipt.customer_name}</div>
-                    <div className="detail-customer">Issued by: {selectedReceipt.vendor_name}</div>
+                    <div className="detail-receipt-num">
+                      Invoice / {selectedReceipt.receipt_number}
+                    </div>
+                    <div className="detail-vendor">
+                      {selectedReceipt.customer_name}
+                    </div>
+                    <div className="detail-customer">
+                      Issued by: {selectedReceipt.vendor_name}
+                    </div>
                   </div>
-                  <button onClick={() => setSelected(null)} className="btn-icon close-btn">✕</button>
+                  <button
+                    onClick={() => setSelected(null)}
+                    className="btn-icon close-btn"
+                  >
+                    ✕
+                  </button>
                 </div>
                 <div style={{ display: "flex", gap: 6, marginTop: 12 }}>
                   <button
@@ -709,20 +916,34 @@ export default function App() {
               <div className="detail-section">
                 <div className="detail-row">
                   <span className="detail-key">Status</span>
-                  <span className={`stamp ${selectedReceipt.status}`}>{selectedReceipt.status}</span>
+                  <span className={`stamp ${selectedReceipt.status}`}>
+                    {selectedReceipt.status}
+                  </span>
                 </div>
                 <div className="detail-row">
                   <span className="detail-key">Date</span>
                   <span className="detail-val">
                     {selectedReceipt.date
-                      ? new Date(selectedReceipt.date).toLocaleDateString("en-CA")
+                      ? new Date(selectedReceipt.date).toLocaleDateString(
+                          "en-CA",
+                        )
                       : ""}
                   </span>
                 </div>
                 {selectedReceipt.notes && (
-                  <div className="detail-row" style={{ alignItems: "flex-start", gap: 12, marginTop: 4 }}>
+                  <div
+                    className="detail-row"
+                    style={{ alignItems: "flex-start", gap: 12, marginTop: 4 }}
+                  >
                     <span className="detail-key">Notes</span>
-                    <span style={{ fontSize: 10, color: "var(--text-dim)", textAlign: "right", maxWidth: 180 }}>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        color: "var(--text-dim)",
+                        textAlign: "right",
+                        maxWidth: 180,
+                      }}
+                    >
                       {selectedReceipt.notes}
                     </span>
                   </div>
@@ -746,13 +967,25 @@ export default function App() {
                         <tr key={li.id}>
                           <td>{li.description}</td>
                           <td className="number">{li.quantity}</td>
-                          <td className="number">${parseFloat(li.unit_price).toFixed(2)}</td>
-                          <td className="number">${parseFloat(li.total).toFixed(2)}</td>
+                          <td className="number">
+                            ${parseFloat(li.unit_price).toFixed(2)}
+                          </td>
+                          <td className="number">
+                            ${parseFloat(li.total).toFixed(2)}
+                          </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={4} style={{ color: "var(--text-muted)", paddingTop: 10, fontSize: 9, letterSpacing: "0.15em" }}>
+                        <td
+                          colSpan={4}
+                          style={{
+                            color: "var(--text-muted)",
+                            paddingTop: 10,
+                            fontSize: 9,
+                            letterSpacing: "0.15em",
+                          }}
+                        >
                           No line items
                         </td>
                       </tr>
@@ -764,22 +997,30 @@ export default function App() {
                 <div style={{ marginTop: 12 }}>
                   <div className="total-line">
                     <span className="tl-label">Subtotal</span>
-                    <span className="tl-val">${parseFloat(selectedReceipt.subtotal || 0).toFixed(2)}</span>
+                    <span className="tl-val">
+                      ${parseFloat(selectedReceipt.subtotal || 0).toFixed(2)}
+                    </span>
                   </div>
                   <div className="total-line">
                     <span className="tl-label">Tax</span>
-                    <span className="tl-val">${parseFloat(selectedReceipt.tax || 0).toFixed(2)}</span>
+                    <span className="tl-val">
+                      ${parseFloat(selectedReceipt.tax || 0).toFixed(2)}
+                    </span>
                   </div>
                   <div className="total-line grand">
                     <span className="tl-label">Total</span>
-                    <span className="tl-val">${parseFloat(selectedReceipt.total || 0).toFixed(2)}</span>
+                    <span className="tl-val">
+                      ${parseFloat(selectedReceipt.total || 0).toFixed(2)}
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Status change buttons — shows all statuses except the current one */}
               <div className="detail-section">
-                <div className="stat-label" style={{ marginBottom: 8 }}>Update Status</div>
+                <div className="stat-label" style={{ marginBottom: 8 }}>
+                  Update Status
+                </div>
                 <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
                   {Object.keys(STATUS_CONFIG)
                     .filter((s) => s !== selectedReceipt.status)
@@ -787,7 +1028,9 @@ export default function App() {
                       <button
                         key={s}
                         className="btn btn-status"
-                        onClick={() => handleStatusChange(selectedReceipt.id, s)}
+                        onClick={() =>
+                          handleStatusChange(selectedReceipt.id, s)
+                        }
                       >
                         {s}
                       </button>
@@ -802,30 +1045,53 @@ export default function App() {
 
                 The client can scan this with their phone to pay directly.
               */}
-              {profile?.payment_url && !["paid", "voided"].includes(selectedReceipt.status) && (
-                <div className="detail-section" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "16px 14px" }}>
-                  <QRCodeSVG
-                    value={profile.payment_url}
-                    size={130}
-                    bgColor="#ffffff"
-                    fgColor="#111110"
-                    level="M"
-                  />
-                  <div style={{ fontSize: 10, color: "var(--text-muted)", textAlign: "center", letterSpacing: "0.05em" }}>
-                    Scan to pay · ${parseFloat(selectedReceipt.total || 0).toFixed(2)}
+              {profile?.payment_url &&
+                !["paid", "voided"].includes(selectedReceipt.status) && (
+                  <div
+                    className="detail-section"
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "16px 14px",
+                    }}
+                  >
+                    <QRCodeSVG
+                      value={profile.payment_url}
+                      size={130}
+                      bgColor="#ffffff"
+                      fgColor="#111110"
+                      level="M"
+                    />
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: "var(--text-muted)",
+                        textAlign: "center",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      Scan to pay · $
+                      {parseFloat(selectedReceipt.total || 0).toFixed(2)}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Actions: share, preview, download, then send to client at bottom */}
               <div className="detail-section">
-
                 {/* Share — mobile only (Web Share API) */}
                 {"share" in navigator && (
                   <button
                     className="btn btn-ghost"
                     style={{ width: "100%", marginBottom: 6 }}
-                    onClick={() => shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier })}
+                    onClick={() =>
+                      shareReceiptPDF({
+                        ...selectedReceipt,
+                        logo_url: selectedReceipt.logo_url || profile?.logo_url,
+                        tier: profile?.tier,
+                      })
+                    }
                   >
                     Share Invoice
                   </button>
@@ -834,20 +1100,38 @@ export default function App() {
                 <button
                   className="btn btn-ghost"
                   style={{ width: "100%", marginBottom: 6 }}
-                  onClick={() => previewReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier })}
+                  onClick={() =>
+                    previewReceiptPDF({
+                      ...selectedReceipt,
+                      logo_url: selectedReceipt.logo_url || profile?.logo_url,
+                      tier: profile?.tier,
+                    })
+                  }
                 >
                   Preview PDF
                 </button>
                 <button
                   className="btn btn-download"
                   style={{ width: "100%", marginBottom: 6 }}
-                  onClick={() => downloadReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier })}
+                  onClick={() =>
+                    downloadReceiptPDF({
+                      ...selectedReceipt,
+                      logo_url: selectedReceipt.logo_url || profile?.logo_url,
+                      tier: profile?.tier,
+                    })
+                  }
                 >
                   Download PDF
                 </button>
 
                 {/* Send to Client — pro feature, sits at the bottom */}
-                <div style={{ marginTop: 6, borderTop: "1px solid var(--border-light)", paddingTop: 10 }}>
+                <div
+                  style={{
+                    marginTop: 6,
+                    borderTop: "1px solid var(--border-light)",
+                    paddingTop: 10,
+                  }}
+                >
                   {sendInvoiceTarget?.id === selectedReceipt.id ? (
                     <div>
                       <input
@@ -857,12 +1141,28 @@ export default function App() {
                         autoFocus
                         value={sendInvoiceEmail}
                         onChange={(e) => setSendInvoiceEmail(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSendInvoice()}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" && handleSendInvoice()
+                        }
                         style={{ marginBottom: 6 }}
                       />
                       <div style={{ display: "flex", gap: 6 }}>
-                        <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => { setSendInvoiceTarget(null); setSendInvoiceEmail(""); }}>Cancel</button>
-                        <button className="btn btn-primary" style={{ flex: 2 }} onClick={handleSendInvoice} disabled={sendingInvoice}>
+                        <button
+                          className="btn btn-ghost"
+                          style={{ flex: 1 }}
+                          onClick={() => {
+                            setSendInvoiceTarget(null);
+                            setSendInvoiceEmail("");
+                          }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          className="btn btn-primary"
+                          style={{ flex: 2 }}
+                          onClick={handleSendInvoice}
+                          disabled={sendingInvoice}
+                        >
                           {sendingInvoice ? "Sending..." : "Send Invoice"}
                         </button>
                       </div>
@@ -871,7 +1171,10 @@ export default function App() {
                     <button
                       className="btn btn-ghost"
                       style={{ width: "100%" }}
-                      onClick={() => { setSendInvoiceTarget(selectedReceipt); setSendInvoiceEmail(""); }}
+                      onClick={() => {
+                        setSendInvoiceTarget(selectedReceipt);
+                        setSendInvoiceEmail("");
+                      }}
                     >
                       ✉ Send to Client
                     </button>
@@ -879,7 +1182,12 @@ export default function App() {
                     <button
                       className="btn btn-ghost"
                       style={{ width: "100%" }}
-                      onClick={() => showToast("Upgrade to Pro to send invoices by email.", "upgrade")}
+                      onClick={() =>
+                        showToast(
+                          "Upgrade to Pro to send invoices by email.",
+                          "upgrade",
+                        )
+                      }
                     >
                       ✉ Send to Client
                     </button>
@@ -904,9 +1212,7 @@ export default function App() {
       )}
 
       {/* Sign in / sign up modal */}
-      {showAuthModal && (
-        <AuthModal onClose={() => setShowAuthModal(false)} />
-      )}
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
 
       {/* "Set new password" modal — shown after clicking a password reset email link */}
       {showPasswordUpdate && (
@@ -931,28 +1237,35 @@ export default function App() {
 
       {/* Toast notification — shown briefly after actions like save, delete, send */}
       {toast && (
-        <div style={{
-          position: "fixed",
-          bottom: 24,
-          left: "50%",
-          transform: "translateX(-50%)",
-          // Green for success, warm copper for upgrade prompts, red for errors
-          background: toast.type === "success" ? "var(--paid)" : toast.type === "upgrade" ? "var(--accent)" : "var(--voided)",
-          color: "#fff",
-          padding: "10px 20px",
-          fontSize: 10,
-          letterSpacing: "0.15em",
-          textTransform: "uppercase",
-          fontFamily: "var(--mono)",
-          zIndex: 500,
-          border: "1px solid rgba(0,0,0,0.2)",
-          boxShadow: "2px 2px 0 rgba(0,0,0,0.15)",
-          whiteSpace: "nowrap",
-          cursor: toast.type === "upgrade" ? "pointer" : "default",
-        }}
-        onClick={toast.type === "upgrade" ? () => startCheckout() : undefined}
+        <div
+          style={{
+            position: "fixed",
+            bottom: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            // Green for success, warm copper for upgrade prompts, red for errors
+            background:
+              toast.type === "success"
+                ? "var(--paid)"
+                : toast.type === "upgrade"
+                  ? "var(--accent)"
+                  : "var(--voided)",
+            color: "#fff",
+            padding: "10px 20px",
+            fontSize: 10,
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            fontFamily: "var(--mono)",
+            zIndex: 500,
+            border: "1px solid rgba(0,0,0,0.2)",
+            boxShadow: "2px 2px 0 rgba(0,0,0,0.15)",
+            whiteSpace: "nowrap",
+            cursor: toast.type === "upgrade" ? "pointer" : "default",
+          }}
+          onClick={toast.type === "upgrade" ? () => startCheckout() : undefined}
         >
-          {toast.msg}{toast.type === "upgrade" ? " →" : ""}
+          {toast.msg}
+          {toast.type === "upgrade" ? " →" : ""}
         </div>
       )}
     </div>

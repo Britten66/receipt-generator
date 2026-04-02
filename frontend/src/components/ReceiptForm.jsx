@@ -32,13 +32,6 @@ const EMPTY_ITEM = {
   total: "",
 };
 
-/*
-  Nova Scotia HST rate.
-  To change the tax rate for a different province, update this number.
-  0.15 = 15%
-*/
-const TAX_RATE = 0.15;
-
 // Corner rotation order — clicking the tile cycles through these in sequence.
 const CORNER_ORDER  = ["top-left", "top-right", "bottom-right", "bottom-left"];
 const CORNER_LABELS = {
@@ -49,6 +42,15 @@ const CORNER_LABELS = {
 };
 
 export default function ReceiptForm({ onSubmit, onClose, initialData, profile, userEmail, onLogoUpdate }) {
+
+  /*
+    TAX_RATE and TAX_LABEL are read from the user's saved profile so the form
+    works for any region. If the user hasn't configured a tax rate yet, we fall
+    back to 0 (no tax) and the generic label "Tax" so nothing breaks.
+    The user sets these in their profile/settings modal.
+  */
+  const TAX_RATE  = typeof profile?.tax_rate  === "number" ? profile.tax_rate  : 0;
+  const TAX_LABEL = profile?.tax_label?.trim() ? profile.tax_label.trim()       : "Tax";
 
   /*
     form — the main fields of the receipt.
@@ -233,7 +235,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
     Calculate the running totals shown at the bottom of the form.
 
     subtotal — sum of all line item totals (before tax)
-    tax      — 15% of subtotal, or 0 if the receipt is marked tax exempt
+    tax      — TAX_RATE % of subtotal, or 0 if the receipt is marked tax exempt
     total    — subtotal + tax
   */
   const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
@@ -485,7 +487,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 {form.isTaxExempt ? "✓ TAX EXEMPT" : "MAKE TAX EXEMPT"}
               </button>
               <div style={{ textAlign: "right", color: "var(--text-dim)", fontSize: 12 }}>
-                NS Tax ({(TAX_RATE * 100).toFixed(0)}%):{" "}
+                {TAX_LABEL} ({(TAX_RATE * 100).toFixed(TAX_RATE % 0.01 === 0 ? 0 : 2)}%):{" "}
                 <span style={{ fontFamily: "var(--mono)" }}>${tax.toFixed(2)}</span>
               </div>
             </div>

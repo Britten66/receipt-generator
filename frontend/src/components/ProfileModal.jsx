@@ -8,7 +8,8 @@
     onClose()      — called when the user clicks Cancel or clicks outside the modal
 
   The profile stores:
-    business_name, bio, website, payment_url, address, email, phone, logo_url
+    business_name, bio, website, payment_url, address, email, phone, logo_url,
+    tax_rate, tax_label
 
   The logo is uploaded to Supabase Storage under the "logos" bucket.
   After uploading, we store the public URL in form.logo_url, which gets saved to the database.
@@ -42,6 +43,8 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
       phone: "",
       logo_url: "",
       avatar_url: "",
+      tax_rate:  "",
+      tax_label: "",
     };
 
     if (profile) {
@@ -54,6 +57,9 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
       if (profile.phone)         { initial.phone         = profile.phone; }
       if (profile.logo_url)      { initial.logo_url      = profile.logo_url; }
       if (profile.avatar_url)    { initial.avatar_url    = profile.avatar_url; }
+      // tax_rate is a number so check !== undefined rather than truthiness (0 would be falsy)
+      if (profile.tax_rate  !== undefined && profile.tax_rate  !== null) { initial.tax_rate  = (profile.tax_rate * 100).toString(); }
+      if (profile.tax_label !== undefined && profile.tax_label !== null) { initial.tax_label = profile.tax_label; }
     }
 
     return initial;
@@ -127,11 +133,18 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
 
   /*
     handleSave() — called when the user clicks "Save Profile".
-    Sends the form data to the API and then calls onSave with the result.
+
+    tax_rate is stored in the form as a percentage string e.g. "15" for 15%.
+    We convert it back to a decimal (0.15) before saving to the database.
+    If the user left it blank we save null so ReceiptForm falls back to its default.
   */
   async function handleSave() {
     setSaving(true);
-    const result = await saveProfile(form);
+    const dataToSave = {
+      ...form,
+      tax_rate: form.tax_rate !== "" ? parseFloat(form.tax_rate) / 100 : null,
+    };
+    const result = await saveProfile(dataToSave);
     setSaving(false);
     onSave(result);
     onClose();
@@ -301,6 +314,38 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
               Paste your Stripe Payment Link or PayPal.me — a QR code will appear on unpaid invoices
             </span>
           </div>
+
+          {/* ---- Tax section ---- */}
+          <div className="profile-section-label" style={{ marginTop: 16 }}>Tax</div>
+
+          <div className="field-row">
+            <div className="field-group">
+              <label className="field-label">Tax Label</label>
+              <input
+                className="field"
+                placeholder="GST, VAT, HST, Sales Tax..."
+                value={form.tax_label}
+                onChange={(e) => setField("tax_label", e.target.value)}
+              />
+            </div>
+            <div className="field-group">
+              <label className="field-label">Rate (%)</label>
+              <input
+                className="field"
+                type="number"
+                inputMode="decimal"
+                step="0.001"
+                min="0"
+                max="100"
+                placeholder="e.g. 15"
+                value={form.tax_rate}
+                onChange={(e) => setField("tax_rate", e.target.value)}
+              />
+            </div>
+          </div>
+          <span style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4, display: "block" }}>
+            Applied to all new invoices. Leave blank for no tax.
+          </span>
 
           {/* ---- Contact section ---- */}
           <div className="profile-section-label" style={{ marginTop: 16 }}>Contact</div>
