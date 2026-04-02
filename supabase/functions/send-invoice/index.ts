@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
       ${safe.notes ? `<div style="margin-top:20px;font-size:11px;color:#908e8a;border-top:1px solid #e8e6e1;padding-top:16px;"><strong>Note:</strong> ${safe.notes}</div>` : ""}
       ${safePaymentUrl ? `<div style="text-align:center;margin-top:24px;"><a href="${safePaymentUrl}" style="display:inline-block;background:#1e1c18;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;">Pay Now</a></div>` : ""}
     </div>
-    ${tier !== "pro" ? `<div style="background:#f5f4f0;padding:14px 28px;text-align:center;font-size:10px;color:#b4afa5;">Created with <a href="https://keeptrack.app" style="color:#b4afa5;">Keep Track</a></div>` : ""}
+    ${tier !== "pro" ? `<div style="background:#f5f4f0;padding:14px 28px;text-align:center;font-size:10px;color:#b4afa5;">— <a href="https://invoiceprepper.com" style="color:#b4afa5;text-decoration:none;">invoiceprepper.com</a> —</div>` : ""}
   </div>
 </body></html>`;
 
@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
       "Authorization": `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
     },
     body: JSON.stringify({
-      from: "invoices@keeptrack.app",
+      from: "invoices@invoiceprepper.com",
       to: safe.to,
       subject: `Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`,
       html,

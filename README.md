@@ -39,4 +39,4 @@ instead of emailing a PDF, the plan is to send a link the client opens in a brow
 
 what i found out is a static stripe payment link works but the better version is a stripe payment link with the amount prefilled via URL param so the client scans, lands on stripe, and the number is already there from the invoice total.
 
-the full version down the road is a public URL like keeptrack.ca/pay/INV-000042 that shows the invoice in the browser. client sees the full invoice, hits Pay Now, goes to stripe. supabase can handle the public read with anon role RLS so no extra backend needed. probably builds after the domain is set up.
+the full version down the road is a public URL like invoiceprepper.com/pay/INV-000042 that shows the invoice in the browser. client sees the full invoice, hits Pay Now, goes to stripe. supabase can handle the public read with anon role RLS so no extra backend needed. probably builds after the domain is set up.

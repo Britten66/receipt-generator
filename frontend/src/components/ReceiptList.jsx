@@ -27,7 +27,7 @@ export default function ReceiptList({ receipts, STATUS_CONFIG, onDelete }) {
           color: "rgba(232,226,217,0.1)",
         }}
       >
-        NO RECEIPTS FOUND
+        NO INVOICES FOUND
       </div>
     );
   }

@@ -66,7 +66,7 @@ function MockInvoice() {
       {MOCK_INVOICE.notes && (
         <div className="mock-invoice-notes">{MOCK_INVOICE.notes}</div>
       )}
-      <div className="mock-invoice-footer">Created with Keep Track · keeptrack.ca</div>
+      <div className="mock-invoice-footer">— invoiceprepper.com —</div>
     </div>
   );
 }
@@ -102,7 +102,7 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
       {/* Hero */}
       <section className="lv2-hero">
         <div className="lv2-hero-text">
-          <p className="lv2-eyebrow">Keep Track</p>
+          <p className="lv2-eyebrow">Invoice Prepper</p>
           <h1 className="lv2-title">Invoicing for<br />freelancers who<br />just want to get paid.</h1>
           <p className="lv2-desc">Create invoices, track what's paid, send directly to clients. No bloat, no learning curve.</p>
           <button className="lv2-cta" onClick={onEnter}>Create Free Account</button>
@@ -157,7 +157,7 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
                 <li>PDF download</li>
                 <li>Draft, send, paid tracking</li>
                 <li>Dark mode</li>
-                <li className="lv2-plan-caveat">PDF includes Keep Track watermark</li>
+                <li className="lv2-plan-caveat">PDF includes invoiceprepper.com footer</li>
                 <li className="lv2-plan-caveat">No email sending to clients</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-ghost" onClick={onEnter}>Try for Free</button>

@@ -25,10 +25,10 @@ function Terms() {
       <p style={{ fontSize: 10, color: "var(--text-muted)", marginBottom: 16 }}>Last updated: March 2025</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, marginBottom: 6, color: "var(--text)" }}>1. Acceptance</h3>
-      <p>By accessing or using Keep Track ("Service"), you agree to these Terms. If you do not agree, do not use the Service.</p>
+      <p>By accessing or using Invoice Prepper ("Service"), you agree to these Terms. If you do not agree, do not use the Service.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>2. Description</h3>
-      <p>Keep Track is a receipt and invoice management tool for freelancers and small businesses. We provide PDF generation, invoice tracking, and related features. The Service is provided "as is" without warranty of any kind.</p>
+      <p>Invoice Prepper is a receipt and invoice management tool for freelancers and small businesses. We provide PDF generation, invoice tracking, and related features. The Service is provided "as is" without warranty of any kind.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>3. Your Account</h3>
       <p>You are responsible for maintaining the security of your account credentials. You must provide accurate information and keep it updated. You may not share your account or use the Service for unlawful purposes.</p>
@@ -43,7 +43,7 @@ function Terms() {
       <p>Pro plan subscriptions are billed monthly via Stripe. You may cancel at any time; cancellation takes effect at the end of the current billing period. We do not offer refunds for partial periods except where required by law.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>7. Limitation of Liability</h3>
-      <p>To the maximum extent permitted by law, Keep Track is not liable for any indirect, incidental, or consequential damages arising from your use of the Service. Our total liability to you shall not exceed the amounts you paid us in the 3 months preceding the claim.</p>
+      <p>To the maximum extent permitted by law, Invoice Prepper is not liable for any indirect, incidental, or consequential damages arising from your use of the Service. Our total liability to you shall not exceed the amounts you paid us in the 3 months preceding the claim.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>8. Changes</h3>
       <p>We may update these Terms. Continued use after changes constitutes acceptance. We will notify registered users of material changes by email.</p>
