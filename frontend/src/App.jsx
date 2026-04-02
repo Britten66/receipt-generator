@@ -37,6 +37,7 @@ import LegalModal from "./components/LegalModal";
 import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
 import { startCheckout } from "./api/billing";
+import { applyPalette, clearPalette, PALETTE_META, PALETTE_KEYS } from "./lib/themes";
 import { QRCodeSVG } from "qrcode.react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import "./App.css";
@@ -103,6 +104,50 @@ export default function App() {
       localStorage.setItem("dark_mode", "0");
     }
   }, [darkMode]);
+
+  /*
+    Palette state — one key per mode, persisted in localStorage.
+    null = "default" (uses App.css :root / [data-theme="dark"] values).
+    Only keys from PALETTE_KEYS are accepted; anything else is silently ignored.
+  */
+  const [lightPalette, setLightPaletteState] = useState(() => {
+    const saved = localStorage.getItem("theme_light_palette");
+    return saved && PALETTE_KEYS.has(saved) ? saved : null;
+  });
+  const [darkPalette, setDarkPaletteState] = useState(() => {
+    const saved = localStorage.getItem("theme_dark_palette");
+    return saved && PALETTE_KEYS.has(saved) ? saved : null;
+  });
+
+  // currentPalette is whichever key is active for the current mode
+  const currentPalette = darkMode ? darkPalette : lightPalette;
+
+  function setPalette(key) {
+    // key must be from PALETTE_KEYS, or null to reset
+    const safe = key && PALETTE_KEYS.has(key) ? key : null;
+    if (darkMode) {
+      setDarkPaletteState(safe);
+      if (safe) localStorage.setItem("theme_dark_palette", safe);
+      else localStorage.removeItem("theme_dark_palette");
+    } else {
+      setLightPaletteState(safe);
+      if (safe) localStorage.setItem("theme_light_palette", safe);
+      else localStorage.removeItem("theme_light_palette");
+    }
+  }
+
+  /*
+    Apply or clear palette whenever mode, palette choice, or entered state changes.
+    Landing page (entered === false) always gets cleared so the user's theme never
+    bleeds through to the public-facing screen.
+  */
+  useEffect(() => {
+    if (!entered) {
+      clearPalette();
+      return;
+    }
+    applyPalette(currentPalette, darkMode ? "dark" : "light");
+  }, [entered, currentPalette, darkMode]);
 
   const [session, setSession]                   = useState(null);
   const [authLoading, setAuthLoading]           = useState(true);
@@ -465,11 +510,41 @@ export default function App() {
       {/* Top bar: 3 columns — dark toggle far left | date centered | avatar far right */}
       <header className="topbar">
 
-        {/* Column 1 — far left */}
-        <div>
+        {/* Column 1 — far left: mode toggle + palette picker */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)}>
             {darkMode ? "Light" : "Dark"}
           </button>
+
+          {/* Palette swatch strip — default reset + 6 named palettes */}
+          <div className="palette-picker" role="group" aria-label="Color palette">
+
+            {/* Default / reset swatch */}
+            <button
+              className={`palette-swatch palette-swatch-default${!currentPalette ? " palette-swatch-active" : ""}`}
+              onClick={() => setPalette(null)}
+              title="Default"
+              aria-pressed={!currentPalette}
+              aria-label="Default palette"
+            />
+
+            {/* Named palette swatches */}
+            {Object.entries(PALETTE_META).map(([key, meta]) => {
+              const bg     = darkMode ? meta.darkBg     : meta.lightBg;
+              const accent = darkMode ? meta.darkAccent : meta.lightAccent;
+              return (
+                <button
+                  key={key}
+                  className={`palette-swatch${currentPalette === key ? " palette-swatch-active" : ""}`}
+                  style={{ background: `linear-gradient(135deg, ${bg} 50%, ${accent} 50%)` }}
+                  onClick={() => setPalette(key)}
+                  title={meta.label}
+                  aria-pressed={currentPalette === key}
+                  aria-label={`${meta.label} palette`}
+                />
+              );
+            })}
+          </div>
         </div>
 
         {/* Column 2 — center */}
