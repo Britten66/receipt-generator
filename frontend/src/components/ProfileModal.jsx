@@ -304,7 +304,11 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
                   type="button"
                   className="btn-icon"
                   style={{ fontSize: 11 }}
-                  onClick={() => setField("logo_url", "")}
+                  onClick={async () => {
+                    setField("logo_url", null);
+                    await saveProfile({ ...form, logo_url: null });
+                    onSave({ ...form, logo_url: null });
+                  }}
                 >
                   ✕
                 </button>

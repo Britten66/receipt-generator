@@ -586,9 +586,9 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                       className="btn-icon"
                       style={{ fontSize: 11, color: "var(--text-muted)" }}
                       onClick={() => {
-                        setLocalLogoUrl("");
-                        saveProfile({ ...(profile || {}), logo_url: "" });
-                        if (onLogoUpdate) onLogoUpdate("");
+                        setLocalLogoUrl(null);
+                        saveProfile({ ...(profile || {}), logo_url: null });
+                        if (onLogoUpdate) onLogoUpdate(null);
                       }}
                     >
                       ✕
