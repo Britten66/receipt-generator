@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import LegalModal from "./LegalModal";
+import BorderGlow from "./BorderGlow";
 import "./LandingPage.css";
 
 const MOCK_INVOICE = {
@@ -109,9 +110,22 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
         </div>
 
         <div className="lv2-preview-wrap">
-          <div className="lv2-hero-preview" ref={scrollRef}>
-            <MockInvoice />
-          </div>
+          <BorderGlow
+            borderRadius={0}
+            glowColor={darkMode ? "38 55 75" : "0 0 8"}
+            glowIntensity={darkMode ? 0.9 : 0.75}
+            glowRadius={48}
+            edgeSensitivity={12}
+            coneSpread={20}
+            fillOpacity={0.2}
+            colors={darkMode ? ["#e8d9a8", "#c8b98a", "#a09070"] : ["#1a1a18", "#2e2c28", "#3d3a30"]}
+            backgroundColor="transparent"
+            className="lv2-border-glow"
+          >
+            <div className="lv2-hero-preview" ref={scrollRef}>
+              <MockInvoice />
+            </div>
+          </BorderGlow>
           <div className="lv2-hero-reflection" aria-hidden="true">
             <MockInvoice />
           </div>
@@ -123,34 +137,59 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
         <h2 className="lv2-pricing-title">Simple pricing</h2>
         <div className="lv2-plans">
 
-          <div className="lv2-plan">
-            <div className="lv2-plan-name">Free</div>
-            <div className="lv2-plan-price">$0<span>/mo</span></div>
-            <ul className="lv2-plan-features">
-              <li>3 receipts to try it out</li>
-              <li>PDF download</li>
-              <li>Draft, send, paid tracking</li>
-              <li>Dark mode</li>
-              <li className="lv2-plan-caveat">PDF includes Keep Track watermark</li>
-              <li className="lv2-plan-caveat">No email sending to clients</li>
-            </ul>
-            <button className="lv2-plan-btn lv2-plan-btn-ghost" onClick={onEnter}>Try for Free</button>
-          </div>
+          <BorderGlow
+            borderRadius={0}
+            glowColor={darkMode ? "38 55 75" : "0 0 8"}
+            glowIntensity={darkMode ? 0.9 : 0.75}
+            glowRadius={36}
+            edgeSensitivity={8}
+            coneSpread={30}
+            fillOpacity={0.15}
+            colors={darkMode ? ["#e8d9a8", "#c8b98a", "#a09070"] : ["#1a1a18", "#2e2c28", "#3d3a30"]}
+            backgroundColor="transparent"
+            className="lv2-plan-glow"
+          >
+            <div className="lv2-plan">
+              <div className="lv2-plan-name">Free</div>
+              <div className="lv2-plan-price">$0<span>/mo</span></div>
+              <ul className="lv2-plan-features">
+                <li>Unlimited invoices</li>
+                <li>PDF download</li>
+                <li>Draft, send, paid tracking</li>
+                <li>Dark mode</li>
+                <li className="lv2-plan-caveat">PDF includes Keep Track watermark</li>
+                <li className="lv2-plan-caveat">No email sending to clients</li>
+              </ul>
+              <button className="lv2-plan-btn lv2-plan-btn-ghost" onClick={onEnter}>Try for Free</button>
+            </div>
+          </BorderGlow>
 
-          <div className="lv2-plan lv2-plan-pro">
-            <div className="lv2-plan-badge">Built for freelancers</div>
-            <div className="lv2-plan-name">Pro</div>
-            <div className="lv2-plan-price">$9<span>/mo</span></div>
-            <ul className="lv2-plan-features">
-              <li>Unlimited receipts</li>
-              <li>Clean PDF — no watermark</li>
-              <li>Email invoices directly to clients</li>
-              <li>Your logo & business details on every invoice</li>
-              <li>Pay Now button — get paid faster</li>
-              <li>One tool. Every invoice. Done.</li>
-            </ul>
-            <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro ?? onEnter}>Get Pro — $9/mo</button>
-          </div>
+          <BorderGlow
+            borderRadius={0}
+            glowColor={darkMode ? "38 55 75" : "0 0 8"}
+            glowIntensity={darkMode ? 1.0 : 0.85}
+            glowRadius={40}
+            edgeSensitivity={5}
+            coneSpread={35}
+            fillOpacity={0.2}
+            colors={darkMode ? ["#e8d9a8", "#c8b98a", "#a09070"] : ["#1a1a18", "#2e2c28", "#3d3a30"]}
+            backgroundColor="transparent"
+            className="lv2-plan-glow"
+          >
+            <div className="lv2-plan lv2-plan-pro">
+              <div className="lv2-plan-name">Pro</div>
+              <div className="lv2-plan-price">$9<span>/mo</span></div>
+              <ul className="lv2-plan-features">
+                <li>Unlimited invoices</li>
+                <li>Clean PDF — no watermark</li>
+                <li>Email invoices directly to clients</li>
+                <li>Your logo & business details on every invoice</li>
+                <li>Pay Now button — get paid faster</li>
+                <li>One tool. Every invoice. Done.</li>
+              </ul>
+              <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro ?? onEnter}>Get Pro — $9/mo</button>
+            </div>
+          </BorderGlow>
 
         </div>
       </section>

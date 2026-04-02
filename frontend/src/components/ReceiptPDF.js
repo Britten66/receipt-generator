@@ -47,29 +47,19 @@ import autoTable from "jspdf-autotable";
   read the pixel data from it.
 */
 async function loadImageAsDataUrl(url) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-
-    img.onload = () => {
-      // Create a temporary canvas the same size as the image
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-
-      // Draw the image onto the canvas
-      canvas.getContext("2d").drawImage(img, 0, 0);
-
-      // Read back the image data as a base64 PNG string
-      resolve(canvas.toDataURL("image/png"));
-    };
-
-    // If the image fails to load (bad URL, network error, etc.) return null
-    img.onerror = () => resolve(null);
-
-    // Setting src triggers the load
-    img.src = url;
-  });
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
 }
 
 /*
@@ -103,33 +93,51 @@ async function buildDoc(receipt) {
   doc.setFillColor(30, 28, 24); // dark charcoal colour (R, G, B)
   doc.rect(0, 0, pageW, 18, "F"); // x, y, width, height, "F" = filled rectangle
 
-  // Show the logo if the user has uploaded one, otherwise show "RECEIPT" text
-  if (receipt.logo_url) {
-    const dataUrl = await loadImageAsDataUrl(receipt.logo_url);
-    if (dataUrl) {
-      // addImage(data, format, x, y, width, height)
-      // width = 0 means "auto" — jsPDF will calculate it from the height
-      doc.addImage(dataUrl, "PNG", m, 2, 0, 14);
-    } else {
-      // Image failed to load — fall back to text
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.setTextColor(255, 255, 255);
-      doc.text("RECEIPT", m, 11);
+  // Resolve logo data and dimensions up-front so we can adapt layout below.
+  const corner = receipt.logo_corner || null; // null means no logo requested
+  const isTopCorner    = corner === "top-left"  || corner === "top-right";
+  const isBottomCorner = corner === "bottom-left" || corner === "bottom-right";
+
+  let logoDataUrl = null;
+  let logoW = 25; // default fallback width in mm
+  const logoH = 14; // fixed height in mm
+
+  if (receipt.logo_url && corner) {
+    logoDataUrl = await loadImageAsDataUrl(receipt.logo_url);
+    if (logoDataUrl) {
+      try {
+        const imgEl = new window.Image();
+        imgEl.src = logoDataUrl;
+        await new Promise((resolve) => { imgEl.onload = resolve; imgEl.onerror = resolve; });
+        if (imgEl.naturalWidth && imgEl.naturalHeight) {
+          logoW = Math.min((imgEl.naturalWidth / imgEl.naturalHeight) * logoH, 50);
+        }
+      } catch { /* keep fallback */ }
     }
+  }
+
+  // ── Header bar: logo (top corners) or INVOICE text ──
+  if (logoDataUrl && isTopCorner) {
+    // Place logo in the header at the chosen corner
+    const logoX = corner === "top-right" ? pageW - m - logoW : m;
+    doc.addImage(logoDataUrl, "PNG", logoX, 2, logoW, logoH);
   } else {
-    // No logo set — show "RECEIPT" text in the header
+    // No top logo — show "INVOICE" text in the header
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(255, 255, 255);
-    doc.text("RECEIPT", m, 11);
+    doc.text("INVOICE", m, 11);
   }
 
-  // Receipt number in the top-right of the header bar
+  // Receipt number — swap to left side when logo occupies the top-right corner
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.setTextColor(180, 175, 165); // light grey
-  doc.text(`#${receipt.receipt_number}`, pageW - m, 11, { align: "right" });
+  doc.setTextColor(180, 175, 165);
+  if (logoDataUrl && corner === "top-right") {
+    doc.text(`#${receipt.receipt_number}`, m, 11);
+  } else {
+    doc.text(`#${receipt.receipt_number}`, pageW - m, 11, { align: "right" });
+  }
 
   // Vendor name (the business issuing the receipt) — shown below the header on the left
   if (receipt.vendor_name) {
@@ -276,6 +284,16 @@ async function buildDoc(receipt) {
     doc.text(receipt.notes, m, notesY + 6, { maxWidth: pageW - m * 2 });
   }
 
+  // ── Bottom-corner logo ──
+  // Drawn just above the footer area so it never overlaps the main content.
+  // A4 page is 297 mm tall. Footer text sits at y=284.
+  // Logo (14mm tall) is placed starting at y=266 → ends at 280 → 4mm gap to footer.
+  if (logoDataUrl && isBottomCorner) {
+    const logoY = 266;
+    const logoX = corner === "bottom-right" ? pageW - m - logoW : m;
+    doc.addImage(logoDataUrl, "PNG", logoX, logoY, logoW, logoH);
+  }
+
   // Footer — watermark for free users, plain footer for Pro
   doc.setFontSize(7);
   doc.setTextColor(180, 176, 168);
@@ -292,7 +310,7 @@ async function buildDoc(receipt) {
 */
 export async function downloadReceiptPDF(receipt) {
   const doc = await buildDoc(receipt);
-  doc.save(`receipt-${receipt.receipt_number}.pdf`);
+  doc.save(`invoice-${receipt.receipt_number}.pdf`);
 }
 
 /*
@@ -324,7 +342,7 @@ export async function shareReceiptPDF(receipt) {
   const blob = doc.output("blob");
   const file = new File(
     [blob],
-    `receipt-${receipt.receipt_number}.pdf`,
+    `invoice-${receipt.receipt_number}.pdf`,
     { type: "application/pdf" }
   );
 

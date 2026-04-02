@@ -297,6 +297,14 @@ body,
   opacity: 0.6;
   margin-left: 2px;
 }
+.stat-sub {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  opacity: 0.6;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
 .stat-value {
   font-size: 18px;
   font-weight: 400;
@@ -487,6 +495,15 @@ body,
 .stamp.paid::before   { background: #2e9e5e; }
 .stamp.voided { color: #7a1a1a; background: rgba(122,26,26,0.08); }
 .stamp.voided::before { background: #c04a4a; }
+
+[data-theme="dark"] .stamp.draft  { color: #c8c4bc; background: rgba(255,255,255,0.07); }
+[data-theme="dark"] .stamp.draft::before  { background: #888; }
+[data-theme="dark"] .stamp.sent   { color: #c8d8f8; background: rgba(100,140,220,0.15); }
+[data-theme="dark"] .stamp.sent::before   { background: #6490e0; }
+[data-theme="dark"] .stamp.paid   { color: #b8e8cc; background: rgba(60,160,100,0.15); }
+[data-theme="dark"] .stamp.paid::before   { background: #3ea068; }
+[data-theme="dark"] .stamp.voided { color: #f0b8b8; background: rgba(200,60,60,0.15); }
+[data-theme="dark"] .stamp.voided::before { background: #c04a4a; }
 
 /* EMPTY STATE */
 /* Shown when there are no receipts to display */
@@ -763,12 +780,44 @@ body,
   color: var(--text);
 }
 .btn-danger {
-  background: none;
-  color: var(--voided);
-  border-color: #d0a0a0;
+  background: rgba(200,60,60,0.08);
+  color: #c04a4a;
+  border-color: rgba(200,60,60,0.25);
 }
 .btn-danger:hover {
-  background: #f8eeee;
+  background: rgba(200,60,60,0.15);
+  color: #a03030;
+  border-color: rgba(200,60,60,0.4);
+}
+[data-theme="dark"] .btn-danger {
+  background: rgba(200,60,60,0.12);
+  color: #f0b8b8;
+  border-color: rgba(200,60,60,0.25);
+}
+[data-theme="dark"] .btn-danger:hover {
+  background: rgba(200,60,60,0.22);
+  color: #f8cccc;
+  border-color: rgba(200,60,60,0.45);
+}
+.btn-download {
+  background: rgba(60,100,180,0.07);
+  color: #3a5ea0;
+  border-color: rgba(60,100,180,0.22);
+}
+.btn-download:hover {
+  background: rgba(60,100,180,0.14);
+  color: #2a4e90;
+  border-color: rgba(60,100,180,0.38);
+}
+[data-theme="dark"] .btn-download {
+  background: rgba(100,140,220,0.12);
+  color: #c8d8f8;
+  border-color: rgba(100,140,220,0.25);
+}
+[data-theme="dark"] .btn-download:hover {
+  background: rgba(100,140,220,0.22);
+  color: #dce8ff;
+  border-color: rgba(100,140,220,0.45);
 }
 .btn-status {
   background: none;

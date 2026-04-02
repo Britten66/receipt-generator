@@ -105,7 +105,7 @@ export default function HelpModal({ onClose }) {
 
             <p className="help-heading">Getting started</p>
             <ul className="help-list">
-              <li>Click + New Receipt to create one</li>
+              <li>Click + New Invoice to create one</li>
               <li>Fill in vendor, customer, items and date</li>
               <li>Set status: Draft, Sent, Paid, or Voided</li>
               <li>Click a row to view details or export PDF</li>

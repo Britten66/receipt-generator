@@ -127,6 +127,37 @@
   flex-direction: column;
 }
 
+.lv2-border-glow {
+  width: 100%;
+}
+
+.lv2-border-glow .border-glow-inner {
+  overflow: visible;
+}
+
+.lv2-plan-glow {
+  display: flex;
+  flex-direction: column;
+}
+
+.lv2-plan-glow .border-glow-inner {
+  flex: 1;
+}
+
+.lv2-plan-glow .lv2-plan {
+  flex: 1;
+}
+
+/* Force full glow on any hover — center included */
+.lv2-plan-glow.border-glow-card:hover::before,
+.lv2-plan-glow.border-glow-card:hover > .edge-light {
+  opacity: 0.85;
+}
+
+.lv2-plan-glow.border-glow-card:hover::after {
+  opacity: 0.15;
+}
+
 /* Reflection hidden */
 .lv2-hero-reflection {
   display: none;

@@ -2,18 +2,22 @@
   ReceiptForm.jsx — the modal form for creating or editing a receipt.
 
   Props:
-    onSubmit(data)  — called when the user clicks Generate/Save. data is the full receipt object.
-    onClose()       — called when the user clicks Cancel or the backdrop.
-    initialData     — if editing an existing receipt, this is the receipt object to pre-fill.
-                      if creating a new receipt, this is null/undefined.
-    profile         — the user's profile, used to pre-fill the "Issued By" business name field.
+    onSubmit(data)       — called when the user clicks Generate/Save. data is the full receipt object.
+    onClose()            — called when the user clicks Cancel or the backdrop.
+    initialData          — if editing an existing receipt, this is the receipt object to pre-fill.
+                           if creating a new receipt, this is null/undefined.
+    profile              — the user's profile, used to pre-fill the "Issued By" business name field.
+    userEmail            — the user's email address, used to build the logo storage path.
+    onLogoUpdate(url)    — called after a logo is uploaded so App can update profile state globally.
 
   The form manages two pieces of state:
     form  — the top-level fields (vendor name, client name, date, etc.)
     items — the array of line items (description, qty, unit price, total per line)
 */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { supabase } from "../lib/supabase";
+import { saveProfile } from "../api/profile";
 
 /*
   EMPTY_ITEM is the default shape of a new blank line item.
@@ -35,7 +39,16 @@ const EMPTY_ITEM = {
 */
 const TAX_RATE = 0.15;
 
-export default function ReceiptForm({ onSubmit, onClose, initialData, profile }) {
+// Corner rotation order — clicking the tile cycles through these in sequence.
+const CORNER_ORDER  = ["top-left", "top-right", "bottom-right", "bottom-left"];
+const CORNER_LABELS = {
+  "top-left":     "Top Left",
+  "top-right":    "Top Right",
+  "bottom-right": "Bottom Right",
+  "bottom-left":  "Bottom Left",
+};
+
+export default function ReceiptForm({ onSubmit, onClose, initialData, profile, userEmail, onLogoUpdate }) {
 
   /*
     form — the main fields of the receipt.
@@ -75,6 +88,21 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile })
   // Controls whether the notes textarea is visible. Hidden by default, shown when "+ Add Note" is clicked.
   const [showNotes, setShowNotes] = useState(false);
 
+  // Controls whether the logo placement panel is visible (Pro only).
+  const [showLogoPanel, setShowLogoPanel] = useState(false);
+
+  // Which corner to place the logo in on the PDF. Cycles through CORNER_ORDER on each click.
+  const [logoCorner, setLogoCorner] = useState("top-left");
+
+  // Local copy of the logo URL — may be updated via upload without leaving the form.
+  const [localLogoUrl, setLocalLogoUrl] = useState(profile?.logo_url || "");
+
+  // True while a logo file is being uploaded to Supabase Storage.
+  const [logoUploading, setLogoUploading] = useState(false);
+
+  // Ref to the hidden file input inside the logo panel.
+  const logoFileInputRef = useRef(null);
+
   /*
     When editing an existing receipt, load its data into the form.
     This runs once when the component mounts (because initialData is in the dependency array).
@@ -107,6 +135,12 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile })
     // Show the notes box if the receipt already has notes
     if (initialData.notes) {
       setShowNotes(true);
+    }
+
+    // Restore logo corner selection if the receipt had one saved
+    if (initialData.logo_corner) {
+      setLogoCorner(initialData.logo_corner);
+      setShowLogoPanel(true);
     }
 
     // Load existing line items if the receipt has any
@@ -204,6 +238,51 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile })
   const total = subtotal + tax;
 
   /*
+    cycleCorner() — advances the logo corner one step through CORNER_ORDER on each click.
+  */
+  function cycleCorner() {
+    setLogoCorner((prev) => {
+      const idx = CORNER_ORDER.indexOf(prev);
+      return CORNER_ORDER[(idx + 1) % CORNER_ORDER.length];
+    });
+  }
+
+  /*
+    handleLogoUpload(event) — uploads the selected image to Supabase Storage and
+    updates both local state and the user's profile so the new logo persists.
+  */
+  async function handleLogoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setLogoUploading(true);
+
+    const fileExtension = file.name.split(".").pop();
+    let safeEmail = "";
+    if (userEmail) {
+      safeEmail = userEmail.replace(/[^a-z0-9]/gi, "_");
+    }
+    const storagePath = `${safeEmail}/logo.${fileExtension}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("logos")
+      .upload(storagePath, file, { upsert: true });
+
+    if (!uploadError) {
+      const { data: urlData } = supabase.storage.from("logos").getPublicUrl(storagePath);
+      const newUrl = urlData.publicUrl;
+      setLocalLogoUrl(newUrl);
+      // Persist to the user's profile so the logo is remembered everywhere
+      await saveProfile({ ...(profile || {}), logo_url: newUrl });
+      if (onLogoUpdate) onLogoUpdate(newUrl);
+    }
+
+    setLogoUploading(false);
+    // Reset the input so the same file can be re-selected if needed
+    event.target.value = "";
+  }
+
+  /*
     handleSubmit() — called when the user clicks "Generate Receipt" or "Save Changes".
 
     Validates required fields, then calls onSubmit() with the full receipt data.
@@ -233,6 +312,11 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile })
       tax,
       total,
       line_items: cleanedItems,
+      // Pass logo data so the PDF can render it.
+      // logo_url uses the local copy which may have been updated via the in-form upload.
+      // logo_corner is only set if the panel is open and a logo actually exists.
+      logo_url:    showLogoPanel && localLogoUrl ? localLogoUrl : null,
+      logo_corner: showLogoPanel && localLogoUrl ? logoCorner   : null,
     });
   }
 
@@ -244,24 +328,24 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile })
   let modalTitle;
   let submitButtonLabel;
   if (form.id) {
-    modalTitle = "Edit Document";
+    modalTitle = "Edit Invoice";
     submitButtonLabel = "Save Changes";
   } else {
-    modalTitle = "Create Document";
-    submitButtonLabel = "Generate Receipt";
+    modalTitle = "Create Invoice";
+    submitButtonLabel = "Generate Invoice";
   }
 
   /*
     Placeholder for the receipt number field.
     When editing, the field already has a value so no placeholder is needed.
-    When creating, we show "Auto — REC-000001" to explain that the server
+    When creating, we show "Auto — INV-000001" to explain that the server
     will generate the number automatically if left blank.
   */
   let receiptNumberPlaceholder;
   if (form.id) {
     receiptNumberPlaceholder = "";
   } else {
-    receiptNumberPlaceholder = "Auto — REC-000001";
+    receiptNumberPlaceholder = "Auto — INV-000001";
   }
 
   return (
@@ -307,7 +391,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile })
           {/* Second row: Receipt number and issue date */}
           <div className="field-row">
             <div className="field-group">
-              <label className="field-label">Receipt / Invoice #</label>
+              <label className="field-label">Invoice #</label>
               <input
                 className="field"
                 value={form.receipt_number}
@@ -451,6 +535,145 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile })
             >
               + Add Note
             </button>
+          )}
+
+          {/* ── Logo placement panel — Pro only ── */}
+          {profile?.tier === "pro" && (
+            showLogoPanel ? (
+              <div style={{
+                marginTop: 12,
+                padding: "14px 16px",
+                border: "1px solid var(--border)",
+                background: "var(--surface-2)",
+              }}>
+
+                {/* Panel header */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: "var(--text)", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                    Logo on PDF
+                  </span>
+                  <button
+                    type="button"
+                    className="btn-icon"
+                    style={{ fontSize: 11, color: "var(--text-muted)" }}
+                    onClick={() => setShowLogoPanel(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Logo upload / preview row */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                  {localLogoUrl && (
+                    <img
+                      src={localLogoUrl}
+                      alt="Logo"
+                      style={{ height: 30, maxWidth: 90, objectFit: "contain", border: "1px solid var(--border)", flexShrink: 0 }}
+                    />
+                  )}
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    style={{ fontSize: 10, padding: "5px 10px" }}
+                    onClick={() => logoFileInputRef.current.click()}
+                    disabled={logoUploading}
+                  >
+                    {logoUploading ? "Uploading..." : localLogoUrl ? "Change" : "Upload Logo"}
+                  </button>
+                  {localLogoUrl && (
+                    <button
+                      type="button"
+                      className="btn-icon"
+                      style={{ fontSize: 11, color: "var(--text-muted)" }}
+                      onClick={() => {
+                        setLocalLogoUrl("");
+                        saveProfile({ ...(profile || {}), logo_url: "" });
+                        if (onLogoUpdate) onLogoUpdate("");
+                      }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                  {/* Hidden file input */}
+                  <input
+                    ref={logoFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handleLogoUpload}
+                  />
+                </div>
+
+                {/* Corner picker — only shown when a logo exists */}
+                {localLogoUrl && (
+                  <>
+                    <div style={{ fontSize: 9, color: "var(--text-muted)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>
+                      Placement
+                    </div>
+
+                    {/* Single tile that cycles corner on each click */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+
+                      {/* Mini document tile — click to cycle */}
+                      <div
+                        onClick={cycleCorner}
+                        title="Click to change corner"
+                        style={{
+                          width: 66,
+                          height: 52,
+                          border: "1px solid var(--accent)",
+                          position: "relative",
+                          background: "var(--surface)",
+                          cursor: "pointer",
+                          flexShrink: 0,
+                          overflow: "hidden",
+                        }}
+                      >
+                        {/* Dark header strip */}
+                        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 11, background: "#1e1c18" }} />
+                        {/* Faint body lines to suggest content */}
+                        <div style={{ position: "absolute", top: 16, left: 4, right: 14, height: 2, background: "var(--border)", borderRadius: 1 }} />
+                        <div style={{ position: "absolute", top: 21, left: 4, right: 22, height: 2, background: "var(--border)", borderRadius: 1 }} />
+                        <div style={{ position: "absolute", top: 26, left: 4, right: 10, height: 2, background: "var(--border)", borderRadius: 1 }} />
+                        {/* Footer strip */}
+                        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 7, background: "var(--surface-2)", borderTop: "1px solid var(--border)" }} />
+                        {/* Logo position indicator — moves to current corner */}
+                        <div style={{
+                          position: "absolute",
+                          width: 16,
+                          height: 8,
+                          borderRadius: 1,
+                          background: "var(--accent)",
+                          ...(logoCorner === "top-left"     ? { top: 1,    left:  2 }
+                            : logoCorner === "top-right"    ? { top: 1,    right: 2 }
+                            : logoCorner === "bottom-right" ? { bottom: 8, right: 2 }
+                            :                                 { bottom: 8, left:  2 }),
+                        }} />
+                      </div>
+
+                      {/* Current corner label + hint */}
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", lineHeight: 1 }}>
+                          {CORNER_LABELS[logoCorner]}
+                        </div>
+                        <div style={{ fontSize: 9, color: "var(--text-muted)", marginTop: 5, letterSpacing: "0.04em" }}>
+                          click tile to change
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-ghost"
+                style={{ marginTop: 8, fontSize: 10, padding: "6px 12px" }}
+                onClick={() => setShowLogoPanel(true)}
+              >
+                + Add your logo
+              </button>
+            )
           )}
         </div>
 

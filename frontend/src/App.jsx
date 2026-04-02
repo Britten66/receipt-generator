@@ -63,7 +63,7 @@ const STATUS_CONFIG = {
   "ALL" shows every receipt regardless of status.
 */
 const NAV = [
-  { key: "ALL",    label: "All Receipts" },
+  { key: "ALL",    label: "All Invoices" },
   { key: "draft",  label: "Draft" },
   { key: "sent",   label: "Sent" },
   { key: "paid",   label: "Paid" },
@@ -78,7 +78,7 @@ const STATUS_LABELS = {
   draft:  "Saved as draft",
   sent:   "Marked as sent",
   paid:   "Marked as paid",
-  voided: "Receipt voided",
+  voided: "Invoice voided",
 };
 
 export default function App() {
@@ -257,10 +257,10 @@ export default function App() {
     .filter((r) => r.status === "paid")
     .reduce((sum, r) => sum + parseFloat(r.subtotal || 0), 0);
 
-  // Outstanding: sum of sent receipts (invoiced, not yet paid), pre-tax.
+  // Outstanding: sum of sent receipts including tax.
   const outstanding = receipts
     .filter((r) => r.status === "sent")
-    .reduce((sum, r) => sum + parseFloat(r.subtotal || 0), 0);
+    .reduce((sum, r) => sum + parseFloat(r.total || 0), 0);
 
   const filtered = useMemo(() => {
     if (filter === "ALL") return receipts;
@@ -288,12 +288,12 @@ export default function App() {
         if (result?.error) throw new Error(result.error);
         setReceipts((prev) => prev.map((r) => (r.id === data.id ? result : r)));
         await selectFull(data.id);
-        showToast("Receipt updated.", "success");
+        showToast("Invoice updated.", "success");
       } else {
         const result = await createReceipt(data);
         if (result?.error) throw new Error(result.error);
         setReceipts((prev) => [result, ...prev]);
-        showToast("Receipt created.", "success");
+        showToast("Invoice created.", "success");
       }
       setShowForm(false);
       setEditingReceipt(null);
@@ -373,12 +373,6 @@ export default function App() {
   }
 
   function openNewReceipt() {
-    if (profile?.tier !== "pro" && receipts.length >= 3) {
-      startCheckout().catch(() =>
-        showToast("Couldn't open checkout. Check your connection and try again.")
-      );
-      return;
-    }
     setEditingReceipt(null);
     setShowForm(true);
   }
@@ -512,9 +506,10 @@ export default function App() {
           <div className="stat-block">
             <div className="stat-label">Outstanding</div>
             <div className="stat-value">${outstanding.toFixed(2)}</div>
+            <div className="stat-sub">inc. tax</div>
           </div>
           <div className="stat-block">
-            <div className="stat-label">Receipts</div>
+            <div className="stat-label">Invoices</div>
             <div className="stat-value">{receipts.length}</div>
           </div>
         </div>
@@ -564,7 +559,7 @@ export default function App() {
             </button>
           </>
           <button className="btn btn-primary" style={{ width: "100%" }} onClick={openNewReceipt}>
-            + New Receipt
+            + New Invoice
           </button>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 4 }}>
             <div style={{ display: "flex", gap: 10 }}>
@@ -583,7 +578,7 @@ export default function App() {
         <div className="toolbar">
           <span className="toolbar-greeting">{greeting}</span>
           <span className="toolbar-title">
-            {filter === "ALL" ? "All" : STATUS_CONFIG[filter]?.label}: {filtered.length} receipt{filtered.length !== 1 ? "s" : ""}
+            {filter === "ALL" ? "All" : STATUS_CONFIG[filter]?.label}: {filtered.length} invoice{filtered.length !== 1 ? "s" : ""}
           </span>
         </div>
 
@@ -674,9 +669,9 @@ export default function App() {
               <div className="detail-header">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div>
-                    <div className="detail-receipt-num">Receipt / {selectedReceipt.receipt_number}</div>
-                    <div className="detail-vendor">{selectedReceipt.vendor_name}</div>
-                    <div className="detail-customer">Issued to: {selectedReceipt.customer_name}</div>
+                    <div className="detail-receipt-num">Invoice / {selectedReceipt.receipt_number}</div>
+                    <div className="detail-vendor">{selectedReceipt.customer_name}</div>
+                    <div className="detail-customer">Issued by: {selectedReceipt.vendor_name}</div>
                   </div>
                   <button onClick={() => setSelected(null)} className="btn-icon close-btn">✕</button>
                 </div>
@@ -820,7 +815,7 @@ export default function App() {
                     style={{ width: "100%", marginBottom: 6 }}
                     onClick={() => shareReceiptPDF({ ...selectedReceipt, logo_url: profile?.logo_url, tier: profile?.tier })}
                   >
-                    Share Receipt
+                    Share Invoice
                   </button>
                 )}
 
@@ -832,7 +827,7 @@ export default function App() {
                   Preview PDF
                 </button>
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-download"
                   style={{ width: "100%", marginBottom: 6 }}
                   onClick={() => downloadReceiptPDF({ ...selectedReceipt, logo_url: profile?.logo_url, tier: profile?.tier })}
                 >
@@ -889,6 +884,8 @@ export default function App() {
         <ReceiptForm
           initialData={editingReceipt}
           profile={profile}
+          userEmail={userEmail}
+          onLogoUpdate={(url) => setProfile((p) => ({ ...p, logo_url: url }))}
           onSubmit={handleSaveReceipt}
           onClose={() => setShowForm(false)}
         />

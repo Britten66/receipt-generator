@@ -203,9 +203,9 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
   if (logoUploading) {
     logoButtonLabel = "Uploading...";
   } else if (form.logo_url) {
-    logoButtonLabel = "Change Logo";
+    logoButtonLabel = "Change Avatar";
   } else {
-    logoButtonLabel = "Upload Logo";
+    logoButtonLabel = "Upload Avatar";
   }
 
   /*
@@ -338,7 +338,7 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
             <label className="field-label">Payment Link</label>
             <input className="field" placeholder="https://buy.stripe.com/... or paypal.me/..." value={form.payment_url} onChange={(e) => setField("payment_url", e.target.value)} />
             <span style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4, display: "block" }}>
-              Paste your Stripe Payment Link or PayPal.me — a QR code will appear on unpaid receipts
+              Paste your Stripe Payment Link or PayPal.me — a QR code will appear on unpaid invoices
             </span>
           </div>
 
