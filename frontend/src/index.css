@@ -57,21 +57,7 @@ body {
   transform: translate(1px, 1px);
 }
 
-/* Input and textarea fields used throughout the app */
-.field {
-  width: 100%;
-  background: rgba(255, 245, 235, 0.04);
-  border: 1px solid rgba(255, 235, 200, 0.08);
-  border-radius: 0;
-  padding: 11px 14px;
-  font-size: 13px;
-  color: #e8e2d9;
-  font-family: "Public Sans", sans-serif;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.field:focus   { border-color: rgba(180, 130, 70, 0.35); }
-.field::placeholder { color: rgba(232, 226, 217, 0.2); }
+/* .field is defined in App.css — not duplicated here */
 
 /* Table row used in the receipt list */
 .row {

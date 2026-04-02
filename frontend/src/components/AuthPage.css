@@ -21,12 +21,12 @@
 }
 .auth-page::before {
   width: 380px; height: 380px;
-  background: radial-gradient(circle, rgba(180, 210, 190, 0.4), transparent 70%);
+  background: radial-gradient(circle, rgba(180, 140, 90, 0.18), transparent 70%);
   top: -80px; left: -80px;
 }
 .auth-page::after {
   width: 320px; height: 320px;
-  background: radial-gradient(circle, rgba(190, 200, 230, 0.35), transparent 70%);
+  background: radial-gradient(circle, rgba(160, 104, 48, 0.12), transparent 70%);
   bottom: -60px; right: -60px;
 }
 
@@ -199,7 +199,7 @@
   outline: none;
   transition: border-color 0.2s;
 }
-.auth-field:focus        { border-color: rgba(140, 100, 50, 0.4); }
+.auth-field:focus        { border-color: var(--accent); }
 .auth-field::placeholder { color: rgba(42, 37, 32, 0.35); }
 
 /* Plain text-link button — "Forgot password?" / "Back to sign in" */
@@ -257,7 +257,7 @@
   color: var(--text);
 }
 [data-theme="dark"] .auth-field::placeholder { color: var(--text-muted); }
-[data-theme="dark"] .auth-field:focus        { border-color: rgba(180, 140, 90, 0.4); }
+[data-theme="dark"] .auth-field:focus        { border-color: var(--accent); }
 
 /* Error / success banners */
 [data-theme="dark"] .auth-error   { background: rgba(192, 74, 74, 0.12); border-color: #7a3030; }

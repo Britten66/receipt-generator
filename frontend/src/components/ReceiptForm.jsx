@@ -16,8 +16,8 @@
 */
 
 import { useState, useEffect, useRef } from "react";
-import { supabase } from "../lib/supabase";
 import { saveProfile } from "../api/profile";
+import { uploadLogo } from "../api/uploadLogo";
 
 /*
   EMPTY_ITEM is the default shape of a new blank line item.
@@ -94,8 +94,18 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   // Which corner to place the logo in on the PDF. Cycles through CORNER_ORDER on each click.
   const [logoCorner, setLogoCorner] = useState("top-left");
 
-  // Local copy of the logo URL — may be updated via upload without leaving the form.
+  // Local copy of the logo URL — syncs with profile.logo_url unless the user
+  // has already uploaded a fresh one during this form session.
   const [localLogoUrl, setLocalLogoUrl] = useState(profile?.logo_url || "");
+
+  // Keep localLogoUrl in sync if the profile updates while the form is open
+  // (e.g. user uploaded a new logo from ProfileModal in another tab).
+  // Only sync if we don't already have a user-set value this session.
+  useEffect(() => {
+    if (profile?.logo_url) {
+      setLocalLogoUrl((prev) => prev || profile.logo_url);
+    }
+  }, [profile?.logo_url]);
 
   // True while a logo file is being uploaded to Supabase Storage.
   const [logoUploading, setLogoUploading] = useState(false);
@@ -257,24 +267,11 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
     setLogoUploading(true);
 
-    const fileExtension = file.name.split(".").pop();
-    let safeEmail = "";
-    if (userEmail) {
-      safeEmail = userEmail.replace(/[^a-z0-9]/gi, "_");
-    }
-    const storagePath = `${safeEmail}/logo.${fileExtension}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("logos")
-      .upload(storagePath, file, { upsert: true });
-
-    if (!uploadError) {
-      const { data: urlData } = supabase.storage.from("logos").getPublicUrl(storagePath);
-      const newUrl = urlData.publicUrl;
-      setLocalLogoUrl(newUrl);
-      // Persist to the user's profile so the logo is remembered everywhere
-      await saveProfile({ ...(profile || {}), logo_url: newUrl });
-      if (onLogoUpdate) onLogoUpdate(newUrl);
+    const freshUrl = await uploadLogo({ file, userEmail });
+    if (freshUrl) {
+      setLocalLogoUrl(freshUrl);
+      await saveProfile({ ...(profile || {}), logo_url: freshUrl });
+      if (onLogoUpdate) onLogoUpdate(freshUrl);
     }
 
     setLogoUploading(false);

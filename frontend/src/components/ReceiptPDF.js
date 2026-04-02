@@ -94,7 +94,10 @@ async function buildDoc(receipt) {
   doc.rect(0, 0, pageW, 18, "F"); // x, y, width, height, "F" = filled rectangle
 
   // Resolve logo data and dimensions up-front so we can adapt layout below.
-  const corner = receipt.logo_corner || null; // null means no logo requested
+  // If a logo_url exists but no corner was chosen, default to top-left so it always shows.
+  const corner = receipt.logo_url
+    ? (receipt.logo_corner || "top-left")
+    : null;
   const isTopCorner    = corner === "top-left"  || corner === "top-right";
   const isBottomCorner = corner === "bottom-left" || corner === "bottom-right";
 

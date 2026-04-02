@@ -29,6 +29,8 @@
   --sent: #1a3060;         /* blue — sent status */
   --draft: #555552;        /* grey — draft status */
   --voided: #7a1a1a;       /* red — voided status */
+  --accent: #a06830;       /* warm copper — pro features, active states */
+  --accent-dim: rgba(160, 104, 48, 0.12); /* tinted background for accent areas */
   --mono: ui-monospace, "Courier New", monospace;
   --sans: "Public Sans", sans-serif;
 }
@@ -47,6 +49,8 @@
   --sent: #4a70c0;
   --draft: #888884;
   --voided: #c04a4a;
+  --accent: #c8924a;
+  --accent-dim: rgba(200, 146, 74, 0.14);
 }
 
 /* Dark mode: cream button, dark text */
@@ -268,7 +272,7 @@ body,
 }
 .sidebar-item.active {
   color: var(--text);
-  border-left-color: var(--text);
+  border-left-color: var(--accent);
   background: var(--bg);
   font-weight: 600;
 }
@@ -399,8 +403,8 @@ body,
 }
 .receipt-card.selected {
   background: var(--surface-2);
-  border-color: var(--text);
-  box-shadow: inset 0 0 0 1.5px var(--text), 0 3px 10px rgba(0,0,0,0.09);
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent), 0 3px 10px rgba(0,0,0,0.09);
 }
 .card-top-row {
   display: flex;
@@ -869,12 +873,17 @@ body,
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.25);
+  background: rgba(0,0,0,0.45);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 200;
   padding: 24px;
+  animation: fadeBackdrop 0.15s ease;
+}
+@keyframes fadeBackdrop {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 .modal {
   background: var(--surface-2);
@@ -883,7 +892,12 @@ body,
   max-width: 540px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 4px 4px 0 var(--border);
+  box-shadow: 4px 4px 0 var(--border), 0 16px 48px rgba(0,0,0,0.18);
+  animation: slideModal 0.15s ease;
+}
+@keyframes slideModal {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Win95-style draggable/resizable help window ────────────────────────── */
@@ -1086,7 +1100,8 @@ body,
   transition: border-color 0.2s;
 }
 .field:focus {
-  border-color: rgba(140, 100, 50, 0.4);
+  border-color: var(--accent);
+  outline: none;
 }
 .field::placeholder {
   color: rgba(42, 37, 32, 0.35);

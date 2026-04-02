@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
 
-const ALLOWED_FIELDS = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency"];
+const ALLOWED_FIELDS = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency", "logo_url", "logo_corner"];
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
 
   // POST — create receipt + line items
   if (req.method === "POST") {
-    const { vendor_name, customer_name, status, date, subtotal, tax, total, notes, line_items } = await req.json();
+    const { vendor_name, customer_name, status, date, subtotal, tax, total, notes, line_items, logo_url, logo_corner } = await req.json();
     if (!vendor_name || !customer_name) {
       return new Response(JSON.stringify({ error: "Vendor name and customer name are required" }), { status: 400, headers: corsHeaders });
     }
@@ -52,6 +52,8 @@ Deno.serve(async (req) => {
       tax: tax ?? 0,
       total: total ?? 0,
       notes: notes ?? null,
+      logo_url: logo_url ?? null,
+      logo_corner: logo_corner ?? null,
       user_id: user.id,
     }).select().single();
 

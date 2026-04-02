@@ -183,6 +183,8 @@ export default function App() {
         setShowAuthModal(false);
       } else {
         setSession(newSession);
+        setShowAuthModal(false);
+        setEntered(true);
         setProIntent((prev) => {
           if (prev) startCheckout().catch(() => {});
           return false;
@@ -433,7 +435,7 @@ export default function App() {
   }
 
   const userEmail = session?.user?.email ?? "";
-  const avatarUrl = profile?.logo_url ?? null;
+  const avatarUrl = profile?.avatar_url || profile?.logo_url || null;
 
   /*
     Time-based greeting. Name priority: business_name > email username > nothing.
@@ -561,12 +563,10 @@ export default function App() {
           <button className="btn btn-primary" style={{ width: "100%" }} onClick={openNewReceipt}>
             + New Invoice
           </button>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 4 }}>
-            <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
-              <button onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Privacy</button>
-            </div>
-            <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help">?</button>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, paddingTop: 4, position: "relative" }}>
+            <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
+            <button onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Privacy</button>
+            <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help" style={{ position: "absolute", right: 0 }}>?</button>
           </div>
         </div>
       </aside>
@@ -813,7 +813,7 @@ export default function App() {
                   <button
                     className="btn btn-ghost"
                     style={{ width: "100%", marginBottom: 6 }}
-                    onClick={() => shareReceiptPDF({ ...selectedReceipt, logo_url: profile?.logo_url, tier: profile?.tier })}
+                    onClick={() => shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier })}
                   >
                     Share Invoice
                   </button>
@@ -822,14 +822,14 @@ export default function App() {
                 <button
                   className="btn btn-ghost"
                   style={{ width: "100%", marginBottom: 6 }}
-                  onClick={() => previewReceiptPDF({ ...selectedReceipt, logo_url: profile?.logo_url, tier: profile?.tier })}
+                  onClick={() => previewReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier })}
                 >
                   Preview PDF
                 </button>
                 <button
                   className="btn btn-download"
                   style={{ width: "100%", marginBottom: 6 }}
-                  onClick={() => downloadReceiptPDF({ ...selectedReceipt, logo_url: profile?.logo_url, tier: profile?.tier })}
+                  onClick={() => downloadReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier })}
                 >
                   Download PDF
                 </button>

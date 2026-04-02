@@ -16,6 +16,7 @@
 
 import { useState, useRef } from "react";
 import { saveProfile } from "../api/profile";
+import { uploadLogo } from "../api/uploadLogo";
 import { supabase } from "../lib/supabase";
 import LegalModal from "./LegalModal";
 
@@ -40,10 +41,9 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
       email: "",
       phone: "",
       logo_url: "",
+      avatar_url: "",
     };
 
-    // If the profile object exists and has a value for each field, use it
-    // Otherwise, keep the empty string from above
     if (profile) {
       if (profile.business_name) { initial.business_name = profile.business_name; }
       if (profile.bio)           { initial.bio           = profile.bio; }
@@ -53,6 +53,7 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
       if (profile.email)         { initial.email         = profile.email; }
       if (profile.phone)         { initial.phone         = profile.phone; }
       if (profile.logo_url)      { initial.logo_url      = profile.logo_url; }
+      if (profile.avatar_url)    { initial.avatar_url    = profile.avatar_url; }
     }
 
     return initial;
@@ -72,11 +73,10 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
   // legal — either "terms" or "privacy" when a legal modal is open, or null when closed
   const [legal, setLegal] = useState(null);
 
-  // logoUploading — true while the logo file is being uploaded to Supabase Storage
-  const [logoUploading, setLogoUploading] = useState(false);
-
-  // logoInputRef — a reference to the hidden file input, so we can trigger it from a button click
-  const logoInputRef = useRef(null);
+  const [logoUploading,   setLogoUploading]   = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const logoInputRef   = useRef(null);
+  const avatarInputRef = useRef(null);
 
   /*
     setField(fieldName, value) — update one field in the form state.
@@ -95,55 +95,34 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
     setForm((currentForm) => ({ ...currentForm, [fieldName]: value }));
   }
 
-  /*
-    handleLogoUpload(event) — called when the user selects a file in the hidden file input.
-
-    Steps:
-      1. Get the selected file from the event
-      2. Extract the file extension (e.g. "png", "jpg")
-      3. Build a storage path like "user_at_example_com/logo.png"
-      4. Upload the file to the "logos" Supabase Storage bucket
-      5. If the upload succeeds, get the public URL and save it to form.logo_url
-  */
   async function handleLogoUpload(event) {
-    // Get the first (and only) file the user selected
-    // event.target.files is an array-like object, index 0 is the first file
     const file = event.target.files[0];
-
-    // If the user cancelled the file picker, files[0] is undefined — stop here
     if (!file) return;
-
     setLogoUploading(true);
-
-    // Extract the file extension from the filename
-    // "mylogo.PNG".split(".") → ["mylogo", "PNG"]
-    // .pop() takes the last element → "PNG"
-    const fileExtension = file.name.split(".").pop();
-
-    // Build a unique storage path for this user
-    // Replace any non-alphanumeric characters in the email with underscores
-    // so the path is safe to use as a folder name
-    // Example: "user@example.com" → "user_example_com"
-    let safeEmail = "";
-    if (userEmail) {
-      safeEmail = userEmail.replace(/[^a-z0-9]/gi, "_");
+    const freshUrl = await uploadLogo({ file, userEmail, type: "logo" });
+    if (freshUrl) {
+      setField("logo_url", freshUrl);
+      const updated = { ...form, logo_url: freshUrl };
+      await saveProfile(updated);
+      onSave(updated);
     }
-    const storagePath = `${safeEmail}/logo.${fileExtension}`;
-
-    // Upload the file to Supabase Storage
-    // { upsert: true } means it will overwrite any existing file at that path
-    const { error: uploadError } = await supabase.storage
-      .from("logos")
-      .upload(storagePath, file, { upsert: true });
-
-    // Only update the form if the upload succeeded
-    if (!uploadError) {
-      // getPublicUrl returns the full public URL to the uploaded file
-      const { data: urlData } = supabase.storage.from("logos").getPublicUrl(storagePath);
-      setField("logo_url", urlData.publicUrl);
-    }
-
     setLogoUploading(false);
+    event.target.value = "";
+  }
+
+  async function handleAvatarUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    setAvatarUploading(true);
+    const freshUrl = await uploadLogo({ file, userEmail, type: "avatar" });
+    if (freshUrl) {
+      setField("avatar_url", freshUrl);
+      const updated = { ...form, avatar_url: freshUrl };
+      await saveProfile(updated);
+      onSave(updated);
+    }
+    setAvatarUploading(false);
+    event.target.value = "";
   }
 
   /*
@@ -199,14 +178,8 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
       2. "Change Logo"   — upload is done and there's already a logo
       3. "Upload Logo"   — no logo has been set yet
   */
-  let logoButtonLabel;
-  if (logoUploading) {
-    logoButtonLabel = "Uploading...";
-  } else if (form.logo_url) {
-    logoButtonLabel = "Change Avatar";
-  } else {
-    logoButtonLabel = "Upload Avatar";
-  }
+  const logoButtonLabel   = logoUploading   ? "Uploading..." : form.logo_url   ? "Change Logo"   : "Upload Logo";
+  const avatarButtonLabel = avatarUploading ? "Uploading..." : form.avatar_url ? "Change Avatar" : "Upload Avatar";
 
   /*
     Determine the label for the Save button.
@@ -273,58 +246,41 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
             />
           </div>
 
-          {/* Logo upload */}
+          {/* Avatar upload — profile picture shown in the app topbar */}
           <div className="field-group">
-            <label className="field-label">Logo (appears on PDF)</label>
+            <label className="field-label">Avatar</label>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-
-              {/* Show a preview of the current logo if one has been set */}
-              {form.logo_url && (
-                <img
-                  src={form.logo_url}
-                  alt="Logo"
-                  style={{ height: 36, maxWidth: 80, objectFit: "contain", borderRadius: 0, border: "1px solid var(--border)" }}
-                />
+              {form.avatar_url
+                ? <img src={form.avatar_url} alt="Avatar" style={{ width: 36, height: 36, objectFit: "cover", borderRadius: "50%", border: "1px solid var(--border)" }} />
+                : <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--surface-2)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "var(--text-muted)" }}>{(userEmail?.[0] ?? "?").toUpperCase()}</div>
+              }
+              <button type="button" className="btn btn-ghost" style={{ fontSize: 10, padding: "6px 12px" }} onClick={() => avatarInputRef.current.click()} disabled={avatarUploading}>
+                {avatarButtonLabel}
+              </button>
+              {form.avatar_url && (
+                <button type="button" className="btn-icon" style={{ fontSize: 11 }} onClick={async () => { setField("avatar_url", null); await saveProfile({ ...form, avatar_url: null }); onSave({ ...form, avatar_url: null }); }}>✕</button>
               )}
+              <input ref={avatarInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleAvatarUpload} />
+            </div>
+          </div>
 
-              {/* This button triggers the hidden file input below */}
-              <button
-                type="button"
-                className="btn btn-ghost"
-                style={{ fontSize: 10, padding: "6px 12px" }}
-                onClick={() => logoInputRef.current.click()}
-                disabled={logoUploading}
-              >
+          {/* Logo upload — business logo that appears on PDFs */}
+          <div className="field-group">
+            <label className="field-label">Business Logo (appears on PDF)</label>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              {form.logo_url && (
+                <img src={form.logo_url} alt="Logo" style={{ height: 36, maxWidth: 80, objectFit: "contain", border: "1px solid var(--border)" }} />
+              )}
+              <button type="button" className="btn btn-ghost" style={{ fontSize: 10, padding: "6px 12px" }} onClick={() => logoInputRef.current.click()} disabled={logoUploading}>
                 {logoButtonLabel}
               </button>
-
-              {/* Show a remove button only if a logo is already set */}
               {form.logo_url && (
-                <button
-                  type="button"
-                  className="btn-icon"
-                  style={{ fontSize: 11 }}
-                  onClick={async () => {
-                    setField("logo_url", null);
-                    await saveProfile({ ...form, logo_url: null });
-                    onSave({ ...form, logo_url: null });
-                  }}
-                >
-                  ✕
-                </button>
+                <button type="button" className="btn-icon" style={{ fontSize: 11 }} onClick={async () => { setField("logo_url", null); await saveProfile({ ...form, logo_url: null }); onSave({ ...form, logo_url: null }); }}>✕</button>
               )}
-
-              {/* Hidden file input — triggered by the button above */}
-              <input
-                ref={logoInputRef}
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={handleLogoUpload}
-              />
+              <input ref={logoInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleLogoUpload} />
             </div>
             <span style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4, display: "block" }}>
-              PNG or JPG, ideally under 500 KB
+              PNG with transparent background recommended
             </span>
           </div>
 
