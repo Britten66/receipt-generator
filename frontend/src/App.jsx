@@ -136,19 +136,6 @@ export default function App() {
     }
   }
 
-  /*
-    Apply or clear palette whenever mode, palette choice, or entered state changes.
-    Landing page (entered === false) always gets cleared so the user's theme never
-    bleeds through to the public-facing screen.
-  */
-  useEffect(() => {
-    if (!entered) {
-      clearPalette();
-      return;
-    }
-    applyPalette(currentPalette, darkMode ? "dark" : "light");
-  }, [entered, currentPalette, darkMode]);
-
   const [session, setSession]                   = useState(null);
   const [authLoading, setAuthLoading]           = useState(true);
   const [showAuthModal, setShowAuthModal]       = useState(false);
@@ -159,6 +146,21 @@ export default function App() {
     "entered" persists in localStorage so a page refresh skips the landing screen.
   */
   const [entered, setEntered] = useState(() => !!localStorage.getItem("app_entered"));
+
+  /*
+    Apply or clear palette whenever mode, palette choice, or entered state changes.
+    Must be declared AFTER entered — the dependency array is evaluated immediately
+    and reading entered before its useState line is a TDZ crash in the minified build.
+    Landing page (entered === false) always gets cleared so the user's theme never
+    bleeds through to the public-facing screen.
+  */
+  useEffect(() => {
+    if (!entered) {
+      clearPalette();
+      return;
+    }
+    applyPalette(currentPalette, darkMode ? "dark" : "light");
+  }, [entered, currentPalette, darkMode]);
 
   const [swipedId, setSwipedId]       = useState(null);
   const touchStartX                   = useRef(0);
