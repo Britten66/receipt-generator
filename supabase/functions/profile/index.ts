@@ -1,8 +1,18 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+
+const MAX_BODY_BYTES = 32 * 1024; // 32 KB
 
 Deno.serve(async (req) => {
+  const origin = req.headers.get("Origin");
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  const contentLength = parseInt(req.headers.get("content-length") ?? "0", 10);
+  if (contentLength > MAX_BODY_BYTES) {
+    return new Response(JSON.stringify({ error: "Payload too large" }), { status: 413, headers: corsHeaders });
+  }
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -17,7 +27,14 @@ Deno.serve(async (req) => {
 
   if (req.method === "GET") {
     const { data } = await supabase.from("profiles").select("*").eq("user_id", user.id).single();
-    return new Response(JSON.stringify(data ?? {}), { headers: corsHeaders });
+    if (data) return new Response(JSON.stringify(data), { headers: corsHeaders });
+
+    // No profile yet — create a blank one on first login
+    const { data: created } = await supabase.from("profiles").insert({
+      user_id: user.id,
+      tier: "free",
+    }).select().single();
+    return new Response(JSON.stringify(created ?? {}), { headers: corsHeaders });
   }
 
   if (req.method === "PUT") {

@@ -313,6 +313,18 @@ async function buildDoc(receipt) {
 }
 
 /*
+  buildPDFBase64(receipt) — generates the PDF and returns it as a base64 string.
+  Used when attaching the PDF to an outgoing email via Resend.
+*/
+export async function buildPDFBase64(receipt) {
+  const doc = await buildDoc(receipt);
+  // "datauristring" returns "data:application/pdf;base64,XXXX..."
+  // We strip the prefix and return only the base64 payload.
+  const dataUri = doc.output("datauristring");
+  return dataUri.split(",")[1];
+}
+
+/*
   downloadReceiptPDF(receipt) — generates the PDF and triggers a file download.
   The file is named "receipt-REC-000001.pdf" using the receipt number.
 */

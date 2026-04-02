@@ -19,7 +19,7 @@
 */
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import { downloadReceiptPDF, shareReceiptPDF, previewReceiptPDF } from "./components/ReceiptPDF";
+import { downloadReceiptPDF, shareReceiptPDF, previewReceiptPDF, buildPDFBase64 } from "./components/ReceiptPDF";
 import {
   fetchReceipts,
   fetchReceiptById,
@@ -340,6 +340,15 @@ export default function App() {
     setSendingInvoice(true);
     try {
       const r = sendInvoiceTarget;
+
+      // Generate the PDF in the browser and convert to base64 for the email attachment
+      const pdfBase64 = await buildPDFBase64({
+        ...r,
+        logo_url: r.logo_url || profile?.logo_url || null,
+        logo_corner: r.logo_corner || null,
+        tier: profile?.tier ?? "free",
+      });
+
       const { data: { session: _s } } = await supabase.auth.getSession();
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invoice`, {
         method: "POST",
@@ -361,6 +370,9 @@ export default function App() {
           notes: r.notes,
           payment_url: profile?.payment_url,
           tier: profile?.tier ?? "free",
+          logo_url: r.logo_url || profile?.logo_url || null,
+          logo_corner: r.logo_corner || null,
+          pdf_base64: pdfBase64,
         }),
       });
       if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error ?? "Send failed"); }
@@ -866,10 +878,10 @@ export default function App() {
                   ) : (
                     <button
                       className="btn btn-ghost"
-                      style={{ width: "100%", opacity: 0.5 }}
-                      onClick={() => startCheckout()}
+                      style={{ width: "100%" }}
+                      onClick={() => showToast("Upgrade to Pro to send invoices by email.", "upgrade")}
                     >
-                      ✉ Send to Client — Pro
+                      ✉ Send to Client
                     </button>
                   )}
                 </div>
@@ -924,8 +936,8 @@ export default function App() {
           bottom: 24,
           left: "50%",
           transform: "translateX(-50%)",
-          // Green background for success messages, red for errors
-          background: toast.type === "success" ? "var(--paid)" : "var(--voided)",
+          // Green for success, warm copper for upgrade prompts, red for errors
+          background: toast.type === "success" ? "var(--paid)" : toast.type === "upgrade" ? "var(--accent)" : "var(--voided)",
           color: "#fff",
           padding: "10px 20px",
           fontSize: 10,
@@ -936,8 +948,11 @@ export default function App() {
           border: "1px solid rgba(0,0,0,0.2)",
           boxShadow: "2px 2px 0 rgba(0,0,0,0.15)",
           whiteSpace: "nowrap",
-        }}>
-          {toast.msg}
+          cursor: toast.type === "upgrade" ? "pointer" : "default",
+        }}
+        onClick={toast.type === "upgrade" ? () => startCheckout() : undefined}
+        >
+          {toast.msg}{toast.type === "upgrade" ? " →" : ""}
         </div>
       )}
     </div>

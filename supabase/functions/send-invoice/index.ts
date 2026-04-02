@@ -1,6 +1,9 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_BODY_BYTES  = 3 * 1024 * 1024; // 3 MB (covers PDF attachment)
+const MAX_PDF_BYTES   = 2 * 1024 * 1024; // 2 MB base64 ≈ ~1.5 MB PDF
+const MAX_FIELD_LEN   = 500;
 
 function escapeHtml(str: unknown): string {
   if (str == null) return "";
@@ -10,8 +13,16 @@ function escapeHtml(str: unknown): string {
 }
 
 Deno.serve(async (req) => {
+  const origin = req.headers.get("Origin");
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: corsHeaders });
+
+  const contentLength = parseInt(req.headers.get("content-length") ?? "0", 10);
+  if (contentLength > MAX_BODY_BYTES) {
+    return new Response(JSON.stringify({ error: "Payload too large" }), { status: 413, headers: corsHeaders });
+  }
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -22,10 +33,23 @@ Deno.serve(async (req) => {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
 
-  const { to, vendor_name, customer_name, receipt_number, date, line_items, subtotal, tax, total, notes, payment_url, tier } = await req.json();
+  // Server-side Pro tier enforcement
+  const { data: profile } = await supabase.from("profiles").select("tier").eq("user_id", user.id).single();
+  if (!profile || profile.tier !== "pro") {
+    return new Response(JSON.stringify({ error: "Pro subscription required to send invoices" }), { status: 403, headers: corsHeaders });
+  }
+
+  const { to, vendor_name, customer_name, receipt_number, date, line_items, subtotal, tax, total, notes, payment_url, pdf_base64 } = await req.json();
+  const tier = profile.tier; // use server-verified tier, not client-supplied
 
   if (!to) return new Response(JSON.stringify({ error: "Recipient email is required" }), { status: 400, headers: corsHeaders });
   if (!EMAIL_RE.test(to)) return new Response(JSON.stringify({ error: "Invalid recipient email" }), { status: 400, headers: corsHeaders });
+  if (pdf_base64 && pdf_base64.length > MAX_PDF_BYTES) {
+    return new Response(JSON.stringify({ error: "PDF attachment too large" }), { status: 413, headers: corsHeaders });
+  }
+  if (notes && String(notes).length > MAX_FIELD_LEN) {
+    return new Response(JSON.stringify({ error: "Notes too long" }), { status: 400, headers: corsHeaders });
+  }
 
   const safe = {
     to: escapeHtml(to),
@@ -107,6 +131,12 @@ Deno.serve(async (req) => {
       subject: `Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`,
       html,
       reply_to: user.email ?? undefined,
+      ...(pdf_base64 ? {
+        attachments: [{
+          filename: `invoice-${safe.receipt_number}.pdf`,
+          content: pdf_base64,
+        }]
+      } : {}),
     }),
   });
 

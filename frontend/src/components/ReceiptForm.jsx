@@ -534,7 +534,17 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             </button>
           )}
 
-          {/* ── Logo placement panel — Pro only ── */}
+          {/* ── Logo placement — shown to all, upgrade prompt for free ── */}
+          {profile?.tier !== "pro" && (
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={{ marginTop: 8, fontSize: 10, padding: "6px 12px" }}
+              onClick={() => alert("Upgrade to Pro to add your logo to invoices.")}
+            >
+              + Add your logo
+            </button>
+          )}
           {profile?.tier === "pro" && (
             showLogoPanel ? (
               <div style={{
