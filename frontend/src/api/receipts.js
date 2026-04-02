@@ -1,28 +1,38 @@
 import { supabase } from "../lib/supabase";
 
-export const fetchReceipts = () =>
-  supabase.functions.invoke("receipts", { method: "GET" }).then(({ data }) => data ?? []);
+const BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 
-export const fetchReceiptById = (id) =>
-  supabase.functions.invoke("receipts", {
-    method: "GET",
-    headers: { "x-receipt-id": id },
-  }).then(({ data }) => data);
+async function headers() {
+  const { data: { session } } = await supabase.auth.getSession();
+return {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${session?.access_token ?? ""}`,
+    "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
+  };
+}
 
-export const createReceipt = (data) =>
-  supabase.functions.invoke("receipts", {
+export const fetchReceipts = async () =>
+  fetch(`${BASE}/receipts`, { headers: await headers() }).then(r => r.json());
+
+export const fetchReceiptById = async (id) =>
+  fetch(`${BASE}/receipts?id=${id}`, { headers: await headers() }).then(r => r.json());
+
+export const createReceipt = async (data) =>
+  fetch(`${BASE}/receipts`, {
     method: "POST",
-    body: data,
-  }).then(({ data: result }) => result);
+    headers: await headers(),
+    body: JSON.stringify(data),
+  }).then(r => r.json());
 
-export const updateReceipt = (id, data) =>
-  supabase.functions.invoke("receipts", {
+export const updateReceipt = async (id, data) =>
+  fetch(`${BASE}/receipts?id=${id}`, {
     method: "PATCH",
-    body: { id, ...data },
-  }).then(({ data: result }) => result);
+    headers: await headers(),
+    body: JSON.stringify(data),
+  }).then(r => r.json());
 
-export const deleteReceipt = (id) =>
-  supabase.functions.invoke("receipts", {
+export const deleteReceipt = async (id) =>
+  fetch(`${BASE}/receipts?id=${id}`, {
     method: "DELETE",
-    body: { id },
-  }).then(({ data: result }) => result);
+    headers: await headers(),
+  }).then(r => r.json());

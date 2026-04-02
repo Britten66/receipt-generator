@@ -1,8 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { Resend } from "https://esm.sh/resend@3";
 import { corsHeaders } from "../_shared/cors.ts";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY")!);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function escapeHtml(str: unknown): string {
@@ -98,16 +95,25 @@ Deno.serve(async (req) => {
   </div>
 </body></html>`;
 
-  try {
-    await resend.emails.send({
+  const resendRes = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
+    },
+    body: JSON.stringify({
       from: "invoices@keeptrack.app",
       to: safe.to,
       subject: `Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`,
       html,
       reply_to: user.email ?? undefined,
-    });
-    return new Response(JSON.stringify({ ok: true }), { headers: corsHeaders });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: "Failed to send invoice" }), { status: 500, headers: corsHeaders });
+    }),
+  });
+
+  if (!resendRes.ok) {
+    const resendError = await resendRes.json().catch(() => ({ message: "unknown" }));
+    console.error("Resend error:", JSON.stringify(resendError));
+    return new Response(JSON.stringify({ error: resendError?.message ?? "Failed to send invoice" }), { status: 500, headers: corsHeaders });
   }
+  return new Response(JSON.stringify({ ok: true }), { headers: corsHeaders });
 });

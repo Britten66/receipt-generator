@@ -70,7 +70,7 @@ function MockInvoice() {
   );
 }
 
-export default function LandingPage({ onEnter, onEnterPro, darkMode, onToggleDark }) {
+export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, onToggleDark }) {
   const [legal, setLegal] = useState(null);
   const scrollRef = useRef(null);
 
@@ -92,6 +92,7 @@ export default function LandingPage({ onEnter, onEnterPro, darkMode, onToggleDar
   return (
     <div className="landing-v2">
       <div className="lv2-topbar">
+        <button className="lv2-signin" onClick={onSignIn}>Sign In</button>
         <button className="dark-toggle" onClick={onToggleDark}>
           {darkMode ? "Light" : "Dark"}
         </button>

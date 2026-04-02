@@ -18,8 +18,7 @@ Deno.serve(async (req) => {
   }
 
   const url = new URL(req.url);
-  // id from query param (legacy fetch), x-receipt-id header (invoke GET), or body (invoke PATCH/DELETE)
-  const queryId = url.searchParams.get("id") || req.headers.get("x-receipt-id");
+  const queryId = url.searchParams.get("id");
 
   // GET — list all or fetch one by id
   if (req.method === "GET") {
@@ -72,11 +71,10 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify(receipt), { status: 201, headers: corsHeaders });
   }
 
-  // PATCH — update fields (whitelist enforced), id from body or query param
-  if (req.method === "PATCH") {
+  // PATCH — update fields (whitelist enforced)
+  if (req.method === "PATCH" && queryId) {
     const body = await req.json();
-    const id = queryId || body.id;
-    if (!id) return new Response(JSON.stringify({ error: "Missing id" }), { status: 400, headers: corsHeaders });
+    const id = queryId;
 
     const updates: Record<string, unknown> = {};
     for (const key of ALLOWED_FIELDS) {
@@ -91,11 +89,9 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify(data), { headers: corsHeaders });
   }
 
-  // DELETE — id from body or query param
-  if (req.method === "DELETE") {
-    const body = req.headers.get("content-length") !== "0" ? await req.json().catch(() => ({})) : {};
-    const id = queryId || body.id;
-    if (!id) return new Response(JSON.stringify({ error: "Missing id" }), { status: 400, headers: corsHeaders });
+  // DELETE
+  if (req.method === "DELETE" && queryId) {
+    const id = queryId;
 
     const { error } = await supabase.from("receipts").delete().eq("id", id);
     if (error) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });

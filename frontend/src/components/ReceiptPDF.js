@@ -296,6 +296,16 @@ export async function downloadReceiptPDF(receipt) {
 }
 
 /*
+  previewReceiptPDF(receipt) — opens the PDF in a new browser tab.
+  Uses the browser's built-in PDF viewer — no download triggered.
+*/
+export async function previewReceiptPDF(receipt) {
+  const doc = await buildDoc(receipt);
+  const url = doc.output("bloburl");
+  window.open(url, "_blank");
+}
+
+/*
   shareReceiptPDF(receipt) — generates the PDF and opens the native share sheet.
 
   The Web Share API (navigator.share) is available on iOS Safari and Android Chrome.

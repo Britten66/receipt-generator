@@ -34,7 +34,8 @@ Deno.serve(async (req) => {
     });
     return new Response(JSON.stringify({ url: session.url }), { headers: corsHeaders });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Stripe error";
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("Stripe error:", msg);
     return new Response(JSON.stringify({ error: msg }), { status: 500, headers: corsHeaders });
   }
 });

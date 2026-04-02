@@ -3,7 +3,6 @@
 
   Props:
     profile     — the current profile object loaded from the database (or {} if none yet)
-    token       — the user's JWT token, needed to save changes to the API
     userEmail   — the user's login email address, used in the Security section
     onSave(result) — called after the profile is saved, passing back the updated profile
     onClose()      — called when the user clicks Cancel or clicks outside the modal
@@ -20,7 +19,7 @@ import { saveProfile } from "../api/profile";
 import { supabase } from "../lib/supabase";
 import LegalModal from "./LegalModal";
 
-export default function ProfileModal({ profile, token, userEmail, onSave, onClose }) {
+export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
 
   /*
     form — the editable fields.
@@ -153,7 +152,7 @@ export default function ProfileModal({ profile, token, userEmail, onSave, onClos
   */
   async function handleSave() {
     setSaving(true);
-    const result = await saveProfile(form, token);
+    const result = await saveProfile(form);
     setSaving(false);
     onSave(result);
     onClose();

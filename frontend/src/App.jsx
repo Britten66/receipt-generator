@@ -19,7 +19,7 @@
 */
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import { downloadReceiptPDF, shareReceiptPDF } from "./components/ReceiptPDF";
+import { downloadReceiptPDF, shareReceiptPDF, previewReceiptPDF } from "./components/ReceiptPDF";
 import {
   fetchReceipts,
   fetchReceiptById,
@@ -33,6 +33,7 @@ import AuthModal from "./components/AuthModal";
 import ProfileModal from "./components/ProfileModal";
 import PasswordUpdateModal from "./components/PasswordUpdateModal";
 import HelpModal from "./components/HelpModal";
+import LegalModal from "./components/LegalModal";
 import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
 import { startCheckout } from "./api/billing";
@@ -130,6 +131,7 @@ export default function App() {
   const [showHelp, setShowHelp]           = useState(false);
   const [showForm, setShowForm]           = useState(false);
   const [editingReceipt, setEditingReceipt] = useState(null);
+  const [legal, setLegal]                 = useState(null);
 
   // Toast: { msg, type: "success" | "error" }. Auto-clears after 3.5s.
   const [toast, setToast] = useState(null);
@@ -154,8 +156,6 @@ export default function App() {
 
   /*
     Auth — runs once on mount via onAuthStateChange.
-    Using invoke (supabase.functions.invoke) for all Edge Function calls so the
-    client manages the auth token internally — no manual token passing needed.
     INITIAL_SESSION check skips expired tokens and waits for TOKEN_REFRESHED.
   */
   useEffect(() => {
@@ -195,7 +195,6 @@ export default function App() {
   }, []);
 
   // Load receipts and profile whenever session changes (login, token refresh, sign-out).
-  // supabase.functions.invoke handles auth automatically — no token arg needed.
   useEffect(() => {
     if (!session) return;
     setLoading(true);
@@ -214,6 +213,30 @@ export default function App() {
     fetchProfile().then((p) => {
       setProfile(p || null);
     });
+  }, [session]);
+
+  // After returning from Stripe checkout (?upgraded=true), poll for the profile
+  // until tier === "pro" (webhook may take a moment to fire) then clean the URL.
+  useEffect(() => {
+    if (!session) return;
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("upgraded")) return;
+
+    window.history.replaceState({}, "", window.location.pathname);
+
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts++;
+      const p = await fetchProfile();
+      if (p?.tier === "pro") {
+        setProfile(p);
+        clearInterval(interval);
+      } else if (attempts >= 10) {
+        clearInterval(interval);
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
   }, [session]);
 
   /*
@@ -315,9 +338,15 @@ export default function App() {
     setSendingInvoice(true);
     try {
       const r = sendInvoiceTarget;
-      const { error: invokeError } = await supabase.functions.invoke("send-invoice", {
+      const { data: { session: _s } } = await supabase.auth.getSession();
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invoice`, {
         method: "POST",
-        body: {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${_s?.access_token ?? ""}`,
+          "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({
           to: sendInvoiceEmail,
           vendor_name: r.vendor_name,
           customer_name: r.customer_name,
@@ -330,9 +359,9 @@ export default function App() {
           notes: r.notes,
           payment_url: profile?.payment_url,
           tier: profile?.tier ?? "free",
-        },
+        }),
       });
-      if (invokeError) throw new Error(invokeError.message);
+      if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error ?? "Send failed"); }
       showToast("Invoice sent.", "success");
       setSendInvoiceTarget(null);
       setSendInvoiceEmail("");
@@ -366,8 +395,6 @@ export default function App() {
     selectedReceipt = { ...selected, status: live ? live.status : selected.status };
   }
 
-  const isAnon = false;
-
   if (authLoading) return null;
 
   // Show landing whenever not entered OR entered but no session yet.
@@ -378,6 +405,7 @@ export default function App() {
         <LandingPage
           darkMode={darkMode}
           onToggleDark={() => setDarkMode(!darkMode)}
+          onSignIn={() => setShowAuthModal(true)}
           onEnter={() => {
             localStorage.setItem("app_entered", "1");
             setEntered(true);
@@ -388,7 +416,6 @@ export default function App() {
             localStorage.setItem("app_entered", "1");
             setEntered(true);
             if (session) {
-              // Already logged in — go straight to checkout
               startCheckout().catch(() =>
                 showToast("Couldn't open checkout. Try again.")
               );
@@ -444,11 +471,13 @@ export default function App() {
 
         {/* Column 3 — far right */}
         <div className="topbar-right">
-          {/* Help button — circled ? */}
-          <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help">?</button>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
-              <button className="avatar-btn" aria-label="User menu">
+              <button
+                className="avatar-btn"
+                aria-label="User menu"
+                style={profile?.tier === "pro" ? { border: "2px solid #D4AF37", boxShadow: "0 0 0 1px rgba(212,175,55,0.25)" } : undefined}
+              >
                 {avatarUrl
                   ? <img src={avatarUrl} alt="" width={34} height={34} style={{ display: "block", objectFit: "cover" }} />
                   : <div className="avatar-fallback">{userEmail[0] ? userEmail[0].toUpperCase() : "?"}</div>
@@ -537,6 +566,13 @@ export default function App() {
           <button className="btn btn-primary" style={{ width: "100%" }} onClick={openNewReceipt}>
             + New Receipt
           </button>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 4 }}>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
+              <button onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Privacy</button>
+            </div>
+            <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help">?</button>
+          </div>
         </div>
       </aside>
 
@@ -634,7 +670,7 @@ export default function App() {
           {selectedReceipt && (
             <div className="detail-panel">
 
-              {/* Header: receipt number, vendor, client, and Edit button */}
+              {/* Header: receipt number, vendor, client, edit + delete buttons */}
               <div className="detail-header">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div>
@@ -644,13 +680,22 @@ export default function App() {
                   </div>
                   <button onClick={() => setSelected(null)} className="btn-icon close-btn">✕</button>
                 </div>
-                <button
-                  className="btn btn-ghost"
-                  style={{ width: "100%", marginTop: 12, border: "1px solid var(--border)" }}
-                  onClick={() => openEditReceipt(selectedReceipt)}
-                >
-                  ✎ Edit Details
-                </button>
+                <div style={{ display: "flex", gap: 6, marginTop: 12 }}>
+                  <button
+                    className="btn btn-ghost"
+                    style={{ flex: 1, border: "1px solid var(--border)" }}
+                    onClick={() => openEditReceipt(selectedReceipt)}
+                  >
+                    ✎ Edit
+                  </button>
+                  <button
+                    className="btn btn-danger"
+                    style={{ flex: "0 0 auto", padding: "0 12px" }}
+                    onClick={() => handleDelete(selectedReceipt.id)}
+                  >
+                    ✕ Delete
+                  </button>
+                </div>
               </div>
 
               {/* Status and date */}
@@ -765,52 +810,10 @@ export default function App() {
                 </div>
               )}
 
-              {/* Actions: send to client, share (mobile), download PDF, delete */}
+              {/* Actions: share, preview, download, then send to client at bottom */}
               <div className="detail-section">
 
-                {/*
-                  Send to Client: tapping the button reveals an email input.
-                  Pressing Enter or clicking "Send Invoice" calls handleSendInvoice().
-                  Pressing Cancel hides the input again.
-                */}
-                {sendInvoiceTarget?.id === selectedReceipt.id ? (
-                  <div style={{ marginBottom: 6 }}>
-                    <input
-                      className="field"
-                      type="email"
-                      placeholder="Client email address"
-                      autoFocus
-                      value={sendInvoiceEmail}
-                      onChange={(e) => setSendInvoiceEmail(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleSendInvoice()}
-                      style={{ marginBottom: 6 }}
-                    />
-                    <div style={{ display: "flex", gap: 6 }}>
-                      <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => { setSendInvoiceTarget(null); setSendInvoiceEmail(""); }}>Cancel</button>
-                      <button className="btn btn-primary" style={{ flex: 2 }} onClick={handleSendInvoice} disabled={sendingInvoice}>
-                        {sendingInvoice ? "Sending..." : "Send Invoice"}
-                      </button>
-                    </div>
-                  </div>
-                ) : profile?.tier === "pro" ? (
-                  <button
-                    className="btn btn-ghost"
-                    style={{ width: "100%", marginBottom: 6 }}
-                    onClick={() => { setSendInvoiceTarget(selectedReceipt); setSendInvoiceEmail(""); }}
-                  >
-                    ✉ Send to Client
-                  </button>
-                ) : (
-                  <button
-                    className="btn btn-ghost"
-                    style={{ width: "100%", marginBottom: 6, opacity: 0.5 }}
-                    onClick={() => startCheckout()}
-                  >
-                    ✉ Send to Client — Pro
-                  </button>
-                )}
-
-                {/* Share button — only shown on devices that support the Web Share API (iOS/Android) */}
+                {/* Share — mobile only (Web Share API) */}
                 {"share" in navigator && (
                   <button
                     className="btn btn-ghost"
@@ -822,6 +825,13 @@ export default function App() {
                 )}
 
                 <button
+                  className="btn btn-ghost"
+                  style={{ width: "100%", marginBottom: 6 }}
+                  onClick={() => previewReceiptPDF({ ...selectedReceipt, logo_url: profile?.logo_url, tier: profile?.tier })}
+                >
+                  Preview PDF
+                </button>
+                <button
                   className="btn btn-primary"
                   style={{ width: "100%", marginBottom: 6 }}
                   onClick={() => downloadReceiptPDF({ ...selectedReceipt, logo_url: profile?.logo_url, tier: profile?.tier })}
@@ -829,13 +839,45 @@ export default function App() {
                   Download PDF
                 </button>
 
-                <button
-                  className="btn btn-danger"
-                  style={{ width: "100%" }}
-                  onClick={() => handleDelete(selectedReceipt.id)}
-                >
-                  Delete Receipt
-                </button>
+                {/* Send to Client — pro feature, sits at the bottom */}
+                <div style={{ marginTop: 6, borderTop: "1px solid var(--border-light)", paddingTop: 10 }}>
+                  {sendInvoiceTarget?.id === selectedReceipt.id ? (
+                    <div>
+                      <input
+                        className="field"
+                        type="email"
+                        placeholder="Client email address"
+                        autoFocus
+                        value={sendInvoiceEmail}
+                        onChange={(e) => setSendInvoiceEmail(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSendInvoice()}
+                        style={{ marginBottom: 6 }}
+                      />
+                      <div style={{ display: "flex", gap: 6 }}>
+                        <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => { setSendInvoiceTarget(null); setSendInvoiceEmail(""); }}>Cancel</button>
+                        <button className="btn btn-primary" style={{ flex: 2 }} onClick={handleSendInvoice} disabled={sendingInvoice}>
+                          {sendingInvoice ? "Sending..." : "Send Invoice"}
+                        </button>
+                      </div>
+                    </div>
+                  ) : profile?.tier === "pro" ? (
+                    <button
+                      className="btn btn-ghost"
+                      style={{ width: "100%" }}
+                      onClick={() => { setSendInvoiceTarget(selectedReceipt); setSendInvoiceEmail(""); }}
+                    >
+                      ✉ Send to Client
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-ghost"
+                      style={{ width: "100%", opacity: 0.5 }}
+                      onClick={() => startCheckout()}
+                    >
+                      ✉ Send to Client — Pro
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -865,11 +907,13 @@ export default function App() {
       {/* Help modal */}
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
 
+      {/* Legal modals */}
+      {legal && <LegalModal type={legal} onClose={() => setLegal(null)} />}
+
       {/* Profile / settings modal */}
       {showProfileModal && (
         <ProfileModal
           profile={profile}
-          token={token}
           userEmail={session?.user?.email}
           onSave={(p) => setProfile(p)}
           onClose={() => setShowProfileModal(false)}

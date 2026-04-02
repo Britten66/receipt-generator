@@ -1,11 +1,22 @@
 import { supabase } from "../lib/supabase";
 
+const BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+
 export async function startCheckout() {
-  const { data, error } = await supabase.functions.invoke("stripe-checkout", {
+  const { data: { session } } = await supabase.auth.refreshSession();
+  const t = session?.access_token ?? "";
+
+  const res = await fetch(`${BASE}/stripe-checkout`, {
     method: "POST",
-    body: { return_url: window.location.origin },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${t}`,
+      "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
+    },
+    body: JSON.stringify({ return_url: window.location.origin }),
   });
-  if (error) throw new Error(error.message ?? "Checkout failed.");
-  if (!data?.url) throw new Error("No checkout URL returned — check Stripe secrets in Supabase.");
-  window.location.href = data.url;
+  const body = await res.json();
+  if (body.error) throw new Error(body.error);
+  if (!body.url) throw new Error(`No checkout URL. Response: ${JSON.stringify(body)}`);
+  window.location.href = body.url;
 }
