@@ -6,10 +6,31 @@
   CSS vars are written via setProperty(); calling clearPalette() removes them so
   App.css :root / [data-theme="dark"] defaults take over.
 
-  Per-mode persistence: callers save the key to localStorage under
-    "theme_light_palette" or "theme_dark_palette"
-  and read it back on mount. Landing page always calls clearPalette().
+  Declaration order matters for Rollup's production build — it converts function
+  declarations to const assignments, so callee must come before caller.
+  Order: PALETTE_KEYS → MANAGED_VARS → PALETTE_META → PALETTES → clearPalette → applyPalette
 */
+
+// Hardcoded allowlist — never computed from PALETTES to avoid init-order issues
+export const PALETTE_KEYS = new Set(["earth", "water", "fire", "forest", "dusk", "stone"]);
+
+// The CSS vars we manage. Any others are left alone (status colors, fonts, etc.)
+const MANAGED_VARS = [
+  "--bg", "--surface", "--surface-2",
+  "--border", "--border-light",
+  "--text", "--text-dim", "--text-muted",
+  "--accent", "--accent-dim",
+];
+
+// Display info for the picker UI — swatch bg and accent per mode
+export const PALETTE_META = {
+  earth:  { label: "Earth",  lightAccent: "#8b3a0f", darkAccent: "#d4803c", lightBg: "#ede0cc", darkBg: "#1a100a" },
+  water:  { label: "Water",  lightAccent: "#0e5c9c", darkAccent: "#4898d8", lightBg: "#d8e8f4", darkBg: "#060e1a" },
+  fire:   { label: "Fire",   lightAccent: "#c82c08", darkAccent: "#f04820", lightBg: "#ede4d8", darkBg: "#180800" },
+  forest: { label: "Forest", lightAccent: "#1a6828", darkAccent: "#4cc860", lightBg: "#d8e8d4", darkBg: "#060e04" },
+  dusk:   { label: "Dusk",   lightAccent: "#5820a0", darkAccent: "#9060e0", lightBg: "#e4daf0", darkBg: "#0c0614" },
+  stone:  { label: "Stone",  lightAccent: "#2a4060", darkAccent: "#6090c8", lightBg: "#d8dade", darkBg: "#10141a" },
+};
 
 const PALETTES = {
   earth: {
@@ -175,41 +196,9 @@ const PALETTES = {
   },
 };
 
-// Allowlist — only these keys are valid palette names
-export const PALETTE_KEYS = new Set(Object.keys(PALETTES));
-
-// The CSS vars we manage. Any others are left alone (status colors, fonts, etc.)
-const MANAGED_VARS = [
-  "--bg", "--surface", "--surface-2",
-  "--border", "--border-light",
-  "--text", "--text-dim", "--text-muted",
-  "--accent", "--accent-dim",
-];
-
 /*
-  applyPalette(key, mode)
-  key  — a PALETTE_KEYS value, or null/"default" to reset
-  mode — "light" | "dark"
-
-  Only call this when the user is inside the app (entered === true).
-  Never call with raw user-supplied color values.
-*/
-export function applyPalette(key, mode) {
-  const root = document.documentElement;
-  if (!key || key === "default" || !PALETTE_KEYS.has(key)) {
-    clearPalette();
-    return;
-  }
-  const vars = PALETTES[key][mode === "dark" ? "dark" : "light"];
-  MANAGED_VARS.forEach((v) => {
-    if (vars[v] !== undefined) root.style.setProperty(v, vars[v]);
-  });
-}
-
-/*
-  clearPalette() — removes all inline custom property overrides so App.css
-  :root / [data-theme="dark"] defaults take over. Call this on the landing page
-  or when the user resets to default.
+  clearPalette() — declared before applyPalette so Rollup's const-inlining
+  doesn't hit a TDZ when applyPalette calls it.
 */
 export function clearPalette() {
   const root = document.documentElement;
@@ -217,15 +206,21 @@ export function clearPalette() {
 }
 
 /*
-  PALETTE_META — display info for the picker UI.
-  lightAccent / darkAccent power the swatch circle color.
-  lightBg / darkBg power the swatch background.
+  applyPalette(key, mode)
+  key  — a PALETTE_KEYS value, or null/"default" to reset
+  mode — "light" | "dark"
+
+  Only call when the user is inside the app (entered === true).
+  Never call with raw user-supplied colour values.
 */
-export const PALETTE_META = {
-  earth:  { label: "Earth",  lightAccent: "#8b3a0f", darkAccent: "#d4803c", lightBg: "#ede0cc", darkBg: "#1a100a" },
-  water:  { label: "Water",  lightAccent: "#0e5c9c", darkAccent: "#4898d8", lightBg: "#d8e8f4", darkBg: "#060e1a" },
-  fire:   { label: "Fire",   lightAccent: "#c82c08", darkAccent: "#f04820", lightBg: "#ede4d8", darkBg: "#180800" },
-  forest: { label: "Forest", lightAccent: "#1a6828", darkAccent: "#4cc860", lightBg: "#d8e8d4", darkBg: "#060e04" },
-  dusk:   { label: "Dusk",   lightAccent: "#5820a0", darkAccent: "#9060e0", lightBg: "#e4daf0", darkBg: "#0c0614" },
-  stone:  { label: "Stone",  lightAccent: "#2a4060", darkAccent: "#6090c8", lightBg: "#d8dade", darkBg: "#10141a" },
-};
+export function applyPalette(key, mode) {
+  if (!key || key === "default" || !PALETTE_KEYS.has(key)) {
+    clearPalette();
+    return;
+  }
+  const vars = PALETTES[key][mode === "dark" ? "dark" : "light"];
+  const root = document.documentElement;
+  MANAGED_VARS.forEach((v) => {
+    if (vars[v] !== undefined) root.style.setProperty(v, vars[v]);
+  });
+}
