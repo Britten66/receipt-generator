@@ -178,16 +178,17 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
           >
             <div className="lv2-plan lv2-plan-pro">
               <div className="lv2-plan-name">Pro</div>
-              <div className="lv2-plan-price">$9<span>/mo</span></div>
+              <div className="lv2-plan-price">$6<span>/mo</span></div>
               <ul className="lv2-plan-features">
                 <li>Unlimited invoices</li>
                 <li>Clean PDF — no watermark</li>
                 <li>Email invoices directly to clients</li>
                 <li>Your logo & business details on every invoice</li>
                 <li>Pay Now button — get paid faster</li>
+                <li>Customizable dashboard themes</li>
                 <li>One tool. Every invoice. Done.</li>
               </ul>
-              <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro ?? onEnter}>Get Pro — $9/mo</button>
+              <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro ?? onEnter}>Get Pro — $6/mo</button>
             </div>
           </BorderGlow>
 
