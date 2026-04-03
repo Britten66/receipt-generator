@@ -79,6 +79,11 @@ async function loadImageAsDataUrl(url) {
     after totals: notes (if any)
     284:   footer text at page bottom
 */
+// Format a number as currency with thousand separators — e.g. 43252345 → "$43,252,345.00"
+function fmtMoney(n) {
+  return "$" + parseFloat(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 async function buildDoc(receipt) {
   // Create an A4 page with millimetre units
   const doc = new jsPDF({ unit: "mm", format: "a4" });
@@ -188,8 +193,8 @@ async function buildDoc(receipt) {
     tableRows = receipt.line_items.map((item) => [
       item.description || "—",
       String(item.quantity),
-      `$${parseFloat(item.unit_price).toFixed(2)}`,
-      `$${parseFloat(item.total).toFixed(2)}`,
+      fmtMoney(item.unit_price),
+      fmtMoney(item.total),
     ]);
   } else {
     // No line items — show a placeholder row so the table isn't empty
@@ -241,12 +246,12 @@ async function buildDoc(receipt) {
   // We only show Subtotal and Tax if they have values
   const totalRows = [];
   if (subtotal > 0) {
-    totalRows.push(["Subtotal", `$${subtotal.toFixed(2)}`]);
+    totalRows.push(["Subtotal", fmtMoney(subtotal)]);
   }
   if (tax > 0) {
-    totalRows.push(["Tax", `$${tax.toFixed(2)}`]);
+    totalRows.push(["Tax", fmtMoney(tax)]);
   }
-  totalRows.push(["Total", `$${total.toFixed(2)}`]); // Total is always shown
+  totalRows.push(["Total", fmtMoney(total)]); // Total is always shown
 
   // Draw each row in the totals block
   totalRows.forEach(([label, value], rowIndex) => {
@@ -369,7 +374,7 @@ export async function shareReceiptPDF(receipt) {
   // Build the share text — include the total amount if available
   let shareText = `Receipt from ${receipt.vendor_name}`;
   if (receipt.total) {
-    shareText += ` — $${parseFloat(receipt.total).toFixed(2)}`;
+    shareText += ` — ${fmtMoney(receipt.total)}`;
   }
 
   // Check if this browser supports sharing files before trying

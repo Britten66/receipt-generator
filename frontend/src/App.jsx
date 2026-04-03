@@ -83,6 +83,10 @@ const STATUS_LABELS = {
   voided: "Invoice voided",
 };
 
+function fmt(n) {
+  return "$" + parseFloat(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 export default function App() {
 
   /*
@@ -799,7 +803,7 @@ export default function App() {
                         <div className="card-customer">{r.vendor_name}</div>
                         <div className="card-footer">
                           <span className={`stamp ${r.status}`}>{r.status}</span>
-                          <span className="card-total">${parseFloat(r.total).toFixed(2)}</span>
+                          <span className="card-total">{fmt(r.total)}</span>
                         </div>
                       </div>
                     </div>
@@ -894,8 +898,8 @@ export default function App() {
                             <tr key={li.id}>
                               <td>{li.description}</td>
                               <td className="number">{li.quantity}</td>
-                              <td className="number">${parseFloat(li.unit_price).toFixed(2)}</td>
-                              <td className="number">${parseFloat(li.total).toFixed(2)}</td>
+                              <td className="number">{fmt(li.unit_price)}</td>
+                              <td className="number">{fmt(li.total)}</td>
                             </tr>
                           ))
                         ) : (
@@ -914,18 +918,18 @@ export default function App() {
                     {parseFloat(selectedReceipt.subtotal || 0) > 0 && (
                       <div className="total-line">
                         <span className="tl-label">Subtotal</span>
-                        <span className="tl-val">${parseFloat(selectedReceipt.subtotal || 0).toFixed(2)}</span>
+                        <span className="tl-val">{fmt(selectedReceipt.subtotal)}</span>
                       </div>
                     )}
                     {parseFloat(selectedReceipt.tax || 0) > 0 && (
                       <div className="total-line">
                         <span className="tl-label">Tax</span>
-                        <span className="tl-val">${parseFloat(selectedReceipt.tax || 0).toFixed(2)}</span>
+                        <span className="tl-val">{fmt(selectedReceipt.tax)}</span>
                       </div>
                     )}
                     <div className="total-line grand">
                       <span className="tl-label">Total</span>
-                      <span className="tl-val">${parseFloat(selectedReceipt.total || 0).toFixed(2)}</span>
+                      <span className="tl-val">{fmt(selectedReceipt.total)}</span>
                     </div>
                   </div>
 
@@ -972,7 +976,7 @@ export default function App() {
                     level="M"
                   />
                   <div style={{ fontSize: 10, color: "var(--text-muted)", textAlign: "center", letterSpacing: "0.05em" }}>
-                    Scan to pay · ${parseFloat(selectedReceipt.total || 0).toFixed(2)}
+                    Scan to pay · {fmt(selectedReceipt.total)}
                   </div>
                 </div>
               )}
