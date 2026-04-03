@@ -211,6 +211,8 @@ body,
   display: flex;
   align-items: center;
   gap: 5px;
+  padding: 3px 0;
+  overflow: visible;
 }
 
 /* Base swatch — a small circle with a diagonal bg/accent split */
@@ -286,6 +288,8 @@ body,
   max-width: 240px;
   opacity: 1;
   pointer-events: auto;
+  overflow: visible;
+  padding: 3px 1px;
 }
 
 /* Collapse X button at the end of expanded strip */

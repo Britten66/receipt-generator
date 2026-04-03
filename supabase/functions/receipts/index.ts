@@ -15,16 +15,23 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Payload too large" }), { status: 413, headers: corsHeaders });
   }
 
-  const supabase = createClient(
+  // Auth client — anon key + user JWT so auth.getUser() works correctly
+  const authClient = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!,
     { global: { headers: { Authorization: req.headers.get("Authorization")! } } }
   );
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const { data: { user }, error: authError } = await authClient.auth.getUser();
   if (authError || !user) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
   }
+
+  // DB client — service role key bypasses RLS; ownership enforced by explicit .eq("user_id", user.id) on every query
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
 
   const url = new URL(req.url);
   const queryId = url.searchParams.get("id");

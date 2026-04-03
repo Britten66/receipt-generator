@@ -386,7 +386,7 @@ export default function App() {
   */
   async function handleDelete(id) {
     const rec = receipts.find((r) => r.id === id);
-    if (!window.confirm(`Delete receipt ${rec?.receipt_number ?? id}?`)) return;
+    if (!window.confirm(`Delete invoice ${rec?.receipt_number ?? id}?`)) return;
     await deleteReceipt(id);
     setReceipts((prev) => prev.filter((r) => r.id !== id));
     if (selected && selected.id === id) setSelected(null);
@@ -741,7 +741,7 @@ export default function App() {
                 so anything inside it only spans one cell and ends up left-aligned.
                 Putting the empty state here lets it stretch the full container width.
               */
-              <div className="empty" style={{ textAlign: "center", width: "100%" }}>No receipts found</div>
+              <div className="empty" style={{ textAlign: "center", width: "100%" }}>No invoices found</div>
             ) : (
               <div className="receipt-grid">
                 {filtered.map((r) => (
