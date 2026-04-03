@@ -1567,6 +1567,7 @@ body,
     left: 0;
     width: 100%;
     padding: 16px 20px !important;
+    padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
     background: linear-gradient(to top, var(--bg) 60%, transparent);
     border-top: none !important;
     z-index: 50;
@@ -1712,6 +1713,49 @@ body,
     border-bottom: none;
   }
   .win-titlebar { cursor: default; } /* no drag affordance on touch */
+
+  /* ── Invoice document preview — mobile adjustments ── */
+
+  /* Tighter outer padding on small screens */
+  .detail-panel > div:nth-child(2) {
+    padding: 8px 10px 4px;
+  }
+
+  /* 3-col parties grid → stack FROM/BILLED TO vertically, date moves below */
+  .inv-doc-parties {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+  /* DATE column spans both columns on the second row */
+  .inv-doc-parties > .inv-doc-party:last-child {
+    grid-column: 1 / -1;
+    text-align: left;
+    border-top: 1px solid var(--border-light);
+    padding-top: 8px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .inv-doc-parties > .inv-doc-party:last-child .inv-party-label {
+    display: none; /* "DATE" label redundant when stamp is visible */
+  }
+
+  /* Shrink table column widths for narrow screens */
+  .line-items-table th:nth-child(2) { width: 24px; }
+  .line-items-table th:nth-child(3) { width: 50px; }
+  .line-items-table th:nth-child(4) { width: 50px; }
+
+  /* Tighter table cell padding on mobile */
+  .line-items-table td,
+  .line-items-table th {
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+  .line-items-table td:first-child,
+  .line-items-table th:first-child {
+    padding-left: 0;
+  }
 }
 
 /*
