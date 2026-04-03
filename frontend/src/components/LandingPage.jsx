@@ -104,7 +104,7 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
         <div className="lv2-hero-text">
           <p className="lv2-eyebrow">Invoice Prepper</p>
           <h1 className="lv2-title">The invoice generator<br />for freelancers who<br />just want to get paid.</h1>
-          <p className="lv2-desc">Create professional invoices, track what's paid, and email directly to clients. Free PDF invoice maker — no bloat, no learning curve.</p>
+          <p className="lv2-desc">Create professional invoices, track what's paid, and email directly to clients. Free PDF invoice maker for freelancers, contractors, and small businesses — no bloat, no learning curve.</p>
           <button className="lv2-cta" onClick={onEnter}>Create Free Account</button>
           <p className="lv2-sub">Free forever · No credit card required</p>
         </div>
