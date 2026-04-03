@@ -65,7 +65,7 @@ const STATUS_CONFIG = {
   "ALL" shows every receipt regardless of status.
 */
 const NAV = [
-  { key: "ALL",    label: "All Invoices" },
+  { key: "ALL",    label: "All" },
   { key: "draft",  label: "Draft" },
   { key: "sent",   label: "Sent" },
   { key: "paid",   label: "Paid" },
@@ -186,6 +186,14 @@ export default function App() {
 
   // Toast: { msg, type: "success" | "error" }. Auto-clears after 3.5s.
   const [toast, setToast] = useState(null);
+
+  // Lock body scroll on iOS when any modal is open.
+  // iOS Safari ignores position:fixed for preventing background scroll.
+  useEffect(() => {
+    const anyOpen = showForm || showProfileModal || showHelp || showBilling || !!legal || !!upgradeLegal || showUpgradeConfirm;
+    document.body.style.overflow = anyOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [showForm, showProfileModal, showHelp, showBilling, legal, upgradeLegal, showUpgradeConfirm]);
 
   /*
     sendInvoiceTarget: receipt currently being emailed to a client.
