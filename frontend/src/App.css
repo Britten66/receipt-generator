@@ -1324,10 +1324,14 @@ body,
 .field-row-meta {
   grid-template-columns: 1fr 1fr auto;
 }
-/* Date input: force it to fill its grid cell — native date inputs default to a fixed width on iOS */
+/* Date input: iOS renders date inputs with intrinsic width — override fully */
 input[type="date"].field {
+  display: block;
   width: 100%;
+  max-width: 100%;
   min-width: 0;
+  -webkit-appearance: none;
+  appearance: none;
 }
 /* Tax inputs: desktop widths */
 .tax-label-input { width: 110px; }

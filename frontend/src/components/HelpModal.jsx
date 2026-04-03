@@ -116,7 +116,7 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
             <p className="help-heading">Free vs Pro</p>
             <ul className="help-list">
               <li><strong>Free:</strong> unlimited invoices, PDF download &amp; share</li>
-              <li><strong>Pro ($6/mo):</strong> email invoices directly to clients, no watermark, custom logo on PDF</li>
+              <li><strong>Pro (CAD $6/mo):</strong> email invoices directly to clients, no watermark, custom logo on PDF</li>
               <li>Upgrade anytime from the sidebar. Cancel anytime from Billing.</li>
               <li>Your data is never sold or shared</li>
             </ul>

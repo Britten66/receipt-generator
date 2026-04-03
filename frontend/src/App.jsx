@@ -714,7 +714,7 @@ export default function App() {
                 style={{ width: "100%", fontSize: 11 }}
                 onClick={() => { setUpgradeAgreed(false); setShowUpgradeConfirm(true); }}
               >
-                Upgrade to Pro — $6/mo
+                Upgrade to Pro. CAD $6/mo
               </button>
             )}
             <button
@@ -1129,9 +1129,9 @@ export default function App() {
               <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={() => setShowUpgradeConfirm(false)}>✕</button>
             </div>
             <div className="modal-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Pro — $6.00 USD / month</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Pro: CAD $6.00 / month</div>
               <div style={{ fontSize: 11, color: "var(--text-dim)", lineHeight: 1.6 }}>
-                You will be charged $6.00 USD each month. Your subscription renews automatically until cancelled. Cancellation takes effect at the end of the current billing period — no partial refunds.
+                You will be charged CAD $6.00 each month. Your subscription renews automatically until cancelled. Cancellation takes effect at the end of the current billing period. No partial refunds.
               </div>
               <label style={{ display: "flex", gap: 10, alignItems: "flex-start", cursor: "pointer", fontSize: 11, color: "var(--text-dim)", lineHeight: 1.5 }}>
                 <input

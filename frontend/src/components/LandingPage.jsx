@@ -178,7 +178,7 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
           >
             <div className="lv2-plan lv2-plan-pro">
               <div className="lv2-plan-name">Pro</div>
-              <div className="lv2-plan-price">$6<span>/mo</span></div>
+              <div className="lv2-plan-price">CAD $6<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
               <ul className="lv2-plan-features">
                 <li>Unlimited invoices</li>
@@ -189,7 +189,7 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
                 <li>Customizable dashboard themes</li>
                 <li>One tool. Every invoice. Done.</li>
               </ul>
-              <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro ?? onEnter}>Get Pro for $6/mo</button>
+              <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro ?? onEnter}>Get Pro for CAD $6/mo</button>
             </div>
           </BorderGlow>
 
