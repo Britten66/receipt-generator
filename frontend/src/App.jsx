@@ -350,8 +350,9 @@ export default function App() {
       if (data.id) {
         const result = await updateReceipt(data.id, data);
         if (result?.error) throw new Error(result.error);
-        setReceipts((prev) => prev.map((r) => (r.id === data.id ? result : r)));
-        await selectFull(data.id);
+        const updated = { ...result, line_items: data.line_items ?? [] };
+        setReceipts((prev) => prev.map((r) => (r.id === data.id ? updated : r)));
+        setSelected(updated);
         showToast("Invoice updated.", "success");
       } else {
         const result = await createReceipt(data);
