@@ -4,7 +4,7 @@ import BorderGlow from "./BorderGlow";
 import "./LandingPage.css";
 
 const MOCK_INVOICE = {
-  receipt_number: "REC-000042",
+  receipt_number: "001042",
   vendor_name: "Maple & Co. Creative",
   customer_name: "Summit Tech Solutions",
   date: "April 1, 2026",
@@ -104,7 +104,7 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
         <div className="lv2-hero-text">
           <p className="lv2-eyebrow">Invoice Prepper</p>
           <h1 className="lv2-title">The invoice generator<br />for freelancers who<br />just want to get paid.</h1>
-          <p className="lv2-desc">Create professional invoices, track what's paid, and email directly to clients. Free PDF invoice maker for freelancers, contractors, and small businesses — no bloat, no learning curve.</p>
+          <p className="lv2-desc">Create professional invoices, track what's paid, and email directly to clients. Free PDF invoice maker for freelancers, contractors, and small businesses. No bloat, no learning curve.</p>
           <button className="lv2-cta" onClick={onEnter}>Create Free Account</button>
           <p className="lv2-sub">Free forever · No credit card required</p>
         </div>
@@ -182,14 +182,14 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
               <ul className="lv2-plan-features">
                 <li>Unlimited invoices</li>
-                <li>Clean PDF — no watermark</li>
+                <li>Clean PDF, no watermark</li>
                 <li>Email invoices directly to clients</li>
                 <li>Your logo & business details on every invoice</li>
-                <li>Pay Now button — get paid faster</li>
+                <li>Pay Now button, get paid faster</li>
                 <li>Customizable dashboard themes</li>
                 <li>One tool. Every invoice. Done.</li>
               </ul>
-              <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro ?? onEnter}>Get Pro — $6/mo</button>
+              <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro ?? onEnter}>Get Pro for $6/mo</button>
             </div>
           </BorderGlow>
 

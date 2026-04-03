@@ -191,9 +191,10 @@ export default function App() {
     sendInvoiceTarget: receipt currently being emailed to a client.
     When set, the "Send to Client" button is replaced by an email input row.
   */
-  const [sendInvoiceTarget, setSendInvoiceTarget] = useState(null);
-  const [sendInvoiceEmail, setSendInvoiceEmail]   = useState("");
-  const [sendingInvoice, setSendingInvoice]       = useState(false);
+  const [sendInvoiceTarget, setSendInvoiceTarget]         = useState(null);
+  const [sendInvoiceEmail, setSendInvoiceEmail]           = useState("");
+  const [sendingInvoice, setSendingInvoice]               = useState(false);
+  const [sendInvoiceConfirming, setSendInvoiceConfirming] = useState(false);
 
   /*
     showToast(msg, type) — show a small banner at the bottom of the screen for 3.5s.
@@ -404,6 +405,7 @@ export default function App() {
   */
   async function handleSendInvoice() {
     if (!sendInvoiceEmail) return;
+    setSendInvoiceConfirming(false);
     setSendingInvoice(true);
     try {
       const r = sendInvoiceTarget;
@@ -446,7 +448,15 @@ export default function App() {
         }),
       });
       if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error ?? "Send failed"); }
-      showToast("Invoice sent.", "success");
+
+      // Auto-advance draft invoices to "sent" — paid/voided stay unchanged
+      if (r.status === "draft") {
+        await updateReceipt(r.id, { status: "sent" });
+        setReceipts((prev) => prev.map((x) => (x.id === r.id ? { ...x, status: "sent" } : x)));
+        if (selected?.id === r.id) setSelected((s) => ({ ...s, status: "sent" }));
+      }
+
+      showToast(`Invoice sent to ${sendInvoiceEmail}.`, "success");
       setSendInvoiceTarget(null);
       setSendInvoiceEmail("");
     } catch (err) {
@@ -1011,22 +1021,40 @@ export default function App() {
                 <div style={{ marginTop: 6, borderTop: "1px solid var(--border-light)", paddingTop: 10 }}>
                   {sendInvoiceTarget?.id === selectedReceipt.id ? (
                     <div>
-                      <input
-                        className="field"
-                        type="email"
-                        placeholder="Client email address"
-                        autoFocus
-                        value={sendInvoiceEmail}
-                        onChange={(e) => setSendInvoiceEmail(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSendInvoice()}
-                        style={{ marginBottom: 6 }}
-                      />
-                      <div style={{ display: "flex", gap: 6 }}>
-                        <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => { setSendInvoiceTarget(null); setSendInvoiceEmail(""); }}>Cancel</button>
-                        <button className="btn btn-primary" style={{ flex: 2 }} onClick={handleSendInvoice} disabled={sendingInvoice}>
-                          {sendingInvoice ? "Sending..." : "Send Invoice"}
-                        </button>
-                      </div>
+                      {sendInvoiceConfirming ? (
+                        // Confirmation step
+                        <div>
+                          <p style={{ fontSize: 12, color: "var(--text)", marginBottom: 10, lineHeight: 1.5 }}>
+                            Send invoice to <strong>{sendInvoiceEmail}</strong>? Are you ready to send?
+                          </p>
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => setSendInvoiceConfirming(false)}>Go Back</button>
+                            <button className="btn btn-primary" style={{ flex: 2 }} onClick={handleSendInvoice} disabled={sendingInvoice}>
+                              {sendingInvoice ? "Sending..." : "Yes, Send"}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        // Email input step
+                        <div>
+                          <input
+                            className="field"
+                            type="email"
+                            placeholder="Client email address"
+                            autoFocus
+                            value={sendInvoiceEmail}
+                            onChange={(e) => setSendInvoiceEmail(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && sendInvoiceEmail && setSendInvoiceConfirming(true)}
+                            style={{ marginBottom: 6 }}
+                          />
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => { setSendInvoiceTarget(null); setSendInvoiceEmail(""); setSendInvoiceConfirming(false); }}>Cancel</button>
+                            <button className="btn btn-primary" style={{ flex: 2 }} onClick={() => sendInvoiceEmail && setSendInvoiceConfirming(true)} disabled={!sendInvoiceEmail}>
+                              Send Invoice
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : profile?.tier === "pro" ? (
                     <button

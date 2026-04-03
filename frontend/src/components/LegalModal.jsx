@@ -34,10 +34,10 @@ function Terms() {
       <p>You are responsible for maintaining the security of your account credentials. You must provide accurate information and keep it updated. You may not share your account or use the Service for unlawful purposes.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>4. Your Data</h3>
-      <p>You retain full ownership of all data you enter into the Service — invoices, client names, amounts, and business details. You grant us a limited licence to store and process that data solely to provide the Service to you.</p>
+      <p>You retain full ownership of all data you enter into the Service: invoices, client names, amounts, and business details. You grant us a limited licence to store and process that data solely to provide the Service to you.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>5. Tax Responsibility</h3>
-      <p>Invoice Prepper is a record-keeping tool. It does not calculate, file, remit, or advise on any taxes. You are solely responsible for understanding and fulfilling your own tax obligations — including sales tax, GST/HST, VAT, income tax, or any other taxes applicable in your jurisdiction. The tax fields in the app are for your own record-keeping only. We make no representation that any amount entered constitutes a legally compliant tax charge. Consult a qualified accountant or tax professional for advice specific to your situation.</p>
+      <p>Invoice Prepper is a record-keeping tool. It does not calculate, file, remit, or advise on any taxes. You are solely responsible for understanding and fulfilling your own tax obligations, including sales tax, GST/HST, VAT, income tax, or any other taxes applicable in your jurisdiction. The tax fields in the app are for your own record-keeping only. We make no representation that any amount entered constitutes a legally compliant tax charge. Consult a qualified accountant or tax professional for advice specific to your situation.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>6. Prohibited Use</h3>
       <p>You may not use the Service to generate fraudulent invoices, impersonate another person or business, or engage in any activity that violates applicable law in your jurisdiction.</p>
@@ -66,8 +66,8 @@ function Privacy() {
       <p style={{ fontSize: 10, color: "var(--text-muted)", marginBottom: 16 }}>Last updated: April 2026 · Operated from Canada · Applies globally</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, marginBottom: 6, color: "var(--text)" }}>1. What We Collect</h3>
-      <p><strong>Account data:</strong> email address, password (hashed — we never store plaintext passwords).</p>
-      <p style={{ marginTop: 6 }}><strong>Profile data:</strong> business name, contact details, payment link, and logo — only what you choose to enter.</p>
+      <p><strong>Account data:</strong> email address, password (hashed; we never store plaintext passwords).</p>
+      <p style={{ marginTop: 6 }}><strong>Profile data:</strong> business name, contact details, payment link, and logo. Only what you choose to enter.</p>
       <p style={{ marginTop: 6 }}><strong>Invoice data:</strong> client names, amounts, line items, and dates you create in the app.</p>
       <p style={{ marginTop: 6 }}><strong>Usage data:</strong> basic logs (IP address, browser type, pages visited) for security and debugging. We do not sell this data.</p>
 
@@ -75,9 +75,9 @@ function Privacy() {
       <p>Solely to provide the Service: storing your invoices, sending password reset emails, and (on Pro) sending invoices to your clients on your behalf. We do not use your data for advertising or sell it to third parties.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>3. Third Parties</h3>
-      <p><strong>Supabase</strong> (database and auth) — hosted in the US, SOC 2 compliant.</p>
-      <p style={{ marginTop: 6 }}><strong>Stripe</strong> (payments) — PCI-DSS compliant. We never see or store your card number.</p>
-      <p style={{ marginTop: 6 }}><strong>Resend</strong> (transactional email) — used only to send invoices and password resets.</p>
+      <p><strong>Supabase</strong> (database and auth): hosted in the US, SOC 2 compliant.</p>
+      <p style={{ marginTop: 6 }}><strong>Stripe</strong> (payments): PCI-DSS compliant. We never see or store your card number.</p>
+      <p style={{ marginTop: 6 }}><strong>Resend</strong> (transactional email): used only to send invoices and password resets.</p>
       <p style={{ marginTop: 6 }}>We do not sell or share your data with any other third parties.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>4. International Users</h3>
@@ -87,10 +87,10 @@ function Privacy() {
       <p>As a Canadian-operated service, we comply with the Personal Information Protection and Electronic Documents Act (PIPEDA). You have the right to access, correct, or request deletion of your personal information. Contact us through the app to exercise these rights. We will respond within 30 days.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>6. Data Retention</h3>
-      <p>Your data is retained while your account is active. You may request deletion at any time by contacting us — we will delete your account and all associated data within 30 days.</p>
+      <p>Your data is retained while your account is active. You may request deletion at any time by contacting us. We will delete your account and all associated data within 30 days.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>7. Security</h3>
-      <p>All data is encrypted in transit (TLS) and at rest. Authentication is handled by Supabase using industry-standard hashing. No system is 100% secure — please use a strong, unique password.</p>
+      <p>All data is encrypted in transit (TLS) and at rest. Authentication is handled by Supabase using industry-standard hashing. No system is 100% secure. Please use a strong, unique password.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>8. Cookies</h3>
       <p>We use only functional cookies required for authentication (session token). We do not use tracking or advertising cookies.</p>

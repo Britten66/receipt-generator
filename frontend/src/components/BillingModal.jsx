@@ -54,7 +54,7 @@ export default function BillingModal({ profile, onClose }) {
           <>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Pro — $6 / month</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Pro: $6 / month</div>
                 <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>Billed monthly · Cancel anytime</div>
               </div>
               <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "#D4AF37", border: "1px solid #D4AF37", padding: "2px 8px", textTransform: "uppercase" }}>PRO</span>
@@ -88,7 +88,7 @@ export default function BillingModal({ profile, onClose }) {
         ) : (
           <div style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.6 }}>
             <div style={{ marginBottom: 6 }}>You're on the Free plan.</div>
-            <div style={{ fontSize: 11 }}>Upgrade to Pro for email invoicing and watermark-free PDFs — $6/month.</div>
+            <div style={{ fontSize: 11 }}>Upgrade to Pro for email invoicing and watermark-free PDFs. $6/month.</div>
           </div>
         )}
       </div>

@@ -80,7 +80,7 @@ export default function AuthModal({ onClose, onBack }) {
       const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: window.location.origin,
       });
-      if (err) { setError(err.message); } else { setMessage("Reset link sent — check your email."); }
+      if (err) { setError(err.message); } else { setMessage("Reset link sent. Check your email."); }
     }
 
     setLoading(false);

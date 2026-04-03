@@ -341,14 +341,14 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   /*
     Placeholder for the receipt number field.
     When editing, the field already has a value so no placeholder is needed.
-    When creating, we show "Auto — INV-000001" to explain that the server
+    When creating, we show "Auto: 001001" to explain that the server
     will generate the number automatically if left blank.
   */
   let receiptNumberPlaceholder;
   if (form.id) {
     receiptNumberPlaceholder = "";
   } else {
-    receiptNumberPlaceholder = "Auto — INV-000001";
+    receiptNumberPlaceholder = "Auto: 001001";
   }
 
   return (
