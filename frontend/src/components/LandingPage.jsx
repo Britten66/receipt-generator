@@ -179,6 +179,7 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
             <div className="lv2-plan lv2-plan-pro">
               <div className="lv2-plan-name">Pro</div>
               <div className="lv2-plan-price">$6<span>/mo</span></div>
+              <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
               <ul className="lv2-plan-features">
                 <li>Unlimited invoices</li>
                 <li>Clean PDF — no watermark</li>

@@ -32,12 +32,8 @@ const EMPTY_ITEM = {
   total: "",
 };
 
-/*
-  Nova Scotia HST rate.
-  To change the tax rate for a different province, update this number.
-  0.15 = 15%
-*/
-const TAX_RATE = 0.15;
+// Default tax rate is 0 — users set their own rate per invoice (GST, VAT, HST, etc.)
+const DEFAULT_TAX_RATE = 0;
 
 // Corner rotation order — clicking the tile cycles through these in sequence.
 const CORNER_ORDER  = ["top-left", "top-right", "bottom-right", "bottom-left"];
@@ -77,6 +73,9 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       receipt_number: "",
       date: new Date().toISOString().split("T")[0], // today in YYYY-MM-DD format
       isTaxExempt: false,
+      taxRate: String(DEFAULT_TAX_RATE * 100), // stored as percent string, e.g. "13" = 13%
+      taxLabel: "Tax",                          // e.g. "GST", "VAT", "HST" — user sets per invoice
+      currency: "USD",
       notes: "",
       id: null,
     };
@@ -122,11 +121,18 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
     if (!initialData) return;
 
     // Parse isTaxExempt from whether tax is 0 on the saved receipt
-    // If tax === 0, the receipt was saved as tax exempt
-    const wasTaxExempt = parseFloat(initialData.tax) === 0;
+    const savedTax      = parseFloat(initialData.tax)      || 0;
+    const savedSubtotal = parseFloat(initialData.subtotal)  || 0;
+    const wasTaxExempt  = savedTax === 0;
+
+    // Infer what rate was used when the invoice was created so editing feels right.
+    // If tax > 0, back-calculate: rate = tax / subtotal * 100, rounded to 2 dp.
+    let inferredRate = "0";
+    if (savedTax > 0 && savedSubtotal > 0) {
+      inferredRate = ((savedTax / savedSubtotal) * 100).toFixed(2).replace(/\.?0+$/, "");
+    }
 
     // Format the date as YYYY-MM-DD for the date input field
-    // The date comes from the server as a full ISO string like "2025-03-01T00:00:00Z"
     let formattedDate = "";
     if (initialData.date) {
       formattedDate = new Date(initialData.date).toISOString().split("T")[0];
@@ -138,6 +144,9 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       receipt_number: initialData.receipt_number || "",
       date: formattedDate,
       isTaxExempt: wasTaxExempt,
+      taxRate:  inferredRate,
+      taxLabel: "Tax",
+      currency: initialData.currency || "USD",
       notes: initialData.notes || "",
       id: initialData.id,
     });
@@ -238,13 +247,8 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   */
   const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
 
-  let tax;
-  if (form.isTaxExempt) {
-    tax = 0;
-  } else {
-    tax = subtotal * TAX_RATE;
-  }
-
+  const taxRateFraction = form.isTaxExempt ? 0 : (parseFloat(form.taxRate) || 0) / 100;
+  const tax   = subtotal * taxRateFraction;
   const total = subtotal + tax;
 
   /*
@@ -385,8 +389,8 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             </div>
           </div>
 
-          {/* Second row: Receipt number and issue date */}
-          <div className="field-row">
+          {/* Second row: Receipt number, issue date, currency */}
+          <div className="field-row" style={{ gridTemplateColumns: "1fr 1fr auto" }}>
             <div className="field-group">
               <label className="field-label">Invoice #</label>
               <input
@@ -404,6 +408,19 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 value={form.date}
                 onChange={(e) => setField("date", e.target.value)}
               />
+            </div>
+            <div className="field-group">
+              <label className="field-label">Currency</label>
+              <select
+                className="field"
+                value={form.currency}
+                onChange={(e) => setField("currency", e.target.value)}
+                style={{ minWidth: 80 }}
+              >
+                {["USD","CAD","EUR","GBP","AUD","NZD","CHF","JPY","MXN","BRL","INR","SEK","NOK","SGD"].map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -474,20 +491,47 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
               <span style={{ fontFamily: "var(--mono)" }}>${subtotal.toFixed(2)}</span>
             </div>
 
-            {/* Tax row — includes a toggle button to mark the receipt as tax exempt */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            {/* Tax row — user sets their own label (GST, VAT, HST…) and rate per invoice */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
               <button
                 type="button"
                 className={`btn ${form.isTaxExempt ? "btn-status" : "btn-ghost"}`}
                 onClick={() => setField("isTaxExempt", !form.isTaxExempt)}
-                style={{ fontSize: 10, padding: "6px 10px", color: form.isTaxExempt ? "var(--voided)" : "var(--text-muted)" }}
+                style={{ fontSize: 10, padding: "6px 10px", flexShrink: 0, color: form.isTaxExempt ? "var(--voided)" : "var(--text-muted)" }}
               >
-                {form.isTaxExempt ? "✓ TAX EXEMPT" : "MAKE TAX EXEMPT"}
+                {form.isTaxExempt ? "✓ EXEMPT" : "TAX EXEMPT"}
               </button>
-              <div style={{ textAlign: "right", color: "var(--text-dim)", fontSize: 12 }}>
-                NS Tax ({(TAX_RATE * 100).toFixed(0)}%):{" "}
-                <span style={{ fontFamily: "var(--mono)" }}>${tax.toFixed(2)}</span>
-              </div>
+              {!form.isTaxExempt && (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, justifyContent: "flex-end" }}>
+                  <input
+                    className="field"
+                    placeholder="Tax label (GST, VAT…)"
+                    value={form.taxLabel}
+                    onChange={(e) => setField("taxLabel", e.target.value)}
+                    style={{ width: 110, fontSize: 11, padding: "4px 8px", textAlign: "left" }}
+                  />
+                  <input
+                    className="field"
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    placeholder="%"
+                    value={form.taxRate}
+                    onChange={(e) => setField("taxRate", e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    style={{ width: 56, fontSize: 11, padding: "4px 8px", textAlign: "right" }}
+                  />
+                  <span style={{ fontSize: 11, color: "var(--text-muted)" }}>%</span>
+                  <span style={{ fontFamily: "var(--mono)", fontSize: 12, color: "var(--text-dim)", minWidth: 60, textAlign: "right" }}>
+                    ${tax.toFixed(2)}
+                  </span>
+                </div>
+              )}
+              {form.isTaxExempt && (
+                <span style={{ fontFamily: "var(--mono)", fontSize: 12, color: "var(--text-dim)" }}>$0.00</span>
+              )}
             </div>
 
             {/* Grand total */}

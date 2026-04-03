@@ -1,6 +1,12 @@
 [functions.notify-signup]
 verify_jwt = false
 
+[functions.cancel-subscription]
+verify_jwt = false
+
+[functions.billing-portal]
+verify_jwt = false
+
 [functions.send-invoice]
 verify_jwt = false
 

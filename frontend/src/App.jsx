@@ -172,6 +172,10 @@ export default function App() {
   const [showForm, setShowForm]           = useState(false);
   const [editingReceipt, setEditingReceipt] = useState(null);
   const [legal, setLegal]                 = useState(null);
+  // Pre-checkout consent modal — shown before redirecting to Stripe
+  const [showUpgradeConfirm, setShowUpgradeConfirm] = useState(false);
+  const [upgradeAgreed, setUpgradeAgreed]           = useState(false);
+  const [upgradeLegal, setUpgradeLegal]             = useState(null);
 
   // Toast: { msg, type: "success" | "error" }. Auto-clears after 3.5s.
   const [toast, setToast] = useState(null);
@@ -254,6 +258,12 @@ export default function App() {
 
     fetchProfile().then((p) => {
       setProfile(p || null);
+      // First-login detection: if the profile has no business_name, the user just
+      // registered and hasn't set up their account yet. Open the profile modal
+      // automatically so they can enter their business details before creating invoices.
+      if (!p?.business_name) {
+        setShowProfileModal(true);
+      }
     });
   }, [session]);
 
@@ -400,6 +410,8 @@ export default function App() {
         body: JSON.stringify({
           to: sendInvoiceEmail,
           vendor_name: r.vendor_name,
+          vendor_email: profile?.email || "",
+          vendor_address: profile?.address || "",
           customer_name: r.customer_name,
           receipt_number: r.receipt_number,
           date: r.date,
@@ -407,6 +419,7 @@ export default function App() {
           subtotal: r.subtotal,
           tax: r.tax,
           total: r.total,
+          currency: r.currency || "USD",
           notes: r.notes,
           payment_url: profile?.payment_url,
           tier: profile?.tier ?? "free",
@@ -629,9 +642,9 @@ export default function App() {
               <button
                 className="btn btn-primary"
                 style={{ width: "100%", fontSize: 11 }}
-                onClick={() => startCheckout()}
+                onClick={() => { setUpgradeAgreed(false); setShowUpgradeConfirm(true); }}
               >
-                Upgrade to Pro
+                Upgrade to Pro — $6/mo
               </button>
             )}
             <button
@@ -989,6 +1002,53 @@ export default function App() {
       {/* Legal modals */}
       {legal && <LegalModal type={legal} onClose={() => setLegal(null)} />}
 
+      {/* Pre-checkout consent modal — shown before redirecting to Stripe.
+          User must explicitly agree to recurring billing terms before checkout. */}
+      {showUpgradeConfirm && (
+        <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && setShowUpgradeConfirm(false)}>
+          <div className="modal" style={{ maxWidth: 380 }}>
+            <div className="modal-header">
+              <span className="modal-title">Upgrade to Pro</span>
+              <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={() => setShowUpgradeConfirm(false)}>✕</button>
+            </div>
+            <div className="modal-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Pro — $6.00 USD / month</div>
+              <div style={{ fontSize: 11, color: "var(--text-dim)", lineHeight: 1.6 }}>
+                You will be charged $6.00 USD each month. Your subscription renews automatically until cancelled. Cancellation takes effect at the end of the current billing period — no partial refunds.
+              </div>
+              <label style={{ display: "flex", gap: 10, alignItems: "flex-start", cursor: "pointer", fontSize: 11, color: "var(--text-dim)", lineHeight: 1.5 }}>
+                <input
+                  type="checkbox"
+                  checked={upgradeAgreed}
+                  onChange={(e) => setUpgradeAgreed(e.target.checked)}
+                  style={{ marginTop: 2, flexShrink: 0 }}
+                />
+                <span>
+                  I understand this is a recurring monthly subscription and I agree to the{" "}
+                  <button type="button" onClick={() => setUpgradeLegal("terms")} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 11, textDecoration: "underline" }}>Terms of Service</button>
+                  {" "}and{" "}
+                  <button type="button" onClick={() => setUpgradeLegal("privacy")} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 11, textDecoration: "underline" }}>Privacy Policy</button>.
+                </span>
+              </label>
+              {!upgradeAgreed && (
+                <div style={{ fontSize: 10, color: "var(--text-muted)" }}>You must check the box above to continue.</div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-ghost" onClick={() => setShowUpgradeConfirm(false)}>Cancel</button>
+              <button
+                className="btn btn-primary"
+                disabled={!upgradeAgreed}
+                onClick={() => { setShowUpgradeConfirm(false); startCheckout().catch(() => showToast("Couldn't open checkout. Try again.")); }}
+              >
+                Continue to Payment →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {upgradeLegal && <LegalModal type={upgradeLegal} onClose={() => setUpgradeLegal(null)} />}
+
       {/* Profile / settings modal */}
       {showProfileModal && (
         <ProfileModal
@@ -1020,7 +1080,7 @@ export default function App() {
           whiteSpace: "nowrap",
           cursor: toast.type === "upgrade" ? "pointer" : "default",
         }}
-        onClick={toast.type === "upgrade" ? () => startCheckout() : undefined}
+        onClick={toast.type === "upgrade" ? () => { setUpgradeAgreed(false); setShowUpgradeConfirm(true); } : undefined}
         >
           {toast.msg}{toast.type === "upgrade" ? " →" : ""}
         </div>

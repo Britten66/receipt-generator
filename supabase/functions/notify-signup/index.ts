@@ -1,44 +1,58 @@
 /*
   notify-signup — fires when a new user registers via Supabase Auth.
 
-  HOW TO WIRE IT UP (one-time setup in Supabase dashboard):
-  ─────────────────────────────────────────────────────────
-  1. Deploy this function: supabase functions deploy notify-signup
-  2. Supabase Dashboard → Authentication → Hooks
-  3. Add hook: "Send Email" → event: "after user is created"
-     URL: https://<project-ref>.supabase.co/functions/v1/notify-signup
-  4. Copy the "signing secret" Supabase shows you.
-  5. In Supabase Dashboard → Edge Functions → notify-signup → Secrets, add:
-       NOTIFY_SIGNUP_SECRET = <that signing secret>
-       NOTIFY_EMAIL         = <your email address, e.g. you@example.com>
-     RESEND_API_KEY is already set project-wide.
+  WIRED UP VIA:
+  ─────────────
+  Supabase Dashboard → Authentication → Hooks
+  Event: "After user is created"
+  URL:   https://qajcynqmjtlzofoyklyp.supabase.co/functions/v1/notify-signup
+  Signing secret: the v1,whsec_... value Supabase generated — stored as NOTIFY_SIGNUP_SECRET
 
   SECURITY:
   ─────────
-  Supabase signs every Auth Hook request with HMAC-SHA256.
-  This function verifies the signature before doing anything.
-  Requests without a valid signature return 401 and are ignored.
+  Supabase signs every Auth Hook request in the format:
+    Header: x-supabase-signature: v1=<hex-encoded-hmac-sha256>
+    Secret:  stored as v1,whsec_<base64-encoded-raw-bytes>
+
+  We decode the raw bytes from the secret, compute HMAC-SHA256 of the body,
+  and compare hex outputs. Requests with invalid or missing signatures return 401.
 */
 
 const RESEND_FROM = "noreply@invoiceprepper.com";
 
-async function verifySignature(req: Request, secret: string): Promise<boolean> {
-  const signature = req.headers.get("x-supabase-signature");
-  if (!signature) return false;
+/*
+  verifySignature — handles the Supabase Auth Hook signing format.
 
-  const body = await req.text();
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["verify"],
-  );
+  Secret format:   v1,whsec_<base64>  → strip prefix, base64-decode to raw bytes
+  Signature header: v1=<hex>          → strip prefix, hex-decode to bytes
+  Then HMAC-SHA256 verify(rawSecretBytes, body) === sigBytes
+*/
+async function verifySignature(body: string, signatureHeader: string | null, rawSecret: string): Promise<boolean> {
+  if (!signatureHeader) return false;
 
-  const sigBytes = Uint8Array.from(atob(signature), (c) => c.charCodeAt(0));
-  const valid = await crypto.subtle.verify("HMAC", key, sigBytes, encoder.encode(body));
-  return valid;
+  try {
+    // Parse the secret: "v1,whsec_<base64>" → raw bytes
+    const whsecMatch = rawSecret.match(/whsec_([A-Za-z0-9+/=]+)/);
+    if (!whsecMatch) return false;
+    const secretBytes = Uint8Array.from(atob(whsecMatch[1]), (c) => c.charCodeAt(0));
+
+    // Parse the signature header: "v1=<hex>" → bytes
+    const hexMatch = signatureHeader.match(/v1=([0-9a-f]+)/i);
+    if (!hexMatch) return false;
+    const sigBytes = new Uint8Array(hexMatch[1].match(/.{2}/g)!.map((b) => parseInt(b, 16)));
+
+    const key = await crypto.subtle.importKey(
+      "raw",
+      secretBytes,
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"],
+    );
+
+    return await crypto.subtle.verify("HMAC", key, sigBytes, new TextEncoder().encode(body));
+  } catch {
+    return false;
+  }
 }
 
 Deno.serve(async (req) => {
@@ -46,29 +60,36 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
   }
 
-  const secret = Deno.env.get("NOTIFY_SIGNUP_SECRET");
+  const rawSecret   = Deno.env.get("NOTIFY_SIGNUP_SECRET");
   const notifyEmail = Deno.env.get("NOTIFY_EMAIL");
-  const resendKey = Deno.env.get("RESEND_API_KEY");
+  const resendKey   = Deno.env.get("RESEND_API_KEY");
 
-  if (!secret || !notifyEmail || !resendKey) {
+  if (!rawSecret || !notifyEmail || !resendKey) {
     console.error("notify-signup: missing required env vars");
-    // Return 200 so Supabase doesn't retry — misconfiguration, not a transient error
     return new Response(JSON.stringify({ ok: false, error: "misconfigured" }), { status: 200 });
   }
 
-  // Clone before verifySignature reads the body, then re-parse
-  const cloned = req.clone();
-  const isValid = await verifySignature(cloned, secret);
+  const body      = await req.text();
+  const sigHeader = req.headers.get("x-supabase-signature");
+  const isValid   = await verifySignature(body, sigHeader, rawSecret);
+
   if (!isValid) {
+    console.error("notify-signup: invalid signature", sigHeader);
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
-  const payload = await req.json();
-  const user = payload?.user ?? payload; // Supabase hook payload shape
-  const email = user?.email ?? "unknown";
-  const userId = user?.id ?? "unknown";
+  let payload: Record<string, unknown>;
+  try {
+    payload = JSON.parse(body);
+  } catch {
+    return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400 });
+  }
+
+  const user      = (payload?.user ?? payload) as Record<string, unknown>;
+  const email     = (user?.email as string) ?? "unknown";
+  const userId    = (user?.id as string) ?? "unknown";
   const createdAt = user?.created_at
-    ? new Date(user.created_at).toLocaleString("en-CA", { timeZone: "UTC" }) + " UTC"
+    ? new Date(user.created_at as string).toLocaleString("en-CA", { timeZone: "UTC" }) + " UTC"
     : new Date().toUTCString();
 
   const html = `
@@ -104,7 +125,6 @@ Deno.serve(async (req) => {
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     console.error("notify-signup: Resend error", JSON.stringify(err));
-    // Return 200 so Supabase doesn't retry on Resend failures — log and move on
     return new Response(JSON.stringify({ ok: false }), { status: 200 });
   }
 
