@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-export default function HelpModal({ onClose }) {
+export default function HelpModal({ onClose, isPro, onLegal }) {
   /*
     pos starts as null so the window renders centred via CSS transform.
     The moment the user drags it, we switch to explicit pixel coords and
@@ -121,6 +121,25 @@ export default function HelpModal({ onClose }) {
             </ul>
 
             <p className="help-footer">Sign up in 30 seconds: just email and password.</p>
+
+            {isPro && onLegal && (
+              <>
+                <div className="win-divider" />
+                <p className="help-heading">Legal</p>
+                <ul className="help-list">
+                  <li>
+                    <button onClick={() => { onLegal("terms"); onClose(); }} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 12, textDecoration: "underline" }}>
+                      Terms of Service
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => { onLegal("privacy"); onClose(); }} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 12, textDecoration: "underline" }}>
+                      Privacy Policy
+                    </button>
+                  </li>
+                </ul>
+              </>
+            )}
 
           </div>
         )}

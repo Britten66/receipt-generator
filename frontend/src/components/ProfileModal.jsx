@@ -17,7 +17,6 @@
 import { useState, useRef } from "react";
 import { saveProfile } from "../api/profile";
 import { uploadLogo } from "../api/uploadLogo";
-import { cancelSubscription, openBillingPortal } from "../api/billing";
 import { supabase } from "../lib/supabase";
 import LegalModal from "./LegalModal";
 
@@ -74,12 +73,7 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
   // legal — either "terms" or "privacy" when a legal modal is open, or null when closed
   const [legal, setLegal] = useState(null);
 
-  // Subscription cancellation state
-  const [cancelling, setCancelling]     = useState(false);
-  const [cancelledOn, setCancelledOn]   = useState(null); // "May 2, 2026" after confirmed
-  const [portalLoading, setPortalLoading] = useState(false);
-
-  const [logoUploading,   setLogoUploading]   = useState(false);
+const [logoUploading,   setLogoUploading]   = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const logoInputRef   = useRef(null);
   const avatarInputRef = useRef(null);
@@ -159,28 +153,6 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
     });
     setResetLoading(false);
     setResetSent(true);
-  }
-
-  async function handleCancelSubscription() {
-    if (!window.confirm("Cancel your Pro subscription?\n\nYou'll keep Pro access until the end of your current billing period, then your account reverts to Free.")) return;
-    setCancelling(true);
-    try {
-      const result = await cancelSubscription();
-      setCancelledOn(result.cancel_at);
-    } catch (err) {
-      alert(err.message || "Could not cancel. Please try again.");
-    }
-    setCancelling(false);
-  }
-
-  async function handleBillingPortal() {
-    setPortalLoading(true);
-    try {
-      await openBillingPortal();
-    } catch (err) {
-      alert(err.message || "Could not open billing portal. Please try again.");
-    }
-    setPortalLoading(false);
   }
 
   /*
@@ -347,47 +319,6 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
             <label className="field-label">Phone</label>
             <input className="field" placeholder="+1 555 000 0000" value={form.phone} onChange={(e) => setField("phone", e.target.value)} />
           </div>
-
-          {/* ---- Subscription section (Pro users only) ---- */}
-          {profile?.tier === "pro" && (
-            <>
-              <div className="profile-section-label" style={{ marginTop: 16 }}>Subscription</div>
-              <div style={{ padding: "10px 0", display: "flex", flexDirection: "column", gap: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <div>
-                    <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600 }}>Pro — $6/month (USD)</div>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>Billed monthly · Cancel anytime</div>
-                  </div>
-                  <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "#D4AF37", border: "1px solid #D4AF37", padding: "2px 8px", textTransform: "uppercase" }}>PRO</span>
-                </div>
-
-                {cancelledOn ? (
-                  <div style={{ fontSize: 11, color: "var(--text-muted)", padding: "8px 10px", background: "var(--surface-2)", border: "1px solid var(--border-light)" }}>
-                    Subscription cancelled. Pro access ends on <strong>{cancelledOn}</strong>.
-                  </div>
-                ) : (
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                      className="btn btn-ghost"
-                      style={{ fontSize: 10, padding: "6px 12px" }}
-                      onClick={handleBillingPortal}
-                      disabled={portalLoading}
-                    >
-                      {portalLoading ? "Opening..." : "Billing History"}
-                    </button>
-                    <button
-                      className="btn btn-ghost"
-                      style={{ fontSize: 10, padding: "6px 12px", color: "var(--voided)" }}
-                      onClick={handleCancelSubscription}
-                      disabled={cancelling}
-                    >
-                      {cancelling ? "Cancelling..." : "Cancel Subscription"}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
 
           {/* ---- Security section ---- */}
           <div className="profile-section-label" style={{ marginTop: 16 }}>Security</div>

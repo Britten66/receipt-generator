@@ -75,7 +75,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       isTaxExempt: false,
       taxRate: String(DEFAULT_TAX_RATE * 100), // stored as percent string, e.g. "13" = 13%
       taxLabel: "Tax",                          // e.g. "GST", "VAT", "HST" — user sets per invoice
-      currency: "USD",
+      currency: localStorage.getItem("lastCurrency") || "CAD",
       notes: "",
       id: null,
     };
@@ -146,7 +146,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       isTaxExempt: wasTaxExempt,
       taxRate:  inferredRate,
       taxLabel: "Tax",
-      currency: initialData.currency || "USD",
+      currency: initialData.currency || "CAD",
       notes: initialData.notes || "",
       id: initialData.id,
     });
@@ -306,6 +306,8 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
         unit_price:  parseFloat(item.unit_price) || 0,
         total:       parseFloat(item.total)      || 0,
       }));
+
+    localStorage.setItem("lastCurrency", form.currency);
 
     onSubmit({
       ...form,

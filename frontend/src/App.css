@@ -206,7 +206,7 @@ body,
 
 /* ── Palette picker ──────────────────────────────────────────────────────── */
 
-/* Row of swatches sitting next to the dark-toggle */
+/* Outer row — just the trigger circle when collapsed */
 .palette-picker {
   display: flex;
   align-items: center;
@@ -222,7 +222,7 @@ body,
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
-  transition: transform 0.1s, border-color 0.1s, box-shadow 0.1s;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s, width 0.2s, opacity 0.15s;
   box-shadow: 0 1px 2px rgba(0,0,0,0.18);
 }
 .palette-swatch:hover {
@@ -256,6 +256,59 @@ body,
     var(--border) 56%,
     transparent 56%
   );
+}
+
+/* Trigger swatch — hides when expanded */
+.palette-trigger {
+  transition: width 0.2s ease, opacity 0.15s ease, margin 0.2s ease, transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.palette-trigger-hidden {
+  width: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none;
+  margin-right: -5px; /* collapse gap */
+  border: none !important;
+  overflow: hidden;
+}
+
+/* Expanded swatch strip — slides in horizontally */
+.palette-swatches {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: max-width 0.25s ease, opacity 0.2s ease;
+}
+.palette-swatches.open {
+  max-width: 200px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Collapse X button at the end of expanded strip */
+.palette-close-btn {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  transition: border-color 0.1s, color 0.1s;
+  line-height: 1;
+}
+.palette-close-btn:hover {
+  border-color: var(--text);
+  color: var(--text);
 }
 
 /* Hide swatches on very narrow screens to protect topbar layout */

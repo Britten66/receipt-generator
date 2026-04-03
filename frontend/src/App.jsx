@@ -34,6 +34,7 @@ import ProfileModal from "./components/ProfileModal";
 import PasswordUpdateModal from "./components/PasswordUpdateModal";
 import HelpModal from "./components/HelpModal";
 import LegalModal from "./components/LegalModal";
+import BillingModal from "./components/BillingModal";
 import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
 import { startCheckout } from "./api/billing";
@@ -169,6 +170,8 @@ export default function App() {
   const [profile, setProfile]             = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showHelp, setShowHelp]           = useState(false);
+  const [showBilling, setShowBilling]     = useState(false);
+  const [paletteExpanded, setPaletteExpanded] = useState(false);
   const [showForm, setShowForm]           = useState(false);
   const [editingReceipt, setEditingReceipt] = useState(null);
   const [legal, setLegal]                 = useState(null);
@@ -419,7 +422,7 @@ export default function App() {
           subtotal: r.subtotal,
           tax: r.tax,
           total: r.total,
-          currency: r.currency || "USD",
+          currency: r.currency || "CAD",
           notes: r.notes,
           payment_url: profile?.payment_url,
           tier: profile?.tier ?? "free",
@@ -524,34 +527,51 @@ export default function App() {
             {darkMode ? "Light" : "Dark"}
           </button>
 
-          {/* Palette swatch strip — default reset + 6 named palettes */}
+          {/* Palette picker — collapsed to one circle by default, expands on click */}
           <div className="palette-picker" role="group" aria-label="Color palette">
 
-            {/* Default / reset swatch */}
-            <button
-              className={`palette-swatch palette-swatch-default${!currentPalette ? " palette-swatch-active" : ""}`}
-              onClick={() => setPalette(null)}
-              title="Default"
-              aria-pressed={!currentPalette}
-              aria-label="Default palette"
-            />
-
-            {/* Named palette swatches */}
-            {PALETTE_ENTRIES.map(([key, meta]) => {
-              const bg     = darkMode ? meta.darkBg     : meta.lightBg;
-              const accent = darkMode ? meta.darkAccent : meta.lightAccent;
+            {/* Trigger swatch — shows current selection; click to expand */}
+            {(() => {
+              const activeMeta = currentPalette ? PALETTE_ENTRIES.find(([k]) => k === currentPalette)?.[1] : null;
+              const trigBg     = activeMeta ? (darkMode ? activeMeta.darkBg     : activeMeta.lightBg)     : null;
+              const trigAccent = activeMeta ? (darkMode ? activeMeta.darkAccent : activeMeta.lightAccent) : null;
               return (
                 <button
-                  key={key}
-                  className={`palette-swatch${currentPalette === key ? " palette-swatch-active" : ""}`}
-                  style={{ background: `linear-gradient(135deg, ${bg} 50%, ${accent} 50%)` }}
-                  onClick={() => setPalette(key)}
-                  title={meta.label}
-                  aria-pressed={currentPalette === key}
-                  aria-label={`${meta.label} palette`}
+                  className={`palette-swatch palette-trigger${!activeMeta ? " palette-swatch-default" : ""}${paletteExpanded ? " palette-trigger-hidden" : ""}`}
+                  style={activeMeta ? { background: `linear-gradient(135deg, ${trigBg} 50%, ${trigAccent} 50%)` } : undefined}
+                  onClick={() => setPaletteExpanded(true)}
+                  title="Choose color"
+                  aria-label="Open color picker"
+                  aria-expanded={paletteExpanded}
                 />
               );
-            })}
+            })()}
+
+            {/* Expanded strip — slides in horizontally */}
+            <div className={`palette-swatches${paletteExpanded ? " open" : ""}`}>
+              {PALETTE_ENTRIES.map(([key, meta]) => {
+                const bg     = darkMode ? meta.darkBg     : meta.lightBg;
+                const accent = darkMode ? meta.darkAccent : meta.lightAccent;
+                return (
+                  <button
+                    key={key}
+                    className={`palette-swatch${currentPalette === key ? " palette-swatch-active" : ""}`}
+                    style={{ background: `linear-gradient(135deg, ${bg} 50%, ${accent} 50%)` }}
+                    onClick={() => { setPalette(key); setPaletteExpanded(false); }}
+                    title={meta.label}
+                    aria-pressed={currentPalette === key}
+                    aria-label={`${meta.label} palette`}
+                  />
+                );
+              })}
+              {/* Collapse button */}
+              <button
+                className="palette-close-btn"
+                onClick={() => setPaletteExpanded(false)}
+                title="Close"
+                aria-label="Close color picker"
+              >✕</button>
+            </div>
           </div>
         </div>
 
@@ -659,8 +679,13 @@ export default function App() {
             + New Invoice
           </button>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, paddingTop: 4, position: "relative" }}>
-            <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
-            <button onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Privacy</button>
+            {profile?.tier !== "pro" && (
+              <>
+                <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
+                <button onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Privacy</button>
+              </>
+            )}
+            <button onClick={() => setShowBilling(true)} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Billing</button>
             <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help" style={{ position: "absolute", right: 0 }}>?</button>
           </div>
         </div>
@@ -997,10 +1022,13 @@ export default function App() {
       )}
 
       {/* Help modal */}
-      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} isPro={profile?.tier === "pro"} onLegal={setLegal} />}
 
       {/* Legal modals */}
       {legal && <LegalModal type={legal} onClose={() => setLegal(null)} />}
+
+      {/* Billing modal */}
+      {showBilling && <BillingModal profile={profile} onClose={() => setShowBilling(false)} />}
 
       {/* Pre-checkout consent modal — shown before redirecting to Stripe.
           User must explicitly agree to recurring billing terms before checkout. */}
