@@ -549,6 +549,14 @@ export default function App() {
 
             {/* Expanded strip — slides in horizontally */}
             <div className={`palette-swatches${paletteExpanded ? " open" : ""}`}>
+              {/* Default / reset swatch inside expanded strip */}
+              <button
+                className={`palette-swatch palette-swatch-default${!currentPalette ? " palette-swatch-active" : ""}`}
+                onClick={() => { setPalette(null); setPaletteExpanded(false); }}
+                title="Default"
+                aria-pressed={!currentPalette}
+                aria-label="Default palette"
+              />
               {PALETTE_ENTRIES.map(([key, meta]) => {
                 const bg     = darkMode ? meta.darkBg     : meta.lightBg;
                 const accent = darkMode ? meta.darkAccent : meta.lightAccent;

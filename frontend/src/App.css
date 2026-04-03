@@ -283,7 +283,7 @@ body,
   transition: max-width 0.25s ease, opacity 0.2s ease;
 }
 .palette-swatches.open {
-  max-width: 200px;
+  max-width: 240px;
   opacity: 1;
   pointer-events: auto;
 }
