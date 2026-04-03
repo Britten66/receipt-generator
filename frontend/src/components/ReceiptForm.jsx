@@ -447,8 +447,9 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 <input
                   className="field"
                   type="number"
-                  inputMode="decimal"
-                  step="0.01"
+                  inputMode="numeric"
+                  step="1"
+                  min="1"
                   placeholder="Qty"
                   value={item.quantity}
                   onChange={(e) => setItem(i, "quantity", e.target.value)}

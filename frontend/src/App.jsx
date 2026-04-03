@@ -872,7 +872,7 @@ export default function App() {
                           ? new Date(selectedReceipt.date).toLocaleDateString("en-CA")
                           : "—"}
                       </div>
-                      <span className={`stamp ${selectedReceipt.status}`} style={{ marginTop: 6, display: "inline-block" }}>
+                      <span className={`stamp ${selectedReceipt.status}`} style={{ marginTop: 6 }}>
                         {selectedReceipt.status}
                       </span>
                     </div>
