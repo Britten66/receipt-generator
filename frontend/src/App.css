@@ -666,7 +666,7 @@ body,
   right: 0;
   top: 0;
   bottom: 0;
-  width: 320px;
+  width: 380px;
   border-left: 1px solid var(--border);
   background: var(--surface-2);
   display: flex;
