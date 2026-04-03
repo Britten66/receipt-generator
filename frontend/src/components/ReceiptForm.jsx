@@ -392,7 +392,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           </div>
 
           {/* Second row: Receipt number, issue date, currency */}
-          <div className="field-row" style={{ gridTemplateColumns: "1fr 1fr auto" }}>
+          <div className="field-row field-row-meta">
             <div className="field-group">
               <label className="field-label">Invoice #</label>
               <input
@@ -505,16 +505,16 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 {form.isTaxExempt ? "✓ EXEMPT" : "TAX EXEMPT"}
               </button>
               {!form.isTaxExempt && (
-                <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, justifyContent: "flex-end" }}>
+                <div className="tax-input-row" style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, justifyContent: "flex-end" }}>
                   <input
-                    className="field"
+                    className="field tax-label-input"
                     placeholder="Tax label (GST, VAT…)"
                     value={form.taxLabel}
                     onChange={(e) => setField("taxLabel", e.target.value)}
-                    style={{ width: 110, fontSize: 11, padding: "4px 8px", textAlign: "left" }}
+                    style={{ fontSize: 11, padding: "4px 8px", textAlign: "left" }}
                   />
                   <input
-                    className="field"
+                    className="field tax-rate-input"
                     type="number"
                     inputMode="decimal"
                     step="0.01"
@@ -524,7 +524,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                     value={form.taxRate}
                     onChange={(e) => setField("taxRate", e.target.value)}
                     onFocus={(e) => e.target.select()}
-                    style={{ width: 56, fontSize: 11, padding: "4px 8px", textAlign: "right" }}
+                    style={{ fontSize: 11, padding: "4px 8px", textAlign: "right" }}
                   />
                   <span style={{ fontSize: 11, color: "var(--text-muted)" }}>%</span>
                   <span style={{ fontFamily: "var(--mono)", fontSize: 12, color: "var(--text-dim)", minWidth: 60, textAlign: "right" }}>

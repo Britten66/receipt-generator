@@ -1320,6 +1320,13 @@ body,
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
+/* 3-column variant: invoice# | date | currency */
+.field-row-meta {
+  grid-template-columns: 1fr 1fr auto;
+}
+/* Tax inputs: desktop widths */
+.tax-label-input { width: 110px; }
+.tax-rate-input  { width: 56px; }
 /* Line item row: description | qty | price | total | delete button */
 .line-item-row {
   display: grid;
@@ -1635,6 +1642,18 @@ body,
   .field-row {
     grid-template-columns: 1fr;
   }
+  /* 3-col meta row: invoice# and date side by side, currency drops to full-width row below */
+  .field-row-meta {
+    grid-template-columns: 1fr 1fr;
+  }
+  .field-row-meta .field-group:last-child {
+    grid-column: 1 / -1;
+  }
+  /* Tax inputs: narrower on mobile so they don't overflow the modal */
+  .tax-label-input { width: 80px; }
+  .tax-rate-input  { width: 40px; }
+  /* Status stamps: prevent being squeezed by a wide total amount */
+  .stamp { flex-shrink: 0; }
 
   /* SWIPE TO DELETE */
   /*
