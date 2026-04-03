@@ -390,9 +390,12 @@
 .lv2-plan-name {
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: #0a0a0a;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+[data-theme="dark"] .lv2-plan-name {
+  color: #ffffff;
 }
 
 .lv2-plan-price {
@@ -406,7 +409,10 @@
 .lv2-plan-price span {
   font-size: 14px;
   font-weight: 400;
-  color: var(--text-muted);
+  color: #0a0a0a;
+}
+[data-theme="dark"] .lv2-plan-price span {
+  color: #ffffff;
 }
 
 .lv2-plan-features {

@@ -1005,9 +1005,12 @@ export default function App() {
                   <button
                     className="btn btn-ghost"
                     style={{ width: "100%", marginBottom: 6 }}
-                    onClick={() => shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier })}
+                    onClick={() => profile?.tier === "pro"
+                      ? shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier })
+                      : showToast("Upgrade to Pro to share invoices.", "upgrade")
+                    }
                   >
-                    Share Invoice
+                    Share Invoice {profile?.tier !== "pro" && <span style={{ fontSize: 9, letterSpacing: "0.1em", opacity: 0.5, marginLeft: 4 }}>PRO</span>}
                   </button>
                 )}
                 <button
@@ -1064,19 +1067,11 @@ export default function App() {
                         </div>
                       )}
                     </div>
-                  ) : profile?.tier === "pro" ? (
-                    <button
-                      className="btn btn-ghost"
-                      style={{ width: "100%" }}
-                      onClick={() => { setSendInvoiceTarget(selectedReceipt); setSendInvoiceEmail(""); }}
-                    >
-                      ✉ Send to Client
-                    </button>
                   ) : (
                     <button
                       className="btn btn-ghost"
                       style={{ width: "100%" }}
-                      onClick={() => showToast("Upgrade to Pro to send invoices by email.", "upgrade")}
+                      onClick={() => { setSendInvoiceTarget(selectedReceipt); setSendInvoiceEmail(""); }}
                     >
                       ✉ Send to Client
                     </button>

@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
         <tr><td style="padding:8px 0;color:#908e8a;">Signed up</td><td style="padding:8px 0;color:#1e1c18;">${createdAt}</td></tr>
       </table>
       <div style="margin-top:24px;font-size:11px;color:#b4afa5;border-top:1px solid #e8e6e1;padding-top:14px;">
-        Sent automatically by InvoicePrepper — <a href="https://invoiceprepper.com" style="color:#b4afa5;">invoiceprepper.com</a>
+        Sent automatically by <a href="https://invoiceprepper.com" style="color:#b4afa5;">invoiceprepper.com</a>
       </div>
     </div>`;
 

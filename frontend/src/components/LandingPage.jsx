@@ -155,10 +155,11 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
               <ul className="lv2-plan-features">
                 <li>Unlimited invoices</li>
                 <li>PDF download</li>
-                <li>Draft, send, paid tracking</li>
+                <li>Email invoices to clients</li>
+                <li>Draft, sent, paid tracking</li>
                 <li>Dark mode</li>
                 <li className="lv2-plan-caveat">PDF includes invoiceprepper.com footer</li>
-                <li className="lv2-plan-caveat">No email sending to clients</li>
+                <li className="lv2-plan-caveat">Emails sent from InvoicePrepper</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-ghost" onClick={onEnter}>Try for Free</button>
             </div>
@@ -183,11 +184,11 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
               <ul className="lv2-plan-features">
                 <li>Unlimited invoices</li>
                 <li>Clean PDF, no watermark</li>
-                <li>Email invoices directly to clients</li>
-                <li>Your logo & business details on every invoice</li>
-                <li>Pay Now button, get paid faster</li>
+                <li>Custom sender name on every email</li>
+                <li>Share invoices via text, WhatsApp, email app or save to files</li>
+                <li>Your logo on every invoice and PDF</li>
+                <li>Pay Now button so clients pay faster</li>
                 <li>Customizable dashboard themes</li>
-                <li>One tool. Every invoice. Done.</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro ?? onEnter}>Get Pro for CAD $6/mo</button>
             </div>
