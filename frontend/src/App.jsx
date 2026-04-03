@@ -317,6 +317,13 @@ export default function App() {
     .filter((r) => r.status === "sent")
     .reduce((sum, r) => sum + parseFloat(r.total || 0), 0);
 
+  // Compact number for sidebar stats — avoids overflow in narrow columns
+  function fmtStat(n) {
+    if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 10_000)    return `$${(n / 1_000).toFixed(1)}K`;
+    return `$${n.toFixed(2)}`;
+  }
+
   const filtered = useMemo(() => {
     if (filter === "ALL") return receipts;
     return receipts.filter((r) => r.status === filter);
@@ -626,11 +633,11 @@ export default function App() {
         <div className="sidebar-section">
           <div className="stat-block">
             <div className="stat-label">Revenue</div>
-            <div className="stat-value">${revenue.toFixed(2)}</div>
+            <div className="stat-value">{fmtStat(revenue)}</div>
           </div>
           <div className="stat-block">
             <div className="stat-label">Outstanding</div>
-            <div className="stat-value">${outstanding.toFixed(2)}</div>
+            <div className="stat-value">{fmtStat(outstanding)}</div>
             <div className="stat-sub">inc. tax</div>
           </div>
           <div className="stat-block">

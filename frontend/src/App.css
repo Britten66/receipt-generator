@@ -409,6 +409,8 @@ body,
 /* Each stat (Revenue, Outstanding, Receipts) in the sidebar */
 .stat-block {
   padding: 8px 12px;
+  min-width: 0;
+  overflow: hidden;
 }
 .stat-label {
   font-size: 11px;
@@ -434,6 +436,9 @@ body,
   font-size: 18px;
   font-weight: 400;
   color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* MAIN CONTENT AREA */
@@ -581,6 +586,8 @@ body,
   font-size: 14px;
   font-weight: 600;
   color: var(--text);
+  white-space: nowrap;
+  flex-shrink: 0;
   white-space: nowrap;
   text-align: right;
   font-family: var(--mono);
@@ -749,6 +756,8 @@ body,
 .total-line .tl-val {
   font-size: 11px;
   color: var(--text-dim);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 /* Grand total row — larger and bolder */
 .total-line.grand {
