@@ -68,6 +68,7 @@ Deno.serve(async (req) => {
       tax: tax ?? 0,
       total: total ?? 0,
       notes: notes ?? null,
+      currency: currency ?? "CAD",
       logo_url: logo_url ?? null,
       logo_corner: logo_corner ?? null,
       user_id: user.id,
