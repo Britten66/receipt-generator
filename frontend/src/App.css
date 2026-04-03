@@ -737,9 +737,9 @@ body,
 }
 /* Fixed widths keep columns from shifting as values change */
 .line-items-table th:nth-child(1) { width: auto; }
-.line-items-table th:nth-child(2) { width: 30px;  text-align: right; }
-.line-items-table th:nth-child(3) { width: 58px;  text-align: right; }
-.line-items-table th:nth-child(4) { width: 58px;  text-align: right; }
+.line-items-table th:nth-child(2) { width: 32px;  text-align: right; }
+.line-items-table th:nth-child(3) { width: 76px;  text-align: right; }
+.line-items-table th:nth-child(4) { width: 76px;  text-align: right; }
 .line-items-table td {
   padding: 6px 0;
   border-bottom: 1px solid var(--border-light);
@@ -1323,7 +1323,7 @@ body,
 /* Line item row: description | qty | price | total | delete button */
 .line-item-row {
   display: grid;
-  grid-template-columns: 1fr 60px 80px 80px 24px;
+  grid-template-columns: 1fr 55px 92px 92px 24px;
   gap: 6px;
   align-items: center;
 }
@@ -1742,9 +1742,9 @@ body,
   }
 
   /* Shrink table column widths for narrow screens */
-  .line-items-table th:nth-child(2) { width: 24px; }
-  .line-items-table th:nth-child(3) { width: 50px; }
-  .line-items-table th:nth-child(4) { width: 50px; }
+  .line-items-table th:nth-child(2) { width: 26px; }
+  .line-items-table th:nth-child(3) { width: 66px; }
+  .line-items-table th:nth-child(4) { width: 66px; }
 
   /* Tighter table cell padding on mobile */
   .line-items-table td,

@@ -48,14 +48,14 @@ Deno.serve(async (req) => {
     }
 
     const { data, error } = await supabase
-      .from("receipts").select("*").order("created_at", { ascending: false });
+      .from("receipts").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
     return new Response(JSON.stringify(data), { headers: corsHeaders });
   }
 
   // POST — create receipt + line items
   if (req.method === "POST") {
-    const { vendor_name, customer_name, status, date, subtotal, tax, total, notes, line_items, logo_url, logo_corner } = await req.json();
+    const { vendor_name, customer_name, status, date, subtotal, tax, total, notes, currency, line_items, logo_url, logo_corner } = await req.json();
     if (!vendor_name || !customer_name) {
       return new Response(JSON.stringify({ error: "Vendor name and customer name are required" }), { status: 400, headers: corsHeaders });
     }
@@ -133,7 +133,7 @@ Deno.serve(async (req) => {
   if (req.method === "DELETE" && queryId) {
     const id = queryId;
 
-    const { error } = await supabase.from("receipts").delete().eq("id", id);
+    const { error } = await supabase.from("receipts").delete().eq("id", id).eq("user_id", user.id);
     if (error) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
     return new Response(JSON.stringify({ message: "Deleted" }), { headers: corsHeaders });
   }
