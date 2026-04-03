@@ -6,7 +6,7 @@ Built solo with help using LLMs to mimic industry standard structure and co-comp
 
 ## Stack
 
-React + Vite frontend on cloudfront. Supabase Edge Functions (Deno) for the API. PostgreSQL via Supabase. Stripe for subscriptions. Resend for transactional email. jsPDF for PDF generation.
+React + Vite frontend on cloudlfare pages. Supabase Edge Functions (Deno) for the API. PostgreSQL via Supabase. Stripe for subscriptions. Resend for transactional email. jsPDF for PDF generation.
 
 ## Docs
 
