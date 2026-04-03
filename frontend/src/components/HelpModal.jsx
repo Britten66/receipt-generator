@@ -105,22 +105,23 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
 
             <p className="help-heading">Getting started</p>
             <ul className="help-list">
-              <li>Click + New Invoice to create one</li>
-              <li>Fill in vendor, customer, items and date</li>
-              <li>Set status: Draft, Sent, Paid, or Voided</li>
-              <li>Click a row to view details or export PDF</li>
+              <li>Hit <strong>+ New Invoice</strong> to create one</li>
+              <li>Add your business info, client, line items and date</li>
+              <li>Set status: Draft → Sent → Paid (or Voided)</li>
+              <li>Tap any invoice to preview, download PDF, or send</li>
             </ul>
 
             <div className="win-divider" />
 
-            <p className="help-heading">Guest vs account</p>
+            <p className="help-heading">Free vs Pro</p>
             <ul className="help-list">
-              <li>Guest: session only, gone when you close the tab</li>
-              <li>Account: saved, accessible anywhere you sign in</li>
-              <li>No ads, your data is never shared</li>
+              <li><strong>Free</strong> — unlimited invoices, PDF download &amp; share</li>
+              <li><strong>Pro ($6/mo)</strong> — email invoices directly to clients, no watermark, custom logo on PDF</li>
+              <li>Upgrade anytime from the sidebar — cancel anytime from Billing</li>
+              <li>Your data is never sold or shared</li>
             </ul>
 
-            <p className="help-footer">Sign up in 30 seconds: just email and password.</p>
+            <p className="help-footer">invoiceprepper.com — built for freelancers &amp; small business.</p>
 
             {isPro && onLegal && (
               <>

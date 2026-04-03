@@ -103,8 +103,8 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
       <section className="lv2-hero">
         <div className="lv2-hero-text">
           <p className="lv2-eyebrow">Invoice Prepper</p>
-          <h1 className="lv2-title">Invoicing for<br />freelancers who<br />just want to get paid.</h1>
-          <p className="lv2-desc">Create invoices, track what's paid, send directly to clients. No bloat, no learning curve.</p>
+          <h1 className="lv2-title">The invoice generator<br />for freelancers who<br />just want to get paid.</h1>
+          <p className="lv2-desc">Create professional invoices, track what's paid, and email directly to clients. Free PDF invoice maker — no bloat, no learning curve.</p>
           <button className="lv2-cta" onClick={onEnter}>Create Free Account</button>
           <p className="lv2-sub">Free forever · No credit card required</p>
         </div>
@@ -122,7 +122,7 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
             backgroundColor="transparent"
             className="lv2-border-glow"
           >
-            <div className="lv2-hero-preview" ref={scrollRef}>
+            <div className="lv2-hero-preview" ref={scrollRef} aria-label="Sample invoice preview">
               <MockInvoice />
             </div>
           </BorderGlow>
@@ -199,9 +199,9 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
       {/* Footer */}
       <footer className="lv2-footer">
         <p>
-          <button onClick={() => setLegal("terms")} className="lv2-footer-link">Terms</button>
+          <a href="#terms" onClick={(e) => { e.preventDefault(); setLegal("terms"); }} className="lv2-footer-link">Terms</a>
           {" · "}
-          <button onClick={() => setLegal("privacy")} className="lv2-footer-link">Privacy</button>
+          <a href="#privacy" onClick={(e) => { e.preventDefault(); setLegal("privacy"); }} className="lv2-footer-link">Privacy</a>
         </p>
         <p className="lv2-footer-disclaimer">For personal record-keeping only. Not a substitute for professional accounting or tax advice.</p>
       </footer>
