@@ -737,9 +737,9 @@ body,
 }
 /* Fixed widths keep columns from shifting as values change */
 .line-items-table th:nth-child(1) { width: auto; }
-.line-items-table th:nth-child(2) { width: 32px;  text-align: right; }
-.line-items-table th:nth-child(3) { width: 76px;  text-align: right; }
-.line-items-table th:nth-child(4) { width: 76px;  text-align: right; }
+.line-items-table th:nth-child(2) { width: 30px;  text-align: right; }
+.line-items-table th:nth-child(3) { width: 90px;  text-align: right; }
+.line-items-table th:nth-child(4) { width: 90px;  text-align: right; }
 .line-items-table td {
   padding: 6px 0;
   border-bottom: 1px solid var(--border-light);
@@ -1742,9 +1742,9 @@ body,
   }
 
   /* Shrink table column widths for narrow screens */
-  .line-items-table th:nth-child(2) { width: 26px; }
-  .line-items-table th:nth-child(3) { width: 66px; }
-  .line-items-table th:nth-child(4) { width: 66px; }
+  .line-items-table th:nth-child(2) { width: 24px; }
+  .line-items-table th:nth-child(3) { width: 80px; }
+  .line-items-table th:nth-child(4) { width: 80px; }
 
   /* Tighter table cell padding on mobile */
   .line-items-table td,

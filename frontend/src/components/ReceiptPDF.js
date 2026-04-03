@@ -214,12 +214,22 @@ async function buildDoc(receipt) {
       fontStyle: "bold",
       halign: "left",
     },
-    bodyStyles: { fontSize: 9, textColor: [50, 48, 44] },
+    bodyStyles: {
+      fontSize: 9,
+      textColor: [50, 48, 44],
+      cellPadding: { top: 3, bottom: 3, left: 2, right: 3 },
+    },
     columnStyles: {
-      0: { cellWidth: "auto" },     // description column takes remaining space
-      1: { halign: "right", cellWidth: 20 }, // qty — right aligned
-      2: { halign: "right", cellWidth: 30 }, // unit price — right aligned
-      3: { halign: "right", cellWidth: 30 }, // total — right aligned
+      0: { cellWidth: "auto", halign: "left" },  // description — takes remaining space
+      1: { halign: "right", cellWidth: 16 },      // qty — small, just needs 1–999
+      2: { halign: "right", cellWidth: 38 },      // unit price — fits $231,876.00
+      3: { halign: "right", cellWidth: 38 },      // total — same width as unit price
+    },
+    // Right-align the header labels for numeric columns to match body alignment
+    didParseCell(data) {
+      if (data.section === "head" && data.column.index > 0) {
+        data.cell.styles.halign = "right";
+      }
     },
     theme: "plain",
     tableLineColor: [210, 208, 200],
