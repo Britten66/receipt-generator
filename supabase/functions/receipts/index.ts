@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify(receipt), { status: 201, headers: corsHeaders });
   }
 
-  // PATCH — update fields (whitelist enforced)
+  // PATCH — update fields (whitelist enforced) + replace line items
   if (req.method === "PATCH" && queryId) {
     const body = await req.json();
     const id = queryId;
@@ -95,8 +95,29 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "No valid fields to update" }), { status: 400, headers: corsHeaders });
     }
 
-    const { data, error } = await supabase.from("receipts").update(updates).eq("id", id).select().single();
+    // Explicit user_id filter ensures ownership regardless of RLS UPDATE policy setup
+    const { data, error } = await supabase
+      .from("receipts").update(updates)
+      .eq("id", id).eq("user_id", user.id)
+      .select().single();
     if (error || !data) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
+
+    // Replace line items if provided — delete old rows then insert fresh ones
+    if (Array.isArray(body.line_items)) {
+      await supabase.from("line_items").delete().eq("receipt_id", id);
+      if (body.line_items.length > 0) {
+        const items = (body.line_items as Array<{ description: string; quantity: number; unit_price: number; total: number }>)
+          .map((li) => ({
+            receipt_id: id,
+            description: li.description,
+            quantity: li.quantity,
+            unit_price: li.unit_price,
+            total: li.total,
+          }));
+        await supabase.from("line_items").insert(items);
+      }
+    }
+
     return new Response(JSON.stringify(data), { headers: corsHeaders });
   }
 
