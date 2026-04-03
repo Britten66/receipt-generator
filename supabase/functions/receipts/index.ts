@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
   if (req.method === "GET") {
     if (queryId) {
       const { data: receipt, error } = await supabase
-        .from("receipts").select("*").eq("id", queryId).single();
+        .from("receipts").select("*").eq("id", queryId).eq("user_id", user.id).single();
       if (error || !receipt) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
 
       const { data: items } = await supabase.from("line_items").select("*").eq("receipt_id", queryId);

@@ -335,6 +335,8 @@ export default function App() {
   */
   async function selectFull(id) {
     const full = await fetchReceiptById(id);
+    // Guard against error responses (e.g. 404) — don't corrupt selected state
+    if (full?.error) return;
     setSelected(full);
   }
 
@@ -453,7 +455,17 @@ export default function App() {
     setEditingReceipt(null);
     setShowForm(true);
   }
-  function openEditReceipt(receipt) { setEditingReceipt(receipt); setShowForm(true); }
+  async function openEditReceipt(receipt) {
+    // If the receipt doesn't have line_items yet (e.g. came from the list),
+    // do a fresh fetch so the edit form has full data to pre-populate.
+    if (!receipt.line_items) {
+      const full = await fetchReceiptById(receipt.id);
+      setEditingReceipt(full?.error ? receipt : full);
+    } else {
+      setEditingReceipt(receipt);
+    }
+    setShowForm(true);
+  }
 
   /*
     Merge `selected` (full object with line_items) with the live status from the list.
@@ -800,103 +812,129 @@ export default function App() {
           {selectedReceipt && (
             <div className="detail-panel">
 
-              {/* Header: receipt number, vendor, client, edit + delete buttons */}
+              {/* Top bar: edit/delete actions + close */}
               <div className="detail-header">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <div>
-                    <div className="detail-receipt-num">Invoice / {selectedReceipt.receipt_number}</div>
-                    <div className="detail-vendor">{selectedReceipt.customer_name}</div>
-                    <div className="detail-customer">Issued by: {selectedReceipt.vendor_name}</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button
+                      className="btn btn-ghost"
+                      style={{ border: "1px solid var(--border)" }}
+                      onClick={() => openEditReceipt(selectedReceipt)}
+                    >
+                      ✎ Edit
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      style={{ padding: "0 12px" }}
+                      onClick={() => handleDelete(selectedReceipt.id)}
+                    >
+                      ✕ Delete
+                    </button>
                   </div>
                   <button onClick={() => setSelected(null)} className="btn-icon close-btn">✕</button>
                 </div>
-                <div style={{ display: "flex", gap: 6, marginTop: 12 }}>
-                  <button
-                    className="btn btn-ghost"
-                    style={{ flex: 1, border: "1px solid var(--border)" }}
-                    onClick={() => openEditReceipt(selectedReceipt)}
-                  >
-                    ✎ Edit
-                  </button>
-                  <button
-                    className="btn btn-danger"
-                    style={{ flex: "0 0 auto", padding: "0 12px" }}
-                    onClick={() => handleDelete(selectedReceipt.id)}
-                  >
-                    ✕ Delete
-                  </button>
-                </div>
               </div>
 
-              {/* Status and date */}
-              <div className="detail-section">
-                <div className="detail-row">
-                  <span className="detail-key">Status</span>
-                  <span className={`stamp ${selectedReceipt.status}`}>{selectedReceipt.status}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-key">Date</span>
-                  <span className="detail-val">
-                    {selectedReceipt.date
-                      ? new Date(selectedReceipt.date).toLocaleDateString("en-CA")
-                      : ""}
-                  </span>
-                </div>
-                {selectedReceipt.notes && (
-                  <div className="detail-row" style={{ alignItems: "flex-start", gap: 12, marginTop: 4 }}>
-                    <span className="detail-key">Notes</span>
-                    <span style={{ fontSize: 10, color: "var(--text-dim)", textAlign: "right", maxWidth: 180 }}>
-                      {selectedReceipt.notes}
-                    </span>
+              {/* Invoice document preview */}
+              <div style={{ padding: "12px 14px 4px" }}>
+                <div className="inv-doc">
+
+                  {/* Dark header bar: INVOICE label + invoice number */}
+                  <div className="inv-doc-head">
+                    <span className="inv-doc-title">INVOICE</span>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.4)", letterSpacing: "0.12em", marginBottom: 2 }}>NO.</div>
+                      <div style={{ fontSize: 11, color: "#fff", fontFamily: "var(--mono)", fontWeight: 600, letterSpacing: "0.06em" }}>
+                        {selectedReceipt.receipt_number}
+                      </div>
+                    </div>
                   </div>
-                )}
-              </div>
 
-              {/* Line items table and totals */}
-              <div className="detail-section">
-                <table className="line-items-table">
-                  <thead>
-                    <tr>
-                      <th>Description</th>
-                      <th style={{ textAlign: "right" }}>Qty</th>
-                      <th style={{ textAlign: "right" }}>Unit</th>
-                      <th style={{ textAlign: "right" }}>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedReceipt.line_items?.length ? (
-                      selectedReceipt.line_items.map((li) => (
-                        <tr key={li.id}>
-                          <td>{li.description}</td>
-                          <td className="number">{li.quantity}</td>
-                          <td className="number">${parseFloat(li.unit_price).toFixed(2)}</td>
-                          <td className="number">${parseFloat(li.total).toFixed(2)}</td>
+                  {/* Parties: FROM / BILLED TO / DATE + STATUS */}
+                  <div className="inv-doc-parties">
+                    <div className="inv-doc-party">
+                      <div className="inv-party-label">FROM</div>
+                      <div className="inv-party-name">{selectedReceipt.vendor_name}</div>
+                    </div>
+                    <div className="inv-doc-party">
+                      <div className="inv-party-label">BILLED TO</div>
+                      <div className="inv-party-name">{selectedReceipt.customer_name}</div>
+                    </div>
+                    <div className="inv-doc-party" style={{ textAlign: "right" }}>
+                      <div className="inv-party-label">DATE</div>
+                      <div className="inv-party-name" style={{ fontFamily: "var(--mono)", fontSize: 11 }}>
+                        {selectedReceipt.date
+                          ? new Date(selectedReceipt.date).toLocaleDateString("en-CA")
+                          : "—"}
+                      </div>
+                      <span className={`stamp ${selectedReceipt.status}`} style={{ marginTop: 6, display: "inline-block" }}>
+                        {selectedReceipt.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div style={{ height: 1, background: "var(--border)", margin: "0 14px" }} />
+
+                  {/* Line items table */}
+                  <div style={{ padding: "10px 14px 0" }}>
+                    <table className="line-items-table">
+                      <thead>
+                        <tr>
+                          <th>Description</th>
+                          <th style={{ textAlign: "right" }}>Qty</th>
+                          <th style={{ textAlign: "right" }}>Unit</th>
+                          <th style={{ textAlign: "right" }}>Total</th>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={4} style={{ color: "var(--text-muted)", paddingTop: 10, fontSize: 9, letterSpacing: "0.15em" }}>
-                          No line items
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                      </thead>
+                      <tbody>
+                        {selectedReceipt.line_items?.length ? (
+                          selectedReceipt.line_items.map((li) => (
+                            <tr key={li.id}>
+                              <td>{li.description}</td>
+                              <td className="number">{li.quantity}</td>
+                              <td className="number">${parseFloat(li.unit_price).toFixed(2)}</td>
+                              <td className="number">${parseFloat(li.total).toFixed(2)}</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={4} style={{ color: "var(--text-muted)", paddingTop: 10, fontSize: 9, letterSpacing: "0.15em" }}>
+                              No line items
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
 
-                {/* Subtotal, tax, and grand total */}
-                <div style={{ marginTop: 12 }}>
-                  <div className="total-line">
-                    <span className="tl-label">Subtotal</span>
-                    <span className="tl-val">${parseFloat(selectedReceipt.subtotal || 0).toFixed(2)}</span>
+                  {/* Totals block */}
+                  <div style={{ padding: "8px 14px 14px", borderTop: "1px solid var(--border-light)", marginTop: 4 }}>
+                    {parseFloat(selectedReceipt.subtotal || 0) > 0 && (
+                      <div className="total-line">
+                        <span className="tl-label">Subtotal</span>
+                        <span className="tl-val">${parseFloat(selectedReceipt.subtotal || 0).toFixed(2)}</span>
+                      </div>
+                    )}
+                    {parseFloat(selectedReceipt.tax || 0) > 0 && (
+                      <div className="total-line">
+                        <span className="tl-label">Tax</span>
+                        <span className="tl-val">${parseFloat(selectedReceipt.tax || 0).toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="total-line grand">
+                      <span className="tl-label">Total</span>
+                      <span className="tl-val">${parseFloat(selectedReceipt.total || 0).toFixed(2)}</span>
+                    </div>
                   </div>
-                  <div className="total-line">
-                    <span className="tl-label">Tax</span>
-                    <span className="tl-val">${parseFloat(selectedReceipt.tax || 0).toFixed(2)}</span>
-                  </div>
-                  <div className="total-line grand">
-                    <span className="tl-label">Total</span>
-                    <span className="tl-val">${parseFloat(selectedReceipt.total || 0).toFixed(2)}</span>
-                  </div>
+
+                  {/* Notes — only shown if the receipt has notes */}
+                  {selectedReceipt.notes && (
+                    <div style={{ padding: "10px 14px 14px", borderTop: "1px solid var(--border-light)" }}>
+                      <div style={{ fontSize: 8, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 5 }}>Notes</div>
+                      <div style={{ fontSize: 11, color: "var(--text-dim)", lineHeight: 1.55 }}>{selectedReceipt.notes}</div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -922,8 +960,6 @@ export default function App() {
                 QR code — only shown when:
                 1. The user has set a payment URL in their profile (e.g. a Stripe or PayPal link)
                 2. The receipt is not yet paid or voided
-
-                The client can scan this with their phone to pay directly.
               */}
               {profile?.payment_url && !["paid", "voided"].includes(selectedReceipt.status) && (
                 <div className="detail-section" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "16px 14px" }}>
@@ -940,10 +976,8 @@ export default function App() {
                 </div>
               )}
 
-              {/* Actions: share, preview, download, then send to client at bottom */}
+              {/* PDF actions */}
               <div className="detail-section">
-
-                {/* Share — mobile only (Web Share API) */}
                 {"share" in navigator && (
                   <button
                     className="btn btn-ghost"
@@ -953,7 +987,6 @@ export default function App() {
                     Share Invoice
                   </button>
                 )}
-
                 <button
                   className="btn btn-ghost"
                   style={{ width: "100%", marginBottom: 6 }}
@@ -969,7 +1002,7 @@ export default function App() {
                   Download PDF
                 </button>
 
-                {/* Send to Client — pro feature, sits at the bottom */}
+                {/* Send to Client — pro feature */}
                 <div style={{ marginTop: 6, borderTop: "1px solid var(--border-light)", paddingTop: 10 }}>
                   {sendInvoiceTarget?.id === selectedReceipt.id ? (
                     <div>
