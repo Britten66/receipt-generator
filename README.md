@@ -2,7 +2,7 @@
 
 Invoicing tool for freelancers, contractors, and small businesses. Create, send, and track receipts from any device.
 
-Built solo using LLM to mimic industry standard structure and customer bug fixing this is to practice building and scaling realworld workflows, complex architecture, implementation, debugging, and iteration.
+Built solo with help using LLMs to mimic industry standard structure and co-complete complex tasks to move forward in the project and think through bug fixing tasks, writing full tests, this is to practice building and seeing how it feels to scale a somewhat of a realworld workflow, view complex architecture, solo implementation, real.. very real debugging, and complete iteration, this is what it can look like as a small step.
 
 ## Stack
 
