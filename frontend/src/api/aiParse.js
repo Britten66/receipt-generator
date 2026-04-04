@@ -30,10 +30,28 @@ export async function parseText(text) {
 }
 
 export async function parseAudio(blob, mimeType) {
+  // Upload audio to temporary storage — Supabase edge functions have a 1 MB body limit
+  // that the gateway enforces before Deno code runs. Sending the path as JSON instead
+  // keeps the request tiny; the edge function fetches the audio server-side.
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not signed in.");
+
+  const ext = mimeType.includes("mp4") ? "mp4"
+    : mimeType.includes("ogg") ? "ogg"
+    : mimeType.includes("wav") ? "wav"
+    : "webm";
+  const storagePath = `${user.id}/audio-${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("audio-temp")
+    .upload(storagePath, blob, { contentType: mimeType });
+
+  if (uploadError) throw new Error("Audio upload failed. Please try again.");
+
   const res = await fetch(`${BASE}/voice-parse`, {
     method: "POST",
-    headers: { ...await authHeaders(), "Content-Type": mimeType },
-    body: blob,
+    headers: { ...await authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({ storage_path: storagePath }),
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.error ?? `Error ${res.status}`);
