@@ -350,39 +350,27 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         <div className="lv2-faq-right">
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Is the free plan really free?</h3>
-            <p className="lv2-faq-a2">Yes, forever. No trial period, no bait-and-switch. Create and send unlimited invoices at no cost.</p>
-          </div>
-          <div className="lv2-faq-item2">
-            <h3 className="lv2-faq-q2">What is InvoicePrepper?</h3>
-            <p className="lv2-faq-a2">InvoicePrepper is a free invoice generator for freelancers, contractors, and small businesses. Create professional invoices, send by email, and track what gets paid.</p>
-          </div>
-          <div className="lv2-faq-item2">
-            <h3 className="lv2-faq-q2">Do I need to create an account?</h3>
-            <p className="lv2-faq-a2">Yes. Your account keeps your invoices secure and organized. Sign up takes under a minute with no credit card required.</p>
+            <p className="lv2-faq-a2">Yes, forever. No trial period, no credit card required. Create and send unlimited invoices at no cost.</p>
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Is my data safe?</h3>
-            <p className="lv2-faq-a2">All data is encrypted in transit and at rest. We use Supabase (SOC 2 compliant) for storage. Your invoice data is never sold or shared.</p>
-          </div>
-          <div className="lv2-faq-item2">
-            <h3 className="lv2-faq-q2">Can I cancel Pro anytime?</h3>
-            <p className="lv2-faq-a2">Yes. Cancel from inside the app in one tap. You keep Pro access until your billing period ends. No fees, no questions.</p>
+            <p className="lv2-faq-a2">All data is encrypted in transit and at rest. Your invoice data is never sold or shared with third parties.</p>
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">What is the Voice AI plan?</h3>
-            <p className="lv2-faq-a2">Voice AI lets you speak your invoice out loud and have it filled in automatically. Say something like "Invoice to John, 3 hours of design at 85 dollars" and the AI populates your client, line items, quantities, and prices. No typing required.</p>
-          </div>
-          <div className="lv2-faq-item2">
-            <h3 className="lv2-faq-q2">How accurate is the Voice AI?</h3>
-            <p className="lv2-faq-a2">Very accurate for clear descriptions. It understands multiple line items, quantities, and prices in natural speech. You always review and confirm before sending, so you stay in control.</p>
+            <p className="lv2-faq-a2">Say your invoice out loud and the AI fills in your client, line items, quantities, and prices automatically. It handles multiple items in one sentence and gets smarter as it learns your clients and rates. You always review before sending.</p>
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Is my voice data stored?</h3>
-            <p className="lv2-faq-a2">No. Audio is sent to Groq for transcription and discarded immediately. InvoicePrepper never stores your recordings.</p>
+            <p className="lv2-faq-a2">No. Audio is sent to Groq for transcription and deleted immediately after. InvoicePrepper never retains your recordings. Your stored invoices are never sent to any AI provider.</p>
+          </div>
+          <div className="lv2-faq-item2">
+            <h3 className="lv2-faq-q2">Can I cancel anytime?</h3>
+            <p className="lv2-faq-a2">Yes. Cancel from inside the app in one tap. You keep access until the end of your billing period. No fees, no questions.</p>
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Need help?</h3>
-            <p className="lv2-faq-a2">Email us at <a href="mailto:support@invoiceprepper.com" className="lv2-faq-link">support@invoiceprepper.com</a> and we'll get back to you.</p>
+            <p className="lv2-faq-a2">Email <a href="mailto:support@invoiceprepper.com" className="lv2-faq-link">support@invoiceprepper.com</a> and we will get back to you.</p>
           </div>
         </div>
       </section>
