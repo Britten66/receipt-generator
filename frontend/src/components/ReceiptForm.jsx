@@ -233,7 +233,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
         body: blob,
       });
       const json = await res.json();
-      if (!res.ok) { setVoiceError(json.error ?? "Voice parsing failed."); return; }
+      if (!res.ok) { setVoiceError(json.error ?? `Error ${res.status}`); return; }
 
       const { transcript, parsed } = json;
       setVoiceTranscript(transcript);
