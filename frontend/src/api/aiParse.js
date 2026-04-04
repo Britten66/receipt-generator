@@ -32,7 +32,7 @@ export async function parseText(text) {
 export async function parseAudio(blob, mimeType) {
   const res = await fetch(`${BASE}/voice-parse`, {
     method: "POST",
-    headers: { ...await authHeaders(), "Content-Type": mimeType, "content-length": String(blob.size) },
+    headers: { ...await authHeaders(), "Content-Type": mimeType },
     body: blob,
   });
   const json = await res.json();
