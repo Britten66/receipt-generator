@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
   }
 
   if (req.method === "PUT") {
-    const { business_name, address, email, phone, bio, website, payment_url, logo_url, avatar_url } = await req.json();
+    const { business_name, address, email, phone, bio, website, payment_url, logo_url, avatar_url, theme, tax_rate, tax_label } = await req.json();
     const { data, error } = await supabase.from("profiles").upsert({
       user_id: user.id,
       business_name: business_name ?? null,
@@ -50,6 +50,9 @@ Deno.serve(async (req) => {
       payment_url: payment_url ?? null,
       logo_url: logo_url ?? null,
       avatar_url: avatar_url ?? null,
+      ...(theme !== undefined ? { theme } : {}),
+      ...(tax_rate !== undefined ? { tax_rate } : {}),
+      ...(tax_label !== undefined ? { tax_label } : {}),
     }, { onConflict: "user_id" }).select().single();
 
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
