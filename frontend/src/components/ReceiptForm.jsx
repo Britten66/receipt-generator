@@ -45,7 +45,7 @@ const CORNER_LABELS = {
   "bottom-left":  "Bottom Left",
 };
 
-export default function ReceiptForm({ onSubmit, onClose, initialData, profile, userEmail, session, onLogoUpdate }) {
+export default function ReceiptForm({ onSubmit, onClose, initialData, profile, userEmail, onLogoUpdate }) {
 
   /*
     form — the main fields of the receipt.

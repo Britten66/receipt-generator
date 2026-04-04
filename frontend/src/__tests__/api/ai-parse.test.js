@@ -15,10 +15,19 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.stubEnv("VITE_SUPABASE_URL", "https://test.supabase.co");
 vi.stubEnv("VITE_SUPABASE_ANON_KEY", "anon-key");
 
+vi.mock("../../lib/supabase", () => ({
+  supabase: {
+    auth: {
+      getSession: vi.fn().mockResolvedValue({
+        data: { session: { access_token: "test-access-token" } },
+      }),
+    },
+  },
+}));
+
 const { parseText, parseAudio, mapParsedToForm } = await import("../../api/aiParse.js");
 
-const TOKEN = "test-access-token";
-const BASE  = "https://test.supabase.co/functions/v1";
+const BASE = "https://test.supabase.co/functions/v1";
 
 beforeEach(() => {
   vi.restoreAllMocks();
@@ -39,12 +48,12 @@ function mockFetch(body, status = 200) {
 describe("parseText", () => {
   it("sends POST to text-parse with correct headers and body", async () => {
     mockFetch({ parsed: { vendor_name: "Acme", customer_name: null, notes: null, line_items: [] } });
-    await parseText("Invoice to John for 3 hours at 85", TOKEN);
+    await parseText("Invoice to John for 3 hours at 85");
 
     const call = fetch.mock.calls[0];
     expect(call[0]).toBe(`${BASE}/text-parse`);
     expect(call[1].method).toBe("POST");
-    expect(call[1].headers["Authorization"]).toBe(`Bearer ${TOKEN}`);
+    expect(call[1].headers["Authorization"]).toBe("Bearer test-access-token");
     expect(call[1].headers["Content-Type"]).toBe("application/json");
     expect(JSON.parse(call[1].body)).toEqual({ text: "Invoice to John for 3 hours at 85" });
   });
@@ -52,28 +61,28 @@ describe("parseText", () => {
   it("returns parsed object on success", async () => {
     const parsed = { vendor_name: "Acme", customer_name: "John", notes: null, line_items: [{ description: "Design", quantity: 3, unit_price: 85 }] };
     mockFetch({ parsed });
-    const result = await parseText("anything", TOKEN);
+    const result = await parseText("anything");
     expect(result).toEqual(parsed);
   });
 
   it("throws with server error message on 401", async () => {
     mockFetch({ error: "Unauthorized" }, 401);
-    await expect(parseText("anything", TOKEN)).rejects.toThrow("Unauthorized");
+    await expect(parseText("anything")).rejects.toThrow("Unauthorized");
   });
 
   it("throws with server error message on 403 (wrong tier)", async () => {
     mockFetch({ error: "AI parsing requires the Voice AI tier." }, 403);
-    await expect(parseText("anything", TOKEN)).rejects.toThrow("AI parsing requires the Voice AI tier.");
+    await expect(parseText("anything")).rejects.toThrow("AI parsing requires the Voice AI tier.");
   });
 
   it("throws with server error message on 429 (rate limit)", async () => {
     mockFetch({ error: "Daily AI limit reached. Try again tomorrow." }, 429);
-    await expect(parseText("anything", TOKEN)).rejects.toThrow("Daily AI limit reached. Try again tomorrow.");
+    await expect(parseText("anything")).rejects.toThrow("Daily AI limit reached. Try again tomorrow.");
   });
 
   it("falls back to generic error when server sends no message", async () => {
     mockFetch({}, 500);
-    await expect(parseText("anything", TOKEN)).rejects.toThrow("Error 500");
+    await expect(parseText("anything")).rejects.toThrow("Error 500");
   });
 });
 
@@ -88,13 +97,13 @@ describe("parseAudio", () => {
     mockFetch({ transcript, parsed });
 
     const blob = new Blob(["audio-data"], { type: "audio/webm" });
-    await parseAudio(blob, "audio/webm", TOKEN);
+    await parseAudio(blob, "audio/webm");
 
     const call = fetch.mock.calls[0];
     expect(call[0]).toBe(`${BASE}/voice-parse`);
     expect(call[1].method).toBe("POST");
     expect(call[1].headers["Content-Type"]).toBe("audio/webm");
-    expect(call[1].headers["Authorization"]).toBe(`Bearer ${TOKEN}`);
+    expect(call[1].headers["Authorization"]).toBe("Bearer test-access-token");
   });
 
   it("returns transcript and parsed on success", async () => {
@@ -104,7 +113,7 @@ describe("parseAudio", () => {
     };
     mockFetch(response);
     const blob   = new Blob(["audio-data"], { type: "audio/webm" });
-    const result = await parseAudio(blob, "audio/webm", TOKEN);
+    const result = await parseAudio(blob, "audio/webm");
     expect(result.transcript).toBe(response.transcript);
     expect(result.parsed).toEqual(response.parsed);
   });
@@ -112,7 +121,7 @@ describe("parseAudio", () => {
   it("throws on voice-parse error", async () => {
     mockFetch({ error: "Transcription failed. Please try again." }, 502);
     const blob = new Blob(["audio-data"], { type: "audio/webm" });
-    await expect(parseAudio(blob, "audio/webm", TOKEN)).rejects.toThrow("Transcription failed. Please try again.");
+    await expect(parseAudio(blob, "audio/webm")).rejects.toThrow("Transcription failed. Please try again.");
   });
 });
 

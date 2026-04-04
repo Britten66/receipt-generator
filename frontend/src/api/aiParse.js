@@ -1,19 +1,27 @@
 /*
   aiParse.js — helpers for AI-powered invoice parsing.
 
-  parseText(text, accessToken) — calls text-parse edge function with a typed description.
-  parseAudio(blob, mimeType, accessToken) — calls voice-parse edge function with an audio blob.
+  parseText(text) — calls text-parse edge function with a typed description.
+  parseAudio(blob, mimeType) — calls voice-parse edge function with an audio blob.
   mapParsedToForm(parsed) — converts AI output into { fields, items } ready to set in form state.
 */
 
-export async function parseText(text, accessToken) {
-  const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-parse`, {
+import { supabase } from "../lib/supabase";
+
+const BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+
+async function authHeaders() {
+  const { data: { session } } = await supabase.auth.getSession();
+  return {
+    "Authorization": `Bearer ${session?.access_token ?? ""}`,
+    "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
+  };
+}
+
+export async function parseText(text) {
+  const res = await fetch(`${BASE}/text-parse`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${accessToken ?? ""}`,
-      "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
-    },
+    headers: { ...await authHeaders(), "Content-Type": "application/json" },
     body: JSON.stringify({ text }),
   });
   const json = await res.json();
@@ -21,15 +29,10 @@ export async function parseText(text, accessToken) {
   return json.parsed;
 }
 
-export async function parseAudio(blob, mimeType, accessToken) {
-  const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-parse`, {
+export async function parseAudio(blob, mimeType) {
+  const res = await fetch(`${BASE}/voice-parse`, {
     method: "POST",
-    headers: {
-      "Content-Type": mimeType,
-      "Authorization": `Bearer ${accessToken ?? ""}`,
-      "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
-      "content-length": String(blob.size),
-    },
+    headers: { ...await authHeaders(), "Content-Type": mimeType, "content-length": String(blob.size) },
     body: blob,
   });
   const json = await res.json();
