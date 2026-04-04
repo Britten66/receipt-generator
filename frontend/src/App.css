@@ -29,8 +29,8 @@
   --sent: #1a3060;         /* blue — sent status */
   --draft: #555552;        /* grey — draft status */
   --voided: #7a1a1a;       /* red — voided status */
-  --accent: #a06830;       /* warm copper — pro features, active states */
-  --accent-dim: rgba(160, 104, 48, 0.12); /* tinted background for accent areas */
+  --accent: #D9B873;       /* thread gold — pro features, active states */
+  --accent-dim: rgba(217, 184, 115, 0.12); /* tinted background for accent areas */
   --mono: ui-monospace, "Courier New", monospace;
   --sans: "Public Sans", sans-serif;
 }
@@ -49,8 +49,8 @@
   --sent: #4a70c0;
   --draft: #888884;
   --voided: #c04a4a;
-  --accent: #c8924a;
-  --accent-dim: rgba(200, 146, 74, 0.14);
+  --accent: #D9B873;
+  --accent-dim: rgba(217, 184, 115, 0.14);
 }
 
 /* Dark mode: cream button, dark text */
@@ -112,7 +112,7 @@
 
 /* Avatar button border on hover */
 [data-theme="dark"] .avatar-btn:hover {
-  border-color: #e7ddc7;
+  border-color: var(--accent);
 }
 
 /* Base styles applied to the whole page */
@@ -867,7 +867,7 @@ body,
   overflow: hidden;
   transition: border-color 0.15s;
 }
-.avatar-btn:hover { border-color: var(--text); }
+.avatar-btn:hover { border-color: var(--accent); }
 .avatar-fallback {
   width: 34px;
   height: 34px;
