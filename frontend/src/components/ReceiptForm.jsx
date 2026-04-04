@@ -132,27 +132,32 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   function playChime(type = "start") {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc  = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = "sine";
+      const t   = ctx.currentTime;
+
+      function note(freq, startAt, duration, peakGain) {
+        const osc  = ctx.createOscillator();
+        const g    = ctx.createGain();
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, startAt);
+        g.gain.setValueAtTime(0, startAt);
+        g.gain.linearRampToValueAtTime(peakGain, startAt + 0.03);
+        g.gain.setValueAtTime(peakGain, startAt + duration - 0.06);
+        g.gain.exponentialRampToValueAtTime(0.001, startAt + duration);
+        osc.start(startAt);
+        osc.stop(startAt + duration);
+      }
+
       if (type === "start") {
-        // Low soft tone — "now listening"
-        osc.frequency.setValueAtTime(520, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(620, ctx.currentTime + 0.12);
-        gain.gain.setValueAtTime(0.18, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.35);
+        // Two ascending notes — G5 then B5 ("I'm listening")
+        note(784,  t,        0.18, 0.14);
+        note(987,  t + 0.16, 0.22, 0.16);
       } else {
-        // Bright rising tone — "done"
-        osc.frequency.setValueAtTime(880, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.08);
-        gain.gain.setValueAtTime(0.25, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.55);
+        // Three-note resolution — E5, G5, E6 ("done")
+        note(659,  t,        0.16, 0.13);
+        note(784,  t + 0.14, 0.16, 0.15);
+        note(1318, t + 0.28, 0.30, 0.12);
       }
     } catch {}
   }
@@ -487,8 +492,8 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
     modalTitle = "Edit Invoice";
     submitButtonLabel = "Save Changes";
   } else {
-    modalTitle = "Create Invoice";
-    submitButtonLabel = "Generate Invoice";
+    modalTitle = "New Invoice";
+    submitButtonLabel = "Create Invoice";
   }
 
   /*
