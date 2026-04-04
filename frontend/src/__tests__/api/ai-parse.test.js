@@ -15,19 +15,31 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.stubEnv("VITE_SUPABASE_URL", "https://test.supabase.co");
 vi.stubEnv("VITE_SUPABASE_ANON_KEY", "anon-key");
 
+const { mockGetSession, mockRefreshSession, mockGetUser, mockStorageUpload, mockStorageRemove } = vi.hoisted(() => ({
+  mockGetSession: vi.fn().mockResolvedValue({
+    data: { session: { access_token: "test-access-token" } },
+  }),
+  mockRefreshSession: vi.fn().mockResolvedValue({
+    data: { session: { access_token: "refreshed-token" } },
+  }),
+  mockGetUser: vi.fn().mockResolvedValue({
+    data: { user: { id: "user-123" } },
+  }),
+  mockStorageUpload: vi.fn().mockResolvedValue({ data: {}, error: null }),
+  mockStorageRemove: vi.fn().mockResolvedValue({ data: {}, error: null }),
+}));
+
 vi.mock("../../lib/supabase", () => ({
   supabase: {
     auth: {
-      getSession: vi.fn().mockResolvedValue({
-        data: { session: { access_token: "test-access-token" } },
-      }),
-      getUser: vi.fn().mockResolvedValue({
-        data: { user: { id: "user-123" } },
-      }),
+      getSession: mockGetSession,
+      refreshSession: mockRefreshSession,
+      getUser: mockGetUser,
     },
     storage: {
-      from: vi.fn().mockReturnValue({
-        upload: vi.fn().mockResolvedValue({ error: null }),
+      from: () => ({
+        upload: mockStorageUpload,
+        remove: mockStorageRemove,
       }),
     },
   },
@@ -39,6 +51,11 @@ const BASE = "https://test.supabase.co/functions/v1";
 
 beforeEach(() => {
   vi.restoreAllMocks();
+  mockGetSession.mockResolvedValue({ data: { session: { access_token: "test-access-token" } } });
+  mockRefreshSession.mockResolvedValue({ data: { session: { access_token: "refreshed-token" } } });
+  mockGetUser.mockResolvedValue({ data: { user: { id: "user-123" } } });
+  mockStorageUpload.mockResolvedValue({ data: {}, error: null });
+  mockStorageRemove.mockResolvedValue({ data: {}, error: null });
 });
 
 function mockFetch(body, status = 200) {
@@ -107,6 +124,14 @@ describe("parseAudio", () => {
     const blob = new Blob(["audio-data"], { type: "audio/webm" });
     await parseAudio(blob, "audio/webm");
 
+    // Storage upload should have been called with the blob
+    expect(mockStorageUpload).toHaveBeenCalledWith(
+      expect.stringMatching(/^user-123\/audio-\d+\.webm$/),
+      blob,
+      { contentType: "audio/webm" }
+    );
+
+    // Fetch should send JSON with storage_path, not binary
     const call = fetch.mock.calls[0];
     expect(call[0]).toBe(`${BASE}/voice-parse`);
     expect(call[1].method).toBe("POST");
@@ -133,6 +158,72 @@ describe("parseAudio", () => {
     mockFetch({ error: "Transcription failed. Please try again." }, 502);
     const blob = new Blob(["audio-data"], { type: "audio/webm" });
     await expect(parseAudio(blob, "audio/webm")).rejects.toThrow("Transcription failed. Please try again.");
+  });
+
+  it("uses .mp4 extension in storage path for iOS recordings", async () => {
+    mockFetch({ transcript: "test", parsed: { line_items: [] } });
+    const blob = new Blob(["audio-data"], { type: "audio/mp4" });
+    await parseAudio(blob, "audio/mp4");
+    const body = JSON.parse(fetch.mock.calls[0][1].body);
+    expect(body.storage_path).toMatch(/\.mp4$/);
+  });
+
+  it("throws 'Audio upload failed' when storage upload errors", async () => {
+    mockStorageUpload.mockResolvedValueOnce({ data: null, error: { message: "bucket not found" } });
+    const blob = new Blob(["audio-data"], { type: "audio/webm" });
+    await expect(parseAudio(blob, "audio/webm")).rejects.toThrow("Audio upload failed. Please try again.");
+  });
+
+  it("throws 'Not signed in' when getUser returns no user", async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: null } });
+    const blob = new Blob(["audio-data"], { type: "audio/webm" });
+    await expect(parseAudio(blob, "audio/webm")).rejects.toThrow("Not signed in.");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Mobile auth edge cases
+// ---------------------------------------------------------------------------
+
+describe("authHeaders — mobile session edge cases", () => {
+  it("uses getSession token when session is valid (no refresh needed)", async () => {
+    mockFetch({ parsed: { vendor_name: "Acme", line_items: [] } });
+    await parseText("test");
+    expect(mockGetSession).toHaveBeenCalled();
+    const call = fetch.mock.calls[0];
+    expect(call[1].headers["Authorization"]).toBe("Bearer test-access-token");
+  });
+
+  it("falls back to refreshSession when getSession returns null (mobile expired)", async () => {
+    mockGetSession.mockResolvedValueOnce({ data: { session: null } });
+    mockFetch({ parsed: { vendor_name: "Acme", line_items: [] } });
+    await parseText("test");
+    expect(mockRefreshSession).toHaveBeenCalled();
+    const call = fetch.mock.calls[0];
+    expect(call[1].headers["Authorization"]).toBe("Bearer refreshed-token");
+  });
+
+  it("falls back to refreshSession when getSession returns no access_token", async () => {
+    mockGetSession.mockResolvedValueOnce({ data: { session: {} } });
+    mockFetch({ parsed: { vendor_name: "Acme", line_items: [] } });
+    await parseText("test");
+    expect(mockRefreshSession).toHaveBeenCalled();
+  });
+
+  it("throws 'Session expired' when both getSession and refreshSession return null", async () => {
+    mockGetSession.mockResolvedValueOnce({ data: { session: null } });
+    mockRefreshSession.mockResolvedValueOnce({ data: { session: null } });
+    await expect(parseText("test")).rejects.toThrow("Session expired. Please sign in again.");
+  });
+
+  it("same fallback applies to parseAudio on mobile", async () => {
+    mockGetSession.mockResolvedValueOnce({ data: { session: null } });
+    mockFetch({ transcript: "hello", parsed: { line_items: [] } });
+    const blob = new Blob(["audio"], { type: "audio/mp4" });
+    await parseAudio(blob, "audio/mp4");
+    expect(mockRefreshSession).toHaveBeenCalled();
+    const call = fetch.mock.calls[0];
+    expect(call[1].headers["Authorization"]).toBe("Bearer refreshed-token");
   });
 });
 

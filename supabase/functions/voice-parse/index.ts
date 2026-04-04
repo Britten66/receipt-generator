@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
     headers: corsHeaders,
   });
 
-  // Auth
+  // Auth — verify JWT using user-scoped client
   const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
     global: { headers: { Authorization: req.headers.get("Authorization")! } },
   });
@@ -21,13 +21,14 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
   }
 
-  // Server-side tier check — voice tier only
-  const { data: profile } = await supabase.from("profiles").select("tier, business_name, currency").eq("user_id", user.id).single();
+  // Use service role client to fetch profile — bypasses RLS, safe because user is already verified above
+  const adminClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
+    auth: { persistSession: false }
+  });
+  const { data: profile, error: profileError } = await adminClient.from("profiles").select("tier, business_name").eq("user_id", user.id).single();
+  console.log("tier-check:", user.id, "tier:", profile?.tier, "err:", profileError?.message);
   if (profile?.tier !== "voice") {
-    return new Response(JSON.stringify({ error: "Voice parsing requires the Voice tier." }), {
-      status: 403,
-      headers: corsHeaders,
-    });
+    return new Response(JSON.stringify({ error: "Voice parsing requires the Voice tier." }), { status: 403, headers: corsHeaders });
   }
 
   // Daily rate limit — check usage count in DB

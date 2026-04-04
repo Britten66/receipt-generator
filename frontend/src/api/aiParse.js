@@ -11,9 +11,17 @@ import { supabase } from "../lib/supabase";
 const BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 
 async function authHeaders() {
-  const { data: { session } } = await supabase.auth.getSession();
+  // getSession returns cached token (fast). If none, force a refresh.
+  // Using both handles mobile iOS where sessions expire mid-recording.
+  let { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
+    const { data } = await supabase.auth.refreshSession();
+    session = data.session;
+  }
+  const token = session?.access_token ?? "";
+  if (!token) throw new Error("Session expired. Please sign in again.");
   return {
-    "Authorization": `Bearer ${session?.access_token ?? ""}`,
+    "Authorization": `Bearer ${token}`,
     "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
   };
 }
@@ -64,7 +72,7 @@ export async function parseAudio(blob, mimeType) {
     items  — array of line items in the shape ReceiptForm expects, or null if none
 */
 // Strip em dashes, en dashes, and other junk characters AI models sometimes insert
-function clean(str) {
+export function clean(str) {
   if (!str) return str;
   return String(str)
     .replace(/[\u2014\u2013\u2012\u2015]/g, "-") // em dash, en dash → hyphen
