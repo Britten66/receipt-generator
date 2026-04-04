@@ -992,7 +992,7 @@ body,
   transform: translate(1px, 1px);
 }
 .btn-ghost {
-  background: none;
+  background: var(--surface-2);
   color: var(--text-dim);
 }
 .btn-ghost:hover {

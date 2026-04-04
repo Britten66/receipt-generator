@@ -3,10 +3,15 @@ import { supabase } from "../lib/supabase";
 const BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 
 async function authHeaders() {
-  const { data: { session } } = await supabase.auth.refreshSession();
+  let { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
+    const { data } = await supabase.auth.refreshSession();
+    session = data.session;
+  }
+  if (!session?.access_token) throw new Error("Session expired. Please sign in again.");
   return {
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${session?.access_token ?? ""}`,
+    "Authorization": `Bearer ${session.access_token}`,
     "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
   };
 }

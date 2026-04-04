@@ -134,30 +134,35 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const t   = ctx.currentTime;
 
-      function note(freq, startAt, duration, peakGain) {
+      function note(freq, startAt, duration, peakGain, oscType = "triangle") {
         const osc  = ctx.createOscillator();
         const g    = ctx.createGain();
         osc.connect(g);
         g.connect(ctx.destination);
-        osc.type = "sine";
+        osc.type = oscType;
         osc.frequency.setValueAtTime(freq, startAt);
         g.gain.setValueAtTime(0, startAt);
-        g.gain.linearRampToValueAtTime(peakGain, startAt + 0.03);
-        g.gain.setValueAtTime(peakGain, startAt + duration - 0.06);
+        g.gain.linearRampToValueAtTime(peakGain, startAt + 0.02);
+        g.gain.setValueAtTime(peakGain, startAt + duration - 0.08);
         g.gain.exponentialRampToValueAtTime(0.001, startAt + duration);
         osc.start(startAt);
         osc.stop(startAt + duration);
       }
 
       if (type === "start") {
-        // Two ascending notes — G5 then B5 ("I'm listening")
-        note(784,  t,        0.18, 0.14);
-        note(987,  t + 0.16, 0.22, 0.16);
+        // Soft rising two-note chime — "I'm ready" (E5 -> A5, triangle for warmth)
+        note(659,  t,        0.20, 0.11);
+        note(880,  t + 0.18, 0.26, 0.13);
+      } else if (type === "stop") {
+        // Single soft descending tap — "got it, processing" (A4, gentle sine)
+        note(440,  t,        0.22, 0.10, "sine");
+        note(330,  t + 0.10, 0.18, 0.07, "sine");
       } else {
-        // Three-note resolution — E5, G5, E6 ("done")
-        note(659,  t,        0.16, 0.13);
-        note(784,  t + 0.14, 0.16, 0.15);
-        note(1318, t + 0.28, 0.30, 0.12);
+        // Four-note happy C major arpeggio — C5, E5, G5, C6 ("done!")
+        note(523,  t,        0.14, 0.10);
+        note(659,  t + 0.12, 0.14, 0.12);
+        note(784,  t + 0.24, 0.14, 0.13);
+        note(1047, t + 0.36, 0.32, 0.10);
       }
     } catch {}
   }
@@ -222,6 +227,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
   function stopVoiceRecording() {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      playChime("stop");
       mediaRecorderRef.current.stop();
       setVoiceRecording(false);
       setVoiceParsing(true);
@@ -613,7 +619,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                     </span>
                   )}
                   {voiceRecording && (
-                    <span style={{ fontSize: 10, color: "#e05555" }}>Listening... {MAX_RECORDING_SECONDS - voiceSeconds}s</span>
+                    <span style={{ fontSize: 10, color: "#e05555" }}>Listening... {MAX_RECORDING_SECONDS - voiceSeconds}s &middot; tap to stop</span>
                   )}
                   {voiceParsing && (
                     <span style={{ fontSize: 10, color: "var(--voice-text)" }}>Filling in your invoice...</span>
@@ -1025,7 +1031,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 <span style={{ display: "block", width: voiceRecording ? 10 : 8, height: voiceRecording ? 10 : 8, borderRadius: "50%", background: voiceRecording ? "#e05555" : "#4dd8e0", transition: "all 0.2s" }} />
               </button>
               <span style={{ fontSize: 9, color: voiceRecording ? "#e05555" : "var(--voice-text)", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
-                {voiceRecording ? "Recording..." : voiceParsing ? "Parsing..." : "Invoice Parser"}
+                {voiceRecording ? "Tap to stop" : voiceParsing ? "Parsing..." : "Invoice Parser"}
               </span>
             </div>
           ) : (
