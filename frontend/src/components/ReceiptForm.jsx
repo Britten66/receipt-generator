@@ -228,8 +228,9 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
     const { fields, items } = mapParsedToForm(parsed);
     if (fields.vendor_name)   setField("vendor_name",   fields.vendor_name);
     if (fields.customer_name) setField("customer_name", fields.customer_name);
+    if (fields.currency)      setField("currency",      fields.currency);
     if (fields.notes)         { setField("notes", fields.notes); setShowNotes(true); }
-    if (items)                setItems(items);
+    if (items && items.length > 0) setItems(items);
   }
 
   async function parseVoice(blob) {
