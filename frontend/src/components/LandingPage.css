@@ -563,8 +563,7 @@
 }
 
 .lv2-ai-spoken::before {
-  content: "🎤 ";
-  font-style: normal;
+  content: "";
 }
 
 .lv2-ai-fills {
