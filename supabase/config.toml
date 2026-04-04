@@ -1,3 +1,9 @@
+[functions.voice-parse]
+verify_jwt = false
+
+[functions.text-parse]
+verify_jwt = false
+
 [functions.notify-signup]
 verify_jwt = false
 
