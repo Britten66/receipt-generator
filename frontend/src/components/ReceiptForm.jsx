@@ -231,11 +231,29 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
   function applyParsed(parsed) {
     const { fields, items } = mapParsedToForm(parsed);
+    // Only overwrite fields that are currently blank so existing values survive a second parse
     if (fields.vendor_name)   setField("vendor_name",   fields.vendor_name);
     if (fields.customer_name) setField("customer_name", fields.customer_name);
     if (fields.currency)      setField("currency",      fields.currency);
     if (fields.notes)         { setField("notes", fields.notes); setShowNotes(true); }
-    if (items && items.length > 0) setItems(items);
+    // Append new line items instead of replacing — lets users build up a complex invoice
+    // across multiple voice or text passes without losing what they already have
+    if (items && items.length > 0) {
+      setItems((prev) => {
+        const hasContent = prev.some((i) => i.description || i.unit_price);
+        return hasContent ? [...prev, ...items] : items;
+      });
+    }
+  }
+
+  // Wipes all AI-filled content back to a single blank line item
+  function clearParsed() {
+    setItems([{ ...EMPTY_ITEM }]);
+    setField("vendor_name", "");
+    setField("customer_name", "");
+    setField("notes", "");
+    setVoiceTranscript("");
+    setVoiceError("");
   }
 
   async function parseVoice(blob) {
@@ -611,6 +629,12 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             )}
 
             <span style={{ fontSize: 8, padding: "1px 5px", background: "rgba(77,216,224,0.12)", border: "1px solid rgba(77,216,224,0.25)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "var(--voice-text)", flexShrink: 0 }}>beta</span>
+            <button
+              type="button"
+              onClick={clearParsed}
+              title="Clear all AI-filled fields"
+              style={{ fontSize: 9, background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "0 2px", flexShrink: 0, letterSpacing: "0.06em", textTransform: "uppercase" }}
+            >Clear</button>
           </div>
         )}
 

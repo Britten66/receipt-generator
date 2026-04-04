@@ -312,10 +312,10 @@ async function buildDoc(receipt) {
     doc.addImage(logoDataUrl, "PNG", logoX, logoY, logoW, logoH);
   }
 
-  // Footer — watermark for free users, nothing for Pro
+  // Footer — watermark for free users only, hidden on Pro and Voice AI
   doc.setFontSize(7);
   doc.setTextColor(180, 176, 168);
-  if (receipt.tier !== "pro") {
+  if (receipt.tier !== "pro" && receipt.tier !== "voice") {
     // Draw a rule line across the page
     doc.setDrawColor(210, 206, 198);
     doc.setLineWidth(0.2);

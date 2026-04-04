@@ -145,6 +145,7 @@ export default function App() {
   const [authLoading, setAuthLoading]           = useState(true);
   const [profileLoading, setProfileLoading]     = useState(true);
   const [showAuthModal, setShowAuthModal]       = useState(false);
+  const [authModalMode, setAuthModalMode]       = useState("signup"); // "signup" | "login"
   const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
   const proIntentRef = useRef("");
 
@@ -191,9 +192,19 @@ export default function App() {
   const [showUpgradeConfirm, setShowUpgradeConfirm] = useState(false);
   const [upgradeAgreed, setUpgradeAgreed]           = useState(false);
   const [upgradeLegal, setUpgradeLegal]             = useState(null);
-  // Which tier the upgrade confirm modal is targeting ("pro" or "voice")
+  /*
+    upgradeTargetTier — which tier the upgrade confirm modal is targeting.
+    "pro"   → shown when a free user clicks Upgrade to Pro
+    "voice" → shown when a pro user clicks Upgrade to Voice AI
+    Drives the modal title, price copy, and the tier passed to startCheckout().
+  */
   const [upgradeTargetTier, setUpgradeTargetTier]   = useState("pro");
 
+  // One-time modals — each shows exactly once per user, flag stored in localStorage.
+  const [showWelcome, setShowWelcome]               = useState(false);
+  const [showUpgradeThanks, setShowUpgradeThanks]   = useState(false);
+
+  // Single entry point for opening the upgrade modal — always sets tier and resets checkbox.
   function openUpgradeConfirm(tier) {
     setUpgradeTargetTier(tier);
     setUpgradeAgreed(false);
@@ -206,7 +217,7 @@ export default function App() {
   // Lock body scroll on iOS when any modal is open.
   // iOS Safari ignores position:fixed for preventing background scroll.
   useEffect(() => {
-    const anyOpen = showForm || showProfileModal || showHelp || showBilling || !!legal || !!upgradeLegal || showUpgradeConfirm;
+    const anyOpen = showForm || showProfileModal || showHelp || showBilling || !!legal || !!upgradeLegal || showUpgradeConfirm || showWelcome || showUpgradeThanks;
     document.body.style.overflow = anyOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [showForm, showProfileModal, showHelp, showBilling, legal, upgradeLegal, showUpgradeConfirm]);
@@ -313,6 +324,15 @@ export default function App() {
       if (!p?.business_name) {
         setShowProfileModal(true);
       }
+      // Welcome modal: show exactly once per user on their first session.
+      // Flag is set before showing so a re-render never double-triggers it.
+      if (session?.user?.id) {
+        const key = `welcome_shown_${session.user.id}`;
+        if (!localStorage.getItem(key)) {
+          localStorage.setItem(key, "1");
+          setShowWelcome(true);
+        }
+      }
     });
   }, [session]);
 
@@ -332,6 +352,14 @@ export default function App() {
       if (p?.tier === "pro" || p?.tier === "voice") {
         setProfile(p);
         clearInterval(interval);
+        // Upgrade thanks modal: show exactly once after a successful checkout.
+        if (session?.user?.id) {
+          const key = `upgrade_thanks_shown_${session.user.id}`;
+          if (!localStorage.getItem(key)) {
+            localStorage.setItem(key, "1");
+            setShowUpgradeThanks(true);
+          }
+        }
       } else if (attempts >= 10) {
         clearInterval(interval);
       }
@@ -545,7 +573,8 @@ export default function App() {
         <LandingPage
           darkMode={darkMode}
           onToggleDark={() => setDarkMode(!darkMode)}
-          onSignIn={() => setShowAuthModal(true)}
+          onSignIn={() => { setAuthModalMode("login"); setShowAuthModal(true); }}
+          onSignUp={() => { setAuthModalMode("signup"); setShowAuthModal(true); }}
           onEnter={() => {
             localStorage.setItem("app_entered", "1");
             setEntered(true);
@@ -564,6 +593,7 @@ export default function App() {
             }
           }}
           onEnterVoice={() => {
+            // Store intent so checkout fires immediately after sign-up if not yet signed in.
             proIntentRef.current = "voice";
             localStorage.setItem("app_entered", "1");
             setEntered(true);
@@ -578,6 +608,7 @@ export default function App() {
         />
         {showAuthModal && (
           <AuthModal
+            initialMode={authModalMode}
             onBack={() => {
               setShowAuthModal(false);
               localStorage.removeItem("app_entered");
@@ -1166,7 +1197,7 @@ export default function App() {
 
       {/* Sign in / sign up modal */}
       {showAuthModal && (
-        <AuthModal onClose={() => setShowAuthModal(false)} />
+        <AuthModal initialMode={authModalMode} onClose={() => setShowAuthModal(false)} />
       )}
 
       {/* "Set new password" modal — shown after clicking a password reset email link */}
@@ -1240,6 +1271,60 @@ export default function App() {
           onSave={(p) => setProfile(p)}
           onClose={() => setShowProfileModal(false)}
         />
+      )}
+
+      {/* Welcome modal — shown once to each new user on their first session */}
+      {showWelcome && (
+        <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && setShowWelcome(false)}>
+          <div className="modal" style={{ maxWidth: 380 }}>
+            <div className="modal-header">
+              <span className="modal-title">Welcome to InvoicePrepper</span>
+              <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={() => setShowWelcome(false)}>✕</button>
+            </div>
+            <div className="modal-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.7 }}>
+                You are all set. Start by filling in your business details in your profile, then create your first invoice.
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-dim)", lineHeight: 1.7 }}>
+                Invoices you create are saved to your account. You can download them as PDFs, share a link, or email them directly to clients (Pro).
+              </div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.6, borderTop: "1px solid var(--border)", paddingTop: 10 }}>
+                Questions or issues? Email us at{" "}
+                <a href="mailto:support@invoiceprepper.com" style={{ color: "var(--accent)" }}>support@invoiceprepper.com</a>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-primary" onClick={() => setShowWelcome(false)}>Get Started</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Upgrade thanks modal — shown once after a successful Pro or Voice AI checkout */}
+      {showUpgradeThanks && (
+        <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && setShowUpgradeThanks(false)}>
+          <div className="modal" style={{ maxWidth: 380 }}>
+            <div className="modal-header">
+              <span className="modal-title">Thanks for upgrading!</span>
+              <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={() => setShowUpgradeThanks(false)}>✕</button>
+            </div>
+            <div className="modal-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.7 }}>
+                Your account has been upgraded. All Pro features are now active.
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-dim)", lineHeight: 1.7 }}>
+                If you run into any bugs or have feedback, we want to hear about it.
+              </div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.6, borderTop: "1px solid var(--border)", paddingTop: 10 }}>
+                Reach us at{" "}
+                <a href="mailto:support@invoiceprepper.com" style={{ color: "var(--accent)" }}>support@invoiceprepper.com</a>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-primary" onClick={() => setShowUpgradeThanks(false)}>Got It</button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Toast notification — shown briefly after actions like save, delete, send */}

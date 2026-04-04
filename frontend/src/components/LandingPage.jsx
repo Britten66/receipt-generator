@@ -76,7 +76,7 @@ function MockInvoice() {
   );
 }
 
-export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignIn, darkMode, onToggleDark }) {
+export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignIn, onSignUp, darkMode, onToggleDark }) {
   const [legal, setLegal] = useState(null);
   const scrollRef = useRef(null);
   const navRef = useRef(null);
@@ -129,7 +129,8 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           <button className="dark-toggle" onClick={onToggleDark}>
             {darkMode ? "Light" : "Dark"}
           </button>
-          <button className="lv2-signin" onClick={onSignIn}>Sign In</button>
+          <button className="lv2-nav-login" onClick={onSignIn}>Sign In</button>
+          <button className="lv2-signin" onClick={onSignUp}>Sign Up</button>
         </div>
       </nav>
 
@@ -264,6 +265,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             </div>
           </BorderGlow>
 
+          {/* Voice AI card — teal glow, separate CSS shadow in .lv2-plan-voice */}
           <BorderGlow
             borderRadius={0}
             glowColor={darkMode ? "185 75 55" : "185 72 38"}
