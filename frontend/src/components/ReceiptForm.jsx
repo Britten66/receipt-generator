@@ -822,8 +822,8 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             </button>
           )}
 
-          {/* ── Logo placement — shown to all, upgrade prompt for free ── */}
-          {profile?.tier !== "pro" && (
+          {/* Logo placement — upgrade prompt for free users only */}
+          {profile?.tier !== "pro" && profile?.tier !== "voice" && (
             <button
               type="button"
               className="btn btn-ghost"
