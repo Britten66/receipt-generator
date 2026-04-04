@@ -15,13 +15,18 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.stubEnv("VITE_SUPABASE_URL", "https://test.supabase.co");
 vi.stubEnv("VITE_SUPABASE_ANON_KEY", "anon-key");
 
-const { mockGetSession, mockRefreshSession } = vi.hoisted(() => ({
+const { mockGetSession, mockRefreshSession, mockGetUser, mockStorageUpload, mockStorageRemove } = vi.hoisted(() => ({
   mockGetSession: vi.fn().mockResolvedValue({
     data: { session: { access_token: "test-access-token" } },
   }),
   mockRefreshSession: vi.fn().mockResolvedValue({
     data: { session: { access_token: "refreshed-token" } },
   }),
+  mockGetUser: vi.fn().mockResolvedValue({
+    data: { user: { id: "test-user-id" } },
+  }),
+  mockStorageUpload: vi.fn().mockResolvedValue({ data: {}, error: null }),
+  mockStorageRemove: vi.fn().mockResolvedValue({ data: {}, error: null }),
 }));
 
 vi.mock("../../lib/supabase", () => ({
@@ -29,6 +34,13 @@ vi.mock("../../lib/supabase", () => ({
     auth: {
       getSession: mockGetSession,
       refreshSession: mockRefreshSession,
+      getUser: mockGetUser,
+    },
+    storage: {
+      from: () => ({
+        upload: mockStorageUpload,
+        remove: mockStorageRemove,
+      }),
     },
   },
 }));
@@ -39,13 +51,11 @@ const BASE = "https://test.supabase.co/functions/v1";
 
 beforeEach(() => {
   vi.restoreAllMocks();
-  // Reset to healthy session state before each test
-  mockGetSession.mockResolvedValue({
-    data: { session: { access_token: "test-access-token" } },
-  });
-  mockRefreshSession.mockResolvedValue({
-    data: { session: { access_token: "refreshed-token" } },
-  });
+  mockGetSession.mockResolvedValue({ data: { session: { access_token: "test-access-token" } } });
+  mockRefreshSession.mockResolvedValue({ data: { session: { access_token: "refreshed-token" } } });
+  mockGetUser.mockResolvedValue({ data: { user: { id: "test-user-id" } } });
+  mockStorageUpload.mockResolvedValue({ data: {}, error: null });
+  mockStorageRemove.mockResolvedValue({ data: {}, error: null });
 });
 
 function mockFetch(body, status = 200) {
@@ -106,7 +116,7 @@ describe("parseText", () => {
 // ---------------------------------------------------------------------------
 
 describe("parseAudio", () => {
-  it("sends POST to voice-parse with audio blob and correct content-type", async () => {
+  it("uploads blob to storage then sends storage_path as JSON to voice-parse", async () => {
     const transcript = "Invoice to John";
     const parsed     = { vendor_name: null, customer_name: "John", notes: null, line_items: [] };
     mockFetch({ transcript, parsed });
@@ -114,11 +124,21 @@ describe("parseAudio", () => {
     const blob = new Blob(["audio-data"], { type: "audio/webm" });
     await parseAudio(blob, "audio/webm");
 
+    // Storage upload should have been called with the blob
+    expect(mockStorageUpload).toHaveBeenCalledWith(
+      expect.stringMatching(/^test-user-id\/audio-\d+\.webm$/),
+      blob,
+      { contentType: "audio/webm" }
+    );
+
+    // Fetch should send JSON with storage_path, not binary
     const call = fetch.mock.calls[0];
     expect(call[0]).toBe(`${BASE}/voice-parse`);
     expect(call[1].method).toBe("POST");
-    expect(call[1].headers["Content-Type"]).toBe("audio/webm");
+    expect(call[1].headers["Content-Type"]).toBe("application/json");
     expect(call[1].headers["Authorization"]).toBe("Bearer test-access-token");
+    const body = JSON.parse(call[1].body);
+    expect(body.storage_path).toMatch(/^test-user-id\/audio-\d+\.webm$/);
   });
 
   it("returns transcript and parsed on success", async () => {
@@ -139,12 +159,24 @@ describe("parseAudio", () => {
     await expect(parseAudio(blob, "audio/webm")).rejects.toThrow("Transcription failed. Please try again.");
   });
 
-  it("sends audio/mp4 content-type for iOS recordings", async () => {
+  it("uses .mp4 extension in storage path for iOS recordings", async () => {
     mockFetch({ transcript: "test", parsed: { line_items: [] } });
     const blob = new Blob(["audio-data"], { type: "audio/mp4" });
     await parseAudio(blob, "audio/mp4");
-    const call = fetch.mock.calls[0];
-    expect(call[1].headers["Content-Type"]).toBe("audio/mp4");
+    const body = JSON.parse(fetch.mock.calls[0][1].body);
+    expect(body.storage_path).toMatch(/\.mp4$/);
+  });
+
+  it("throws 'Audio upload failed' when storage upload errors", async () => {
+    mockStorageUpload.mockResolvedValueOnce({ data: null, error: { message: "bucket not found" } });
+    const blob = new Blob(["audio-data"], { type: "audio/webm" });
+    await expect(parseAudio(blob, "audio/webm")).rejects.toThrow("Audio upload failed. Please try again.");
+  });
+
+  it("throws 'Not signed in' when getUser returns no user", async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: null } });
+    const blob = new Blob(["audio-data"], { type: "audio/webm" });
+    await expect(parseAudio(blob, "audio/webm")).rejects.toThrow("Not signed in.");
   });
 });
 
