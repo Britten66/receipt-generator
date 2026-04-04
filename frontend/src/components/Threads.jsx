@@ -123,7 +123,9 @@ void main() {
 const Threads = ({ color = [1, 1, 1], amplitude = 1, distance = 0, enableMouseInteraction = false, ...rest }) => {
   const containerRef = useRef(null);
   const animationFrameId = useRef();
+  const programRef = useRef(null);
 
+  // Main setup — does NOT depend on color so dark mode toggles never cause a flash
   useEffect(() => {
     if (!containerRef.current) return;
     const container = containerRef.current;
@@ -150,6 +152,7 @@ const Threads = ({ color = [1, 1, 1], amplitude = 1, distance = 0, enableMouseIn
         uMouse: { value: new Float32Array([0.5, 0.5]) }
       }
     });
+    programRef.current = program;
 
     const mesh = new Mesh(gl, { geometry, program });
 
@@ -199,6 +202,7 @@ const Threads = ({ color = [1, 1, 1], amplitude = 1, distance = 0, enableMouseIn
     animationFrameId.current = requestAnimationFrame(update);
 
     return () => {
+      programRef.current = null;
       if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
       window.removeEventListener('resize', resize);
 
@@ -209,7 +213,15 @@ const Threads = ({ color = [1, 1, 1], amplitude = 1, distance = 0, enableMouseIn
       if (container.contains(gl.canvas)) container.removeChild(gl.canvas);
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
-  }, [color, amplitude, distance, enableMouseInteraction]);
+  }, [amplitude, distance, enableMouseInteraction]); // color intentionally excluded
+
+  // Separate effect — updates color uniform in-place, no WebGL teardown
+  useEffect(() => {
+    if (!programRef.current) return;
+    programRef.current.uniforms.uColor.value.r = color[0];
+    programRef.current.uniforms.uColor.value.g = color[1];
+    programRef.current.uniforms.uColor.value.b = color[2];
+  }, [color[0], color[1], color[2]]);
 
   return <div ref={containerRef} className="threads-container" {...rest} />;
 };

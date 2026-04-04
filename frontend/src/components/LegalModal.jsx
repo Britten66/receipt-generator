@@ -43,7 +43,15 @@ function Terms() {
       <p>You may not use the Service to generate fraudulent invoices, impersonate another person or business, or engage in any activity that violates applicable law in your jurisdiction.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>7. Paid Plans</h3>
-      <p>Pro plan subscriptions are billed monthly via Stripe. You may cancel at any time; cancellation takes effect at the end of the current billing period. We do not offer refunds for partial periods except where required by applicable law.</p>
+      <p>Pro and Voice AI plan subscriptions are billed monthly in CAD via Stripe. You may cancel at any time; cancellation takes effect at the end of the current billing period. We do not offer refunds for partial periods except where required by applicable law.</p>
+
+      <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>7a. Voice AI Feature</h3>
+      <p>The Voice AI feature (available on the Voice AI plan) allows you to speak an invoice description which is transcribed and parsed into invoice fields. By using this feature you acknowledge and agree to the following:</p>
+      <p style={{ marginTop: 6 }}><strong>Audio processing:</strong> When you use the voice recording feature, your audio is transmitted to Groq, Inc. ("Groq"), a third-party AI service provider, for transcription using Groq's Whisper model. The transcribed text is then processed by Groq's language model to extract invoice fields.</p>
+      <p style={{ marginTop: 6 }}><strong>No audio storage:</strong> Invoice Prepper does not store your audio recordings. Audio is transmitted directly to Groq for processing and discarded immediately after transcription. We do not retain any audio data.</p>
+      <p style={{ marginTop: 6 }}><strong>Groq's terms:</strong> Your use of the Voice AI feature is also subject to Groq's Terms of Service and Privacy Policy. By using this feature, you consent to your audio being processed by Groq in accordance with their policies.</p>
+      <p style={{ marginTop: 6 }}><strong>Usage limits:</strong> Voice AI parsing is limited to 20 uses per day per account.</p>
+      <p style={{ marginTop: 6 }}><strong>Accuracy:</strong> AI-generated invoice fields are provided as a convenience. You are responsible for reviewing and confirming all invoice data before sending to clients. Invoice Prepper makes no warranty as to the accuracy of AI-extracted data.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>8. Limitation of Liability</h3>
       <p>To the maximum extent permitted by applicable law, Invoice Prepper and its operator are not liable for any indirect, incidental, or consequential damages arising from your use of the Service, including any tax penalties, filing errors, or financial losses. Our total liability to you shall not exceed the amounts you paid us in the 3 months preceding the claim.</p>
@@ -70,6 +78,7 @@ function Privacy() {
       <p style={{ marginTop: 6 }}><strong>Profile data:</strong> business name, contact details, payment link, and logo. Only what you choose to enter.</p>
       <p style={{ marginTop: 6 }}><strong>Invoice data:</strong> client names, amounts, line items, and dates you create in the app.</p>
       <p style={{ marginTop: 6 }}><strong>Usage data:</strong> basic logs (IP address, browser type, pages visited) for security and debugging. We do not sell this data.</p>
+      <p style={{ marginTop: 6 }}><strong>Voice AI data (Voice AI plan only):</strong> when you use the voice recording feature, your audio is sent to Groq, Inc. for transcription. Invoice Prepper does not store audio recordings. We store only a count of your daily voice usage for rate-limiting purposes.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>2. How We Use It</h3>
       <p>Solely to provide the Service: storing your invoices, sending password reset emails, and (on Pro) sending invoices to your clients on your behalf. We do not use your data for advertising or sell it to third parties.</p>
@@ -78,6 +87,7 @@ function Privacy() {
       <p><strong>Supabase</strong> (database and auth): hosted in the US, SOC 2 compliant.</p>
       <p style={{ marginTop: 6 }}><strong>Stripe</strong> (payments): PCI-DSS compliant. We never see or store your card number.</p>
       <p style={{ marginTop: 6 }}><strong>Resend</strong> (transactional email): used only to send invoices and password resets.</p>
+      <p style={{ marginTop: 6 }}><strong>Groq, Inc.</strong> (Voice AI tier only): when you use the Voice AI feature, your audio recording is transmitted to Groq for transcription and field extraction. Groq processes your audio under their own Privacy Policy. Your audio is not stored by Invoice Prepper. If you do not use the Voice AI feature, no data is sent to Groq.</p>
       <p style={{ marginTop: 6 }}>We do not sell or share your data with any other third parties.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>4. International Users</h3>
