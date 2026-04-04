@@ -138,6 +138,7 @@ export default function App() {
   const [authLoading, setAuthLoading]           = useState(true);
   const [showAuthModal, setShowAuthModal]       = useState(false);
   const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
+  const [proIntent, setProIntent]               = useState(false);
 
   /*
     "entered" persists in localStorage so a page refresh skips the landing screen.
@@ -215,9 +216,20 @@ export default function App() {
 
   /*
     Auth — runs once on mount via onAuthStateChange.
-    INITIAL_SESSION check skips expired tokens and waits for TOKEN_REFRESHED.
+    getSession() seeds state immediately on load so the app doesn't flash
+    the landing page while waiting for the subscription to fire on mobile.
   */
   useEffect(() => {
+    // Immediately check for an existing valid session — critical for mobile
+    // where the subscription event can be delayed or fire out of order.
+    supabase.auth.getSession().then(({ data: { session: existing } }) => {
+      if (existing) {
+        setSession(existing);
+        setEntered(true);
+        setAuthLoading(false);
+      }
+    });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
       if (event === "PASSWORD_RECOVERY") {
         setShowPasswordUpdate(true);
@@ -237,8 +249,13 @@ export default function App() {
 
       if (!newSession) {
         setSession(null);
-        localStorage.removeItem("app_entered");
-        setEntered(false);
+        // Only clear entered state on an intentional sign-out.
+        // Network errors or failed token refreshes should show the auth
+        // modal, not boot the user back to the landing page.
+        if (event === "SIGNED_OUT") {
+          localStorage.removeItem("app_entered");
+          setEntered(false);
+        }
         setShowAuthModal(false);
       } else {
         setSession(newSession);
