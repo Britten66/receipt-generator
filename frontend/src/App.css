@@ -31,6 +31,7 @@
   --voided: #7a1a1a;       /* red — voided status */
   --accent: #D9B873;       /* thread gold — pro features, active states */
   --accent-dim: rgba(217, 184, 115, 0.12); /* tinted background for accent areas */
+  --voice-text: #0a8a96;   /* cyan text — readable on light backgrounds */
   --mono: ui-monospace, "Courier New", monospace;
   --sans: "Public Sans", sans-serif;
 }
@@ -51,6 +52,7 @@
   --voided: #c04a4a;
   --accent: #D9B873;
   --accent-dim: rgba(217, 184, 115, 0.14);
+  --voice-text: #4dd8e0;   /* bright cyan — readable on dark backgrounds */
 }
 
 /* Dark mode: cream button, dark text */

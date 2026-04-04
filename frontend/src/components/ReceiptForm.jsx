@@ -603,7 +603,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                   style={{
                     fontSize: 10, padding: "5px 10px", borderRadius: 6, border: "none",
                     background: voiceParsing ? "rgba(77,216,224,0.2)" : "rgba(77,216,224,0.85)",
-                    color: voiceParsing ? "#4dd8e0" : "#0a1a1c",
+                    color: voiceParsing ? "var(--voice-text)" : "#0a1a1c",
                     cursor: voiceParsing || !voiceText.trim() ? "not-allowed" : "pointer",
                     fontWeight: 700, letterSpacing: "0.04em", flexShrink: 0,
                     animation: voiceParsing ? "voice-spin 1.4s linear infinite" : "none",
@@ -613,7 +613,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 </button>
                 {/* Status messages */}
                 {(voiceError || voiceTranscript) && (
-                  <span style={{ fontSize: 10, flexShrink: 0, color: voiceError ? "var(--voided)" : "#4dd8e0", fontWeight: 600 }}>
+                  <span style={{ fontSize: 10, flexShrink: 0, color: voiceError ? "var(--voided)" : "var(--voice-text)", fontWeight: 600 }}>
                     {voiceError || "Done. Review above."}
                   </span>
                 )}
@@ -648,7 +648,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                     <span style={{ fontSize: 10, color: "#e05555" }}>Listening... {MAX_RECORDING_SECONDS - voiceSeconds}s</span>
                   )}
                   {voiceParsing && (
-                    <span style={{ fontSize: 10, color: "#4dd8e0" }}>Filling in your invoice...</span>
+                    <span style={{ fontSize: 10, color: "var(--voice-text)" }}>Filling in your invoice...</span>
                   )}
                   {voiceTranscript && !voiceRecording && !voiceParsing && !voiceError && (
                     <span style={{ fontSize: 10, color: "#4dd8e0", fontWeight: 600 }}>Done. Review above.</span>
@@ -660,7 +660,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
               </>
             )}
 
-            <span style={{ fontSize: 8, padding: "1px 5px", background: "rgba(77,216,224,0.12)", border: "1px solid rgba(77,216,224,0.25)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "#4dd8e0", flexShrink: 0 }}>beta</span>
+            <span style={{ fontSize: 8, padding: "1px 5px", background: "rgba(77,216,224,0.12)", border: "1px solid rgba(77,216,224,0.25)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "var(--voice-text)", flexShrink: 0 }}>beta</span>
           </div>
         )}
 
@@ -1050,7 +1050,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
               >
                 <span style={{ display: "block", width: voiceRecording ? 10 : 8, height: voiceRecording ? 10 : 8, borderRadius: "50%", background: voiceRecording ? "#e05555" : "#4dd8e0", transition: "all 0.2s" }} />
               </button>
-              <span style={{ fontSize: 9, color: voiceRecording ? "#e05555" : "#4dd8e0", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
+              <span style={{ fontSize: 9, color: voiceRecording ? "#e05555" : "var(--voice-text)", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
                 {voiceRecording ? "Recording..." : voiceParsing ? "Parsing..." : "Invoice Parser"}
               </span>
             </div>
