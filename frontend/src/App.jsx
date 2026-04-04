@@ -138,7 +138,6 @@ export default function App() {
   const [authLoading, setAuthLoading]           = useState(true);
   const [showAuthModal, setShowAuthModal]       = useState(false);
   const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
-  const [proIntent, setProIntent]               = useState(false);
 
   /*
     "entered" persists in localStorage so a page refresh skips the landing screen.
@@ -714,7 +713,7 @@ export default function App() {
                 style={{ width: "100%", fontSize: 12 }}
                 onClick={() => { setUpgradeAgreed(false); setShowUpgradeConfirm(true); }}
               >
-                Upgrade to Pro. CAD $6/mo
+                Upgrade to Pro
               </button>
             )}
           </>

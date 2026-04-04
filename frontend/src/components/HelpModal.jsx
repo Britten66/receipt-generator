@@ -121,6 +121,13 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
               <li>Your data is never sold or shared</li>
             </ul>
 
+            <div className="win-divider" />
+
+            <p className="help-heading">Need Help?</p>
+            <ul className="help-list">
+              <li>Email us at <a href="mailto:support@invoiceprepper.com" style={{ color: "var(--accent)", textDecoration: "underline" }}>support@invoiceprepper.com</a> and we will get back to you.</li>
+            </ul>
+
             <p className="help-footer">invoiceprepper.com. Built for freelancers, contractors &amp; small business.</p>
 
             {isPro && onLegal && (
