@@ -18,7 +18,6 @@
 import { useState, useEffect, useRef } from "react";
 import { saveProfile } from "../api/profile";
 import { uploadLogo } from "../api/uploadLogo";
-import { supabase } from "../lib/supabase";
 
 /*
   EMPTY_ITEM is the default shape of a new blank line item.
@@ -45,7 +44,7 @@ const CORNER_LABELS = {
   "bottom-left":  "Bottom Left",
 };
 
-export default function ReceiptForm({ onSubmit, onClose, initialData, profile, userEmail, onLogoUpdate }) {
+export default function ReceiptForm({ onSubmit, onClose, initialData, profile, userEmail, session, onLogoUpdate }) {
 
   /*
     form — the main fields of the receipt.
@@ -226,7 +225,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
   async function parseVoice(blob) {
     try {
-      const { data: { session: s } } = await supabase.auth.getSession();
+      const s = session;
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-parse`, {
         method: "POST",
         headers: {
@@ -280,7 +279,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
     setVoiceError("");
     setVoiceTranscript("");
     try {
-      const { data: { session: s } } = await supabase.auth.getSession();
+      const s = session;
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-parse`, {
         method: "POST",
         headers: {

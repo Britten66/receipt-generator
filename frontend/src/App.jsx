@@ -1141,6 +1141,7 @@ export default function App() {
           initialData={editingReceipt}
           profile={profile}
           userEmail={userEmail}
+          session={session}
           onLogoUpdate={(url) => setProfile((p) => ({ ...p, logo_url: url }))}
           onSubmit={handleSaveReceipt}
           onClose={() => setShowForm(false)}
