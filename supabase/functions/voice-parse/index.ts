@@ -89,7 +89,9 @@ Deno.serve(async (req) => {
       messages: [
         {
           role: "system",
-          content: `You extract invoice data from spoken descriptions. Return ONLY valid JSON with these fields:
+          content: `You extract invoice data from spoken invoice descriptions. Return ONLY valid JSON.
+
+Output format:
 {
   "vendor_name": string or null,
   "customer_name": string or null,
@@ -98,15 +100,22 @@ Deno.serve(async (req) => {
     { "description": string, "quantity": number, "unit_price": number }
   ]
 }
+
 Rules:
-- quantity defaults to 1 if not mentioned
-- unit_price must be a number (no currency symbols)
-- If a field is not mentioned, set it to null or empty array
-- Do not invent data not present in the transcript`
+- vendor_name is who is ISSUING the invoice (the speaker's business). Often said as "from [name]" or "my business is [name]" or "this is [name] invoicing".
+- customer_name is who is RECEIVING the invoice (the client). Often said as "to [name]" or "for [name]" or "invoicing [name]".
+- Each distinct product or service mentioned becomes its own line item.
+- quantity defaults to 1 if not mentioned. Extract it from phrases like "3 hours", "2 units", "x5".
+- unit_price is the price PER UNIT as a plain number. Extract from phrases like "at 85 dollars", "for 200", "90 each", "fifty bucks".
+- If someone says "3 hours at 85 dollars" that is quantity=3, unit_price=85.
+- notes is any payment terms, thank you messages, or extra info mentioned.
+- If a field is not mentioned set it to null or empty array.
+- Do not invent data not present in the transcript.
+- Always return line_items as an array even if only one item.`
         },
         {
           role: "user",
-          content: `Extract invoice data from this transcript: "${transcript}"`
+          content: `Extract invoice data from this spoken description: "${transcript}"`
         }
       ]
     }),

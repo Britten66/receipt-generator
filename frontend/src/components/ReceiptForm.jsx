@@ -121,7 +121,38 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   const mediaRecorderRef = useRef(null);
   const audioChunksRef   = useRef([]);
   const voiceTimerRef    = useRef(null);
+  const voiceMimeRef     = useRef("audio/webm");
   const MAX_RECORDING_SECONDS = 45;
+
+  function playDing() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.55);
+    } catch {}
+  }
+
+  function speakBack(parsed) {
+    if (!window.speechSynthesis) return;
+    const customer = parsed.customer_name || "your client";
+    const count    = parsed.line_items?.length ?? 0;
+    const text     = count > 1
+      ? `Invoice for ${customer}, ${count} items. Review the form.`
+      : `Invoice for ${customer}. Review the form.`;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.volume = 0.85;
+    utter.rate   = 1.05;
+    window.speechSynthesis.speak(utter);
+  }
 
   function getMimeType() {
     const types = ["audio/webm", "audio/mp4", "audio/ogg", "audio/wav"];
@@ -138,13 +169,14 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mimeType = getMimeType();
+      voiceMimeRef.current = mimeType || "audio/webm";
       const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       audioChunksRef.current = [];
       recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
       recorder.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
         clearInterval(voiceTimerRef.current);
-        const blob = new Blob(audioChunksRef.current, { type: mimeType || "audio/webm" });
+        const blob = new Blob(audioChunksRef.current, { type: voiceMimeRef.current });
         await parseVoice(blob);
       };
       mediaRecorderRef.current = recorder;
@@ -180,7 +212,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-parse`, {
         method: "POST",
         headers: {
-          "Content-Type": "audio/webm",
+          "Content-Type": voiceMimeRef.current,
           "Authorization": `Bearer ${s?.access_token ?? ""}`,
           "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
           "content-length": String(blob.size),
@@ -210,8 +242,12 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             total:       String((qty * price).toFixed(2)),
           };
         }));
-        if (parsed.notes) setShowNotes(true);
       }
+      if (parsed.notes) setShowNotes(true);
+
+      // Feedback
+      playDing();
+      speakBack(parsed);
     } catch {
       setVoiceError("Something went wrong. Please try again.");
     } finally {
@@ -476,79 +512,85 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
         {/* Voice AI entry — voice tier only */}
         {profile?.tier === "voice" && (
-          <div style={{
-            padding: "14px 18px",
-            borderBottom: "1px solid var(--border)",
-            background: "var(--surface-2)",
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ padding: "16px 18px", borderBottom: "1px solid var(--border)", background: "var(--surface-2)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
 
-              {/* Mic button — pulsing ring when active */}
+              {/* Diamond pulse orb */}
               <button
                 type="button"
                 onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
                 disabled={voiceParsing}
                 style={{
-                  width: 46,
-                  height: 46,
+                  position: "relative",
+                  width: 48,
+                  height: 48,
                   borderRadius: "50%",
                   border: "none",
                   flexShrink: 0,
                   cursor: voiceParsing ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 20,
                   background: voiceRecording
-                    ? "rgba(220,60,60,0.12)"
+                    ? "radial-gradient(circle, rgba(220,80,80,0.3) 0%, rgba(220,80,80,0.08) 100%)"
                     : voiceParsing
-                    ? "var(--surface)"
-                    : "rgba(77,216,224,0.1)",
+                    ? "radial-gradient(circle, rgba(77,216,224,0.15) 0%, rgba(77,216,224,0.04) 100%)"
+                    : "radial-gradient(circle, rgba(77,216,224,0.22) 0%, rgba(77,216,224,0.06) 100%)",
                   boxShadow: voiceRecording
-                    ? "0 0 0 3px rgba(220,60,60,0.25), 0 0 0 6px rgba(220,60,60,0.08)"
-                    : "0 0 0 2px rgba(77,216,224,0.3)",
-                  transition: "all 0.2s",
-                  animation: voiceRecording ? "voice-pulse 1.4s ease-in-out infinite" : "none",
+                    ? "0 0 0 2px rgba(220,80,80,0.5)"
+                    : "0 0 0 2px rgba(77,216,224,0.4)",
+                  animation: voiceRecording
+                    ? "voice-pulse 1.2s ease-in-out infinite"
+                    : voiceParsing
+                    ? "voice-spin 1.4s linear infinite"
+                    : "voice-breathe 3s ease-in-out infinite",
+                  transition: "background 0.3s, box-shadow 0.3s",
+                  padding: 0,
                 }}
               >
-                {voiceParsing ? "✦" : voiceRecording ? "⏹" : "🎙"}
+                {/* Inner diamond dot */}
+                <span style={{
+                  display: "block",
+                  width: voiceRecording ? 14 : 10,
+                  height: voiceRecording ? 14 : 10,
+                  borderRadius: "50%",
+                  background: voiceRecording ? "#e05555" : voiceParsing ? "#4dd8e0" : "#4dd8e0",
+                  margin: "auto",
+                  transition: "all 0.2s",
+                  opacity: voiceParsing ? 0.6 : 1,
+                }} />
               </button>
 
-              {/* Status text column */}
+              {/* Status column */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
                   <>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text)", marginBottom: 2 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text)", marginBottom: 2, display: "flex", alignItems: "center", gap: 6 }}>
                       Speak your invoice
-                      <span style={{ fontSize: 8, marginLeft: 6, padding: "1px 5px", background: "rgba(77,216,224,0.15)", border: "1px solid rgba(77,216,224,0.3)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "#4dd8e0" }}>beta</span>
+                      <span style={{ fontSize: 8, padding: "1px 5px", background: "rgba(77,216,224,0.15)", border: "1px solid rgba(77,216,224,0.3)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "#4dd8e0" }}>beta</span>
                     </div>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)", lineHeight: 1.5 }}>
-                      Say who, what, and the price. Tap mic to start.
+                    <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
+                      Say client, items, and prices. Tap the orb to start.
                     </div>
                   </>
                 )}
                 {voiceRecording && (
                   <>
                     <div style={{ fontSize: 11, fontWeight: 600, color: "#e05555", marginBottom: 2 }}>
-                      Listening... tap to stop
-                      <span style={{ fontWeight: 400, marginLeft: 8, color: "var(--text-muted)" }}>
-                        {MAX_RECORDING_SECONDS - voiceSeconds}s left
-                      </span>
+                      Listening
+                      <span style={{ fontWeight: 400, marginLeft: 8, color: "var(--text-muted)", fontSize: 10 }}>{MAX_RECORDING_SECONDS - voiceSeconds}s remaining</span>
                     </div>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)", lineHeight: 1.5 }}>
-                      e.g. "Invoice to John Smith, 3 hours of web design at 85 dollars each"
+                    <div style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic" }}>
+                      "Invoice to John, 3 hours web design at 85, and logo for 300"
                     </div>
                   </>
                 )}
                 {voiceParsing && (
-                  <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Filling in your invoice...</div>
+                  <div style={{ fontSize: 11, color: "#4dd8e0" }}>Parsing your invoice...</div>
                 )}
                 {voiceTranscript && !voiceRecording && !voiceParsing && !voiceError && (
                   <>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic", marginBottom: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 2 }}>
                       "{voiceTranscript}"
                     </div>
-                    <div style={{ fontSize: 10, color: "#4dd8e0" }}>Invoice filled. Review and adjust above.</div>
+                    <div style={{ fontSize: 10, color: "#4dd8e0", fontWeight: 600 }}>Invoice filled. Review above.</div>
                   </>
                 )}
                 {voiceError && (
@@ -557,20 +599,10 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
               </div>
             </div>
 
-            {/* Guidance hint — only shown at idle */}
+            {/* Tip — idle only */}
             {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
-              <div style={{
-                marginTop: 10,
-                padding: "8px 10px",
-                background: "rgba(77,216,224,0.05)",
-                border: "1px solid rgba(77,216,224,0.15)",
-                borderRadius: 2,
-                fontSize: 10,
-                color: "var(--text-muted)",
-                lineHeight: 1.6,
-              }}>
-                <strong style={{ color: "var(--text-dim)" }}>Tips:</strong> Include client name, item descriptions, quantities, and prices.
-                Multiple items work too: "Logo design for 500, and 2 hours of consulting at 90 each."
+              <div style={{ marginTop: 10, padding: "7px 10px", background: "rgba(77,216,224,0.05)", border: "1px solid rgba(77,216,224,0.12)", fontSize: 10, color: "var(--text-muted)", lineHeight: 1.6 }}>
+                Include who it's for, what you did, how many, and the price. Multiple items work naturally.
               </div>
             )}
           </div>
@@ -940,8 +972,49 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           )}
         </div>
 
-        <div className="modal-footer">
-          <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+        <div className="modal-footer" style={{ alignItems: "center" }}>
+          {profile?.tier === "voice" ? (
+            <button
+              type="button"
+              onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
+              disabled={voiceParsing}
+              title={voiceRecording ? "Stop recording" : "Speak your invoice"}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: "50%",
+                border: "none",
+                flexShrink: 0,
+                cursor: voiceParsing ? "not-allowed" : "pointer",
+                background: voiceRecording
+                  ? "radial-gradient(circle, rgba(220,80,80,0.3) 0%, rgba(220,80,80,0.08) 100%)"
+                  : "radial-gradient(circle, rgba(77,216,224,0.22) 0%, rgba(77,216,224,0.06) 100%)",
+                boxShadow: voiceRecording
+                  ? "0 0 0 2px rgba(220,80,80,0.5)"
+                  : "0 0 0 2px rgba(77,216,224,0.35)",
+                animation: voiceRecording
+                  ? "voice-pulse 1.2s ease-in-out infinite"
+                  : voiceParsing
+                  ? "voice-spin 1.4s linear infinite"
+                  : "voice-breathe 3s ease-in-out infinite",
+                padding: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <span style={{
+                display: "block",
+                width: voiceRecording ? 10 : 8,
+                height: voiceRecording ? 10 : 8,
+                borderRadius: "50%",
+                background: voiceRecording ? "#e05555" : "#4dd8e0",
+                transition: "all 0.2s",
+              }} />
+            </button>
+          ) : (
+            <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+          )}
           <button className="btn btn-primary" onClick={handleSubmit}>{submitButtonLabel}</button>
         </div>
       </div>

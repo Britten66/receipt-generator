@@ -1113,8 +1113,16 @@ body,
 }
 
 @keyframes voice-pulse {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(220,60,60,0.3), 0 0 0 6px rgba(220,60,60,0.08); }
-  50%       { box-shadow: 0 0 0 5px rgba(220,60,60,0.15), 0 0 0 10px rgba(220,60,60,0.04); }
+  0%, 100% { box-shadow: 0 0 0 2px rgba(220,80,80,0.5), 0 0 0 6px rgba(220,80,80,0.12); }
+  50%       { box-shadow: 0 0 0 4px rgba(220,80,80,0.25), 0 0 0 12px rgba(220,80,80,0.04); }
+}
+@keyframes voice-breathe {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(77,216,224,0.4); }
+  50%       { box-shadow: 0 0 0 4px rgba(77,216,224,0.15), 0 0 8px rgba(77,216,224,0.1); }
+}
+@keyframes voice-spin {
+  from { box-shadow: 0 0 0 2px rgba(77,216,224,0.2), 2px 0 0 2px rgba(77,216,224,0.6); }
+  to   { box-shadow: 0 0 0 2px rgba(77,216,224,0.2), -2px 0 0 2px rgba(77,216,224,0.6); }
 }
 
 /* ── Win95-style draggable/resizable help window ────────────────────────── */
