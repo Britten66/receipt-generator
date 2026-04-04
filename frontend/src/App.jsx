@@ -191,6 +191,14 @@ export default function App() {
   const [showUpgradeConfirm, setShowUpgradeConfirm] = useState(false);
   const [upgradeAgreed, setUpgradeAgreed]           = useState(false);
   const [upgradeLegal, setUpgradeLegal]             = useState(null);
+  // Which tier the upgrade confirm modal is targeting ("pro" or "voice")
+  const [upgradeTargetTier, setUpgradeTargetTier]   = useState("pro");
+
+  function openUpgradeConfirm(tier) {
+    setUpgradeTargetTier(tier);
+    setUpgradeAgreed(false);
+    setShowUpgradeConfirm(true);
+  }
 
   // Toast: { msg, type: "success" | "error" }. Auto-clears after 3.5s.
   const [toast, setToast] = useState(null);
@@ -751,15 +759,24 @@ export default function App() {
             >
               {profile?.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
             </button>
-            {!profileLoading && (profile?.tier === "free" || !profile?.tier) ? (
+            {!profileLoading && (profile?.tier === "free" || !profile?.tier) && (
               <button
                 className="btn btn-primary"
                 style={{ width: "100%", fontSize: 12 }}
-                onClick={() => { setUpgradeAgreed(false); setShowUpgradeConfirm(true); }}
+                onClick={() => openUpgradeConfirm("pro")}
               >
                 Upgrade to Pro
               </button>
-            ) : null}
+            )}
+            {!profileLoading && profile?.tier === "pro" && (
+              <button
+                className="btn btn-primary"
+                style={{ width: "100%", fontSize: 12, background: "var(--accent)", borderColor: "var(--accent)" }}
+                onClick={() => openUpgradeConfirm("voice")}
+              >
+                Upgrade to Voice AI
+              </button>
+            )}
           </>
           <button className="btn btn-primary" style={{ width: "100%" }} onClick={openNewReceipt}>
             + New Invoice
@@ -1172,13 +1189,15 @@ export default function App() {
         <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && setShowUpgradeConfirm(false)}>
           <div className="modal" style={{ maxWidth: 380 }}>
             <div className="modal-header">
-              <span className="modal-title">Upgrade to Pro</span>
+              <span className="modal-title">Upgrade to {upgradeTargetTier === "voice" ? "Voice AI" : "Pro"}</span>
               <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={() => setShowUpgradeConfirm(false)}>✕</button>
             </div>
             <div className="modal-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Pro: CAD $9.00 / month</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>
+                {upgradeTargetTier === "voice" ? "Voice AI: CAD $12.00 / month" : "Pro: CAD $9.00 / month"}
+              </div>
               <div style={{ fontSize: 11, color: "var(--text-dim)", lineHeight: 1.6 }}>
-                You will be charged CAD $9.00 each month. Your subscription renews automatically until cancelled. Cancellation takes effect at the end of the current billing period. No partial refunds.
+                You will be charged CAD {upgradeTargetTier === "voice" ? "$12.00" : "$9.00"} each month. Your subscription renews automatically until cancelled. Cancellation takes effect at the end of the current billing period. No partial refunds.
               </div>
               <label style={{ display: "flex", gap: 10, alignItems: "flex-start", cursor: "pointer", fontSize: 11, color: "var(--text-dim)", lineHeight: 1.5 }}>
                 <input
@@ -1203,7 +1222,7 @@ export default function App() {
               <button
                 className="btn btn-primary"
                 disabled={!upgradeAgreed}
-                onClick={() => { setShowUpgradeConfirm(false); startCheckout().catch(() => showToast("Couldn't open checkout. Try again.")); }}
+                onClick={() => { setShowUpgradeConfirm(false); startCheckout(upgradeTargetTier).catch(() => showToast("Couldn't open checkout. Try again.")); }}
               >
                 Continue to Payment →
               </button>
@@ -1244,7 +1263,7 @@ export default function App() {
           whiteSpace: "nowrap",
           cursor: toast.type === "upgrade" ? "pointer" : "default",
         }}
-        onClick={toast.type === "upgrade" ? () => { setUpgradeAgreed(false); setShowUpgradeConfirm(true); } : undefined}
+        onClick={toast.type === "upgrade" ? () => openUpgradeConfirm("pro") : undefined}
         >
           {toast.msg}{toast.type === "upgrade" ? " →" : ""}
         </div>
