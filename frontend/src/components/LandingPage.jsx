@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import LegalModal from "./LegalModal";
 import BorderGlow from "./BorderGlow";
+import Threads from "./Threads";
 import "./LandingPage.css";
 
 const MOCK_INVOICE = {
   receipt_number: "001042",
   vendor_name: "Maple & Co. Creative",
   customer_name: "Summit Tech Solutions",
-  date: "April 1, 2026",
+  date: "2026-03-14",
+  status: "SENT",
   line_items: [
     { description: "Brand Identity Package", quantity: 1, unit_price: 1200.00, total: 1200.00 },
     { description: "Social Media Asset Kit", quantity: 3, unit_price: 180.00, total: 540.00 },
@@ -16,11 +18,11 @@ const MOCK_INVOICE = {
   subtotal: 1930.00,
   tax: 250.90,
   total: 2180.90,
-  notes: "Thank you for your business. Payment due within 14 days.",
+  notes: "Payment due within 14 days. Thank you for your business.",
 };
 
 function MockInvoice() {
-  const fmt = (n) => `$${n.toFixed(2)}`;
+  const fmt = (n) => `$${parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   return (
     <div className="mock-invoice">
       <div className="mock-invoice-header">
@@ -29,31 +31,34 @@ function MockInvoice() {
       </div>
       <div className="mock-invoice-parties">
         <div>
-          <div className="mock-party-label">FROM</div>
           <div className="mock-party-name">{MOCK_INVOICE.vendor_name}</div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div className="mock-party-label">BILLED TO</div>
+          <div className="mock-party-label">ISSUED TO</div>
           <div className="mock-party-name">{MOCK_INVOICE.customer_name}</div>
         </div>
       </div>
-      <div className="mock-invoice-date">Date: {MOCK_INVOICE.date}</div>
+      <div className="mock-invoice-meta">
+        <span>Date: {MOCK_INVOICE.date}</span>
+        <span>Status: {MOCK_INVOICE.status}</span>
+      </div>
+      <div className="mock-invoice-divider" />
       <table className="mock-invoice-table">
         <thead>
           <tr>
-            <th>Description</th>
-            <th>Qty</th>
-            <th>Price</th>
-            <th>Total</th>
+            <th style={{ textAlign: "left" }}>Description</th>
+            <th style={{ textAlign: "right" }}>Qty</th>
+            <th style={{ textAlign: "right" }}>Unit Price</th>
+            <th style={{ textAlign: "right" }}>Total</th>
           </tr>
         </thead>
         <tbody>
           {MOCK_INVOICE.line_items.map((li, i) => (
             <tr key={i}>
-              <td>{li.description}</td>
-              <td>{li.quantity}</td>
-              <td>{fmt(li.unit_price)}</td>
-              <td>{fmt(li.total)}</td>
+              <td style={{ textAlign: "left" }}>{li.description}</td>
+              <td style={{ textAlign: "right" }}>{li.quantity}</td>
+              <td style={{ textAlign: "right" }}>{fmt(li.unit_price)}</td>
+              <td style={{ textAlign: "right" }}>{fmt(li.total)}</td>
             </tr>
           ))}
         </tbody>
@@ -71,10 +76,12 @@ function MockInvoice() {
   );
 }
 
-export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, onToggleDark }) {
+export default function LandingPage({ onEnter, onSignIn, darkMode, onToggleDark }) {
   const [legal, setLegal] = useState(null);
   const scrollRef = useRef(null);
+  const navRef = useRef(null);
 
+  // Auto-scroll the invoice preview
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -90,22 +97,49 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
     return () => clearInterval(tick);
   }, []);
 
+  // Lazy-follow nav: velocity-based drag that decays back to 0
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    let lastScrollY = window.scrollY;
+    let offset = 0;
+    let rafId;
+
+    const loop = () => {
+      const scrollY = window.scrollY;
+      const velocity = scrollY - lastScrollY;
+      lastScrollY = scrollY;
+      // Push nav opposite to scroll direction, decay back to resting position
+      offset += velocity * 0.25;
+      offset *= 0.7;
+      offset = Math.max(-14, Math.min(14, offset));
+      nav.style.transform = `translateY(${(-offset).toFixed(2)}px)`;
+      rafId = requestAnimationFrame(loop);
+    };
+    rafId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafId);
+  }, []);
+
   return (
     <div className="landing-v2">
-      <div className="lv2-topbar">
-        <button className="lv2-signin" onClick={onSignIn}>Sign In</button>
-        <button className="dark-toggle" onClick={onToggleDark}>
-          {darkMode ? "Light" : "Dark"}
-        </button>
-      </div>
 
-      {/* Hero */}
+      {/* Lazy-follow nav */}
+      <nav className="lv2-topbar" ref={navRef}>
+        <div className="lv2-nav-controls">
+          <button className="dark-toggle" onClick={onToggleDark}>
+            {darkMode ? "Light" : "Dark"}
+          </button>
+          <button className="lv2-signin" onClick={onSignIn}>Sign In</button>
+        </div>
+      </nav>
+
+      {/* 2 — Hero: hook + invoice preview */}
       <section className="lv2-hero">
         <div className="lv2-hero-text">
           <p className="lv2-eyebrow">Invoice Prepper</p>
           <h1 className="lv2-title">The invoice generator<br />for freelancers who<br />just want to get paid.</h1>
-          <p className="lv2-desc">Create professional invoices, track what's paid, and email directly to clients. Free PDF invoice maker for freelancers, contractors, and small businesses. No bloat, no learning curve.</p>
-          <button className="lv2-cta" onClick={onEnter}>Create Free Account</button>
+          <p className="lv2-desc">Create professional invoices, email to clients, and track what's paid — all in one place. Built for freelancers, contractors, and small businesses. No bloat, no learning curve.</p>
+          <button className="lv2-cta" onClick={onEnter}>Start Invoicing Free</button>
           <p className="lv2-sub">Free forever · No credit card required</p>
         </div>
 
@@ -132,9 +166,45 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* 3 — Features */}
+      
+      {/* 5 — How it works */}
+      <section className="lv2-steps">
+        <p className="lv2-steps-eyebrow">How it works</p>
+        <h2 className="lv2-steps-title">Up and running in minutes</h2>
+        <div className="lv2-steps-grid">
+          <div className="lv2-step">
+            <div className="lv2-step-num">01</div>
+            <div className="lv2-step-label">Create your invoice</div>
+            <p className="lv2-step-desc">Fill in your business details, add line items, set your rate. Done in under two minutes.</p>
+          </div>
+          <div className="lv2-step">
+            <div className="lv2-step-num">02</div>
+            <div className="lv2-step-label">Send to your client</div>
+            <p className="lv2-step-desc">Email directly from the app or download the PDF. No switching between tools.</p>
+          </div>
+          <div className="lv2-step">
+            <div className="lv2-step-num">03</div>
+            <div className="lv2-step-label">Track and get paid</div>
+            <p className="lv2-step-desc">Mark invoices as sent or paid. See exactly what is outstanding at a glance.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* 6 — Threads break */}
+      <div className="lv2-texture-break" aria-hidden="true">
+        <Threads
+          color={darkMode ? [1, 1, 1] : [0.22, 0.2, 0.18]}
+          amplitude={1.2}
+          distance={0.4}
+          enableMouseInteraction={true}
+        />
+      </div>
+
+      {/* 7 — Pricing */}
       <section className="lv2-pricing">
         <h2 className="lv2-pricing-title">Simple pricing</h2>
+        <p className="lv2-pricing-sub">Start free. Upgrade when you're ready.</p>
         <div className="lv2-plans">
 
           <BorderGlow
@@ -161,7 +231,7 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
                 <li className="lv2-plan-caveat">PDF includes invoiceprepper.com footer</li>
                 <li className="lv2-plan-caveat">Emails sent from InvoicePrepper</li>
               </ul>
-              <button className="lv2-plan-btn lv2-plan-btn-ghost" onClick={onEnter}>Try for Free</button>
+              <button className="lv2-plan-btn lv2-plan-btn-ghost" onClick={onEnter}>Get Started Free</button>
             </div>
           </BorderGlow>
 
@@ -182,19 +252,61 @@ export default function LandingPage({ onEnter, onEnterPro, onSignIn, darkMode, o
               <div className="lv2-plan-price">CAD $6<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
               <ul className="lv2-plan-features">
-                <li>Unlimited invoices</li>
+                <li>Everything in Free</li>
                 <li>Clean PDF, no watermark</li>
-                <li>Custom sender name on every email</li>
-                <li>Share invoices via text, WhatsApp, email app or save to files</li>
+                <li>Your business name on every email</li>
+                <li>Share via text, WhatsApp, or any app</li>
                 <li>Your logo on every invoice and PDF</li>
-                <li>Pay Now button so clients pay faster</li>
+                <li>Pay Now button on every invoice</li>
                 <li>Customizable dashboard themes</li>
               </ul>
-              <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro ?? onEnter}>Get Pro for CAD $6/mo</button>
+              <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnter}>Get Pro for CAD $6/mo</button>
             </div>
           </BorderGlow>
 
         </div>
+      </section>
+
+      {/* 8 — FAQ */}
+      <section className="lv2-faq-editorial">
+        <div className="lv2-faq-left">
+          <span className="lv2-faq-eyebrow">Common Questions</span>
+          <h2 className="lv2-faq-headline">Simple answers.</h2>
+          <p className="lv2-faq-tagline">Everything you need to know before you send your first invoice.</p>
+        </div>
+        <div className="lv2-faq-right">
+          <div className="lv2-faq-item2">
+            <h3 className="lv2-faq-q2">Is the free plan really free?</h3>
+            <p className="lv2-faq-a2">Yes, forever. No trial period, no bait-and-switch. Create and send unlimited invoices at no cost.</p>
+          </div>
+          <div className="lv2-faq-item2">
+            <h3 className="lv2-faq-q2">What is InvoicePrepper?</h3>
+            <p className="lv2-faq-a2">InvoicePrepper is a free invoice generator for freelancers, contractors, and small businesses. Create professional invoices, send by email, and track what gets paid.</p>
+          </div>
+          <div className="lv2-faq-item2">
+            <h3 className="lv2-faq-q2">Do I need to create an account?</h3>
+            <p className="lv2-faq-a2">Yes. Your account keeps your invoices secure and organized. Sign up takes under a minute with no credit card required.</p>
+          </div>
+          <div className="lv2-faq-item2">
+            <h3 className="lv2-faq-q2">Is my data safe?</h3>
+            <p className="lv2-faq-a2">All data is encrypted in transit and at rest. We use Supabase (SOC 2 compliant) for storage. Your invoice data is never sold or shared.</p>
+          </div>
+          <div className="lv2-faq-item2">
+            <h3 className="lv2-faq-q2">Can I cancel Pro anytime?</h3>
+            <p className="lv2-faq-a2">Yes. Cancel from inside the app in one tap. You keep Pro access until your billing period ends. No fees, no questions.</p>
+          </div>
+          <div className="lv2-faq-item2">
+            <h3 className="lv2-faq-q2">Need help?</h3>
+            <p className="lv2-faq-a2">Email us at <a href="mailto:support@invoiceprepper.com" className="lv2-faq-link">support@invoiceprepper.com</a> and we'll get back to you.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* 9 — Final CTA */}
+      <section className="lv2-final-cta">
+        <h2 className="lv2-final-cta-title">Ready to send your first invoice?</h2>
+        <p className="lv2-final-cta-sub">Free forever. No credit card. Takes two minutes.</p>
+        <button className="lv2-cta" onClick={onEnter}>Start Invoicing Free</button>
       </section>
 
       {/* Footer */}
