@@ -333,7 +333,7 @@ body,
 .help-btn {
   background: none;
   border: 1px solid var(--border);
-  color: var(--text-muted);
+  color: #ffffff;
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 600;

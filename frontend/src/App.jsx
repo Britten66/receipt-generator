@@ -703,7 +703,7 @@ export default function App() {
           <>
             <button
               className="btn btn-ghost"
-              style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em" }}
+              style={{ width: "100%", fontSize: 12, letterSpacing: "0.06em" }}
               onClick={() => setShowProfileModal(true)}
             >
               {profile?.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
@@ -711,19 +711,12 @@ export default function App() {
             {profile?.tier !== "pro" && (
               <button
                 className="btn btn-primary"
-                style={{ width: "100%", fontSize: 11 }}
+                style={{ width: "100%", fontSize: 12 }}
                 onClick={() => { setUpgradeAgreed(false); setShowUpgradeConfirm(true); }}
               >
                 Upgrade to Pro. CAD $6/mo
               </button>
             )}
-            <button
-              className="btn btn-ghost"
-              style={{ width: "100%", fontSize: 10, letterSpacing: "0.1em", color: "var(--text-muted)" }}
-              onClick={() => supabase.auth.signOut()}
-            >
-              Sign Out
-            </button>
           </>
           <button className="btn btn-primary" style={{ width: "100%" }} onClick={openNewReceipt}>
             + New Invoice
