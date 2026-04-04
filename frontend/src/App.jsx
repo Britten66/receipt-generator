@@ -145,6 +145,7 @@ export default function App() {
   const [authLoading, setAuthLoading]           = useState(true);
   const [profileLoading, setProfileLoading]     = useState(true);
   const [showAuthModal, setShowAuthModal]       = useState(false);
+  const [authModalMode, setAuthModalMode]       = useState("signup"); // "signup" | "login"
   const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
   const proIntentRef = useRef("");
 
@@ -551,7 +552,8 @@ export default function App() {
         <LandingPage
           darkMode={darkMode}
           onToggleDark={() => setDarkMode(!darkMode)}
-          onSignIn={() => setShowAuthModal(true)}
+          onSignIn={() => { setAuthModalMode("login"); setShowAuthModal(true); }}
+          onSignUp={() => { setAuthModalMode("signup"); setShowAuthModal(true); }}
           onEnter={() => {
             localStorage.setItem("app_entered", "1");
             setEntered(true);
@@ -585,6 +587,7 @@ export default function App() {
         />
         {showAuthModal && (
           <AuthModal
+            initialMode={authModalMode}
             onBack={() => {
               setShowAuthModal(false);
               localStorage.removeItem("app_entered");
@@ -1173,7 +1176,7 @@ export default function App() {
 
       {/* Sign in / sign up modal */}
       {showAuthModal && (
-        <AuthModal onClose={() => setShowAuthModal(false)} />
+        <AuthModal initialMode={authModalMode} onClose={() => setShowAuthModal(false)} />
       )}
 
       {/* "Set new password" modal — shown after clicking a password reset email link */}

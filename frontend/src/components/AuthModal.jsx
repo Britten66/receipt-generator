@@ -3,8 +3,8 @@ import { supabase } from "../lib/supabase";
 import LegalModal from "./LegalModal";
 import "./AuthPage.css";
 
-export default function AuthModal({ onClose, onBack }) {
-  const [mode, setMode]       = useState("signup");
+export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
+  const [mode, setMode]       = useState(initialMode);
   const [email, setEmail]     = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
