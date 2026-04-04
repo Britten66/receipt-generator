@@ -34,8 +34,8 @@ Deno.serve(async (req) => {
   // Daily rate limit — skip for admin users listed in ADMIN_USER_IDS (comma-separated)
   const adminIds = (Deno.env.get("ADMIN_USER_IDS") ?? "").split(",").map(s => s.trim()).filter(Boolean);
   const isAdmin = adminIds.includes(user.id);
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   if (!isAdmin) {
-    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     const { count } = await supabase.from("voice_usage").select("*", { count: "exact", head: true })
       .eq("user_id", user.id).eq("date", today);
     if ((count ?? 0) >= DAILY_LIMIT) {
