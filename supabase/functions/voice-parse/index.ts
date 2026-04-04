@@ -38,23 +38,21 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Daily voice parsing limit reached. Try again tomorrow." }), { status: 429, headers: corsHeaders });
   }
 
-  // Read audio body
-  const contentLength = parseInt(req.headers.get("content-length") ?? "0", 10);
-  if (contentLength > MAX_AUDIO_BYTES) {
-    return new Response(JSON.stringify({ error: "Audio file too large. Max 10 MB." }), { status: 413, headers: corsHeaders });
-  }
-
-  const audioBlob = await req.blob();
-  if (audioBlob.size > MAX_AUDIO_BYTES) {
-    return new Response(JSON.stringify({ error: "Audio file too large. Max 10 MB." }), { status: 413, headers: corsHeaders });
-  }
-
   const groqKey = Deno.env.get("GROQ_API_KEY");
   if (!groqKey) return new Response(JSON.stringify({ error: "Voice parsing not configured." }), { status: 500, headers: corsHeaders });
 
-  // Step 1: Transcribe with Groq Whisper
-  // Pick file extension based on actual mime type — iOS sends mp4, desktop sends webm
+  // Read audio body — read once into ArrayBuffer, then wrap as Blob
   const contentType = req.headers.get("content-type") ?? "audio/webm";
+  const audioBuffer = await req.arrayBuffer();
+  if (audioBuffer.byteLength === 0) {
+    return new Response(JSON.stringify({ error: "No audio received. Please try again." }), { status: 422, headers: corsHeaders });
+  }
+  if (audioBuffer.byteLength > MAX_AUDIO_BYTES) {
+    return new Response(JSON.stringify({ error: "Audio file too large. Max 10 MB." }), { status: 413, headers: corsHeaders });
+  }
+  const audioBlob = new Blob([audioBuffer], { type: contentType });
+
+  // Pick file extension based on actual mime type — iOS sends mp4, desktop sends webm
   const ext = contentType.includes("mp4") ? "mp4"
             : contentType.includes("ogg") ? "ogg"
             : contentType.includes("wav") ? "wav"

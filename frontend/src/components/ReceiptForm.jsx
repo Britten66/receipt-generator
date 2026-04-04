@@ -550,7 +550,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             <div style={{ flex: 1, minWidth: 0 }}>
               {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
                 <span style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic" }}>
-                  "Invoice to John, 3 hrs design at 85, logo for 300"
+                  "Invoice to John, 3 hours of design at 85, and logo for 300"
                 </span>
               )}
               {voiceRecording && (
