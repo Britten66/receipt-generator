@@ -264,6 +264,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             </div>
           </BorderGlow>
 
+          {/* Voice AI card — teal glow, separate CSS shadow in .lv2-plan-voice */}
           <BorderGlow
             borderRadius={0}
             glowColor={darkMode ? "185 75 55" : "185 72 38"}

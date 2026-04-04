@@ -191,9 +191,15 @@ export default function App() {
   const [showUpgradeConfirm, setShowUpgradeConfirm] = useState(false);
   const [upgradeAgreed, setUpgradeAgreed]           = useState(false);
   const [upgradeLegal, setUpgradeLegal]             = useState(null);
-  // Which tier the upgrade confirm modal is targeting ("pro" or "voice")
+  /*
+    upgradeTargetTier — which tier the upgrade confirm modal is targeting.
+    "pro"   → shown when a free user clicks Upgrade to Pro
+    "voice" → shown when a pro user clicks Upgrade to Voice AI
+    Drives the modal title, price copy, and the tier passed to startCheckout().
+  */
   const [upgradeTargetTier, setUpgradeTargetTier]   = useState("pro");
 
+  // Single entry point for opening the upgrade modal — always sets tier and resets checkbox.
   function openUpgradeConfirm(tier) {
     setUpgradeTargetTier(tier);
     setUpgradeAgreed(false);
@@ -564,6 +570,7 @@ export default function App() {
             }
           }}
           onEnterVoice={() => {
+            // Store intent so checkout fires immediately after sign-up if not yet signed in.
             proIntentRef.current = "voice";
             localStorage.setItem("app_entered", "1");
             setEntered(true);
