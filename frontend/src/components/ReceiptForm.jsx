@@ -204,7 +204,8 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           return s + 1;
         });
       }, 1000);
-    } catch {
+    } catch (err) {
+      console.error("Mic error:", err?.name, err?.message);
       setVoiceError("Microphone access denied. Please allow mic access and try again.");
     }
   }
