@@ -210,13 +210,13 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
 
           <BorderGlow
             borderRadius={0}
-            glowColor={darkMode ? "220 12 70" : "0 0 5"}
-            glowIntensity={darkMode ? 0.9 : 1.1}
-            glowRadius={36}
+            glowColor={darkMode ? "220 12 70" : "220 20 18"}
+            glowIntensity={darkMode ? 0.9 : 2.2}
+            glowRadius={darkMode ? 36 : 60}
             edgeSensitivity={8}
             coneSpread={30}
-            fillOpacity={darkMode ? 0.15 : 0.22}
-            colors={darkMode ? ["#b8bcc8", "#a4a8b4", "#9094a0"] : ["#c0c4d0", "#b0b4c0", "#a0a4b0"]}
+            fillOpacity={darkMode ? 0.15 : 0.55}
+            colors={darkMode ? ["#b8bcc8", "#a4a8b4", "#9094a0"] : ["#555866", "#464a58", "#383c4a"]}
             backgroundColor="transparent"
             className="lv2-plan-glow"
           >
@@ -238,12 +238,12 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
 
           <BorderGlow
             borderRadius={0}
-            glowColor={darkMode ? "43 78 55" : "43 85 45"}
-            glowIntensity={darkMode ? 1.0 : 1.15}
-            glowRadius={40}
+            glowColor={darkMode ? "43 78 55" : "43 85 38"}
+            glowIntensity={darkMode ? 1.0 : 2.2}
+            glowRadius={darkMode ? 40 : 62}
             edgeSensitivity={5}
             coneSpread={35}
-            fillOpacity={darkMode ? 0.2 : 0.25}
+            fillOpacity={darkMode ? 0.2 : 0.55}
             colors={darkMode ? ["#E8B840", "#D4A030", "#C09020"] : ["#1a1814", "#252318", "#2e2c20"]}
             backgroundColor="transparent"
             className="lv2-plan-glow"
@@ -268,12 +268,12 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           {/* Voice AI card — teal glow, separate CSS shadow in .lv2-plan-voice */}
           <BorderGlow
             borderRadius={0}
-            glowColor={darkMode ? "185 75 55" : "185 72 38"}
-            glowIntensity={darkMode ? 0.95 : 1.15}
-            glowRadius={38}
+            glowColor={darkMode ? "185 75 55" : "185 72 32"}
+            glowIntensity={darkMode ? 0.95 : 2.2}
+            glowRadius={darkMode ? 38 : 60}
             edgeSensitivity={5}
             coneSpread={32}
-            fillOpacity={darkMode ? 0.18 : 0.22}
+            fillOpacity={darkMode ? 0.18 : 0.55}
             colors={darkMode ? ["#4dd8e0", "#38c8d0", "#28b8c0"] : ["#0a1c1e", "#0e2226", "#1a1a1a"]}
             backgroundColor="transparent"
             className="lv2-plan-glow"

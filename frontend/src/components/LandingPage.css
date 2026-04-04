@@ -206,6 +206,25 @@
   opacity: 0.15;
 }
 
+/*
+  Light mode: plus-lighter adds colour towards white, making the glow invisible.
+  Multiply darkens the border edge instead, so the glow is visible on light backgrounds.
+  Dark mode keeps plus-lighter (brightens on dark backgrounds).
+*/
+.lv2-plan-glow > .edge-light {
+  mix-blend-mode: multiply;
+}
+[data-theme="dark"] .lv2-plan-glow > .edge-light {
+  mix-blend-mode: plus-lighter;
+}
+/* Light mode needs full opacity since multiply is less contrasty than plus-lighter */
+.lv2-plan-glow.border-glow-card:hover > .edge-light {
+  opacity: 1.0;
+}
+[data-theme="dark"] .lv2-plan-glow.border-glow-card:hover > .edge-light {
+  opacity: 0.85;
+}
+
 /* Reflection hidden */
 .lv2-hero-reflection {
   display: none;
