@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
   }
 
   // Server-side tier check — voice tier only
-  const { data: profile } = await supabase.from("profiles").select("tier").eq("user_id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("tier, business_name, currency").eq("user_id", user.id).single();
   if (profile?.tier !== "voice") {
     return new Response(JSON.stringify({ error: "Voice parsing requires the Voice tier." }), {
       status: 403,
@@ -150,7 +150,8 @@ Deno.serve(async (req) => {
         {
           role: "system",
           content: `You extract invoice data from spoken invoice descriptions. Return ONLY valid JSON.
-
+${profile?.business_name ? `\nContext: The person speaking is invoicing FROM "${profile.business_name}". Use this as vendor_name unless they explicitly say a different business name.` : ""}
+${profile?.currency ? `\nDefault currency: ${profile.currency}. Use this unless the speaker explicitly mentions a different currency.` : ""}
 Output format:
 {
   "vendor_name": string or null,

@@ -29,7 +29,7 @@ Deno.serve(async (req)=>{
     headers: corsHeaders
   });
   // Voice tier only
-  const { data: profile } = await supabase.from("profiles").select("tier").eq("user_id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("tier, business_name, currency").eq("user_id", user.id).single();
   if (profile?.tier !== "voice") {
     return new Response(JSON.stringify({
       error: "AI parsing requires the Voice AI tier."
@@ -97,7 +97,8 @@ Deno.serve(async (req)=>{
         {
           role: "system",
           content: `You extract invoice data from invoice descriptions. Return ONLY valid JSON.
-
+${profile?.business_name ? `\nContext: The user's business is "${profile.business_name}". Use this as vendor_name unless they explicitly mention a different business name.` : ""}
+${profile?.currency ? `\nDefault currency: ${profile.currency}. Use this unless explicitly overridden in the description.` : ""}
 Output format:
 {
   "vendor_name": string or null,
