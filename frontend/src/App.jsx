@@ -143,6 +143,7 @@ export default function App() {
 
   const [session, setSession]                   = useState(null);
   const [authLoading, setAuthLoading]           = useState(true);
+  const [profileLoading, setProfileLoading]     = useState(true);
   const [showAuthModal, setShowAuthModal]       = useState(false);
   const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
   const proIntentRef = useRef("");
@@ -297,6 +298,7 @@ export default function App() {
 
     fetchProfile().then((p) => {
       setProfile(p || null);
+      setProfileLoading(false);
       // First-login detection: if the profile has no business_name, the user just
       // registered and hasn't set up their account yet. Open the profile modal
       // automatically so they can enter their business details before creating invoices.
@@ -749,7 +751,7 @@ export default function App() {
             >
               {profile?.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
             </button>
-            {profile?.tier === "free" || !profile?.tier ? (
+            {!profileLoading && (profile?.tier === "free" || !profile?.tier) ? (
               <button
                 className="btn btn-primary"
                 style={{ width: "100%", fontSize: 12 }}
@@ -763,7 +765,7 @@ export default function App() {
             + New Invoice
           </button>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, paddingTop: 4, position: "relative" }}>
-            {(profile?.tier === "free" || !profile?.tier) && (
+            {!profileLoading && (profile?.tier === "free" || !profile?.tier) && (
               <>
                 <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
                 <button onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Privacy</button>
@@ -1044,7 +1046,7 @@ export default function App() {
                       : showToast("Upgrade to Pro to share invoices.", "upgrade")
                     }
                   >
-                    Share Invoice {(profile?.tier === "free" || !profile?.tier) && <span style={{ fontSize: 9, letterSpacing: "0.1em", opacity: 0.5, marginLeft: 4 }}>PRO</span>}
+                    Share Invoice {!profileLoading && (profile?.tier === "free" || !profile?.tier) && <span style={{ fontSize: 9, letterSpacing: "0.1em", opacity: 0.5, marginLeft: 4 }}>PRO</span>}
                   </button>
                 )}
                 <button
