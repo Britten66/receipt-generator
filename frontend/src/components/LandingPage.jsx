@@ -287,7 +287,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 <li>Works on mobile, no typing needed</li>
                 <li>20 AI parses per day</li>
                 <li style={{ color: "var(--text-muted)", fontSize: 11 }}>
-                  <span style={{ fontSize: 9, padding: "1px 5px", background: "rgba(77,216,224,0.15)", border: "1px solid rgba(77,216,224,0.3)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "#4dd8e0", marginRight: 5 }}>beta</span>
+                  <span style={{ fontSize: 9, padding: "1px 5px", background: "rgba(77,216,224,0.15)", border: "1px solid rgba(77,216,224,0.3)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "#0a8a96", marginRight: 5 }}>beta</span>
                   First on new AI features
                 </li>
               </ul>
