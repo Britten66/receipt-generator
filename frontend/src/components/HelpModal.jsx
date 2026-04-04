@@ -113,24 +113,37 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
 
             <div className="win-divider" />
 
-            <p className="help-heading">Free vs Pro</p>
+            <p className="help-heading">Free vs Pro vs Voice AI</p>
             <ul className="help-list">
-              <li><strong>Free:</strong> unlimited invoices, PDF download, email invoices to clients</li>
-              <li><strong>Pro (CAD $6/mo):</strong> emails sent under your name automatically, share invoices via text or WhatsApp, no watermark, custom logo on PDF</li>
+              <li><strong>Free:</strong> unlimited invoices, PDF download, invoiceprepper.com watermark</li>
+              <li><strong>Pro:</strong> no watermark, custom logo on PDF, emails sent under your business name, share via text or WhatsApp, theme customisation</li>
+              <li><strong>Voice AI:</strong> everything in Pro plus voice and text AI invoice parsing</li>
               <li>Upgrade anytime from the sidebar. Cancel anytime from Billing.</li>
-              <li>Your data is never sold or shared</li>
+              <li>Subscriptions are billed in the currency shown at checkout. Accepted globally via Stripe.</li>
+            </ul>
+
+            <div className="win-divider" />
+
+            <p className="help-heading">AI Features</p>
+            <ul className="help-list">
+              <li>Voice AI plan lets you speak or type an invoice description and AI fills in the fields</li>
+              <li>Supports multiple line items. Say "web design and hosting" to get two separate lines</li>
+              <li>Detects currency (USD, CAD, EUR, GBP) from what you say or type</li>
+              <li>Limited to 20 AI parses per day per account</li>
+              <li>Always review AI-filled fields before sending to a client</li>
+              <li>AI input is processed by Groq, Inc. See Privacy Policy for details</li>
             </ul>
 
             <div className="win-divider" />
 
             <p className="help-heading">Need Help?</p>
             <ul className="help-list">
-              <li>Email us at <a href="mailto:support@invoiceprepper.com" style={{ color: "var(--accent)", textDecoration: "underline" }}>support@invoiceprepper.com</a> and we will get back to you.</li>
+              <li>Email <a href="mailto:support@invoiceprepper.com" style={{ color: "var(--accent)", textDecoration: "underline" }}>support@invoiceprepper.com</a> and we will get back to you.</li>
             </ul>
 
-            <p className="help-footer">invoiceprepper.com. Built for freelancers, contractors &amp; small business.</p>
+            <p className="help-footer">invoiceprepper.com. Built for freelancers, contractors &amp; small business worldwide.</p>
 
-            {isPro && onLegal && (
+            {onLegal && (
               <>
                 <div className="win-divider" />
                 <p className="help-heading">Legal</p>

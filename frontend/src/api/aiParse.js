@@ -45,18 +45,29 @@ export async function parseAudio(blob, mimeType) {
     fields — top-level form fields to set (vendor_name, customer_name, notes)
     items  — array of line items in the shape ReceiptForm expects, or null if none
 */
+// Strip em dashes, en dashes, and other junk characters AI models sometimes insert
+function clean(str) {
+  if (!str) return str;
+  return String(str)
+    .replace(/[\u2014\u2013\u2012\u2015]/g, "-") // em dash, en dash → hyphen
+    .replace(/[\u2018\u2019]/g, "'")              // curly single quotes → straight
+    .replace(/[\u201C\u201D]/g, '"')              // curly double quotes → straight
+    .trim();
+}
+
 export function mapParsedToForm(parsed) {
   const fields = {};
-  if (parsed.vendor_name)   fields.vendor_name   = parsed.vendor_name;
-  if (parsed.customer_name) fields.customer_name = parsed.customer_name;
-  if (parsed.notes)         fields.notes         = parsed.notes;
+  if (parsed.vendor_name)   fields.vendor_name   = clean(parsed.vendor_name);
+  if (parsed.customer_name) fields.customer_name = clean(parsed.customer_name);
+  if (parsed.currency)      fields.currency      = parsed.currency;
+  if (parsed.notes)         fields.notes         = clean(parsed.notes);
 
   const items = parsed.line_items?.length
     ? parsed.line_items.map((li) => {
         const qty   = parseFloat(li.quantity)   || 1;
         const price = parseFloat(li.unit_price) || 0;
         return {
-          description: li.description || "",
+          description: clean(li.description) || "",
           quantity:    String(qty),
           unit_price:  String(price),
           total:       String((qty * price).toFixed(2)),
