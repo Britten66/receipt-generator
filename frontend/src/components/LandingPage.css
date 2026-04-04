@@ -495,6 +495,141 @@
   margin: 0;
 }
 
+/* ── AI FEATURE SECTION ── */
+.lv2-ai-feature {
+  padding: 80px 64px;
+  background: var(--bg);
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.lv2-ai-eyebrow {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #2ec4cc;
+  margin-bottom: 16px;
+}
+
+.lv2-ai-title {
+  font-size: clamp(26px, 3.5vw, 40px);
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.lv2-ai-desc {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.75;
+  max-width: 520px;
+  margin-bottom: 48px;
+}
+
+.lv2-ai-examples {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border-light);
+  border: 1px solid var(--border-light);
+  max-width: 960px;
+  width: 100%;
+  margin-bottom: 48px;
+  text-align: left;
+}
+
+.lv2-ai-example {
+  background: var(--surface);
+  padding: 24px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lv2-ai-spoken {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  padding: 10px 12px;
+  border: 1px solid rgba(46, 196, 204, 0.25);
+  background: rgba(46, 196, 204, 0.04);
+}
+
+.lv2-ai-spoken::before {
+  content: "🎤 ";
+  font-style: normal;
+}
+
+.lv2-ai-fills {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lv2-ai-fill-row {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.lv2-ai-field {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #2ec4cc;
+  min-width: 44px;
+  padding-top: 1px;
+  flex-shrink: 0;
+}
+
+.lv2-ai-fill-row span:last-child {
+  color: var(--text-dim);
+}
+
+.lv2-ai-flywheel {
+  max-width: 560px;
+  margin-bottom: 32px;
+}
+
+.lv2-ai-flywheel-hook {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.lv2-ai-flywheel-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.lv2-ai-cta {
+  max-width: 260px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .lv2-ai-feature {
+    padding: 56px 24px;
+  }
+  .lv2-ai-examples {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── FINAL CTA ── */
 .lv2-final-cta {
   padding: 80px 64px;
