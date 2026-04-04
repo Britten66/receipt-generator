@@ -1112,6 +1112,11 @@ body,
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes voice-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(220,60,60,0.3), 0 0 0 6px rgba(220,60,60,0.08); }
+  50%       { box-shadow: 0 0 0 5px rgba(220,60,60,0.15), 0 0 0 10px rgba(220,60,60,0.04); }
+}
+
 /* ── Win95-style draggable/resizable help window ────────────────────────── */
 
 .win-modal {

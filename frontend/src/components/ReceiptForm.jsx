@@ -117,35 +117,60 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   const [voiceParsing, setVoiceParsing]       = useState(false);
   const [voiceError, setVoiceError]           = useState("");
   const [voiceTranscript, setVoiceTranscript] = useState("");
+  const [voiceSeconds, setVoiceSeconds]       = useState(0);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef   = useRef([]);
+  const voiceTimerRef    = useRef(null);
+  const MAX_RECORDING_SECONDS = 45;
+
+  function getMimeType() {
+    const types = ["audio/webm", "audio/mp4", "audio/ogg", "audio/wav"];
+    for (const t of types) {
+      if (MediaRecorder.isTypeSupported(t)) return t;
+    }
+    return "";
+  }
 
   async function startVoiceRecording() {
     setVoiceError("");
     setVoiceTranscript("");
+    setVoiceSeconds(0);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      const mimeType = getMimeType();
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       audioChunksRef.current = [];
       recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
       recorder.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
-        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        clearInterval(voiceTimerRef.current);
+        const blob = new Blob(audioChunksRef.current, { type: mimeType || "audio/webm" });
         await parseVoice(blob);
       };
       mediaRecorderRef.current = recorder;
       recorder.start();
       setVoiceRecording(true);
+      // Tick timer + auto-stop at max
+      voiceTimerRef.current = setInterval(() => {
+        setVoiceSeconds((s) => {
+          if (s + 1 >= MAX_RECORDING_SECONDS) {
+            stopVoiceRecording();
+            return MAX_RECORDING_SECONDS;
+          }
+          return s + 1;
+        });
+      }, 1000);
     } catch {
       setVoiceError("Microphone access denied. Please allow mic access and try again.");
     }
   }
 
   function stopVoiceRecording() {
-    if (mediaRecorderRef.current && voiceRecording) {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       mediaRecorderRef.current.stop();
       setVoiceRecording(false);
       setVoiceParsing(true);
+      clearInterval(voiceTimerRef.current);
     }
   }
 
@@ -449,58 +474,104 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={onClose}>✕</button>
         </div>
 
-        {/* Voice invoice entry: voice tier only */}
+        {/* Voice AI entry — voice tier only */}
         {profile?.tier === "voice" && (
           <div style={{
-            padding: "10px 16px",
+            padding: "14px 18px",
             borderBottom: "1px solid var(--border)",
             background: "var(--surface-2)",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            flexWrap: "wrap",
           }}>
-            <button
-              type="button"
-              className={`btn ${voiceRecording ? "btn-primary" : "btn-ghost"}`}
-              style={{ fontSize: 10, padding: "6px 12px", display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}
-              onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
-              disabled={voiceParsing}
-            >
-              {voiceRecording ? "⏹ Stop" : voiceParsing ? "Parsing..." : "🎙 Speak Invoice"}
-              <span style={{
-                fontSize: 8,
-                padding: "1px 5px",
-                background: "var(--accent)",
-                color: "#1a1814",
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+
+              {/* Mic button — pulsing ring when active */}
+              <button
+                type="button"
+                onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
+                disabled={voiceParsing}
+                style={{
+                  width: 46,
+                  height: 46,
+                  borderRadius: "50%",
+                  border: "none",
+                  flexShrink: 0,
+                  cursor: voiceParsing ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 20,
+                  background: voiceRecording
+                    ? "rgba(220,60,60,0.12)"
+                    : voiceParsing
+                    ? "var(--surface)"
+                    : "rgba(77,216,224,0.1)",
+                  boxShadow: voiceRecording
+                    ? "0 0 0 3px rgba(220,60,60,0.25), 0 0 0 6px rgba(220,60,60,0.08)"
+                    : "0 0 0 2px rgba(77,216,224,0.3)",
+                  transition: "all 0.2s",
+                  animation: voiceRecording ? "voice-pulse 1.4s ease-in-out infinite" : "none",
+                }}
+              >
+                {voiceParsing ? "✦" : voiceRecording ? "⏹" : "🎙"}
+              </button>
+
+              {/* Status text column */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
+                  <>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text)", marginBottom: 2 }}>
+                      Speak your invoice
+                      <span style={{ fontSize: 8, marginLeft: 6, padding: "1px 5px", background: "rgba(77,216,224,0.15)", border: "1px solid rgba(77,216,224,0.3)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "#4dd8e0" }}>beta</span>
+                    </div>
+                    <div style={{ fontSize: 10, color: "var(--text-muted)", lineHeight: 1.5 }}>
+                      Say who, what, and the price. Tap mic to start.
+                    </div>
+                  </>
+                )}
+                {voiceRecording && (
+                  <>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "#e05555", marginBottom: 2 }}>
+                      Listening... tap to stop
+                      <span style={{ fontWeight: 400, marginLeft: 8, color: "var(--text-muted)" }}>
+                        {MAX_RECORDING_SECONDS - voiceSeconds}s left
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 10, color: "var(--text-muted)", lineHeight: 1.5 }}>
+                      e.g. "Invoice to John Smith, 3 hours of web design at 85 dollars each"
+                    </div>
+                  </>
+                )}
+                {voiceParsing && (
+                  <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Filling in your invoice...</div>
+                )}
+                {voiceTranscript && !voiceRecording && !voiceParsing && !voiceError && (
+                  <>
+                    <div style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic", marginBottom: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      "{voiceTranscript}"
+                    </div>
+                    <div style={{ fontSize: 10, color: "#4dd8e0" }}>Invoice filled. Review and adjust above.</div>
+                  </>
+                )}
+                {voiceError && (
+                  <div style={{ fontSize: 10, color: "var(--voided)" }}>{voiceError}</div>
+                )}
+              </div>
+            </div>
+
+            {/* Guidance hint — only shown at idle */}
+            {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
+              <div style={{
+                marginTop: 10,
+                padding: "8px 10px",
+                background: "rgba(77,216,224,0.05)",
+                border: "1px solid rgba(77,216,224,0.15)",
                 borderRadius: 2,
-                letterSpacing: "0.08em",
-                fontWeight: 700,
-                textTransform: "uppercase",
-              }}>beta</span>
-            </button>
-            {voiceRecording && (
-              <span style={{ fontSize: 10, color: "var(--accent)", letterSpacing: "0.05em" }}>Recording...</span>
-            )}
-            {voiceParsing && (
-              <span style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: "0.05em" }}>Filling in your invoice...</span>
-            )}
-            {voiceTranscript && !voiceRecording && !voiceParsing && (
-              <span style={{
                 fontSize: 10,
                 color: "var(--text-muted)",
-                flex: 1,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                fontStyle: "italic",
-                minWidth: 0,
+                lineHeight: 1.6,
               }}>
-                "{voiceTranscript}"
-              </span>
-            )}
-            {voiceError && !voiceRecording && !voiceParsing && (
-              <span style={{ fontSize: 10, color: "var(--voided)" }}>{voiceError}</span>
+                <strong style={{ color: "var(--text-dim)" }}>Tips:</strong> Include client name, item descriptions, quantities, and prices.
+                Multiple items work too: "Logo design for 500, and 2 hours of consulting at 90 each."
+              </div>
             )}
           </div>
         )}
