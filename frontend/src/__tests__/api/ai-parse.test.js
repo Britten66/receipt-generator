@@ -23,7 +23,7 @@ const { mockGetSession, mockRefreshSession, mockGetUser, mockStorageUpload, mock
     data: { session: { access_token: "refreshed-token" } },
   }),
   mockGetUser: vi.fn().mockResolvedValue({
-    data: { user: { id: "test-user-id" } },
+    data: { user: { id: "user-123" } },
   }),
   mockStorageUpload: vi.fn().mockResolvedValue({ data: {}, error: null }),
   mockStorageRemove: vi.fn().mockResolvedValue({ data: {}, error: null }),
@@ -53,7 +53,7 @@ beforeEach(() => {
   vi.restoreAllMocks();
   mockGetSession.mockResolvedValue({ data: { session: { access_token: "test-access-token" } } });
   mockRefreshSession.mockResolvedValue({ data: { session: { access_token: "refreshed-token" } } });
-  mockGetUser.mockResolvedValue({ data: { user: { id: "test-user-id" } } });
+  mockGetUser.mockResolvedValue({ data: { user: { id: "user-123" } } });
   mockStorageUpload.mockResolvedValue({ data: {}, error: null });
   mockStorageRemove.mockResolvedValue({ data: {}, error: null });
 });
@@ -116,7 +116,7 @@ describe("parseText", () => {
 // ---------------------------------------------------------------------------
 
 describe("parseAudio", () => {
-  it("uploads blob to storage then sends storage_path as JSON to voice-parse", async () => {
+  it("uploads blob to storage then sends JSON storage_path to voice-parse", async () => {
     const transcript = "Invoice to John";
     const parsed     = { vendor_name: null, customer_name: "John", notes: null, line_items: [] };
     mockFetch({ transcript, parsed });
@@ -126,7 +126,7 @@ describe("parseAudio", () => {
 
     // Storage upload should have been called with the blob
     expect(mockStorageUpload).toHaveBeenCalledWith(
-      expect.stringMatching(/^test-user-id\/audio-\d+\.webm$/),
+      expect.stringMatching(/^user-123\/audio-\d+\.webm$/),
       blob,
       { contentType: "audio/webm" }
     );
@@ -137,8 +137,9 @@ describe("parseAudio", () => {
     expect(call[1].method).toBe("POST");
     expect(call[1].headers["Content-Type"]).toBe("application/json");
     expect(call[1].headers["Authorization"]).toBe("Bearer test-access-token");
+    // Body must be JSON with a storage_path scoped to the user's ID
     const body = JSON.parse(call[1].body);
-    expect(body.storage_path).toMatch(/^test-user-id\/audio-\d+\.webm$/);
+    expect(body.storage_path).toMatch(/^user-123\/audio-\d+\.webm$/);
   });
 
   it("returns transcript and parsed on success", async () => {

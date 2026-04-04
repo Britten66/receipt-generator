@@ -29,7 +29,7 @@ Deno.serve(async (req)=>{
     headers: corsHeaders
   });
   // Voice tier only
-  const { data: profile } = await supabase.from("profiles").select("tier").eq("user_id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("tier, business_name, currency").eq("user_id", user.id).single();
   if (profile?.tier !== "voice") {
     return new Response(JSON.stringify({
       error: "AI parsing requires the Voice AI tier."
@@ -80,6 +80,61 @@ Deno.serve(async (req)=>{
       headers: corsHeaders
     });
   }
+
+  // RAG: pull the user's past invoice history to give the model user-specific context.
+  // This lets the model recognise recurring clients and typical service prices.
+  // Non-fatal — if the query fails for any reason, we proceed without context.
+  let ragContext = "";
+  try {
+    const { data: history } = await supabase
+      .from("receipts")
+      .select("customer_name, line_items(description, unit_price)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(25);
+
+    if (history?.length) {
+      // Sanitise a value for safe prompt injection (strip newlines and quotes)
+      const clean = (s: string, max = 60) => s.replace(/[\r\n"\\]/g, " ").trim().slice(0, max);
+
+      // Distinct customer names, most recent first
+      const seenNames = new Set<string>();
+      const customerNames: string[] = [];
+      for (const r of history) {
+        const name = r.customer_name ? clean(r.customer_name) : null;
+        if (name && !seenNames.has(name)) {
+          seenNames.add(name);
+          customerNames.push(name);
+          if (customerNames.length >= 12) break;
+        }
+      }
+
+      // Common line item descriptions grouped by description, avg unit_price
+      const itemMap = new Map<string, { total: number; count: number }>();
+      for (const r of history) {
+        for (const li of (r.line_items ?? []) as Array<{ description: string; unit_price: number }>) {
+          const desc = li.description ? clean(li.description) : null;
+          if (!desc || li.unit_price == null) continue;
+          const prev = itemMap.get(desc) ?? { total: 0, count: 0 };
+          itemMap.set(desc, { total: prev.total + li.unit_price, count: prev.count + 1 });
+        }
+      }
+      const commonItems = [...itemMap.entries()]
+        .sort((a, b) => b[1].count - a[1].count)
+        .slice(0, 10)
+        .map(([desc, { total, count }]) => `"${desc}" at $${(total / count).toFixed(2)}/unit`);
+
+      const parts: string[] = [];
+      if (customerNames.length) parts.push(`Past clients (use for name matching if the description is vague): ${customerNames.join(", ")}`);
+      if (commonItems.length) parts.push(`Common services and typical unit prices: ${commonItems.join("; ")}`);
+      if (parts.length) {
+        ragContext = `\nUser invoice history — use as hints when the description is vague, but do NOT override anything explicitly stated:\n${parts.join("\n")}`;
+      }
+    }
+  } catch {
+    // RAG failure is non-fatal — the model still parses without history
+  }
+
   // Extract invoice fields with Groq LLaMA — same prompt as voice-parse
   const extractRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
@@ -97,7 +152,8 @@ Deno.serve(async (req)=>{
         {
           role: "system",
           content: `You extract invoice data from invoice descriptions. Return ONLY valid JSON.
-
+${profile?.business_name ? `\nContext: The user's business is "${profile.business_name}". Use this as vendor_name unless they explicitly mention a different business name.` : ""}
+${profile?.currency ? `\nDefault currency: ${profile.currency}. Use this unless explicitly overridden in the description.` : ""}${ragContext}
 Output format:
 {
   "vendor_name": string or null,

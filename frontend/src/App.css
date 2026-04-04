@@ -1761,10 +1761,14 @@ input[type="date"].field {
     transform: none !important;
     width: 100% !important;
     max-width: 100% !important;
+    max-height: 80vh !important;
     resize: none !important;
     border-left: none;
     border-right: none;
     border-bottom: none;
+  }
+  .win-modal .win-body {
+    overflow-y: auto;
   }
   .win-titlebar { cursor: default; } /* no drag affordance on touch */
 
