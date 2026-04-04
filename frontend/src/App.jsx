@@ -1155,7 +1155,7 @@ export default function App() {
       )}
 
       {/* Help modal */}
-      {showHelp && <HelpModal onClose={() => setShowHelp(false)} isPro={profile?.tier === "pro"} onLegal={setLegal} />}
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} isPro={profile?.tier === "pro" || profile?.tier === "voice"} onLegal={setLegal} />}
 
       {/* Legal modals */}
       {legal && <LegalModal type={legal} onClose={() => setLegal(null)} />}

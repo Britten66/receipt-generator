@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
 
   // Fetch tier + custom sender name — both used server-side, never trusted from client
   const { data: profile } = await supabase.from("profiles").select("tier, business_name").eq("user_id", user.id).single();
-  const isPro = profile?.tier === "pro";
+  const isPro = profile?.tier === "pro" || profile?.tier === "voice";
 
   const {
     to, vendor_name, vendor_email, vendor_address,

@@ -6,7 +6,9 @@ export default function BillingModal({ profile, onClose }) {
   const [cancelledOn, setCancelledOn]     = useState(null);
   const [portalLoading, setPortalLoading] = useState(false);
 
-  const isPro = profile?.tier === "pro";
+  const isPaid = profile?.tier === "pro" || profile?.tier === "voice";
+  const tierLabel = profile?.tier === "voice" ? "Voice AI" : "Pro";
+  const tierPrice = profile?.tier === "voice" ? "CAD $12 / month" : "CAD $9 / month";
 
   async function handleCancel() {
     if (!window.confirm(
@@ -50,14 +52,14 @@ export default function BillingModal({ profile, onClose }) {
           <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 14, padding: 0, lineHeight: 1 }}>✕</button>
         </div>
 
-        {isPro ? (
+        {isPaid ? (
           <>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Pro: CAD $6 / month</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>{tierLabel}: {tierPrice}</div>
                 <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>Billed monthly · Cancel anytime</div>
               </div>
-              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "#D4AF37", border: "1px solid #D4AF37", padding: "2px 8px", textTransform: "uppercase" }}>PRO</span>
+              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: profile?.tier === "voice" ? "#4dd8e0" : "#D4AF37", border: `1px solid ${profile?.tier === "voice" ? "#4dd8e0" : "#D4AF37"}`, padding: "2px 8px", textTransform: "uppercase" }}>{tierLabel.toUpperCase()}</span>
             </div>
 
             {cancelledOn ? (
@@ -88,7 +90,7 @@ export default function BillingModal({ profile, onClose }) {
         ) : (
           <div style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.6 }}>
             <div style={{ marginBottom: 6 }}>You're on the Free plan.</div>
-            <div style={{ fontSize: 11 }}>Upgrade to Pro for email invoicing and watermark-free PDFs. CAD $6/month.</div>
+            <div style={{ fontSize: 11 }}>Upgrade to Pro for email invoicing and watermark-free PDFs. CAD $9/month.</div>
           </div>
         )}
       </div>

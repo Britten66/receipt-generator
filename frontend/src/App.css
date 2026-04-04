@@ -332,7 +332,7 @@ body,
 }
 
 .topbar-time {
-  color: var(--accent);
+  color: var(--text);
   font-weight: 500;
 }
 .topbar-date-sep {

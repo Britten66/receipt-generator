@@ -292,7 +292,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
           {/* Logo upload — Pro only */}
           <div className="field-group">
             <label className="field-label">Business Logo (appears on PDF)</label>
-            {profile?.tier === "pro" ? (
+            {(profile?.tier === "pro" || profile?.tier === "voice") ? (
               <>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   {form.logo_url && (

@@ -833,7 +833,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
               + Add your logo
             </button>
           )}
-          {profile?.tier === "pro" && (
+          {(profile?.tier === "pro" || profile?.tier === "voice") && (
             showLogoPanel ? (
               <div style={{
                 marginTop: 12,
