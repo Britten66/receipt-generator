@@ -15,12 +15,20 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.stubEnv("VITE_SUPABASE_URL", "https://test.supabase.co");
 vi.stubEnv("VITE_SUPABASE_ANON_KEY", "anon-key");
 
+const { mockGetSession, mockRefreshSession } = vi.hoisted(() => ({
+  mockGetSession: vi.fn().mockResolvedValue({
+    data: { session: { access_token: "test-access-token" } },
+  }),
+  mockRefreshSession: vi.fn().mockResolvedValue({
+    data: { session: { access_token: "refreshed-token" } },
+  }),
+}));
+
 vi.mock("../../lib/supabase", () => ({
   supabase: {
     auth: {
-      getSession: vi.fn().mockResolvedValue({
-        data: { session: { access_token: "test-access-token" } },
-      }),
+      getSession: mockGetSession,
+      refreshSession: mockRefreshSession,
     },
   },
 }));
@@ -31,6 +39,13 @@ const BASE = "https://test.supabase.co/functions/v1";
 
 beforeEach(() => {
   vi.restoreAllMocks();
+  // Reset to healthy session state before each test
+  mockGetSession.mockResolvedValue({
+    data: { session: { access_token: "test-access-token" } },
+  });
+  mockRefreshSession.mockResolvedValue({
+    data: { session: { access_token: "refreshed-token" } },
+  });
 });
 
 function mockFetch(body, status = 200) {
@@ -122,6 +137,60 @@ describe("parseAudio", () => {
     mockFetch({ error: "Transcription failed. Please try again." }, 502);
     const blob = new Blob(["audio-data"], { type: "audio/webm" });
     await expect(parseAudio(blob, "audio/webm")).rejects.toThrow("Transcription failed. Please try again.");
+  });
+
+  it("sends audio/mp4 content-type for iOS recordings", async () => {
+    mockFetch({ transcript: "test", parsed: { line_items: [] } });
+    const blob = new Blob(["audio-data"], { type: "audio/mp4" });
+    await parseAudio(blob, "audio/mp4");
+    const call = fetch.mock.calls[0];
+    expect(call[1].headers["Content-Type"]).toBe("audio/mp4");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Mobile auth edge cases
+// ---------------------------------------------------------------------------
+
+describe("authHeaders — mobile session edge cases", () => {
+  it("uses getSession token when session is valid (no refresh needed)", async () => {
+    mockFetch({ parsed: { vendor_name: "Acme", line_items: [] } });
+    await parseText("test");
+    expect(mockGetSession).toHaveBeenCalled();
+    const call = fetch.mock.calls[0];
+    expect(call[1].headers["Authorization"]).toBe("Bearer test-access-token");
+  });
+
+  it("falls back to refreshSession when getSession returns null (mobile expired)", async () => {
+    mockGetSession.mockResolvedValueOnce({ data: { session: null } });
+    mockFetch({ parsed: { vendor_name: "Acme", line_items: [] } });
+    await parseText("test");
+    expect(mockRefreshSession).toHaveBeenCalled();
+    const call = fetch.mock.calls[0];
+    expect(call[1].headers["Authorization"]).toBe("Bearer refreshed-token");
+  });
+
+  it("falls back to refreshSession when getSession returns no access_token", async () => {
+    mockGetSession.mockResolvedValueOnce({ data: { session: {} } });
+    mockFetch({ parsed: { vendor_name: "Acme", line_items: [] } });
+    await parseText("test");
+    expect(mockRefreshSession).toHaveBeenCalled();
+  });
+
+  it("throws 'Session expired' when both getSession and refreshSession return null", async () => {
+    mockGetSession.mockResolvedValueOnce({ data: { session: null } });
+    mockRefreshSession.mockResolvedValueOnce({ data: { session: null } });
+    await expect(parseText("test")).rejects.toThrow("Session expired. Please sign in again.");
+  });
+
+  it("same fallback applies to parseAudio on mobile", async () => {
+    mockGetSession.mockResolvedValueOnce({ data: { session: null } });
+    mockFetch({ transcript: "hello", parsed: { line_items: [] } });
+    const blob = new Blob(["audio"], { type: "audio/mp4" });
+    await parseAudio(blob, "audio/mp4");
+    expect(mockRefreshSession).toHaveBeenCalled();
+    const call = fetch.mock.calls[0];
+    expect(call[1].headers["Authorization"]).toBe("Bearer refreshed-token");
   });
 });
 
