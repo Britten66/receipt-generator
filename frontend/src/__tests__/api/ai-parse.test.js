@@ -21,6 +21,14 @@ vi.mock("../../lib/supabase", () => ({
       getSession: vi.fn().mockResolvedValue({
         data: { session: { access_token: "test-access-token" } },
       }),
+      getUser: vi.fn().mockResolvedValue({
+        data: { user: { id: "user-123" } },
+      }),
+    },
+    storage: {
+      from: vi.fn().mockReturnValue({
+        upload: vi.fn().mockResolvedValue({ error: null }),
+      }),
     },
   },
 }));
@@ -91,7 +99,7 @@ describe("parseText", () => {
 // ---------------------------------------------------------------------------
 
 describe("parseAudio", () => {
-  it("sends POST to voice-parse with audio blob and correct content-type", async () => {
+  it("uploads blob to storage then sends JSON storage_path to voice-parse", async () => {
     const transcript = "Invoice to John";
     const parsed     = { vendor_name: null, customer_name: "John", notes: null, line_items: [] };
     mockFetch({ transcript, parsed });
@@ -102,8 +110,11 @@ describe("parseAudio", () => {
     const call = fetch.mock.calls[0];
     expect(call[0]).toBe(`${BASE}/voice-parse`);
     expect(call[1].method).toBe("POST");
-    expect(call[1].headers["Content-Type"]).toBe("audio/webm");
+    expect(call[1].headers["Content-Type"]).toBe("application/json");
     expect(call[1].headers["Authorization"]).toBe("Bearer test-access-token");
+    // Body must be JSON with a storage_path scoped to the user's ID
+    const body = JSON.parse(call[1].body);
+    expect(body.storage_path).toMatch(/^user-123\/audio-\d+\.webm$/);
   });
 
   it("returns transcript and parsed on success", async () => {
