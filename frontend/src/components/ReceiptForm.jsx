@@ -18,6 +18,7 @@
 import { useState, useEffect, useRef } from "react";
 import { saveProfile } from "../api/profile";
 import { uploadLogo } from "../api/uploadLogo";
+import { parseText, parseAudio, mapParsedToForm } from "../api/aiParse";
 
 /*
   EMPTY_ITEM is the default shape of a new blank line item.
@@ -223,97 +224,41 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
     }
   }
 
+  function applyParsed(parsed) {
+    const { fields, items } = mapParsedToForm(parsed);
+    if (fields.vendor_name)   setField("vendor_name",   fields.vendor_name);
+    if (fields.customer_name) setField("customer_name", fields.customer_name);
+    if (fields.notes)         { setField("notes", fields.notes); setShowNotes(true); }
+    if (items)                setItems(items);
+  }
+
   async function parseVoice(blob) {
     try {
-      const s = session;
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-parse`, {
-        method: "POST",
-        headers: {
-          "Content-Type": voiceMimeRef.current,
-          "Authorization": `Bearer ${s?.access_token ?? ""}`,
-          "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
-          "content-length": String(blob.size),
-        },
-        body: blob,
-      });
-      const json = await res.json();
-      if (!res.ok) { setVoiceError(json.error ?? `Error ${res.status}`); return; }
-
-      const { transcript, parsed } = json;
+      const { transcript, parsed } = await parseAudio(blob, voiceMimeRef.current, session?.access_token);
       setVoiceTranscript(transcript);
-
-      // Auto-fill form fields from parsed result
-      if (parsed.vendor_name)   setField("vendor_name",   parsed.vendor_name);
-      if (parsed.customer_name) setField("customer_name", parsed.customer_name);
-      if (parsed.notes)         setField("notes",         parsed.notes);
-
-      // Auto-fill line items
-      if (parsed.line_items?.length) {
-        setItems(parsed.line_items.map((li) => {
-          const qty   = parseFloat(li.quantity)   || 1;
-          const price = parseFloat(li.unit_price) || 0;
-          return {
-            description: li.description || "",
-            quantity:    String(qty),
-            unit_price:  String(price),
-            total:       String((qty * price).toFixed(2)),
-          };
-        }));
-      }
-      if (parsed.notes) setShowNotes(true);
-
-      // Feedback
+      applyParsed(parsed);
       playChime("done");
       speakBack(parsed);
-    } catch {
-      setVoiceError("Something went wrong. Please try again.");
+    } catch (err) {
+      setVoiceError(err.message || "Something went wrong. Please try again.");
     } finally {
       setVoiceParsing(false);
     }
   }
 
-  // Desktop text-based invoice parsing — calls text-parse edge function (no mic needed)
   async function parseVoiceText(text) {
     if (!text.trim()) return;
     setVoiceParsing(true);
     setVoiceError("");
     setVoiceTranscript("");
     try {
-      const s = session;
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-parse`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${s?.access_token ?? ""}`,
-          "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
-        },
-        body: JSON.stringify({ text }),
-      });
-      const json = await res.json();
-      if (!res.ok) { setVoiceError(json.error ?? `Error ${res.status}`); return; }
-
-      const { parsed } = json;
-      if (parsed.vendor_name)   setField("vendor_name",   parsed.vendor_name);
-      if (parsed.customer_name) setField("customer_name", parsed.customer_name);
-      if (parsed.notes)         setField("notes",         parsed.notes);
-      if (parsed.line_items?.length) {
-        setItems(parsed.line_items.map((li) => {
-          const qty   = parseFloat(li.quantity)   || 1;
-          const price = parseFloat(li.unit_price) || 0;
-          return {
-            description: li.description || "",
-            quantity:    String(qty),
-            unit_price:  String(price),
-            total:       String((qty * price).toFixed(2)),
-          };
-        }));
-      }
-      if (parsed.notes) setShowNotes(true);
+      const parsed = await parseText(text, session?.access_token);
+      applyParsed(parsed);
       playChime("done");
       setVoiceTranscript("done");
       setVoiceText("");
-    } catch {
-      setVoiceError("Something went wrong. Please try again.");
+    } catch (err) {
+      setVoiceError(err.message || "Something went wrong. Please try again.");
     } finally {
       setVoiceParsing(false);
     }
