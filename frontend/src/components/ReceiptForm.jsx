@@ -134,12 +134,12 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const t   = ctx.currentTime;
 
-      function note(freq, startAt, duration, peakGain, oscType = "triangle") {
+      function note(freq, startAt, duration, peakGain) {
         const osc  = ctx.createOscillator();
         const g    = ctx.createGain();
         osc.connect(g);
         g.connect(ctx.destination);
-        osc.type = oscType;
+        osc.type = "sine";
         osc.frequency.setValueAtTime(freq, startAt);
         g.gain.setValueAtTime(0, startAt);
         g.gain.linearRampToValueAtTime(peakGain, startAt + 0.02);
@@ -150,19 +150,17 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       }
 
       if (type === "start") {
-        // Soft rising two-note chime — "I'm ready" (E5 -> A5, triangle for warmth)
-        note(659,  t,        0.20, 0.11);
-        note(880,  t + 0.18, 0.26, 0.13);
+        // Two clean ascending tones — "listening" (C5 then E5)
+        note(523,  t,        0.22, 0.18);
+        note(659,  t + 0.20, 0.28, 0.20);
       } else if (type === "stop") {
-        // Single soft descending tap — "got it, processing" (A4, gentle sine)
-        note(440,  t,        0.22, 0.10, "sine");
-        note(330,  t + 0.10, 0.18, 0.07, "sine");
+        // One clear ding — "got it" (A5, audible)
+        note(880,  t,        0.30, 0.22);
       } else {
-        // Four-note happy C major arpeggio — C5, E5, G5, C6 ("done!")
-        note(523,  t,        0.14, 0.10);
-        note(659,  t + 0.12, 0.14, 0.12);
-        note(784,  t + 0.24, 0.14, 0.13);
-        note(1047, t + 0.36, 0.32, 0.10);
+        // Three-note rising resolution — E5, G5, C6 ("done")
+        note(659,  t,        0.18, 0.16);
+        note(784,  t + 0.16, 0.18, 0.18);
+        note(1047, t + 0.32, 0.35, 0.16);
       }
     } catch {}
   }

@@ -32,19 +32,23 @@ Deno.serve(async (req)=>{
   if (profile?.tier !== "voice") {
     return new Response(JSON.stringify({ error: "AI parsing requires the Voice AI tier." }), { status: 403, headers: corsHeaders });
   }
-  // Daily rate limit — shared voice_usage table with voice-parse
-  const today = new Date().toISOString().slice(0, 10);
-  const { count } = await supabase.from("voice_usage").select("*", {
-    count: "exact",
-    head: true
-  }).eq("user_id", user.id).eq("date", today);
-  if ((count ?? 0) >= DAILY_LIMIT) {
-    return new Response(JSON.stringify({
-      error: "Daily AI limit reached. Try again tomorrow."
-    }), {
-      status: 429,
-      headers: corsHeaders
-    });
+  // Daily rate limit — skip for admin users listed in ADMIN_USER_IDS (comma-separated)
+  const adminIds = (Deno.env.get("ADMIN_USER_IDS") ?? "").split(",").map(s => s.trim()).filter(Boolean);
+  const isAdmin = adminIds.includes(user.id);
+  if (!isAdmin) {
+    const today = new Date().toISOString().slice(0, 10);
+    const { count } = await supabase.from("voice_usage").select("*", {
+      count: "exact",
+      head: true
+    }).eq("user_id", user.id).eq("date", today);
+    if ((count ?? 0) >= DAILY_LIMIT) {
+      return new Response(JSON.stringify({
+        error: "Daily AI limit reached. Try again tomorrow."
+      }), {
+        status: 429,
+        headers: corsHeaders
+      });
+    }
   }
   const groqKey = Deno.env.get("GROQ_API_KEY");
   if (!groqKey) return new Response(JSON.stringify({
