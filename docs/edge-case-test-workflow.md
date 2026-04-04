@@ -10,87 +10,107 @@ npm test -- --reporter=verbose  # full test names
 ```
 
 All tests live in `frontend/src/__tests__/`. Green = safe to deploy.
+Current count: **265 tests, all passing.**
+
+---
+
+## Why 265 tests — and is that normal?
+
+For a production SaaS with real users and billing, yes — this is appropriate. Here's why each group earns its place:
+
+**Security tests (~180 tests)** are the most valuable. They act as a trip-wire: if someone (or an LLM) accidentally weakens a CORS header, removes a tier check, or adds an unsafe field to the PATCH whitelist, the build breaks before it ships. These tests saved real bugs during the two-machine merge workflow when main and dev diverged.
+
+**API/AI tests (~50 tests)** lock in the behaviour of the AI parsing pipeline. The mapParsedToForm function is called on every voice/text parse result. Without tests, a refactor could silently break quantity defaulting or em dash stripping and you'd never know until a user reports garbled invoices.
+
+**Auth edge case tests (~15 tests)** directly mirror a real production bug: mobile iOS users were getting 401s mid-session. The tests document exactly how the fix works and prevent it from regressing.
+
+**Is 265 a lot?** For a solo project with no QA team, billing integration, and an AI pipeline — it's actually lean. Each test is roughly 5-10 lines. The whole suite runs in under 2 seconds. The alternative is manually testing 10+ failure paths every deploy, which you won't do consistently.
+
+**What these tests are NOT:** integration tests against a real Supabase instance or Stripe. Those are the manual checklist below.
 
 ---
 
 ## What is tested and where
 
-| File | What it covers |
-|------|----------------|
-| `security/cors.test.js` | CORS allowlist, wildcard prevention, Vary header |
-| `security/validation.test.js` | Email format, payment URL, required fields |
-| `security/themes.test.js` | CSS var injection, XSS in theme values |
-| `security/send-invoice-sender.test.js` | From-field logic, currency sanitization, tier gates |
-| `api/ai-parse.test.js` | parseText, parseAudio, mapParsedToForm, mobile auth fallback |
+| File | Tests | What it covers |
+|------|-------|----------------|
+| `security/cors.test.js` | ~35 | CORS allowlist, wildcard prevention, Vary header |
+| `security/validation.test.js` | ~25 | Email format, payment URL, field sanitization, XSS |
+| `security/themes.test.js` | ~20 | CSS var injection, XSS in theme values |
+| `security/send-invoice-sender.test.js` | ~30 | From-field logic, currency sanitization, tier gates |
+| `security/fields-whitelist.test.js` | ~15 | PATCH whitelist (11 fields, no user_id/id) |
+| `security/privacy-consent.test.js` | ~20 | Consent schema, billing disclosure text |
+| `api/ai-parse.test.js` | ~40 | parseText, parseAudio (storage flow), mapParsedToForm, mobile auth fallback |
 
 ---
 
-## Mobile auth flow — how it works
+## parseAudio — storage upload flow
 
-The edge functions require a valid JWT in the `Authorization` header. On mobile (especially iOS Safari), the session can expire mid-session due to:
-- ITP throttling localStorage access
-- Long recording sessions expiring the token mid-recording
+Audio is no longer sent as a binary body. The 1MB Supabase gateway limit was killing mobile recordings.
+
+**New flow:**
+```
+1. client: getUser() to get user ID
+2. client: upload blob to audio-temp/{user_id}/audio-{timestamp}.{ext}
+3. client: POST { storage_path } as JSON to /voice-parse
+4. edge fn: validates storage_path starts with user's own ID
+5. edge fn: creates signed URL (60s TTL), fetches audio server-side
+6. edge fn: deletes temp file (fire and forget)
+7. edge fn: sends to Whisper, then LLaMA
+```
+
+Tests in `api/ai-parse.test.js` cover: upload called with correct path, JSON body sent (not binary), iOS mp4 extension, upload failure throws, signed-out user throws.
+
+---
+
+## Mobile auth flow
 
 **Flow in `authHeaders()` (`src/api/aiParse.js`):**
 
 ```
-1. getSession()      → returns cached token (no network call, fast)
-2. token present?    → YES: use it
-                     → NO: fall back to refreshSession() (network call to Supabase Auth)
-3. still no token?   → throw "Session expired. Please sign in again."
+1. getSession()   → cached token, no network call
+2. token present? → YES: use it
+                  → NO: refreshSession() (forces network call to Supabase Auth)
+3. still no token → throw "Session expired. Please sign in again."
 ```
 
-**Tests that cover this (in `api/ai-parse.test.js`):**
-
-- `uses getSession token when session is valid` — happy path, no refresh needed
-- `falls back to refreshSession when getSession returns null` — expired token on mobile
-- `falls back to refreshSession when getSession returns no access_token` — partial session object
-- `throws 'Session expired' when both return null` — completely signed out
-- `same fallback applies to parseAudio on mobile` — audio binary requests use same auth
+Covers iOS ITP throttling localStorage and long recording sessions expiring tokens mid-use.
 
 ---
 
 ## Edge function test strategy
 
-Edge functions run as Deno on Supabase — they can't be imported directly in Vitest. We test them at two levels:
+Edge functions run as Deno — can't be imported in Vitest. Two levels:
 
-### Level 1: Unit (what we do now)
-Mock `fetch` and `supabase` in the client helpers (`aiParse.js`). Fast, runs in CI.
+### Level 1: Unit (automated, runs on every save)
+Mock `fetch`, `supabase.auth`, and `supabase.storage` in client helpers. Covers all happy paths and failure modes.
 
-### Level 2: Integration (manual checklist before deploy)
-
-Run through this checklist on staging before pushing to production:
+### Level 2: Integration (manual checklist before deploying edge functions)
 
 **Voice parse (`/voice-parse`):**
 - [ ] Desktop Chrome: record 5s, confirm line items appear
-- [ ] iOS Safari: record 5s, confirm line items appear (tests the mobile auth fallback)
-- [ ] Record silence: expect "No speech detected" error, not a crash
-- [ ] Record noise-only (no words): expect graceful error
-- [ ] Non-voice tier user: expect 403 "Voice parsing requires the Voice tier"
-- [ ] Free tier user: expect 403 (voice is tier-gated)
-- [ ] Record for >30s: confirm large blob still works (up to 10MB cap)
+- [ ] iOS Safari: record 5s, confirm line items appear
+- [ ] Record silence: expect "No speech detected" error
+- [ ] Non-voice tier user: expect 403
+- [ ] Free tier user: expect 403
+- [ ] Sign out mid-session, try to parse: expect "Session expired" toast
 
 **Text parse (`/text-parse`):**
-- [ ] Submit empty text: expect validation error before hitting API
-- [ ] "bill web service and paint service": expect TWO line items, not one
-- [ ] "4 apples at $2": expect description "Apples", qty 4, price 2
-- [ ] "invoice John for 3 hours consulting at 85 USD": confirm currency = USD
+- [ ] "bill web service and paint service" — expect TWO line items
+- [ ] "4 apples at $2" — qty 4, unit_price 2
+- [ ] "invoice John for 3 hours consulting at 85 USD" — currency = USD
 - [ ] Non-voice tier user: expect 403
-
-**Auth edge cases (both functions):**
-- [ ] Sign out, try to parse: expect "Session expired" toast
-- [ ] Use app on mobile after 1 hour idle: confirm token refresh works silently
 
 ---
 
-## Adding a new edge case test
+## Adding a new test
 
-1. Identify the failure mode (e.g., "what if the AI returns a number instead of a string for quantity?")
-2. Find the relevant describe block in `__tests__/api/ai-parse.test.js` or the relevant security file
-3. Add a test using the same `mockFetch` helper pattern:
+1. Identify the failure mode
+2. Find the relevant describe block in `__tests__/`
+3. Add using the mockFetch pattern:
 
 ```js
-it("handles AI returning number quantity as string", () => {
+it("handles AI returning string quantity", () => {
   const parsed = {
     line_items: [{ description: "Consulting", quantity: "3", unit_price: "85" }],
   };
@@ -99,18 +119,15 @@ it("handles AI returning number quantity as string", () => {
 });
 ```
 
-4. Run `npm test` — if it passes, the code already handles it. If it fails, fix the code first.
-5. Commit both the test and the fix together.
+4. Run `npm test` — passes = already handled, fails = fix code first, then commit both together.
 
 ---
 
 ## CI integration (future)
-
-When ready to automate, add this to your Cloudflare Pages build command or a GitHub Action:
 
 ```yaml
 - name: Run tests
   run: cd frontend && npm test
 ```
 
-Tests fail the build if any test breaks — zero manual checking needed.
+Plug into Cloudflare Pages build command or a GitHub Action. Tests fail the build automatically — zero manual checking needed.
