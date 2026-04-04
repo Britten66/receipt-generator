@@ -18,6 +18,7 @@
 import { useState, useEffect, useRef } from "react";
 import { saveProfile } from "../api/profile";
 import { uploadLogo } from "../api/uploadLogo";
+import { supabase } from "../lib/supabase";
 
 /*
   EMPTY_ITEM is the default shape of a new blank line item.
@@ -225,7 +226,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
   async function parseVoice(blob) {
     try {
-      const { data: { session: s } } = await import("../lib/supabase").then(m => m.supabase.auth.getSession());
+      const { data: { session: s } } = await supabase.auth.getSession();
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-parse`, {
         method: "POST",
         headers: {
@@ -279,7 +280,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
     setVoiceError("");
     setVoiceTranscript("");
     try {
-      const { data: { session: s } } = await import("../lib/supabase").then(m => m.supabase.auth.getSession());
+      const { data: { session: s } } = await supabase.auth.getSession();
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-parse`, {
         method: "POST",
         headers: {
@@ -1028,26 +1029,31 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
         </div>
 
         <div className="modal-footer" style={{ alignItems: "center" }}>
-          {profile?.tier === "voice" && !isDesktop ? (
-            /* Mobile voice tier: orb in footer replaces Cancel */
-            <button
-              type="button"
-              onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
-              disabled={voiceParsing}
-              title={voiceRecording ? "Stop recording" : "Speak your invoice"}
-              style={{
-                width: 36, height: 36, borderRadius: "50%", border: "none", flexShrink: 0,
-                cursor: voiceParsing ? "not-allowed" : "pointer", padding: 0,
-                background: voiceRecording
-                  ? "radial-gradient(circle, rgba(220,80,80,0.3) 0%, rgba(220,80,80,0.08) 100%)"
-                  : "radial-gradient(circle, rgba(77,216,224,0.22) 0%, rgba(77,216,224,0.06) 100%)",
-                boxShadow: voiceRecording ? "0 0 0 2px rgba(220,80,80,0.5)" : "0 0 0 2px rgba(77,216,224,0.35)",
-                animation: voiceRecording ? "voice-pulse 1.2s ease-in-out infinite" : voiceParsing ? "voice-spin 1.4s linear infinite" : "voice-breathe 3s ease-in-out infinite",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}
-            >
-              <span style={{ display: "block", width: voiceRecording ? 10 : 8, height: voiceRecording ? 10 : 8, borderRadius: "50%", background: voiceRecording ? "#e05555" : "#4dd8e0", transition: "all 0.2s" }} />
-            </button>
+          {profile?.tier === "voice" ? (
+            /* Voice tier: orb + label on both desktop and mobile */
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <button
+                type="button"
+                onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
+                disabled={voiceParsing}
+                title={voiceRecording ? "Stop recording" : "Speak your invoice"}
+                style={{
+                  width: 36, height: 36, borderRadius: "50%", border: "none", flexShrink: 0,
+                  cursor: voiceParsing ? "not-allowed" : "pointer", padding: 0,
+                  background: voiceRecording
+                    ? "radial-gradient(circle, rgba(220,80,80,0.3) 0%, rgba(220,80,80,0.08) 100%)"
+                    : "radial-gradient(circle, rgba(77,216,224,0.22) 0%, rgba(77,216,224,0.06) 100%)",
+                  boxShadow: voiceRecording ? "0 0 0 2px rgba(220,80,80,0.5)" : "0 0 0 2px rgba(77,216,224,0.35)",
+                  animation: voiceRecording ? "voice-pulse 1.2s ease-in-out infinite" : voiceParsing ? "voice-spin 1.4s linear infinite" : "voice-breathe 3s ease-in-out infinite",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >
+                <span style={{ display: "block", width: voiceRecording ? 10 : 8, height: voiceRecording ? 10 : 8, borderRadius: "50%", background: voiceRecording ? "#e05555" : "#4dd8e0", transition: "all 0.2s" }} />
+              </button>
+              <span style={{ fontSize: 9, color: voiceRecording ? "#e05555" : "#4dd8e0", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
+                {voiceRecording ? "Recording..." : voiceParsing ? "Parsing..." : "Invoice Parser"}
+              </span>
+            </div>
           ) : (
             <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
           )}
