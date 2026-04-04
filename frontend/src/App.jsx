@@ -667,7 +667,8 @@ export default function App() {
             {now.toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit", hour12: true })}
           </span>
           <span className="topbar-date-sep"> · </span>
-          {now.toLocaleDateString("en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+          <span className="topbar-date-full">{now.toLocaleDateString("en-CA", { weekday: "long", month: "long", day: "numeric" })}</span>
+          <span className="topbar-date-short">{now.toLocaleDateString("en-CA", { weekday: "short", month: "short", day: "numeric" })}</span>
         </div>
 
         {/* Column 3 — far right */}

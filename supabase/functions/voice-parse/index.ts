@@ -53,8 +53,15 @@ Deno.serve(async (req) => {
   if (!groqKey) return new Response(JSON.stringify({ error: "Voice parsing not configured." }), { status: 500, headers: corsHeaders });
 
   // Step 1: Transcribe with Groq Whisper
+  // Pick file extension based on actual mime type — iOS sends mp4, desktop sends webm
+  const contentType = req.headers.get("content-type") ?? "audio/webm";
+  const ext = contentType.includes("mp4") ? "mp4"
+            : contentType.includes("ogg") ? "ogg"
+            : contentType.includes("wav") ? "wav"
+            : "webm";
+
   const formData = new FormData();
-  formData.append("file", audioBlob, "audio.webm");
+  formData.append("file", audioBlob, `audio.${ext}`);
   formData.append("model", "whisper-large-v3-turbo");
   formData.append("response_format", "text");
 

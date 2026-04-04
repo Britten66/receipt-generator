@@ -327,6 +327,18 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             <p className="lv2-faq-a2">Yes. Cancel from inside the app in one tap. You keep Pro access until your billing period ends. No fees, no questions.</p>
           </div>
           <div className="lv2-faq-item2">
+            <h3 className="lv2-faq-q2">What is the Voice AI plan?</h3>
+            <p className="lv2-faq-a2">Voice AI lets you speak your invoice out loud and have it filled in automatically. Say something like "Invoice to John, 3 hours of design at 85 dollars" and the AI populates your client, line items, quantities, and prices. No typing required.</p>
+          </div>
+          <div className="lv2-faq-item2">
+            <h3 className="lv2-faq-q2">How accurate is the Voice AI?</h3>
+            <p className="lv2-faq-a2">Very accurate for clear descriptions. It understands multiple line items, quantities, and prices in natural speech. You always review and confirm before sending, so you stay in control.</p>
+          </div>
+          <div className="lv2-faq-item2">
+            <h3 className="lv2-faq-q2">Is my voice data stored?</h3>
+            <p className="lv2-faq-a2">No. Audio is sent to Groq for transcription and discarded immediately. InvoicePrepper never stores your recordings.</p>
+          </div>
+          <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Need help?</h3>
             <p className="lv2-faq-a2">Email us at <a href="mailto:support@invoiceprepper.com" className="lv2-faq-link">support@invoiceprepper.com</a> and we'll get back to you.</p>
           </div>

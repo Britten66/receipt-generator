@@ -339,6 +339,8 @@ body,
   opacity: 0.35;
   margin: 0 2px;
 }
+.topbar-date-full  { display: inline; }
+.topbar-date-short { display: none; }
 
 /* Help button — circled ? in the topbar */
 .help-btn {
@@ -1735,16 +1737,14 @@ input[type="date"].field {
   }
 
   /*
-    Topbar date is too long on mobile (full weekday + date string).
-    Truncate with ellipsis so it doesn't crush the toggle and avatar.
+    Topbar date — show short version on mobile so weekday is never truncated.
   */
   .topbar-meta {
     font-size: 10px;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 180px;
   }
+  .topbar-date-full  { display: none; }
+  .topbar-date-short { display: inline; }
 
   /*
     The help window is designed for desktop dragging.
@@ -1820,7 +1820,6 @@ input[type="date"].field {
     grid-template-columns: 1fr;
   }
   .topbar-meta {
-    max-width: 120px;
     font-size: 9px;
   }
 }

@@ -124,7 +124,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   const voiceMimeRef     = useRef("audio/webm");
   const MAX_RECORDING_SECONDS = 45;
 
-  function playDing() {
+  function playChime(type = "start") {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const osc  = ctx.createOscillator();
@@ -132,12 +132,23 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.type = "sine";
-      osc.frequency.setValueAtTime(880, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.08);
-      gain.gain.setValueAtTime(0.25, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.55);
+      if (type === "start") {
+        // Low soft tone — "now listening"
+        osc.frequency.setValueAtTime(520, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(620, ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.35);
+      } else {
+        // Bright rising tone — "done"
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.55);
+      }
     } catch {}
   }
 
@@ -182,6 +193,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       mediaRecorderRef.current = recorder;
       recorder.start();
       setVoiceRecording(true);
+      playChime("start");
       // Tick timer + auto-stop at max
       voiceTimerRef.current = setInterval(() => {
         setVoiceSeconds((s) => {
@@ -246,7 +258,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       if (parsed.notes) setShowNotes(true);
 
       // Feedback
-      playDing();
+      playChime("done");
       speakBack(parsed);
     } catch {
       setVoiceError("Something went wrong. Please try again.");
@@ -512,99 +524,49 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
         {/* Voice AI entry — voice tier only */}
         {profile?.tier === "voice" && (
-          <div style={{ padding: "16px 18px", borderBottom: "1px solid var(--border)", background: "var(--surface-2)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--border)", background: "var(--surface-2)", display: "flex", alignItems: "center", gap: 12 }}>
 
-              {/* Diamond pulse orb */}
-              <button
-                type="button"
-                onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
-                disabled={voiceParsing}
-                style={{
-                  position: "relative",
-                  width: 48,
-                  height: 48,
-                  borderRadius: "50%",
-                  border: "none",
-                  flexShrink: 0,
-                  cursor: voiceParsing ? "not-allowed" : "pointer",
-                  background: voiceRecording
-                    ? "radial-gradient(circle, rgba(220,80,80,0.3) 0%, rgba(220,80,80,0.08) 100%)"
-                    : voiceParsing
-                    ? "radial-gradient(circle, rgba(77,216,224,0.15) 0%, rgba(77,216,224,0.04) 100%)"
-                    : "radial-gradient(circle, rgba(77,216,224,0.22) 0%, rgba(77,216,224,0.06) 100%)",
-                  boxShadow: voiceRecording
-                    ? "0 0 0 2px rgba(220,80,80,0.5)"
-                    : "0 0 0 2px rgba(77,216,224,0.4)",
-                  animation: voiceRecording
-                    ? "voice-pulse 1.2s ease-in-out infinite"
-                    : voiceParsing
-                    ? "voice-spin 1.4s linear infinite"
-                    : "voice-breathe 3s ease-in-out infinite",
-                  transition: "background 0.3s, box-shadow 0.3s",
-                  padding: 0,
-                }}
-              >
-                {/* Inner diamond dot */}
-                <span style={{
-                  display: "block",
-                  width: voiceRecording ? 14 : 10,
-                  height: voiceRecording ? 14 : 10,
-                  borderRadius: "50%",
-                  background: voiceRecording ? "#e05555" : voiceParsing ? "#4dd8e0" : "#4dd8e0",
-                  margin: "auto",
-                  transition: "all 0.2s",
-                  opacity: voiceParsing ? 0.6 : 1,
-                }} />
-              </button>
+            {/* Orb */}
+            <button
+              type="button"
+              onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
+              disabled={voiceParsing}
+              style={{
+                width: 36, height: 36, borderRadius: "50%", border: "none", flexShrink: 0,
+                cursor: voiceParsing ? "not-allowed" : "pointer", padding: 0,
+                background: voiceRecording
+                  ? "radial-gradient(circle, rgba(220,80,80,0.3) 0%, rgba(220,80,80,0.08) 100%)"
+                  : "radial-gradient(circle, rgba(77,216,224,0.22) 0%, rgba(77,216,224,0.06) 100%)",
+                boxShadow: voiceRecording ? "0 0 0 2px rgba(220,80,80,0.5)" : "0 0 0 2px rgba(77,216,224,0.4)",
+                animation: voiceRecording ? "voice-pulse 1.2s ease-in-out infinite" : voiceParsing ? "voice-spin 1.4s linear infinite" : "voice-breathe 3s ease-in-out infinite",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <span style={{ display: "block", width: voiceRecording ? 11 : 8, height: voiceRecording ? 11 : 8, borderRadius: "50%", background: voiceRecording ? "#e05555" : "#4dd8e0", transition: "all 0.2s" }} />
+            </button>
 
-              {/* Status column */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
-                  <>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text)", marginBottom: 2, display: "flex", alignItems: "center", gap: 6 }}>
-                      Speak your invoice
-                      <span style={{ fontSize: 8, padding: "1px 5px", background: "rgba(77,216,224,0.15)", border: "1px solid rgba(77,216,224,0.3)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "#4dd8e0" }}>beta</span>
-                    </div>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
-                      Say client, items, and prices. Tap the orb to start.
-                    </div>
-                  </>
-                )}
-                {voiceRecording && (
-                  <>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "#e05555", marginBottom: 2 }}>
-                      Listening
-                      <span style={{ fontWeight: 400, marginLeft: 8, color: "var(--text-muted)", fontSize: 10 }}>{MAX_RECORDING_SECONDS - voiceSeconds}s remaining</span>
-                    </div>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic" }}>
-                      "Invoice to John, 3 hours web design at 85, and logo for 300"
-                    </div>
-                  </>
-                )}
-                {voiceParsing && (
-                  <div style={{ fontSize: 11, color: "#4dd8e0" }}>Parsing your invoice...</div>
-                )}
-                {voiceTranscript && !voiceRecording && !voiceParsing && !voiceError && (
-                  <>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 2 }}>
-                      "{voiceTranscript}"
-                    </div>
-                    <div style={{ fontSize: 10, color: "#4dd8e0", fontWeight: 600 }}>Invoice filled. Review above.</div>
-                  </>
-                )}
-                {voiceError && (
-                  <div style={{ fontSize: 10, color: "var(--voided)" }}>{voiceError}</div>
-                )}
-              </div>
+            {/* Status */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
+                <span style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic" }}>
+                  "Invoice to John, 3 hrs design at 85, logo for 300"
+                </span>
+              )}
+              {voiceRecording && (
+                <span style={{ fontSize: 10, color: "#e05555" }}>Listening... {MAX_RECORDING_SECONDS - voiceSeconds}s</span>
+              )}
+              {voiceParsing && (
+                <span style={{ fontSize: 10, color: "#4dd8e0" }}>Filling in your invoice...</span>
+              )}
+              {voiceTranscript && !voiceRecording && !voiceParsing && !voiceError && (
+                <span style={{ fontSize: 10, color: "#4dd8e0", fontWeight: 600 }}>Done. Review above.</span>
+              )}
+              {voiceError && (
+                <span style={{ fontSize: 10, color: "var(--voided)" }}>{voiceError}</span>
+              )}
             </div>
 
-            {/* Tip — idle only */}
-            {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
-              <div style={{ marginTop: 10, padding: "7px 10px", background: "rgba(77,216,224,0.05)", border: "1px solid rgba(77,216,224,0.12)", fontSize: 10, color: "var(--text-muted)", lineHeight: 1.6 }}>
-                Include who it's for, what you did, how many, and the price. Multiple items work naturally.
-              </div>
-            )}
+            <span style={{ fontSize: 8, padding: "1px 5px", background: "rgba(77,216,224,0.12)", border: "1px solid rgba(77,216,224,0.25)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "#4dd8e0", flexShrink: 0 }}>beta</span>
           </div>
         )}
 
