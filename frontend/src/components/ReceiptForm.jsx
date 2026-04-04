@@ -234,7 +234,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
   async function parseVoice(blob) {
     try {
-      const { transcript, parsed } = await parseAudio(blob, voiceMimeRef.current, session?.access_token);
+      const { transcript, parsed } = await parseAudio(blob, voiceMimeRef.current);
       setVoiceTranscript(transcript);
       applyParsed(parsed);
       playChime("done");
@@ -252,7 +252,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
     setVoiceError("");
     setVoiceTranscript("");
     try {
-      const parsed = await parseText(text, session?.access_token);
+      const parsed = await parseText(text);
       applyParsed(parsed);
       playChime("done");
       setVoiceTranscript("done");
