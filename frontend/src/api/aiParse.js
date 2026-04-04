@@ -83,10 +83,11 @@ export function clean(str) {
 
 export function mapParsedToForm(parsed) {
   const fields = {};
-  if (parsed.vendor_name)   fields.vendor_name   = clean(parsed.vendor_name);
-  if (parsed.customer_name) fields.customer_name = clean(parsed.customer_name);
-  if (parsed.currency)      fields.currency      = parsed.currency;
-  if (parsed.notes)         fields.notes         = clean(parsed.notes);
+  if (parsed.vendor_name)      fields.vendor_name   = clean(parsed.vendor_name);
+  if (parsed.customer_name)    fields.customer_name = clean(parsed.customer_name);
+  if (parsed.currency)         fields.currency      = parsed.currency;
+  if (parsed.notes)            fields.notes         = clean(parsed.notes);
+  if (parsed.tax_rate != null) fields.taxRate       = String(parsed.tax_rate);
 
   const items = parsed.line_items?.length
     ? parsed.line_items.map((li) => {

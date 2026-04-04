@@ -216,6 +216,7 @@ Output format:
   "vendor_name": string or null,
   "customer_name": string or null,
   "currency": "CAD" or "USD" or "EUR" or "GBP" or other ISO 4217 code,
+  "tax_rate": number or null,
   "notes": string or null,
   "line_items": [
     { "description": string, "quantity": number, "unit_price": number }
@@ -230,7 +231,8 @@ Rules:
 - quantity: extract from ANY of these patterns — "4 apples" → qty 4, "apples x4" → qty 4, "3 hours" → qty 3, "two units" → qty 2, "x5" → qty 5. Written numbers like "two", "three" count too. Default to 1 only if truly no quantity is mentioned.
 - description: the item name only, never include the quantity in the description. "4 apples" → description "Apples", quantity 4.
 - unit_price: price PER UNIT. Extract from "at $85", "for 200", "90 each", "fifty bucks", "$10/unit". If a total price is given with a quantity, divide: "4 apples for $8" → unit_price 2.
-- notes: payment terms, thank you messages, or extra info. Not item descriptions.
+- tax_rate: extract the tax percentage if mentioned (e.g. "15% GST" → 15, "plus HST" → 13, "tax exempt" or "no tax" → 0). Return as a plain number (not a decimal). null if tax is not mentioned at all.
+- notes: payment terms, thank you messages, or extra info. Not item descriptions. Never put tax info in notes.
 - If a field is not mentioned set it to null or empty array.
 - Do not invent data not present in the transcript.
 - Always return line_items as an array even if only one item.

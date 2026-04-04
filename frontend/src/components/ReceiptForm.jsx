@@ -157,10 +157,9 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
         // One clear ding — "got it" (A5, audible)
         note(880,  t,        0.30, 0.22);
       } else {
-        // Three-note rising resolution — E5, G5, C6 ("done")
-        note(659,  t,        0.18, 0.16);
-        note(784,  t + 0.16, 0.18, 0.18);
-        note(1047, t + 0.32, 0.35, 0.16);
+        // Two-note resolution — G5 then C6 ("done")
+        note(784,  t,        0.20, 0.18);
+        note(1047, t + 0.18, 0.32, 0.16);
       }
     } catch {}
   }
@@ -236,10 +235,11 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   function applyParsed(parsed) {
     const { fields, items } = mapParsedToForm(parsed);
     // Only overwrite fields that are currently blank so existing values survive a second parse
-    if (fields.vendor_name)   setField("vendor_name",   fields.vendor_name);
-    if (fields.customer_name) setField("customer_name", fields.customer_name);
-    if (fields.currency)      setField("currency",      fields.currency);
-    if (fields.notes)         { setField("notes", fields.notes); setShowNotes(true); }
+    if (fields.vendor_name)        setField("vendor_name",   fields.vendor_name);
+    if (fields.customer_name)      setField("customer_name", fields.customer_name);
+    if (fields.currency)           setField("currency",      fields.currency);
+    if (fields.notes)              { setField("notes", fields.notes); setShowNotes(true); }
+    if (fields.taxRate !== undefined) setField("taxRate", fields.taxRate);
     // Append new line items instead of replacing — lets users build up a complex invoice
     // across multiple voice or text passes without losing what they already have
     if (items && items.length > 0) {
@@ -591,45 +591,26 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 )}
               </>
             ) : (
-              /* Mobile: mic orb */
-              <>
-                <button
-                  type="button"
-                  onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
-                  disabled={voiceParsing}
-                  style={{
-                    width: 36, height: 36, borderRadius: "50%", border: "none", flexShrink: 0,
-                    cursor: voiceParsing ? "not-allowed" : "pointer", padding: 0,
-                    background: voiceRecording
-                      ? "radial-gradient(circle, rgba(220,80,80,0.3) 0%, rgba(220,80,80,0.08) 100%)"
-                      : "radial-gradient(circle, rgba(77,216,224,0.22) 0%, rgba(77,216,224,0.06) 100%)",
-                    boxShadow: voiceRecording ? "0 0 0 2px rgba(220,80,80,0.5)" : "0 0 0 2px rgba(77,216,224,0.4)",
-                    animation: voiceRecording ? "voice-pulse 1.2s ease-in-out infinite" : voiceParsing ? "voice-spin 1.4s linear infinite" : "voice-breathe 3s ease-in-out infinite",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}
-                >
-                  <span style={{ display: "block", width: voiceRecording ? 11 : 8, height: voiceRecording ? 11 : 8, borderRadius: "50%", background: voiceRecording ? "#e05555" : "#4dd8e0", transition: "all 0.2s" }} />
-                </button>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
-                    <span style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic" }}>
-                      "Invoice to John, 3 hours of design at 85, and logo for 300"
-                    </span>
-                  )}
-                  {voiceRecording && (
-                    <span style={{ fontSize: 10, color: "#e05555" }}>Listening... {MAX_RECORDING_SECONDS - voiceSeconds}s &middot; tap to stop</span>
-                  )}
-                  {voiceParsing && (
-                    <span style={{ fontSize: 10, color: "var(--voice-text)" }}>Filling in your invoice...</span>
-                  )}
-                  {voiceTranscript && !voiceRecording && !voiceParsing && !voiceError && (
-                    <span style={{ fontSize: 10, color: "#4dd8e0", fontWeight: 600 }}>Done. Review below.</span>
-                  )}
-                  {voiceError && (
-                    <span style={{ fontSize: 10, color: "var(--voided)" }}>{voiceError}</span>
-                  )}
-                </div>
-              </>
+              /* Mobile: status text only — the recording button is the full-width bar in the footer */
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
+                  <span style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic" }}>
+                    Tap &ldquo;Speak Invoice&rdquo; below to fill in by voice
+                  </span>
+                )}
+                {voiceRecording && (
+                  <span style={{ fontSize: 10, color: "#e05555", fontWeight: 600 }}>Listening... {MAX_RECORDING_SECONDS - voiceSeconds}s</span>
+                )}
+                {voiceParsing && (
+                  <span style={{ fontSize: 10, color: "var(--voice-text)" }}>Filling in your invoice...</span>
+                )}
+                {voiceTranscript && !voiceRecording && !voiceParsing && !voiceError && (
+                  <span style={{ fontSize: 10, color: "#4dd8e0", fontWeight: 600 }}>Done. Review below.</span>
+                )}
+                {voiceError && (
+                  <span style={{ fontSize: 10, color: "var(--voided)" }}>{voiceError}</span>
+                )}
+              </div>
             )}
 
             <span style={{ fontSize: 8, padding: "1px 5px", background: "rgba(77,216,224,0.12)", border: "1px solid rgba(77,216,224,0.25)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "var(--voice-text)", flexShrink: 0 }}>beta</span>
@@ -1008,30 +989,54 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
         <div className="modal-footer" style={{ alignItems: "center" }}>
           {profile?.tier === "voice" ? (
-            /* Voice tier: orb + label on both desktop and mobile */
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            isDesktop ? (
+              /* Desktop: small orb + label — mouse precision is fine */
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  type="button"
+                  onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
+                  disabled={voiceParsing}
+                  title={voiceRecording ? "Stop recording" : "Speak your invoice"}
+                  style={{
+                    width: 36, height: 36, borderRadius: "50%", border: "none", flexShrink: 0,
+                    cursor: voiceParsing ? "not-allowed" : "pointer", padding: 0,
+                    background: voiceRecording
+                      ? "radial-gradient(circle, rgba(220,80,80,0.3) 0%, rgba(220,80,80,0.08) 100%)"
+                      : "radial-gradient(circle, rgba(77,216,224,0.22) 0%, rgba(77,216,224,0.06) 100%)",
+                    boxShadow: voiceRecording ? "0 0 0 2px rgba(220,80,80,0.5)" : "0 0 0 2px rgba(77,216,224,0.35)",
+                    animation: voiceRecording ? "voice-pulse 1.2s ease-in-out infinite" : voiceParsing ? "voice-spin 1.4s linear infinite" : "voice-breathe 3s ease-in-out infinite",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}
+                >
+                  <span style={{ display: "block", width: voiceRecording ? 10 : 8, height: voiceRecording ? 10 : 8, borderRadius: "50%", background: voiceRecording ? "#e05555" : "#4dd8e0", transition: "all 0.2s" }} />
+                </button>
+                <span style={{ fontSize: 9, color: voiceRecording ? "#e05555" : "var(--voice-text)", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
+                  {voiceRecording ? "Tap to stop" : voiceParsing ? "Parsing..." : "Invoice Parser"}
+                </span>
+              </div>
+            ) : (
+              /* Mobile: full-width easy-to-tap button — no more tiny orb */
               <button
                 type="button"
                 onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
                 disabled={voiceParsing}
-                title={voiceRecording ? "Stop recording" : "Speak your invoice"}
                 style={{
-                  width: 36, height: 36, borderRadius: "50%", border: "none", flexShrink: 0,
-                  cursor: voiceParsing ? "not-allowed" : "pointer", padding: 0,
-                  background: voiceRecording
-                    ? "radial-gradient(circle, rgba(220,80,80,0.3) 0%, rgba(220,80,80,0.08) 100%)"
-                    : "radial-gradient(circle, rgba(77,216,224,0.22) 0%, rgba(77,216,224,0.06) 100%)",
-                  boxShadow: voiceRecording ? "0 0 0 2px rgba(220,80,80,0.5)" : "0 0 0 2px rgba(77,216,224,0.35)",
-                  animation: voiceRecording ? "voice-pulse 1.2s ease-in-out infinite" : voiceParsing ? "voice-spin 1.4s linear infinite" : "voice-breathe 3s ease-in-out infinite",
-                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flex: 1, alignSelf: "stretch", border: "none", borderRight: "1px solid var(--border)",
+                  background: voiceRecording ? "rgba(220,80,80,0.15)" : voiceParsing ? "rgba(77,216,224,0.05)" : "rgba(77,216,224,0.12)",
+                  color: voiceRecording ? "#e05555" : voiceParsing ? "var(--text-muted)" : "var(--voice-text)",
+                  cursor: voiceParsing ? "not-allowed" : "pointer",
+                  fontSize: 11, letterSpacing: "0.10em", textTransform: "uppercase", fontWeight: 700,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 }}
               >
-                <span style={{ display: "block", width: voiceRecording ? 10 : 8, height: voiceRecording ? 10 : 8, borderRadius: "50%", background: voiceRecording ? "#e05555" : "#4dd8e0", transition: "all 0.2s" }} />
+                <span style={{
+                  width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
+                  background: voiceRecording ? "#e05555" : voiceParsing ? "var(--text-muted)" : "#4dd8e0",
+                  animation: voiceRecording ? "voice-pulse 1.2s ease-in-out infinite" : voiceParsing ? "voice-spin 1.4s linear infinite" : "voice-breathe 3s ease-in-out infinite",
+                }} />
+                {voiceRecording ? "Stop Recording" : voiceParsing ? "Parsing..." : "Speak Invoice"}
               </button>
-              <span style={{ fontSize: 9, color: voiceRecording ? "#e05555" : "var(--voice-text)", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
-                {voiceRecording ? "Tap to stop" : voiceParsing ? "Parsing..." : "Invoice Parser"}
-              </span>
-            </div>
+            )
           ) : (
             <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
           )}
