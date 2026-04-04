@@ -33,14 +33,17 @@ Deno.serve(async (req) => {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
 
-  // Server-side Pro tier enforcement
-  const { data: profile } = await supabase.from("profiles").select("tier").eq("user_id", user.id).single();
-  if (!profile || profile.tier !== "pro") {
-    return new Response(JSON.stringify({ error: "Pro subscription required to send invoices" }), { status: 403, headers: corsHeaders });
-  }
+  // Fetch tier + custom sender name — both used server-side, never trusted from client
+  const { data: profile } = await supabase.from("profiles").select("tier, business_name").eq("user_id", user.id).single();
+  const isPro = profile?.tier === "pro" || profile?.tier === "voice";
 
-  const { to, vendor_name, customer_name, receipt_number, date, line_items, subtotal, tax, total, notes, payment_url, pdf_base64 } = await req.json();
-  const tier = profile.tier; // use server-verified tier, not client-supplied
+  const {
+    to, vendor_name, vendor_email, vendor_address,
+    customer_name, receipt_number, date, line_items,
+    subtotal, tax, total, currency, notes, payment_url, pdf_base64,
+    is_reminder,
+  } = await req.json();
+  const tier = profile?.tier ?? "free"; // use server-verified tier, not client-supplied
 
   if (!to) return new Response(JSON.stringify({ error: "Recipient email is required" }), { status: 400, headers: corsHeaders });
   if (!EMAIL_RE.test(to)) return new Response(JSON.stringify({ error: "Invalid recipient email" }), { status: 400, headers: corsHeaders });
@@ -52,11 +55,14 @@ Deno.serve(async (req) => {
   }
 
   const safe = {
-    to: escapeHtml(to),
-    vendor_name: escapeHtml(vendor_name),
-    customer_name: escapeHtml(customer_name),
+    to:             escapeHtml(to),
+    vendor_name:    escapeHtml(vendor_name),
+    vendor_email:   escapeHtml(vendor_email),
+    vendor_address: escapeHtml(vendor_address),
+    customer_name:  escapeHtml(customer_name),
     receipt_number: escapeHtml(receipt_number),
-    notes: escapeHtml(notes),
+    notes:          escapeHtml(notes),
+    currency:       /^[A-Z]{3}$/.test(currency ?? "") ? currency : "CAD",
   };
 
   const safePaymentUrl = (payment_url && /^https?:\/\//i.test(payment_url)) ? payment_url : null;
@@ -86,6 +92,8 @@ Deno.serve(async (req) => {
           <td style="vertical-align:top;">
             <div style="font-size:11px;color:#908e8a;margin-bottom:4px;">FROM</div>
             <div style="font-size:14px;font-weight:700;color:#1e1c18;">${safe.vendor_name}</div>
+            ${safe.vendor_address ? `<div style="font-size:10px;color:#908e8a;margin-top:2px;">${safe.vendor_address}</div>` : ""}
+            ${safe.vendor_email   ? `<div style="font-size:10px;color:#908e8a;">${safe.vendor_email}</div>` : ""}
           </td>
           <td style="vertical-align:top;text-align:right;">
             <div style="font-size:11px;color:#908e8a;margin-bottom:4px;">ISSUED TO</div>
@@ -93,7 +101,7 @@ Deno.serve(async (req) => {
           </td>
         </tr>
       </table>
-      <div style="font-size:11px;color:#908e8a;margin-bottom:20px;">Date: ${dateStr}</div>
+      <div style="font-size:11px;color:#908e8a;margin-bottom:20px;">Date: ${dateStr} · Currency: ${safe.currency}</div>
     </div>
     <table width="100%" style="border-collapse:collapse;">
       <thead>
@@ -115,7 +123,8 @@ Deno.serve(async (req) => {
       ${safe.notes ? `<div style="margin-top:20px;font-size:11px;color:#908e8a;border-top:1px solid #e8e6e1;padding-top:16px;"><strong>Note:</strong> ${safe.notes}</div>` : ""}
       ${safePaymentUrl ? `<div style="text-align:center;margin-top:24px;"><a href="${safePaymentUrl}" style="display:inline-block;background:#1e1c18;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;">Pay Now</a></div>` : ""}
     </div>
-    ${tier !== "pro" ? `<div style="background:#f5f4f0;padding:14px 28px;text-align:center;font-size:10px;color:#b4afa5;">— <a href="https://invoiceprepper.com" style="color:#b4afa5;text-decoration:none;">invoiceprepper.com</a> —</div>` : ""}
+    <div style="background:#f5f4f0;padding:10px 28px;text-align:center;font-size:9px;color:#c4c0b8;">This is an automatically generated invoice. Invoice ID: #${safe.receipt_number}</div>
+    ${tier !== "pro" ? `<div style="background:#f5f4f0;padding:0 28px 14px;text-align:center;font-size:10px;color:#b4afa5;"><a href="https://invoiceprepper.com" style="color:#b4afa5;text-decoration:none;">invoiceprepper.com</a></div>` : ""}
   </div>
 </body></html>`;
 
@@ -126,11 +135,13 @@ Deno.serve(async (req) => {
       "Authorization": `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
     },
     body: JSON.stringify({
-      from: "invoices@invoiceprepper.com",
+      from: isPro && profile?.business_name ? `${profile.business_name} <invoices@invoiceprepper.com>` : "InvoicePrepper <invoices@invoiceprepper.com>",
       to: safe.to,
-      subject: `Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`,
+      subject: is_reminder
+        ? `Friendly reminder: Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`
+        : `Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`,
       html,
-      reply_to: user.email ?? undefined,
+      reply_to: "support@invoiceprepper.com",
       ...(pdf_base64 ? {
         attachments: [{
           filename: `invoice-${safe.receipt_number}.pdf`,

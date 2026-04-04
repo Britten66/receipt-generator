@@ -79,6 +79,11 @@ async function loadImageAsDataUrl(url) {
     after totals: notes (if any)
     284:   footer text at page bottom
 */
+// Format a number as currency with thousand separators — e.g. 43252345 → "$43,252,345.00"
+function fmtMoney(n) {
+  return "$" + parseFloat(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 async function buildDoc(receipt) {
   // Create an A4 page with millimetre units
   const doc = new jsPDF({ unit: "mm", format: "a4" });
@@ -188,8 +193,8 @@ async function buildDoc(receipt) {
     tableRows = receipt.line_items.map((item) => [
       item.description || "—",
       String(item.quantity),
-      `$${parseFloat(item.unit_price).toFixed(2)}`,
-      `$${parseFloat(item.total).toFixed(2)}`,
+      fmtMoney(item.unit_price),
+      fmtMoney(item.total),
     ]);
   } else {
     // No line items — show a placeholder row so the table isn't empty
@@ -209,12 +214,22 @@ async function buildDoc(receipt) {
       fontStyle: "bold",
       halign: "left",
     },
-    bodyStyles: { fontSize: 9, textColor: [50, 48, 44] },
+    bodyStyles: {
+      fontSize: 9,
+      textColor: [50, 48, 44],
+      cellPadding: { top: 3, bottom: 3, left: 2, right: 3 },
+    },
     columnStyles: {
-      0: { cellWidth: "auto" },     // description column takes remaining space
-      1: { halign: "right", cellWidth: 20 }, // qty — right aligned
-      2: { halign: "right", cellWidth: 30 }, // unit price — right aligned
-      3: { halign: "right", cellWidth: 30 }, // total — right aligned
+      0: { cellWidth: "auto", halign: "left" },  // description — takes remaining space
+      1: { halign: "right", cellWidth: 16 },      // qty — small, just needs 1–999
+      2: { halign: "right", cellWidth: 38 },      // unit price — fits $231,876.00
+      3: { halign: "right", cellWidth: 38 },      // total — same width as unit price
+    },
+    // Right-align the header labels for numeric columns to match body alignment
+    didParseCell(data) {
+      if (data.section === "head" && data.column.index > 0) {
+        data.cell.styles.halign = "right";
+      }
     },
     theme: "plain",
     tableLineColor: [210, 208, 200],
@@ -241,12 +256,12 @@ async function buildDoc(receipt) {
   // We only show Subtotal and Tax if they have values
   const totalRows = [];
   if (subtotal > 0) {
-    totalRows.push(["Subtotal", `$${subtotal.toFixed(2)}`]);
+    totalRows.push(["Subtotal", fmtMoney(subtotal)]);
   }
   if (tax > 0) {
-    totalRows.push(["Tax", `$${tax.toFixed(2)}`]);
+    totalRows.push(["Tax", fmtMoney(tax)]);
   }
-  totalRows.push(["Total", `$${total.toFixed(2)}`]); // Total is always shown
+  totalRows.push(["Total", fmtMoney(total)]); // Total is always shown
 
   // Draw each row in the totals block
   totalRows.forEach(([label, value], rowIndex) => {
@@ -369,7 +384,7 @@ export async function shareReceiptPDF(receipt) {
   // Build the share text — include the total amount if available
   let shareText = `Receipt from ${receipt.vendor_name}`;
   if (receipt.total) {
-    shareText += ` — $${parseFloat(receipt.total).toFixed(2)}`;
+    shareText += ` — ${fmtMoney(receipt.total)}`;
   }
 
   // Check if this browser supports sharing files before trying

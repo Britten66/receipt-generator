@@ -30,18 +30,39 @@ Deno.serve(async (req) => {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
 
-  const { return_url } = await req.json();
+  const { return_url, tier } = await req.json();
+
+  const priceId = tier === "voice"
+    ? Deno.env.get("STRIPE_VOICE_PRICE_ID")!
+    : Deno.env.get("STRIPE_PRO_PRICE_ID")!;
 
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      payment_method_types: ["card"],
-      line_items: [{ price: Deno.env.get("STRIPE_PRO_PRICE_ID")!, quantity: 1 }],
+      automatic_payment_methods: { enabled: true },
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${return_url}?upgraded=true`,
       cancel_url: return_url,
       client_reference_id: user.id,
       customer_email: user.email,
     });
+
+    // Notify owner of checkout entry — no GA, this is our only conversion signal.
+    const ownerNotifyRes = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
+      },
+      body: JSON.stringify({
+        from: "InvoicePrepper <invoices@invoiceprepper.com>",
+        to: "support@invoiceprepper.com",
+        subject: "Checkout started",
+        html: `<p>A user just entered the Pro checkout flow.</p><p><strong>Email:</strong> ${user.email}</p><p><strong>Time:</strong> ${new Date().toUTCString()}</p>`,
+      }),
+    });
+    if (!ownerNotifyRes.ok) console.error("Owner notify failed:", await ownerNotifyRes.text());
+
     return new Response(JSON.stringify({ url: session.url }), { headers: corsHeaders });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

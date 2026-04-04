@@ -18,6 +18,7 @@
 import { useState, useEffect, useRef } from "react";
 import { saveProfile } from "../api/profile";
 import { uploadLogo } from "../api/uploadLogo";
+import { parseText, parseAudio, mapParsedToForm } from "../api/aiParse";
 
 /*
   EMPTY_ITEM is the default shape of a new blank line item.
@@ -32,6 +33,9 @@ const EMPTY_ITEM = {
   total: "",
 };
 
+// Default tax rate is 0 — users set their own rate per invoice (GST, VAT, HST, etc.)
+const DEFAULT_TAX_RATE = 0;
+
 // Corner rotation order — clicking the tile cycles through these in sequence.
 const CORNER_ORDER  = ["top-left", "top-right", "bottom-right", "bottom-left"];
 const CORNER_LABELS = {
@@ -42,15 +46,6 @@ const CORNER_LABELS = {
 };
 
 export default function ReceiptForm({ onSubmit, onClose, initialData, profile, userEmail, onLogoUpdate }) {
-
-  /*
-    TAX_RATE and TAX_LABEL are read from the user's saved profile so the form
-    works for any region. If the user hasn't configured a tax rate yet, we fall
-    back to 0 (no tax) and the generic label "Tax" so nothing breaks.
-    The user sets these in their profile/settings modal.
-  */
-  const TAX_RATE  = typeof profile?.tax_rate  === "number" ? profile.tax_rate  : 0;
-  const TAX_LABEL = profile?.tax_label?.trim() ? profile.tax_label.trim()       : "Tax";
 
   /*
     form — the main fields of the receipt.
@@ -79,6 +74,9 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       receipt_number: "",
       date: new Date().toISOString().split("T")[0], // today in YYYY-MM-DD format
       isTaxExempt: false,
+      taxRate: String(DEFAULT_TAX_RATE * 100), // stored as percent string, e.g. "13" = 13%
+      taxLabel: "Tax",                          // e.g. "GST", "VAT", "HST" — user sets per invoice
+      currency: localStorage.getItem("lastCurrency") || "CAD",
       notes: "",
       id: null,
     };
@@ -115,6 +113,157 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   // Ref to the hidden file input inside the logo panel.
   const logoFileInputRef = useRef(null);
 
+  // Voice parsing state — voice tier only
+  const [voiceRecording, setVoiceRecording]   = useState(false);
+  const [voiceParsing, setVoiceParsing]       = useState(false);
+  const [voiceError, setVoiceError]           = useState("");
+  const [voiceTranscript, setVoiceTranscript] = useState("");
+  const [voiceSeconds, setVoiceSeconds]       = useState(0);
+  const [voiceText, setVoiceText]             = useState("");
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef   = useRef([]);
+  const voiceTimerRef    = useRef(null);
+  const voiceMimeRef     = useRef("audio/webm");
+  const MAX_RECORDING_SECONDS = 45;
+
+  // True on desktop (mouse pointer) — shows text input instead of mic orb
+  const isDesktop = typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches;
+
+  function playChime(type = "start") {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      if (type === "start") {
+        // Low soft tone — "now listening"
+        osc.frequency.setValueAtTime(520, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(620, ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.35);
+      } else {
+        // Bright rising tone — "done"
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.55);
+      }
+    } catch {}
+  }
+
+  function speakBack(parsed) {
+    if (!window.speechSynthesis) return;
+    const customer = parsed.customer_name || "your client";
+    const count    = parsed.line_items?.length ?? 0;
+    const text     = count > 1
+      ? `Invoice for ${customer}, ${count} items. Review the form.`
+      : `Invoice for ${customer}. Review the form.`;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.volume = 0.85;
+    utter.rate   = 1.05;
+    window.speechSynthesis.speak(utter);
+  }
+
+  function getMimeType() {
+    const types = ["audio/webm", "audio/mp4", "audio/ogg", "audio/wav"];
+    for (const t of types) {
+      if (MediaRecorder.isTypeSupported(t)) return t;
+    }
+    return "";
+  }
+
+  async function startVoiceRecording() {
+    setVoiceError("");
+    setVoiceTranscript("");
+    setVoiceSeconds(0);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = getMimeType();
+      voiceMimeRef.current = mimeType || "audio/webm";
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        clearInterval(voiceTimerRef.current);
+        const blob = new Blob(audioChunksRef.current, { type: voiceMimeRef.current });
+        await parseVoice(blob);
+      };
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      setVoiceRecording(true);
+      playChime("start");
+      // Tick timer + auto-stop at max
+      voiceTimerRef.current = setInterval(() => {
+        setVoiceSeconds((s) => {
+          if (s + 1 >= MAX_RECORDING_SECONDS) {
+            stopVoiceRecording();
+            return MAX_RECORDING_SECONDS;
+          }
+          return s + 1;
+        });
+      }, 1000);
+    } catch (err) {
+      console.error("Mic error:", err?.name, err?.message);
+      setVoiceError("Microphone access denied. Please allow mic access and try again.");
+    }
+  }
+
+  function stopVoiceRecording() {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+      setVoiceRecording(false);
+      setVoiceParsing(true);
+      clearInterval(voiceTimerRef.current);
+    }
+  }
+
+  function applyParsed(parsed) {
+    const { fields, items } = mapParsedToForm(parsed);
+    if (fields.vendor_name)   setField("vendor_name",   fields.vendor_name);
+    if (fields.customer_name) setField("customer_name", fields.customer_name);
+    if (fields.notes)         { setField("notes", fields.notes); setShowNotes(true); }
+    if (items)                setItems(items);
+  }
+
+  async function parseVoice(blob) {
+    try {
+      const { transcript, parsed } = await parseAudio(blob, voiceMimeRef.current);
+      setVoiceTranscript(transcript);
+      applyParsed(parsed);
+      playChime("done");
+      speakBack(parsed);
+    } catch (err) {
+      setVoiceError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setVoiceParsing(false);
+    }
+  }
+
+  async function parseVoiceText(text) {
+    if (!text.trim()) return;
+    setVoiceParsing(true);
+    setVoiceError("");
+    setVoiceTranscript("");
+    try {
+      const parsed = await parseText(text);
+      applyParsed(parsed);
+      playChime("done");
+      setVoiceTranscript("done");
+      setVoiceText("");
+    } catch (err) {
+      setVoiceError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setVoiceParsing(false);
+    }
+  }
+
   /*
     When editing an existing receipt, load its data into the form.
     This runs once when the component mounts (because initialData is in the dependency array).
@@ -124,11 +273,18 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
     if (!initialData) return;
 
     // Parse isTaxExempt from whether tax is 0 on the saved receipt
-    // If tax === 0, the receipt was saved as tax exempt
-    const wasTaxExempt = parseFloat(initialData.tax) === 0;
+    const savedTax      = parseFloat(initialData.tax)      || 0;
+    const savedSubtotal = parseFloat(initialData.subtotal)  || 0;
+    const wasTaxExempt  = savedTax === 0;
+
+    // Infer what rate was used when the invoice was created so editing feels right.
+    // If tax > 0, back-calculate: rate = tax / subtotal * 100, rounded to 2 dp.
+    let inferredRate = "0";
+    if (savedTax > 0 && savedSubtotal > 0) {
+      inferredRate = ((savedTax / savedSubtotal) * 100).toFixed(2).replace(/\.?0+$/, "");
+    }
 
     // Format the date as YYYY-MM-DD for the date input field
-    // The date comes from the server as a full ISO string like "2025-03-01T00:00:00Z"
     let formattedDate = "";
     if (initialData.date) {
       formattedDate = new Date(initialData.date).toISOString().split("T")[0];
@@ -140,6 +296,9 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       receipt_number: initialData.receipt_number || "",
       date: formattedDate,
       isTaxExempt: wasTaxExempt,
+      taxRate:  inferredRate,
+      taxLabel: "Tax",
+      currency: initialData.currency || "CAD",
       notes: initialData.notes || "",
       id: initialData.id,
     });
@@ -235,18 +394,13 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
     Calculate the running totals shown at the bottom of the form.
 
     subtotal — sum of all line item totals (before tax)
-    tax      — TAX_RATE % of subtotal, or 0 if the receipt is marked tax exempt
+    tax      — 15% of subtotal, or 0 if the receipt is marked tax exempt
     total    — subtotal + tax
   */
   const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
 
-  let tax;
-  if (form.isTaxExempt) {
-    tax = 0;
-  } else {
-    tax = subtotal * TAX_RATE;
-  }
-
+  const taxRateFraction = form.isTaxExempt ? 0 : (parseFloat(form.taxRate) || 0) / 100;
+  const tax   = subtotal * taxRateFraction;
   const total = subtotal + tax;
 
   /*
@@ -305,6 +459,8 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
         total:       parseFloat(item.total)      || 0,
       }));
 
+    localStorage.setItem("lastCurrency", form.currency);
+
     onSubmit({
       ...form,
       subtotal,
@@ -337,14 +493,14 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   /*
     Placeholder for the receipt number field.
     When editing, the field already has a value so no placeholder is needed.
-    When creating, we show "Auto — INV-000001" to explain that the server
+    When creating, we show "Auto: 001001" to explain that the server
     will generate the number automatically if left blank.
   */
   let receiptNumberPlaceholder;
   if (form.id) {
     receiptNumberPlaceholder = "";
   } else {
-    receiptNumberPlaceholder = "Auto — INV-000001";
+    receiptNumberPlaceholder = "Auto: 001001";
   }
 
   return (
@@ -362,6 +518,95 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           <span className="modal-title">{modalTitle}</span>
           <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={onClose}>✕</button>
         </div>
+
+        {/* Voice AI entry — voice tier only */}
+        {profile?.tier === "voice" && (
+          <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--border)", background: "var(--surface-2)", display: "flex", alignItems: "center", gap: 10 }}>
+
+            {isDesktop ? (
+              /* Desktop: text input box */
+              <>
+                <input
+                  type="text"
+                  value={voiceText}
+                  onChange={(e) => { setVoiceText(e.target.value); setVoiceError(""); setVoiceTranscript(""); }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); parseVoiceText(voiceText); } }}
+                  placeholder="Invoice to John, 3 hrs at 85, logo for 300..."
+                  disabled={voiceParsing}
+                  style={{
+                    flex: 1, minWidth: 0, fontSize: 11, padding: "5px 10px",
+                    borderRadius: 6, border: "1px solid rgba(77,216,224,0.3)",
+                    background: "rgba(77,216,224,0.05)", color: "var(--text)",
+                    outline: "none",
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => parseVoiceText(voiceText)}
+                  disabled={voiceParsing || !voiceText.trim()}
+                  style={{
+                    fontSize: 10, padding: "5px 10px", borderRadius: 6, border: "none",
+                    background: voiceParsing ? "rgba(77,216,224,0.2)" : "rgba(77,216,224,0.85)",
+                    color: voiceParsing ? "var(--voice-text)" : "#0a1a1c",
+                    cursor: voiceParsing || !voiceText.trim() ? "not-allowed" : "pointer",
+                    fontWeight: 700, letterSpacing: "0.04em", flexShrink: 0,
+                    animation: voiceParsing ? "voice-spin 1.4s linear infinite" : "none",
+                  }}
+                >
+                  {voiceParsing ? "Parsing..." : "Parse"}
+                </button>
+                {/* Status messages */}
+                {(voiceError || voiceTranscript) && (
+                  <span style={{ fontSize: 10, flexShrink: 0, color: voiceError ? "var(--voided)" : "var(--voice-text)", fontWeight: 600 }}>
+                    {voiceError || "Done. Review above."}
+                  </span>
+                )}
+              </>
+            ) : (
+              /* Mobile: mic orb */
+              <>
+                <button
+                  type="button"
+                  onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
+                  disabled={voiceParsing}
+                  style={{
+                    width: 36, height: 36, borderRadius: "50%", border: "none", flexShrink: 0,
+                    cursor: voiceParsing ? "not-allowed" : "pointer", padding: 0,
+                    background: voiceRecording
+                      ? "radial-gradient(circle, rgba(220,80,80,0.3) 0%, rgba(220,80,80,0.08) 100%)"
+                      : "radial-gradient(circle, rgba(77,216,224,0.22) 0%, rgba(77,216,224,0.06) 100%)",
+                    boxShadow: voiceRecording ? "0 0 0 2px rgba(220,80,80,0.5)" : "0 0 0 2px rgba(77,216,224,0.4)",
+                    animation: voiceRecording ? "voice-pulse 1.2s ease-in-out infinite" : voiceParsing ? "voice-spin 1.4s linear infinite" : "voice-breathe 3s ease-in-out infinite",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}
+                >
+                  <span style={{ display: "block", width: voiceRecording ? 11 : 8, height: voiceRecording ? 11 : 8, borderRadius: "50%", background: voiceRecording ? "#e05555" : "#4dd8e0", transition: "all 0.2s" }} />
+                </button>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
+                    <span style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic" }}>
+                      "Invoice to John, 3 hours of design at 85, and logo for 300"
+                    </span>
+                  )}
+                  {voiceRecording && (
+                    <span style={{ fontSize: 10, color: "#e05555" }}>Listening... {MAX_RECORDING_SECONDS - voiceSeconds}s</span>
+                  )}
+                  {voiceParsing && (
+                    <span style={{ fontSize: 10, color: "var(--voice-text)" }}>Filling in your invoice...</span>
+                  )}
+                  {voiceTranscript && !voiceRecording && !voiceParsing && !voiceError && (
+                    <span style={{ fontSize: 10, color: "#4dd8e0", fontWeight: 600 }}>Done. Review above.</span>
+                  )}
+                  {voiceError && (
+                    <span style={{ fontSize: 10, color: "var(--voided)" }}>{voiceError}</span>
+                  )}
+                </div>
+              </>
+            )}
+
+            <span style={{ fontSize: 8, padding: "1px 5px", background: "rgba(77,216,224,0.12)", border: "1px solid rgba(77,216,224,0.25)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "var(--voice-text)", flexShrink: 0 }}>beta</span>
+          </div>
+        )}
 
         <div className="modal-body">
 
@@ -387,8 +632,8 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             </div>
           </div>
 
-          {/* Second row: Receipt number and issue date */}
-          <div className="field-row">
+          {/* Second row: Receipt number, issue date, currency */}
+          <div className="field-row field-row-meta">
             <div className="field-group">
               <label className="field-label">Invoice #</label>
               <input
@@ -406,6 +651,19 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 value={form.date}
                 onChange={(e) => setField("date", e.target.value)}
               />
+            </div>
+            <div className="field-group">
+              <label className="field-label">Currency</label>
+              <select
+                className="field"
+                value={form.currency}
+                onChange={(e) => setField("currency", e.target.value)}
+                style={{ minWidth: 80 }}
+              >
+                {["USD","CAD","EUR","GBP","AUD","NZD","CHF","JPY","MXN","BRL","INR","SEK","NOK","SGD"].map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -430,8 +688,9 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 <input
                   className="field"
                   type="number"
-                  inputMode="decimal"
-                  step="0.01"
+                  inputMode="numeric"
+                  step="1"
+                  min="1"
                   placeholder="Qty"
                   value={item.quantity}
                   onChange={(e) => setItem(i, "quantity", e.target.value)}
@@ -476,20 +735,47 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
               <span style={{ fontFamily: "var(--mono)" }}>${subtotal.toFixed(2)}</span>
             </div>
 
-            {/* Tax row — includes a toggle button to mark the receipt as tax exempt */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            {/* Tax row — user sets their own label (GST, VAT, HST…) and rate per invoice */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
               <button
                 type="button"
                 className={`btn ${form.isTaxExempt ? "btn-status" : "btn-ghost"}`}
                 onClick={() => setField("isTaxExempt", !form.isTaxExempt)}
-                style={{ fontSize: 10, padding: "6px 10px", color: form.isTaxExempt ? "var(--voided)" : "var(--text-muted)" }}
+                style={{ fontSize: 10, padding: "6px 10px", flexShrink: 0, color: form.isTaxExempt ? "var(--voided)" : "var(--text-muted)" }}
               >
-                {form.isTaxExempt ? "✓ TAX EXEMPT" : "MAKE TAX EXEMPT"}
+                {form.isTaxExempt ? "✓ EXEMPT" : "TAX EXEMPT"}
               </button>
-              <div style={{ textAlign: "right", color: "var(--text-dim)", fontSize: 12 }}>
-                {TAX_LABEL} ({(TAX_RATE * 100).toFixed(TAX_RATE % 0.01 === 0 ? 0 : 2)}%):{" "}
-                <span style={{ fontFamily: "var(--mono)" }}>${tax.toFixed(2)}</span>
-              </div>
+              {!form.isTaxExempt && (
+                <div className="tax-input-row" style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, justifyContent: "flex-end" }}>
+                  <input
+                    className="field tax-label-input"
+                    placeholder="Tax label (GST, VAT…)"
+                    value={form.taxLabel}
+                    onChange={(e) => setField("taxLabel", e.target.value)}
+                    style={{ fontSize: 11, padding: "4px 8px", textAlign: "left" }}
+                  />
+                  <input
+                    className="field tax-rate-input"
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    placeholder="%"
+                    value={form.taxRate}
+                    onChange={(e) => setField("taxRate", e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    style={{ fontSize: 11, padding: "4px 8px", textAlign: "right" }}
+                  />
+                  <span style={{ fontSize: 11, color: "var(--text-muted)" }}>%</span>
+                  <span style={{ fontFamily: "var(--mono)", fontSize: 12, color: "var(--text-dim)", minWidth: 60, textAlign: "right" }}>
+                    ${tax.toFixed(2)}
+                  </span>
+                </div>
+              )}
+              {form.isTaxExempt && (
+                <span style={{ fontFamily: "var(--mono)", fontSize: 12, color: "var(--text-dim)" }}>$0.00</span>
+              )}
             </div>
 
             {/* Grand total */}
@@ -536,8 +822,8 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             </button>
           )}
 
-          {/* ── Logo placement — shown to all, upgrade prompt for free ── */}
-          {profile?.tier !== "pro" && (
+          {/* Logo placement — upgrade prompt for free users only */}
+          {profile?.tier !== "pro" && profile?.tier !== "voice" && (
             <button
               type="button"
               className="btn btn-ghost"
@@ -547,7 +833,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
               + Add your logo
             </button>
           )}
-          {profile?.tier === "pro" && (
+          {(profile?.tier === "pro" || profile?.tier === "voice") && (
             showLogoPanel ? (
               <div style={{
                 marginTop: 12,
@@ -686,8 +972,35 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           )}
         </div>
 
-        <div className="modal-footer">
-          <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+        <div className="modal-footer" style={{ alignItems: "center" }}>
+          {profile?.tier === "voice" ? (
+            /* Voice tier: orb + label on both desktop and mobile */
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <button
+                type="button"
+                onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
+                disabled={voiceParsing}
+                title={voiceRecording ? "Stop recording" : "Speak your invoice"}
+                style={{
+                  width: 36, height: 36, borderRadius: "50%", border: "none", flexShrink: 0,
+                  cursor: voiceParsing ? "not-allowed" : "pointer", padding: 0,
+                  background: voiceRecording
+                    ? "radial-gradient(circle, rgba(220,80,80,0.3) 0%, rgba(220,80,80,0.08) 100%)"
+                    : "radial-gradient(circle, rgba(77,216,224,0.22) 0%, rgba(77,216,224,0.06) 100%)",
+                  boxShadow: voiceRecording ? "0 0 0 2px rgba(220,80,80,0.5)" : "0 0 0 2px rgba(77,216,224,0.35)",
+                  animation: voiceRecording ? "voice-pulse 1.2s ease-in-out infinite" : voiceParsing ? "voice-spin 1.4s linear infinite" : "voice-breathe 3s ease-in-out infinite",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >
+                <span style={{ display: "block", width: voiceRecording ? 10 : 8, height: voiceRecording ? 10 : 8, borderRadius: "50%", background: voiceRecording ? "#e05555" : "#4dd8e0", transition: "all 0.2s" }} />
+              </button>
+              <span style={{ fontSize: 9, color: voiceRecording ? "#e05555" : "var(--voice-text)", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600 }}>
+                {voiceRecording ? "Recording..." : voiceParsing ? "Parsing..." : "Invoice Parser"}
+              </span>
+            </div>
+          ) : (
+            <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+          )}
           <button className="btn btn-primary" onClick={handleSubmit}>{submitButtonLabel}</button>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-export default function HelpModal({ onClose }) {
+export default function HelpModal({ onClose, isPro, onLegal }) {
   /*
     pos starts as null so the window renders centred via CSS transform.
     The moment the user drags it, we switch to explicit pixel coords and
@@ -105,22 +105,49 @@ export default function HelpModal({ onClose }) {
 
             <p className="help-heading">Getting started</p>
             <ul className="help-list">
-              <li>Click + New Invoice to create one</li>
-              <li>Fill in vendor, customer, items and date</li>
-              <li>Set status: Draft, Sent, Paid, or Voided</li>
-              <li>Click a row to view details or export PDF</li>
+              <li>Hit <strong>+ New Invoice</strong> to create one</li>
+              <li>Add your business info, client, line items and date</li>
+              <li>Set status: Draft → Sent → Paid (or Voided)</li>
+              <li>Tap any invoice to preview, download PDF, or send</li>
             </ul>
 
             <div className="win-divider" />
 
-            <p className="help-heading">Guest vs account</p>
+            <p className="help-heading">Free vs Pro</p>
             <ul className="help-list">
-              <li>Guest: session only, gone when you close the tab</li>
-              <li>Account: saved, accessible anywhere you sign in</li>
-              <li>No ads, your data is never shared</li>
+              <li><strong>Free:</strong> unlimited invoices, PDF download, email invoices to clients</li>
+              <li><strong>Pro (CAD $6/mo):</strong> emails sent under your name automatically, share invoices via text or WhatsApp, no watermark, custom logo on PDF</li>
+              <li>Upgrade anytime from the sidebar. Cancel anytime from Billing.</li>
+              <li>Your data is never sold or shared</li>
             </ul>
 
-            <p className="help-footer">Sign up in 30 seconds: just email and password.</p>
+            <div className="win-divider" />
+
+            <p className="help-heading">Need Help?</p>
+            <ul className="help-list">
+              <li>Email us at <a href="mailto:support@invoiceprepper.com" style={{ color: "var(--accent)", textDecoration: "underline" }}>support@invoiceprepper.com</a> and we will get back to you.</li>
+            </ul>
+
+            <p className="help-footer">invoiceprepper.com. Built for freelancers, contractors &amp; small business.</p>
+
+            {isPro && onLegal && (
+              <>
+                <div className="win-divider" />
+                <p className="help-heading">Legal</p>
+                <ul className="help-list">
+                  <li>
+                    <button onClick={() => { onLegal("terms"); onClose(); }} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 12, textDecoration: "underline" }}>
+                      Terms of Service
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => { onLegal("privacy"); onClose(); }} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 12, textDecoration: "underline" }}>
+                      Privacy Policy
+                    </button>
+                  </li>
+                </ul>
+              </>
+            )}
 
           </div>
         )}

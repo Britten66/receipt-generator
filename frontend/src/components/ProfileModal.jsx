@@ -18,6 +18,7 @@
 import { useState, useRef } from "react";
 import { saveProfile } from "../api/profile";
 import { uploadLogo } from "../api/uploadLogo";
+import { deleteAccount } from "../api/account";
 import { supabase } from "../lib/supabase";
 import LegalModal from "./LegalModal";
 
@@ -76,10 +77,13 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
   // resetLoading — true while the password reset email is being sent (disables the button)
   const [resetLoading, setResetLoading] = useState(false);
 
+  // deleting — true while the delete-account request is in flight
+  const [deleting, setDeleting] = useState(false);
+
   // legal — either "terms" or "privacy" when a legal modal is open, or null when closed
   const [legal, setLegal] = useState(null);
 
-  const [logoUploading,   setLogoUploading]   = useState(false);
+const [logoUploading,   setLogoUploading]   = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const logoInputRef   = useRef(null);
   const avatarInputRef = useRef(null);
@@ -184,6 +188,27 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
   }
 
   /*
+    handleDeleteAccount() — permanently deletes all user data and the account.
+    Requires the user to type "DELETE" to confirm. Irreversible.
+    After deletion the auth session is cleared and the user lands on the sign-in screen.
+  */
+  async function handleDeleteAccount() {
+    const input = window.prompt(
+      'This will permanently delete your account and all invoices.\n\nType DELETE to confirm:'
+    );
+    if (input !== "DELETE") return;
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      // Session is now invalid — sign out locally so the app resets cleanly
+      await supabase.auth.signOut();
+    } catch (err) {
+      alert(err.message || "Could not delete account. Please try again.");
+      setDeleting(false);
+    }
+  }
+
+  /*
     Determine the label for the logo button.
 
     Three possible states:
@@ -277,24 +302,32 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
             </div>
           </div>
 
-          {/* Logo upload — business logo that appears on PDFs */}
+          {/* Logo upload — Pro only */}
           <div className="field-group">
             <label className="field-label">Business Logo (appears on PDF)</label>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              {form.logo_url && (
-                <img src={form.logo_url} alt="Logo" style={{ height: 36, maxWidth: 80, objectFit: "contain", border: "1px solid var(--border)" }} />
-              )}
-              <button type="button" className="btn btn-ghost" style={{ fontSize: 10, padding: "6px 12px" }} onClick={() => logoInputRef.current.click()} disabled={logoUploading}>
-                {logoButtonLabel}
-              </button>
-              {form.logo_url && (
-                <button type="button" className="btn-icon" style={{ fontSize: 11 }} onClick={async () => { setField("logo_url", null); await saveProfile({ ...form, logo_url: null }); onSave({ ...form, logo_url: null }); }}>✕</button>
-              )}
-              <input ref={logoInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleLogoUpload} />
-            </div>
-            <span style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4, display: "block" }}>
-              PNG with transparent background recommended
-            </span>
+            {(profile?.tier === "pro" || profile?.tier === "voice") ? (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  {form.logo_url && (
+                    <img src={form.logo_url} alt="Logo" style={{ height: 36, maxWidth: 80, objectFit: "contain", border: "1px solid var(--border)" }} />
+                  )}
+                  <button type="button" className="btn btn-ghost" style={{ fontSize: 10, padding: "6px 12px" }} onClick={() => logoInputRef.current.click()} disabled={logoUploading}>
+                    {logoButtonLabel}
+                  </button>
+                  {form.logo_url && (
+                    <button type="button" className="btn-icon" style={{ fontSize: 11 }} onClick={async () => { setField("logo_url", null); await saveProfile({ ...form, logo_url: null }); onSave({ ...form, logo_url: null }); }}>✕</button>
+                  )}
+                  <input ref={logoInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleLogoUpload} />
+                </div>
+                <span style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4, display: "block" }}>
+                  PNG with transparent background recommended
+                </span>
+              </>
+            ) : (
+              <div style={{ fontSize: 11, color: "var(--text-muted)", padding: "8px 0" }}>
+                Pro feature. <button type="button" onClick={onClose} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 11, textDecoration: "underline" }}>Upgrade to Pro</button> to add your logo to every invoice and PDF.
+              </div>
+            )}
           </div>
 
           <div className="field-group">
@@ -352,7 +385,7 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
 
           <div className="field-group">
             <label className="field-label">Address</label>
-            <input className="field" placeholder="123 Main St, Halifax, NS" value={form.address} onChange={(e) => setField("address", e.target.value)} />
+            <input className="field" placeholder="123 Main St, City, Province/State" value={form.address} onChange={(e) => setField("address", e.target.value)} />
           </div>
 
           <div className="field-group">
@@ -362,11 +395,12 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
 
           <div className="field-group">
             <label className="field-label">Phone</label>
-            <input className="field" placeholder="(902) 555-0100" value={form.phone} onChange={(e) => setField("phone", e.target.value)} />
+            <input className="field" placeholder="+1 555 000 0000" value={form.phone} onChange={(e) => setField("phone", e.target.value)} />
           </div>
 
           {/* ---- Security section ---- */}
           <div className="profile-section-label" style={{ marginTop: 16 }}>Security</div>
+
 
           {/*
             Row showing the account email on the left and the reset button (or confirmation) on the right.
@@ -378,6 +412,24 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
               <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>Account email</div>
             </div>
             {resetPasswordElement}
+          </div>
+          {/* ---- Danger Zone ---- */}
+          <div style={{ marginTop: 20, padding: "12px 14px", border: "1px solid var(--voided)", borderRadius: 4 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--voided)", marginBottom: 8 }}>Danger Zone</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 11, color: "var(--text)", fontWeight: 500 }}>Delete my account</div>
+                <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>Permanently deletes all invoices and account data. Cannot be undone.</div>
+              </div>
+              <button
+                className="btn btn-danger"
+                style={{ flexShrink: 0, fontSize: 10, padding: "6px 12px" }}
+                onClick={handleDeleteAccount}
+                disabled={deleting}
+              >
+                {deleting ? "Deleting…" : "Delete Account"}
+              </button>
+            </div>
           </div>
         </div>
 

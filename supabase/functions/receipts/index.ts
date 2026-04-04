@@ -15,16 +15,23 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Payload too large" }), { status: 413, headers: corsHeaders });
   }
 
-  const supabase = createClient(
+  // Auth client — anon key + user JWT so auth.getUser() works correctly
+  const authClient = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!,
     { global: { headers: { Authorization: req.headers.get("Authorization")! } } }
   );
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const { data: { user }, error: authError } = await authClient.auth.getUser();
   if (authError || !user) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
   }
+
+  // DB client — service role key bypasses RLS; ownership enforced by explicit .eq("user_id", user.id) on every query
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
 
   const url = new URL(req.url);
   const queryId = url.searchParams.get("id");
@@ -33,7 +40,7 @@ Deno.serve(async (req) => {
   if (req.method === "GET") {
     if (queryId) {
       const { data: receipt, error } = await supabase
-        .from("receipts").select("*").eq("id", queryId).single();
+        .from("receipts").select("*").eq("id", queryId).eq("user_id", user.id).single();
       if (error || !receipt) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
 
       const { data: items } = await supabase.from("line_items").select("*").eq("receipt_id", queryId);
@@ -41,14 +48,14 @@ Deno.serve(async (req) => {
     }
 
     const { data, error } = await supabase
-      .from("receipts").select("*").order("created_at", { ascending: false });
+      .from("receipts").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
     return new Response(JSON.stringify(data), { headers: corsHeaders });
   }
 
   // POST — create receipt + line items
   if (req.method === "POST") {
-    const { vendor_name, customer_name, status, date, subtotal, tax, total, notes, line_items, logo_url, logo_corner } = await req.json();
+    const { vendor_name, customer_name, status, date, subtotal, tax, total, notes, currency, line_items, logo_url, logo_corner } = await req.json();
     if (!vendor_name || !customer_name) {
       return new Response(JSON.stringify({ error: "Vendor name and customer name are required" }), { status: 400, headers: corsHeaders });
     }
@@ -61,6 +68,7 @@ Deno.serve(async (req) => {
       tax: tax ?? 0,
       total: total ?? 0,
       notes: notes ?? null,
+      currency: currency ?? "CAD",
       logo_url: logo_url ?? null,
       logo_corner: logo_corner ?? null,
       user_id: user.id,
@@ -82,7 +90,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify(receipt), { status: 201, headers: corsHeaders });
   }
 
-  // PATCH — update fields (whitelist enforced)
+  // PATCH — update fields (whitelist enforced) + replace line items
   if (req.method === "PATCH" && queryId) {
     const body = await req.json();
     const id = queryId;
@@ -95,8 +103,29 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "No valid fields to update" }), { status: 400, headers: corsHeaders });
     }
 
-    const { data, error } = await supabase.from("receipts").update(updates).eq("id", id).select().single();
+    // Explicit user_id filter ensures ownership regardless of RLS UPDATE policy setup
+    const { data, error } = await supabase
+      .from("receipts").update(updates)
+      .eq("id", id).eq("user_id", user.id)
+      .select().single();
     if (error || !data) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
+
+    // Replace line items if provided — delete old rows then insert fresh ones
+    if (Array.isArray(body.line_items)) {
+      await supabase.from("line_items").delete().eq("receipt_id", id);
+      if (body.line_items.length > 0) {
+        const items = (body.line_items as Array<{ description: string; quantity: number; unit_price: number; total: number }>)
+          .map((li) => ({
+            receipt_id: id,
+            description: li.description,
+            quantity: li.quantity,
+            unit_price: li.unit_price,
+            total: li.total,
+          }));
+        await supabase.from("line_items").insert(items);
+      }
+    }
+
     return new Response(JSON.stringify(data), { headers: corsHeaders });
   }
 
@@ -104,7 +133,7 @@ Deno.serve(async (req) => {
   if (req.method === "DELETE" && queryId) {
     const id = queryId;
 
-    const { error } = await supabase.from("receipts").delete().eq("id", id);
+    const { error } = await supabase.from("receipts").delete().eq("id", id).eq("user_id", user.id);
     if (error) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
     return new Response(JSON.stringify({ message: "Deleted" }), { headers: corsHeaders });
   }
