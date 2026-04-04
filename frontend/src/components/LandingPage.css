@@ -750,9 +750,9 @@
 
 .lv2-plans {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  max-width: 720px;
+  max-width: 1040px;
   margin: 0 auto;
 }
 
@@ -768,6 +768,22 @@
 
 .lv2-plan-pro {
   box-shadow: 0 0 32px rgba(217, 184, 115, 0.34), 0 4px 20px rgba(217, 184, 115, 0.17);
+}
+
+.lv2-plan-voice {
+  box-shadow: 0 0 32px rgba(77, 216, 224, 0.22), 0 4px 20px rgba(77, 216, 224, 0.12);
+}
+
+.lv2-plan-btn-voice {
+  background: linear-gradient(160deg, #72e8f0 0%, #4dd8e0 45%, #2ec4cc 100%);
+  color: #0a1a1c;
+  border-color: #2ec4cc;
+  box-shadow: 1px 1px 0 rgba(255,255,255,0.22), 2px 2px 0 rgba(0,0,0,0.35);
+}
+.lv2-plan-btn-voice:hover {
+  background: linear-gradient(160deg, #5ed8e0 0%, #38c8d0 45%, #22b4bc 100%);
+  border-color: #22b4bc;
+  opacity: 1;
 }
 
 .lv2-plan-badge {
@@ -863,20 +879,24 @@
 }
 
 .lv2-plan-btn-ghost {
-  background: transparent;
+  background: linear-gradient(160deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 50%, rgba(0,0,0,0.04) 100%);
   border: 1px solid var(--border);
   color: var(--text);
 }
+.lv2-plan-btn-ghost:hover {
+  background: linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.04) 100%);
+  opacity: 1;
+}
 
 .lv2-plan-btn-primary {
-  background: #D9B873;
+  background: linear-gradient(160deg, #ecc97e 0%, #D9B873 45%, #c49a52 100%);
   color: #1a1814;
-  border-color: #D9B873;
-  box-shadow: 1px 1px 0 rgba(255,255,255,0.12), 2px 2px 0 rgba(0,0,0,0.4);
+  border-color: #c49a52;
+  box-shadow: 1px 1px 0 rgba(255,255,255,0.18), 2px 2px 0 rgba(0,0,0,0.4);
 }
 .lv2-plan-btn-primary:hover {
-  background: #c9a85e;
-  border-color: #c9a85e;
+  background: linear-gradient(160deg, #e0be6e 0%, #c9a85e 45%, #b89044 100%);
+  border-color: #b89044;
   opacity: 1;
 }
 

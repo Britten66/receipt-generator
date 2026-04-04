@@ -112,6 +112,88 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   // Ref to the hidden file input inside the logo panel.
   const logoFileInputRef = useRef(null);
 
+  // Voice parsing state — voice tier only
+  const [voiceRecording, setVoiceRecording]   = useState(false);
+  const [voiceParsing, setVoiceParsing]       = useState(false);
+  const [voiceError, setVoiceError]           = useState("");
+  const [voiceTranscript, setVoiceTranscript] = useState("");
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef   = useRef([]);
+
+  async function startVoiceRecording() {
+    setVoiceError("");
+    setVoiceTranscript("");
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        await parseVoice(blob);
+      };
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      setVoiceRecording(true);
+    } catch {
+      setVoiceError("Microphone access denied. Please allow mic access and try again.");
+    }
+  }
+
+  function stopVoiceRecording() {
+    if (mediaRecorderRef.current && voiceRecording) {
+      mediaRecorderRef.current.stop();
+      setVoiceRecording(false);
+      setVoiceParsing(true);
+    }
+  }
+
+  async function parseVoice(blob) {
+    try {
+      const { data: { session: s } } = await import("../lib/supabase").then(m => m.supabase.auth.getSession());
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-parse`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "audio/webm",
+          "Authorization": `Bearer ${s?.access_token ?? ""}`,
+          "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
+          "content-length": String(blob.size),
+        },
+        body: blob,
+      });
+      const json = await res.json();
+      if (!res.ok) { setVoiceError(json.error ?? "Voice parsing failed."); return; }
+
+      const { transcript, parsed } = json;
+      setVoiceTranscript(transcript);
+
+      // Auto-fill form fields from parsed result
+      if (parsed.vendor_name)   setField("vendor_name",   parsed.vendor_name);
+      if (parsed.customer_name) setField("customer_name", parsed.customer_name);
+      if (parsed.notes)         setField("notes",         parsed.notes);
+
+      // Auto-fill line items
+      if (parsed.line_items?.length) {
+        setItems(parsed.line_items.map((li) => {
+          const qty   = parseFloat(li.quantity)   || 1;
+          const price = parseFloat(li.unit_price) || 0;
+          return {
+            description: li.description || "",
+            quantity:    String(qty),
+            unit_price:  String(price),
+            total:       String((qty * price).toFixed(2)),
+          };
+        }));
+        if (parsed.notes) setShowNotes(true);
+      }
+    } catch {
+      setVoiceError("Something went wrong. Please try again.");
+    } finally {
+      setVoiceParsing(false);
+    }
+  }
+
   /*
     When editing an existing receipt, load its data into the form.
     This runs once when the component mounts (because initialData is in the dependency array).
@@ -366,6 +448,62 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           <span className="modal-title">{modalTitle}</span>
           <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={onClose}>✕</button>
         </div>
+
+        {/* Voice invoice entry: voice tier only */}
+        {profile?.tier === "voice" && (
+          <div style={{
+            padding: "10px 16px",
+            borderBottom: "1px solid var(--border)",
+            background: "var(--surface-2)",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
+          }}>
+            <button
+              type="button"
+              className={`btn ${voiceRecording ? "btn-primary" : "btn-ghost"}`}
+              style={{ fontSize: 10, padding: "6px 12px", display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}
+              onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
+              disabled={voiceParsing}
+            >
+              {voiceRecording ? "⏹ Stop" : voiceParsing ? "Parsing..." : "🎙 Speak Invoice"}
+              <span style={{
+                fontSize: 8,
+                padding: "1px 5px",
+                background: "var(--accent)",
+                color: "#1a1814",
+                borderRadius: 2,
+                letterSpacing: "0.08em",
+                fontWeight: 700,
+                textTransform: "uppercase",
+              }}>beta</span>
+            </button>
+            {voiceRecording && (
+              <span style={{ fontSize: 10, color: "var(--accent)", letterSpacing: "0.05em" }}>Recording...</span>
+            )}
+            {voiceParsing && (
+              <span style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: "0.05em" }}>Filling in your invoice...</span>
+            )}
+            {voiceTranscript && !voiceRecording && !voiceParsing && (
+              <span style={{
+                fontSize: 10,
+                color: "var(--text-muted)",
+                flex: 1,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                fontStyle: "italic",
+                minWidth: 0,
+              }}>
+                "{voiceTranscript}"
+              </span>
+            )}
+            {voiceError && !voiceRecording && !voiceParsing && (
+              <span style={{ fontSize: 10, color: "var(--voided)" }}>{voiceError}</span>
+            )}
+          </div>
+        )}
 
         <div className="modal-body">
 

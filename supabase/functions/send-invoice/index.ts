@@ -41,6 +41,7 @@ Deno.serve(async (req) => {
     to, vendor_name, vendor_email, vendor_address,
     customer_name, receipt_number, date, line_items,
     subtotal, tax, total, currency, notes, payment_url, pdf_base64,
+    is_reminder,
   } = await req.json();
   const tier = profile?.tier ?? "free"; // use server-verified tier, not client-supplied
 
@@ -136,9 +137,11 @@ Deno.serve(async (req) => {
     body: JSON.stringify({
       from: isPro && profile?.business_name ? `${profile.business_name} <invoices@invoiceprepper.com>` : "InvoicePrepper <invoices@invoiceprepper.com>",
       to: safe.to,
-      subject: `Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`,
+      subject: is_reminder
+        ? `Friendly reminder: Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`
+        : `Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`,
       html,
-      reply_to: user.email ?? undefined,
+      reply_to: "support@invoiceprepper.com",
       ...(pdf_base64 ? {
         attachments: [{
           filename: `invoice-${safe.receipt_number}.pdf`,

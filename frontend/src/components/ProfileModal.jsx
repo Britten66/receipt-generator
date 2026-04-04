@@ -289,24 +289,32 @@ const [logoUploading,   setLogoUploading]   = useState(false);
             </div>
           </div>
 
-          {/* Logo upload — business logo that appears on PDFs */}
+          {/* Logo upload — Pro only */}
           <div className="field-group">
             <label className="field-label">Business Logo (appears on PDF)</label>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              {form.logo_url && (
-                <img src={form.logo_url} alt="Logo" style={{ height: 36, maxWidth: 80, objectFit: "contain", border: "1px solid var(--border)" }} />
-              )}
-              <button type="button" className="btn btn-ghost" style={{ fontSize: 10, padding: "6px 12px" }} onClick={() => logoInputRef.current.click()} disabled={logoUploading}>
-                {logoButtonLabel}
-              </button>
-              {form.logo_url && (
-                <button type="button" className="btn-icon" style={{ fontSize: 11 }} onClick={async () => { setField("logo_url", null); await saveProfile({ ...form, logo_url: null }); onSave({ ...form, logo_url: null }); }}>✕</button>
-              )}
-              <input ref={logoInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleLogoUpload} />
-            </div>
-            <span style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4, display: "block" }}>
-              PNG with transparent background recommended
-            </span>
+            {profile?.tier === "pro" ? (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  {form.logo_url && (
+                    <img src={form.logo_url} alt="Logo" style={{ height: 36, maxWidth: 80, objectFit: "contain", border: "1px solid var(--border)" }} />
+                  )}
+                  <button type="button" className="btn btn-ghost" style={{ fontSize: 10, padding: "6px 12px" }} onClick={() => logoInputRef.current.click()} disabled={logoUploading}>
+                    {logoButtonLabel}
+                  </button>
+                  {form.logo_url && (
+                    <button type="button" className="btn-icon" style={{ fontSize: 11 }} onClick={async () => { setField("logo_url", null); await saveProfile({ ...form, logo_url: null }); onSave({ ...form, logo_url: null }); }}>✕</button>
+                  )}
+                  <input ref={logoInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleLogoUpload} />
+                </div>
+                <span style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4, display: "block" }}>
+                  PNG with transparent background recommended
+                </span>
+              </>
+            ) : (
+              <div style={{ fontSize: 11, color: "var(--text-muted)", padding: "8px 0" }}>
+                Pro feature. <button type="button" onClick={onClose} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 11, textDecoration: "underline" }}>Upgrade to Pro</button> to add your logo to every invoice and PDF.
+              </div>
+            )}
           </div>
 
           <div className="field-group">

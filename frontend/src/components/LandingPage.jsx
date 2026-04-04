@@ -76,7 +76,7 @@ function MockInvoice() {
   );
 }
 
-export default function LandingPage({ onEnter, onSignIn, darkMode, onToggleDark }) {
+export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignIn, darkMode, onToggleDark }) {
   const [legal, setLegal] = useState(null);
   const scrollRef = useRef(null);
   const navRef = useRef(null);
@@ -138,7 +138,7 @@ export default function LandingPage({ onEnter, onSignIn, darkMode, onToggleDark 
         <div className="lv2-hero-text">
           <p className="lv2-eyebrow">Invoice Prepper</p>
           <h1 className="lv2-title">The invoice generator<br />for freelancers who<br />just want to get paid.</h1>
-          <p className="lv2-desc">Create professional invoices, email to clients, and track what's paid — all in one place. Built for freelancers, contractors, and small businesses. No bloat, no learning curve.</p>
+          <p className="lv2-desc">Create professional invoices, email to clients, and track what's paid; all in one place. Built for freelancers, contractors, and small businesses. No bloat, no learning curve.</p>
           <button className="lv2-cta" onClick={onEnter}>Start Invoicing Free</button>
           <p className="lv2-sub">Free forever · No credit card required</p>
         </div>
@@ -221,7 +221,7 @@ export default function LandingPage({ onEnter, onSignIn, darkMode, onToggleDark 
           >
             <div className="lv2-plan">
               <div className="lv2-plan-name">Free</div>
-              <div className="lv2-plan-price">$0<span>/mo</span></div>
+              <div className="lv2-plan-price">CAD $0<span>/mo</span></div>
               <ul className="lv2-plan-features">
                 <li>Unlimited invoices</li>
                 <li>PDF download</li>
@@ -249,7 +249,7 @@ export default function LandingPage({ onEnter, onSignIn, darkMode, onToggleDark 
           >
             <div className="lv2-plan lv2-plan-pro">
               <div className="lv2-plan-name">Pro</div>
-              <div className="lv2-plan-price">CAD $6<span>/mo</span></div>
+              <div className="lv2-plan-price">CAD $9<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
               <ul className="lv2-plan-features">
                 <li>Everything in Free</li>
@@ -260,7 +260,38 @@ export default function LandingPage({ onEnter, onSignIn, darkMode, onToggleDark 
                 <li>Pay Now button on every invoice</li>
                 <li>Customizable dashboard themes</li>
               </ul>
-              <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnter}>Get Pro for CAD $6/mo</button>
+              <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro}>Get Pro</button>
+            </div>
+          </BorderGlow>
+
+          <BorderGlow
+            borderRadius={0}
+            glowColor={darkMode ? "185 75 55" : "185 72 38"}
+            glowIntensity={darkMode ? 0.95 : 1.15}
+            glowRadius={38}
+            edgeSensitivity={5}
+            coneSpread={32}
+            fillOpacity={darkMode ? 0.18 : 0.22}
+            colors={darkMode ? ["#4dd8e0", "#38c8d0", "#28b8c0"] : ["#0a1c1e", "#0e2226", "#1a1a1a"]}
+            backgroundColor="transparent"
+            className="lv2-plan-glow"
+          >
+            <div className="lv2-plan lv2-plan-voice">
+              <div className="lv2-plan-name">Voice AI</div>
+              <div className="lv2-plan-price">CAD $12<span>/mo</span></div>
+              <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
+              <ul className="lv2-plan-features">
+                <li>Everything in Pro</li>
+                <li>Speak your invoice, AI fills it in</li>
+                <li>Detects multiple line items naturally</li>
+                <li>Works on mobile, no typing needed</li>
+                <li>20 AI parses per day</li>
+                <li style={{ color: "var(--text-muted)", fontSize: 11 }}>
+                  <span style={{ fontSize: 9, padding: "1px 5px", background: "rgba(77,216,224,0.15)", border: "1px solid rgba(77,216,224,0.3)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "#4dd8e0", marginRight: 5 }}>beta</span>
+                  First on new AI features
+                </li>
+              </ul>
+              <button className="lv2-plan-btn lv2-plan-btn-voice" onClick={onEnterVoice}>Get Voice AI</button>
             </div>
           </BorderGlow>
 

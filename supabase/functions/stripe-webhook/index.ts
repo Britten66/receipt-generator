@@ -33,9 +33,20 @@ Deno.serve(async (req) => {
     const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.client_reference_id;
     if (userId) {
+      // Determine tier from the price ID on the subscription line items.
+      // Falls back to "pro" if we can't read the price (safe default).
+      let tier = "pro";
+      const voicePriceId = Deno.env.get("STRIPE_VOICE_PRICE_ID");
+      if (voicePriceId && session.subscription) {
+        try {
+          const sub = await stripe.subscriptions.retrieve(session.subscription as string);
+          const priceId = sub.items.data[0]?.price?.id;
+          if (priceId === voicePriceId) tier = "voice";
+        } catch { /* keep default tier */ }
+      }
       await supabase.from("profiles").upsert({
         user_id: userId,
-        tier: "pro",
+        tier,
         stripe_customer_id: session.customer as string,
         stripe_subscription_id: session.subscription as string,
       }, { onConflict: "user_id" });

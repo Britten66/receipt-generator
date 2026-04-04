@@ -89,6 +89,13 @@ function fmt(n) {
 
 export default function App() {
 
+  // Live clock — updates every second for the topbar time display.
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
   /*
     darkMode — true when the user has switched to dark mode.
     We read the saved preference from localStorage on first load so it
@@ -138,7 +145,7 @@ export default function App() {
   const [authLoading, setAuthLoading]           = useState(true);
   const [showAuthModal, setShowAuthModal]       = useState(false);
   const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
-  const [proIntent, setProIntent]               = useState(false);
+  const proIntentRef = useRef("");
 
   /*
     "entered" persists in localStorage so a page refresh skips the landing screen.
@@ -261,10 +268,10 @@ export default function App() {
         setSession(newSession);
         setShowAuthModal(false);
         setEntered(true);
-        setProIntent((prev) => {
-          if (prev) startCheckout().catch(() => {});
-          return false;
-        });
+        if (proIntentRef.current) {
+          startCheckout(proIntentRef.current).catch(() => {});
+          proIntentRef.current = "";
+        }
       }
       setAuthLoading(false);
     });
@@ -300,7 +307,7 @@ export default function App() {
   }, [session]);
 
   // After returning from Stripe checkout (?upgraded=true), poll for the profile
-  // until tier === "pro" (webhook may take a moment to fire) then clean the URL.
+  // until tier is paid (webhook may take a moment to fire) then clean the URL.
   useEffect(() => {
     if (!session) return;
     const params = new URLSearchParams(window.location.search);
@@ -312,7 +319,7 @@ export default function App() {
     const interval = setInterval(async () => {
       attempts++;
       const p = await fetchProfile();
-      if (p?.tier === "pro") {
+      if (p?.tier === "pro" || p?.tier === "voice") {
         setProfile(p);
         clearInterval(interval);
       } else if (attempts >= 10) {
@@ -469,6 +476,7 @@ export default function App() {
           logo_url: r.logo_url || profile?.logo_url || null,
           logo_corner: r.logo_corner || null,
           pdf_base64: pdfBase64,
+          is_reminder: !!r._isReminder,
         }),
       });
       if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error ?? "Send failed"); }
@@ -534,11 +542,23 @@ export default function App() {
             if (!session) setShowAuthModal(true);
           }}
           onEnterPro={() => {
-            setProIntent(true);
+            proIntentRef.current = "pro";
             localStorage.setItem("app_entered", "1");
             setEntered(true);
             if (session) {
-              startCheckout().catch(() =>
+              startCheckout("pro").catch(() =>
+                showToast("Couldn't open checkout. Try again.")
+              );
+            } else {
+              setShowAuthModal(true);
+            }
+          }}
+          onEnterVoice={() => {
+            proIntentRef.current = "voice";
+            localStorage.setItem("app_entered", "1");
+            setEntered(true);
+            if (session) {
+              startCheckout("voice").catch(() =>
                 showToast("Couldn't open checkout. Try again.")
               );
             } else {
@@ -566,7 +586,7 @@ export default function App() {
   /*
     Time-based greeting. Name priority: business_name > email username > nothing.
   */
-  const hour = new Date().getHours();
+  const hour = now.getHours();
   const salutation = hour >= 5 && hour < 12 ? "Good morning"
                    : hour >= 12 && hour < 17 ? "Good afternoon"
                    : "Good evening";
@@ -643,7 +663,11 @@ export default function App() {
 
         {/* Column 2 — center */}
         <div className="topbar-meta">
-          {new Date().toLocaleDateString("en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+          <span className="topbar-time">
+            {now.toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit", hour12: true })}
+          </span>
+          <span className="topbar-date-sep"> · </span>
+          {now.toLocaleDateString("en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
         </div>
 
         {/* Column 3 — far right */}
@@ -653,7 +677,7 @@ export default function App() {
               <button
                 className="avatar-btn"
                 aria-label="User menu"
-                style={profile?.tier === "pro" ? { border: "2px solid #D4AF37", boxShadow: "0 0 0 1px rgba(212,175,55,0.25)" } : undefined}
+                style={(profile?.tier === "pro" || profile?.tier === "voice") ? { border: "2px solid #D4AF37", boxShadow: "0 0 0 1px rgba(212,175,55,0.25)" } : undefined}
               >
                 {avatarUrl
                   ? <img src={avatarUrl} alt="" width={34} height={34} style={{ display: "block", objectFit: "cover" }} />
@@ -724,7 +748,7 @@ export default function App() {
             >
               {profile?.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
             </button>
-            {profile?.tier !== "pro" && (
+            {profile?.tier === "free" || !profile?.tier ? (
               <button
                 className="btn btn-primary"
                 style={{ width: "100%", fontSize: 12 }}
@@ -732,13 +756,13 @@ export default function App() {
               >
                 Upgrade to Pro
               </button>
-            )}
+            ) : null}
           </>
           <button className="btn btn-primary" style={{ width: "100%" }} onClick={openNewReceipt}>
             + New Invoice
           </button>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, paddingTop: 4, position: "relative" }}>
-            {profile?.tier !== "pro" && (
+            {(profile?.tier === "free" || !profile?.tier) && (
               <>
                 <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
                 <button onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Privacy</button>
@@ -1014,12 +1038,12 @@ export default function App() {
                   <button
                     className="btn btn-ghost"
                     style={{ width: "100%", marginBottom: 6 }}
-                    onClick={() => profile?.tier === "pro"
+                    onClick={() => (profile?.tier === "pro" || profile?.tier === "voice")
                       ? shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier })
                       : showToast("Upgrade to Pro to share invoices.", "upgrade")
                     }
                   >
-                    Share Invoice {profile?.tier !== "pro" && <span style={{ fontSize: 9, letterSpacing: "0.1em", opacity: 0.5, marginLeft: 4 }}>PRO</span>}
+                    Share Invoice {(profile?.tier === "free" || !profile?.tier) && <span style={{ fontSize: 9, letterSpacing: "0.1em", opacity: 0.5, marginLeft: 4 }}>PRO</span>}
                   </button>
                 )}
                 <button
@@ -1036,6 +1060,22 @@ export default function App() {
                 >
                   Download PDF
                 </button>
+
+                {/* Send Payment Reminder — Pro/Voice only, sent invoices only */}
+                {(profile?.tier === "pro" || profile?.tier === "voice") && selectedReceipt.status === "sent" && (
+                  <div style={{ marginTop: 6 }}>
+                    <button
+                      className="btn btn-ghost"
+                      style={{ width: "100%" }}
+                      onClick={() => {
+                        setSendInvoiceTarget({ ...selectedReceipt, _isReminder: true });
+                        setSendInvoiceEmail(selectedReceipt.customer_email || "");
+                      }}
+                    >
+                      &#8635; Send Reminder
+                    </button>
+                  </div>
+                )}
 
                 {/* Send to Client — pro feature */}
                 <div style={{ marginTop: 6, borderTop: "1px solid var(--border-light)", paddingTop: 10 }}>
@@ -1133,9 +1173,9 @@ export default function App() {
               <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={() => setShowUpgradeConfirm(false)}>✕</button>
             </div>
             <div className="modal-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Pro: CAD $6.00 / month</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Pro: CAD $9.00 / month</div>
               <div style={{ fontSize: 11, color: "var(--text-dim)", lineHeight: 1.6 }}>
-                You will be charged CAD $6.00 each month. Your subscription renews automatically until cancelled. Cancellation takes effect at the end of the current billing period. No partial refunds.
+                You will be charged CAD $9.00 each month. Your subscription renews automatically until cancelled. Cancellation takes effect at the end of the current billing period. No partial refunds.
               </div>
               <label style={{ display: "flex", gap: 10, alignItems: "flex-start", cursor: "pointer", fontSize: 11, color: "var(--text-dim)", lineHeight: 1.5 }}>
                 <input

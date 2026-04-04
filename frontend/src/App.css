@@ -102,6 +102,8 @@
 }
 
 /* Text/icon-only elements that just change color on hover */
+[data-theme="dark"] .help-btn { color: #ffffff; }
+
 [data-theme="dark"] .dark-toggle:hover,
 [data-theme="dark"] .help-btn:hover,
 [data-theme="dark"] .btn-icon:hover,
@@ -329,11 +331,20 @@ body,
   color: var(--text-dim);
 }
 
+.topbar-time {
+  color: var(--accent);
+  font-weight: 500;
+}
+.topbar-date-sep {
+  opacity: 0.35;
+  margin: 0 2px;
+}
+
 /* Help button — circled ? in the topbar */
 .help-btn {
   background: none;
   border: 1px solid var(--border);
-  color: #ffffff;
+  color: var(--text-muted);
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 600;
@@ -535,8 +546,8 @@ body,
 }
 .receipt-card.selected {
   background: var(--surface-2);
-  border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent), 0 3px 10px rgba(0,0,0,0.09);
+  border-color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--text), 0 3px 10px rgba(0,0,0,0.09);
 }
 .card-top-row {
   display: flex;
