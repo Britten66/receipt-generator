@@ -354,9 +354,10 @@
 .mock-invoice-footer {
   text-align: center;
   font-size: 9px;
-  color: #c8c4bc;
+  letter-spacing: 0.08em;
+  color: #908e8a;
   padding-top: 14px;
-  border-top: 1px solid #f0ede8;
+  border-top: 1px solid #d8d6d0;
 }
 
 [data-theme="dark"] .mock-invoice-footer {
@@ -766,8 +767,7 @@
 }
 
 .lv2-plan-pro {
-  border-color: var(--border);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 0 32px rgba(217, 184, 115, 0.34), 0 4px 20px rgba(217, 184, 115, 0.17);
 }
 
 .lv2-plan-badge {
@@ -844,10 +844,10 @@
   width: 100%;
   padding: 12px;
   min-height: 44px;
-  font-family: var(--mono);
-  font-size: 10px;
+  font-family: var(--sans);
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 1px solid var(--border);
   cursor: pointer;
@@ -869,10 +869,15 @@
 }
 
 .lv2-plan-btn-primary {
-  background: var(--text);
-  color: var(--bg);
-  border-color: var(--text);
-  box-shadow: 1px 1px 0 rgba(255,255,255,0.12), 2px 2px 0 rgba(0,0,0,0.5);
+  background: #D9B873;
+  color: #1a1814;
+  border-color: #D9B873;
+  box-shadow: 1px 1px 0 rgba(255,255,255,0.12), 2px 2px 0 rgba(0,0,0,0.4);
+}
+.lv2-plan-btn-primary:hover {
+  background: #c9a85e;
+  border-color: #c9a85e;
+  opacity: 1;
 }
 
 /* ── FOOTER ── */

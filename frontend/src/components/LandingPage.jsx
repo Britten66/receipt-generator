@@ -71,7 +71,7 @@ function MockInvoice() {
       {MOCK_INVOICE.notes && (
         <div className="mock-invoice-notes">{MOCK_INVOICE.notes}</div>
       )}
-      <div className="mock-invoice-footer">— invoiceprepper.com —</div>
+      <div className="mock-invoice-footer">invoiceprepper.com</div>
     </div>
   );
 }
@@ -194,9 +194,9 @@ export default function LandingPage({ onEnter, onSignIn, darkMode, onToggleDark 
       {/* 6 — Threads break */}
       <div className="lv2-texture-break" aria-hidden="true">
         <Threads
-          color={darkMode ? [1, 1, 1] : [0.22, 0.2, 0.18]}
-          amplitude={1.2}
-          distance={0.4}
+          color={darkMode ? [0.85, 0.72, 0.45] : [0.22, 0.2, 0.18]}
+          amplitude={1.0}
+          distance={0.2}
           enableMouseInteraction={true}
         />
       </div>
@@ -209,13 +209,13 @@ export default function LandingPage({ onEnter, onSignIn, darkMode, onToggleDark 
 
           <BorderGlow
             borderRadius={0}
-            glowColor={darkMode ? "38 55 75" : "0 0 8"}
-            glowIntensity={darkMode ? 0.9 : 0.75}
+            glowColor={darkMode ? "220 12 70" : "0 0 5"}
+            glowIntensity={darkMode ? 0.9 : 1.1}
             glowRadius={36}
             edgeSensitivity={8}
             coneSpread={30}
-            fillOpacity={0.15}
-            colors={darkMode ? ["#e8d9a8", "#c8b98a", "#a09070"] : ["#1a1a18", "#2e2c28", "#3d3a30"]}
+            fillOpacity={darkMode ? 0.15 : 0.22}
+            colors={darkMode ? ["#b8bcc8", "#a4a8b4", "#9094a0"] : ["#c0c4d0", "#b0b4c0", "#a0a4b0"]}
             backgroundColor="transparent"
             className="lv2-plan-glow"
           >
@@ -237,13 +237,13 @@ export default function LandingPage({ onEnter, onSignIn, darkMode, onToggleDark 
 
           <BorderGlow
             borderRadius={0}
-            glowColor={darkMode ? "38 55 75" : "0 0 8"}
-            glowIntensity={darkMode ? 1.0 : 0.85}
+            glowColor={darkMode ? "43 78 55" : "43 85 45"}
+            glowIntensity={darkMode ? 1.0 : 1.15}
             glowRadius={40}
             edgeSensitivity={5}
             coneSpread={35}
-            fillOpacity={0.2}
-            colors={darkMode ? ["#e8d9a8", "#c8b98a", "#a09070"] : ["#1a1a18", "#2e2c28", "#3d3a30"]}
+            fillOpacity={darkMode ? 0.2 : 0.25}
+            colors={darkMode ? ["#E8B840", "#D4A030", "#C09020"] : ["#1a1814", "#252318", "#2e2c20"]}
             backgroundColor="transparent"
             className="lv2-plan-glow"
           >
