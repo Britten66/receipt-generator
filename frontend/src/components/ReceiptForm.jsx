@@ -582,7 +582,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 {/* Status messages */}
                 {(voiceError || voiceTranscript) && (
                   <span style={{ fontSize: 10, flexShrink: 0, color: voiceError ? "var(--voided)" : "var(--voice-text)", fontWeight: 600 }}>
-                    {voiceError || "Done. Review above."}
+                    {voiceError || "Done. Review below."}
                   </span>
                 )}
               </>
@@ -619,7 +619,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                     <span style={{ fontSize: 10, color: "var(--voice-text)" }}>Filling in your invoice...</span>
                   )}
                   {voiceTranscript && !voiceRecording && !voiceParsing && !voiceError && (
-                    <span style={{ fontSize: 10, color: "#4dd8e0", fontWeight: 600 }}>Done. Review above.</span>
+                    <span style={{ fontSize: 10, color: "#4dd8e0", fontWeight: 600 }}>Done. Review below.</span>
                   )}
                   {voiceError && (
                     <span style={{ fontSize: 10, color: "var(--voided)" }}>{voiceError}</span>
