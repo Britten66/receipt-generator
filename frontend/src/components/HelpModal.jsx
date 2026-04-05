@@ -113,17 +113,6 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
 
             <div className="win-divider" />
 
-            <p className="help-heading">Free vs Pro vs Voice AI</p>
-            <ul className="help-list">
-              <li><strong>Free:</strong> unlimited invoices, PDF download, invoiceprepper.com watermark</li>
-              <li><strong>Pro:</strong> no watermark, custom logo on PDF, emails sent under your business name, share via text or WhatsApp, theme customisation</li>
-              <li><strong>Voice AI:</strong> everything in Pro plus voice and text AI invoice parsing</li>
-              <li>Upgrade anytime from the sidebar. Cancel anytime from Billing.</li>
-              <li>Subscriptions are billed in the currency shown at checkout. Accepted globally via Stripe.</li>
-            </ul>
-
-            <div className="win-divider" />
-
             <p className="help-heading">AI Features</p>
             <ul className="help-list">
               <li>Voice AI plan lets you speak or type an invoice description and AI fills in the fields</li>

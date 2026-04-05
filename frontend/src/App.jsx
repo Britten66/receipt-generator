@@ -194,6 +194,9 @@ export default function App() {
   */
   const [upgradeTargetTier, setUpgradeTargetTier]   = useState("pro");
 
+  // Plans modal — shows Pro + Voice AI cards so users can choose before hitting Stripe
+  const [showPlansModal, setShowPlansModal]         = useState(false);
+
   // One-time modals — each shows exactly once per user, flag stored in localStorage.
   const [showWelcome, setShowWelcome]               = useState(false);
   const [showUpgradeThanks, setShowUpgradeThanks]   = useState(false);
@@ -771,47 +774,36 @@ export default function App() {
           ))}
         </div>
 
-        {/* Bottom of sidebar: profile shortcut and + New Receipt button */}
+        {/* Bottom of sidebar: profile, new invoice, utility row */}
         <div style={{ marginTop: "auto", padding: 12, borderTop: "1px solid var(--border-light)", display: "flex", flexDirection: "column", gap: 8 }}>
-          <>
-            <button
-              className="btn btn-ghost"
-              style={{ width: "100%", fontSize: 12, letterSpacing: "0.06em" }}
-              onClick={() => setShowProfileModal(true)}
-            >
-              {profile?.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
-            </button>
-            {!profileLoading && (profile?.tier === "free" || !profile?.tier) && (
-              <button
-                className="btn btn-primary"
-                style={{ width: "100%", fontSize: 12 }}
-                onClick={() => openUpgradeConfirm("pro")}
-              >
-                Upgrade to Pro
-              </button>
-            )}
-            {!profileLoading && profile?.tier === "pro" && (
-              <button
-                className="btn btn-primary"
-                style={{ width: "100%", fontSize: 12, background: "var(--accent)", borderColor: "var(--accent)" }}
-                onClick={() => openUpgradeConfirm("voice")}
-              >
-                Upgrade to Voice AI
-              </button>
-            )}
-          </>
+          <button
+            className="btn btn-ghost"
+            style={{ width: "100%", fontSize: 12, letterSpacing: "0.06em" }}
+            onClick={() => setShowProfileModal(true)}
+          >
+            {profile?.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
+          </button>
           <button className="btn btn-primary" style={{ width: "100%" }} onClick={openNewReceipt}>
             + New Invoice
           </button>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, paddingTop: 4, position: "relative" }}>
-            {!profileLoading && (profile?.tier === "free" || !profile?.tier) && (
-              <>
-                <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
-                <button onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Privacy</button>
-              </>
-            )}
-            <button onClick={() => setShowBilling(true)} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Billing</button>
-            <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help" style={{ position: "absolute", right: 0 }}>?</button>
+          {/* Utility row: Billing + Terms on left, Upgrade pill + ? on right */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 4 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <button onClick={() => setShowBilling(true)} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Billing</button>
+              <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              {/* Upgrade pill — free users see Pro+Voice, pro users see Voice only, voice sees nothing */}
+              {!profileLoading && profile?.tier !== "voice" && (
+                <button
+                  className="btn-upgrade-pill"
+                  onClick={() => setShowPlansModal(true)}
+                >
+                  Upgrade
+                </button>
+              )}
+              <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help">?</button>
+            </div>
           </div>
         </div>
       </aside>
@@ -1215,6 +1207,67 @@ export default function App() {
 
       {/* Billing modal */}
       {showBilling && <BillingModal profile={profile} onClose={() => setShowBilling(false)} />}
+
+      {/* Plans modal — two upgrade cards shown side by side */}
+      {showPlansModal && (
+        <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && setShowPlansModal(false)}>
+          <div className="modal" style={{ maxWidth: 600 }}>
+            <div className="modal-header">
+              <span className="modal-title">{profile?.tier === "pro" ? "Upgrade to Voice AI" : "Choose your plan"}</span>
+              <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={() => setShowPlansModal(false)}>✕</button>
+            </div>
+            <div className="modal-body" style={{ display: "grid", gridTemplateColumns: profile?.tier === "pro" ? "1fr" : "1fr 1fr", gap: 16, padding: 20 }}>
+
+              {/* Pro card — only for free users */}
+              {(profile?.tier === "free" || !profile?.tier) && (
+                <div className="plans-modal-card">
+                  <div className="plans-modal-name">Pro</div>
+                  <div className="plans-modal-price">CAD $9<span>/mo</span></div>
+                  <ul className="plans-modal-features">
+                    <li>No watermark on PDFs</li>
+                    <li>Your logo on every invoice</li>
+                    <li>Emails from your business name</li>
+                    <li>Share via text or WhatsApp</li>
+                    <li>Dashboard themes</li>
+                    <li>Pay Now button on invoices</li>
+                  </ul>
+                  <button
+                    className="btn btn-primary"
+                    style={{ width: "100%", marginTop: "auto" }}
+                    onClick={() => { setShowPlansModal(false); openUpgradeConfirm("pro"); }}
+                  >
+                    Get Pro
+                  </button>
+                </div>
+              )}
+
+              {/* Voice AI card — free and pro users */}
+              <div className="plans-modal-card plans-modal-card-voice">
+                <div className="plans-modal-name">Voice AI</div>
+                <div className="plans-modal-price">CAD $12<span>/mo</span></div>
+                <ul className="plans-modal-features">
+                  <li>Everything in Pro</li>
+                  <li>Speak your invoice, AI fills it in</li>
+                  <li>Detects line items, prices, clients</li>
+                  <li>Works on mobile, no typing</li>
+                  <li>20 AI parses per day</li>
+                </ul>
+                <button
+                  className="btn btn-primary"
+                  style={{ width: "100%", marginTop: "auto", background: "var(--accent)", borderColor: "var(--accent)" }}
+                  onClick={() => { setShowPlansModal(false); openUpgradeConfirm("voice"); }}
+                >
+                  Get Voice AI
+                </button>
+              </div>
+
+            </div>
+            <div style={{ padding: "0 20px 16px", fontSize: 10, color: "var(--text-muted)", textAlign: "center" }}>
+              Billed monthly. Cancel anytime from Billing.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pre-checkout consent modal — shown before redirecting to Stripe.
           User must explicitly agree to recurring billing terms before checkout. */}
