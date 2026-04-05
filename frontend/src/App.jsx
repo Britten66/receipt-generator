@@ -198,9 +198,8 @@ export default function App() {
   // Plans modal — shows Pro + Voice AI cards so users can choose before hitting Stripe
   const [showPlansModal, setShowPlansModal]         = useState(false);
 
-  // In-app PDF preview — blob: URL set when user taps Preview on mobile/PWA.
-  // Using window.open in PWA standalone mode exits the app into Safari, so we
-  // render the PDF in an iframe overlay instead.
+  // In-app PDF preview overlay — used on Android mobile where blob: URLs in iframes work
+  // but window.open may be blocked. iOS uses download (Quick Look). Desktop uses popup.
   const [pdfPreviewUrl, setPdfPreviewUrl]           = useState(null);
 
   // One-time modals — each shows exactly once per user, flag stored in localStorage.
@@ -1109,21 +1108,37 @@ export default function App() {
                   style={{ width: "100%", marginBottom: 6 }}
                   onClick={async () => {
                     const receiptData = { ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier };
-                    // In PWA standalone mode window.open exits the app into Safari.
-                    // On any mobile screen, show an in-app iframe overlay instead.
-                    const isPWA = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
-                    if (isPWA || window.innerWidth <= 768) {
+
+                    // PDF preview — strategy differs per platform:
+                    //
+                    // iOS (browser + PWA): blob: URLs are blocked in iframes, and window.open
+                    //   exits the PWA into Safari. Download triggers iOS Quick Look which is a
+                    //   full native PDF viewer — that IS the preview on iOS.
+                    //
+                    // Android / non-iOS mobile: Chrome supports blob: URLs in iframes.
+                    //   Show an in-app overlay so the user stays inside the app.
+                    //
+                    // Desktop (Chrome, Firefox, Safari, Edge): open a new window synchronously
+                    //   to preserve the user gesture (prevents popup block), then write an
+                    //   <embed> — navigating a new window to a blob URL from the opener causes
+                    //   a blank page. If popup is blocked despite that, fall back to download.
+
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                      (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.userAgent));
+
+                    if (isIOS) {
+                      downloadReceiptPDF(receiptData);
+                    } else if (window.innerWidth <= 768) {
                       const url = await getPDFBlobUrl(receiptData);
                       setPdfPreviewUrl(url);
                     } else {
-                      // Open window synchronously (preserves user gesture so popup isn't blocked).
-                      // Write an embed into it — navigating a new window to a blob URL from the
-                      // opener causes a blank page in most browsers.
                       const win = window.open("", "_blank");
                       const url = await getPDFBlobUrl(receiptData);
                       if (win) {
                         win.document.write(`<!DOCTYPE html><html><head><title>Invoice Preview</title></head><body style="margin:0;padding:0;height:100vh;"><embed src="${url}" type="application/pdf" width="100%" height="100%" /></body></html>`);
                         win.document.close();
+                      } else {
+                        downloadReceiptPDF(receiptData);
                       }
                     }
                   }}
@@ -1395,6 +1410,31 @@ export default function App() {
         />
       )}
 
+      {/* In-app PDF preview overlay — Android mobile only (iOS uses Quick Look, desktop uses popup) */}
+      {pdfPreviewUrl && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 600,
+          display: "flex", flexDirection: "column",
+          background: "#000",
+          paddingTop: "env(safe-area-inset-top)",
+        }}>
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "10px 16px",
+            background: "var(--surface)",
+            borderBottom: "1px solid var(--border)",
+            flexShrink: 0,
+          }}>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-dim)" }}>Invoice Preview</span>
+            <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={() => {
+              URL.revokeObjectURL(pdfPreviewUrl);
+              setPdfPreviewUrl(null);
+            }}>Close</button>
+          </div>
+          <iframe src={pdfPreviewUrl} title="Invoice Preview" style={{ flex: 1, border: "none", width: "100%" }} />
+        </div>
+      )}
+
       {/* Welcome modal — shown once to each new user on their first session */}
       {showWelcome && (
         <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && setShowWelcome(false)}>
@@ -1449,30 +1489,6 @@ export default function App() {
         </div>
       )}
 
-      {/* In-app PDF preview overlay — used on mobile/PWA where window.open exits the app */}
-      {pdfPreviewUrl && (
-        <div style={{
-          position: "fixed", inset: 0, zIndex: 600,
-          display: "flex", flexDirection: "column",
-          background: "#000",
-          paddingTop: "env(safe-area-inset-top)",
-        }}>
-          <div style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "10px 16px",
-            background: "var(--surface)",
-            borderBottom: "1px solid var(--border)",
-            flexShrink: 0,
-          }}>
-            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-dim)" }}>Invoice Preview</span>
-            <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={() => {
-              URL.revokeObjectURL(pdfPreviewUrl);
-              setPdfPreviewUrl(null);
-            }}>Close</button>
-          </div>
-          <iframe src={pdfPreviewUrl} title="Invoice Preview" style={{ flex: 1, border: "none", width: "100%" }} />
-        </div>
-      )}
 
       {/* Toast notification — shown briefly after actions like save, delete, send */}
       {toast && (
