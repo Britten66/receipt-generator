@@ -149,7 +149,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             borderRadius={0}
             glowColor={darkMode ? "38 55 75" : "0 0 8"}
             glowIntensity={darkMode ? 0.9 : 0.75}
-            glowRadius={48}
+            glowRadius={20}
             edgeSensitivity={12}
             coneSpread={20}
             fillOpacity={0.2}

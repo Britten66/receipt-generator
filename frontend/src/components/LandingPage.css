@@ -169,15 +169,19 @@
   background: linear-gradient(to top, var(--surface-2), transparent);
 }
 
-/* Preview + reflection wrapper */
+/* Preview + reflection wrapper — overflow:clip prevents glow bleed pushing section taller */
 .lv2-preview-wrap {
   display: flex;
   flex-direction: column;
+  overflow: clip;
 }
 
 .lv2-border-glow {
   width: 100%;
+  /* Prevent glow bleed from expanding the hero section height */
+  margin-bottom: 0 !important;
 }
+
 
 .lv2-border-glow .border-glow-inner {
   overflow: visible;
