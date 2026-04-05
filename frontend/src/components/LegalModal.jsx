@@ -28,7 +28,7 @@ function Terms() {
       <p>By accessing or using Invoice Prepper (the "Service"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service. Continued use after any update to these Terms constitutes acceptance of the revised Terms.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>2. Description of Service</h3>
-      <p>Invoice Prepper is an invoice creation and tracking tool for freelancers, contractors, and small businesses. It provides PDF generation, invoice tracking, and optional client-facing email delivery. The Service is a productivity and record-keeping aid only. It is not accounting software, legal advice, tax preparation software, or a licensed financial service of any kind. Nothing in the Service constitutes professional financial, tax, or legal advice.</p>
+      <p>Invoice Prepper is an invoice creation and tracking tool for independent workers, contractors, and small businesses. It provides PDF generation, invoice tracking, and optional client-facing email delivery. The Service is a productivity and record-keeping aid only. It is not accounting software, legal advice, tax preparation software, or a licensed financial service of any kind. Nothing in the Service constitutes professional financial, tax, or legal advice.</p>
 
       <h3 style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 6px", color: "var(--text)" }}>3. Eligibility</h3>
       <p>You must be at least 16 years old to use the Service. By using the Service you represent that you meet this requirement and that you have the legal capacity to enter into a binding agreement in your jurisdiction.</p>

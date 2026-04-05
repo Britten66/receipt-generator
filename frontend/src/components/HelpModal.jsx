@@ -130,7 +130,7 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
               <li>Email <a href="mailto:support@invoiceprepper.com" style={{ color: "var(--accent)", textDecoration: "underline" }}>support@invoiceprepper.com</a> and we will get back to you.</li>
             </ul>
 
-            <p className="help-footer">invoiceprepper.com. Built for freelancers, contractors &amp; small business worldwide.</p>
+            <p className="help-footer">invoiceprepper.com. Built for independent workers, contractors &amp; small businesses worldwide.</p>
 
             {onLegal && (
               <>

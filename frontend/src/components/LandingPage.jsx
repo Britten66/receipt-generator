@@ -127,8 +127,8 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       <section className="lv2-hero">
         <div className="lv2-hero-text">
           <p className="lv2-eyebrow">InvoicePrepper</p>
-          <h1 className="lv2-title">The invoice generator<br />for freelancers who<br />just want to get paid.</h1>
-          <p className="lv2-desc">Create professional invoices, email to clients, and track what's paid; all in one place. Built for freelancers, contractors, and small businesses. No bloat, no learning curve.</p>
+          <h1 className="lv2-title">The invoice generator<br />for people who<br />just want to get paid.</h1>
+          <p className="lv2-desc">Create professional invoices, email to clients, and track what's paid; all in one place. Built for independent workers, contractors, and small businesses. No bloat, no learning curve.</p>
           <button className="lv2-cta" onClick={onEnter}>Start Invoicing Free</button>
           <p className="lv2-sub">Free forever · No credit card required</p>
         </div>
