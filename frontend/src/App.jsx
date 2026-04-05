@@ -215,10 +215,10 @@ export default function App() {
   // Lock body scroll on iOS when any modal is open.
   // iOS Safari ignores position:fixed for preventing background scroll.
   useEffect(() => {
-    const anyOpen = showForm || showProfileModal || showHelp || showBilling || !!legal || !!upgradeLegal || showUpgradeConfirm || showWelcome || showUpgradeThanks;
+    const anyOpen = showForm || showProfileModal || showHelp || showBilling || !!legal || !!upgradeLegal || showUpgradeConfirm || showWelcome || showUpgradeThanks || showPlansModal;
     document.body.style.overflow = anyOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
-  }, [showForm, showProfileModal, showHelp, showBilling, legal, upgradeLegal, showUpgradeConfirm]);
+  }, [showForm, showProfileModal, showHelp, showBilling, legal, upgradeLegal, showUpgradeConfirm, showPlansModal]);
 
   /*
     sendInvoiceTarget: receipt currently being emailed to a client.
