@@ -148,16 +148,19 @@
   box-shadow: 0 8px 48px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.07);
 }
 
-/* Fade only the bottom edge — gives a "there's more" feeling without scrolling */
+/* Fade only the bottom edge — must match the mock invoice background, not the container */
 .lv2-hero-preview::after {
   content: "";
   position: absolute;
   left: 0; right: 0;
   bottom: 0;
-  height: 80px;
+  height: 60px;
   z-index: 2;
   pointer-events: none;
-  background: linear-gradient(to top, var(--surface-2), transparent);
+  background: linear-gradient(to top, #fff, transparent);
+}
+[data-theme="dark"] .lv2-hero-preview::after {
+  background: linear-gradient(to top, #1e2022, transparent);
 }
 
 /* Preview + reflection wrapper — overflow:clip prevents glow bleed pushing section taller */
