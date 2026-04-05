@@ -552,7 +552,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
         {/* Voice AI entry — voice tier only */}
         {profile?.tier === "voice" && (
-          <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--border)", background: "var(--surface-2)", display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", background: "var(--surface-2)", display: "flex", alignItems: "center", gap: 10 }}>
 
             {isDesktop ? (
               /* Desktop: text input box */

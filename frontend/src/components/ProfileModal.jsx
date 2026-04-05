@@ -249,7 +249,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
     resetPasswordElement = (
       <button
         className="btn btn-ghost"
-        style={{ fontSize: 10, padding: "4px 10px", flexShrink: 0 }}
+        style={{ fontSize: 10, padding: "6px 12px", flexShrink: 0 }}
         onClick={handleResetPassword}
         disabled={resetLoading}
       >

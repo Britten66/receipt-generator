@@ -223,6 +223,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             <div className="lv2-plan">
               <div className="lv2-plan-name">Free</div>
               <div className="lv2-plan-price">CAD $0<span>/mo</span></div>
+              <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>No credit card required</p>
               <ul className="lv2-plan-features">
                 <li>Unlimited invoices</li>
                 <li>PDF download</li>
