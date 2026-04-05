@@ -314,13 +314,11 @@ export default function App() {
           startCheckout(proIntentRef.current).catch(() => {});
           proIntentRef.current = "";
         }
-        // Welcome modal: only on a real sign-in, not on token refresh or page reload.
-        // INITIAL_SESSION and TOKEN_REFRESHED both fire on every page load — SIGNED_IN
-        // only fires when the user actively logs in, so this shows exactly once per device.
-        if (event === "SIGNED_IN" && newSession?.user?.id) {
-          const key = `welcome_shown_${newSession.user.id}`;
-          if (!localStorage.getItem(key)) {
-            localStorage.setItem(key, "1");
+        // Welcome modal: only for brand-new accounts (created within the last 2 minutes).
+        // localStorage is unreliable on iOS PWA — checking created_at is server-side truth.
+        if (event === "SIGNED_IN" && newSession?.user?.created_at) {
+          const ageMs = Date.now() - new Date(newSession.user.created_at).getTime();
+          if (ageMs < 2 * 60 * 1000) {
             setShowWelcome(true);
           }
         }
