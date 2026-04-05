@@ -19,7 +19,7 @@
 */
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import { downloadReceiptPDF, shareReceiptPDF, previewReceiptPDF, getPDFBlobUrl, buildPDFBase64 } from "./components/ReceiptPDF";
+import { downloadReceiptPDF, shareReceiptPDF, getPDFBlobUrl, buildPDFBase64 } from "./components/ReceiptPDF";
 import {
   fetchReceipts,
   fetchReceiptById,
@@ -1117,7 +1117,11 @@ export default function App() {
                       const url = await getPDFBlobUrl(receiptData);
                       setPdfPreviewUrl(url);
                     } else {
-                      previewReceiptPDF(receiptData);
+                      // Open the window synchronously during the click event so browsers
+                      // don't block it as a popup. Then navigate it to the blob URL once ready.
+                      const win = window.open("", "_blank");
+                      const url = await getPDFBlobUrl(receiptData);
+                      if (win) win.location.href = url;
                     }
                   }}
                 >
