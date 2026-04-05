@@ -349,12 +349,21 @@ export async function downloadReceiptPDF(receipt) {
 }
 
 /*
+  getPDFBlobUrl(receipt) — builds the PDF and returns a blob: URL.
+  Caller is responsible for revoking via URL.revokeObjectURL when done.
+*/
+export async function getPDFBlobUrl(receipt) {
+  const doc = await buildDoc(receipt);
+  return doc.output("bloburl");
+}
+
+/*
   previewReceiptPDF(receipt) — opens the PDF in a new browser tab.
   Uses the browser's built-in PDF viewer — no download triggered.
+  Only use on desktop; on mobile/PWA use getPDFBlobUrl + in-app overlay.
 */
 export async function previewReceiptPDF(receipt) {
-  const doc = await buildDoc(receipt);
-  const url = doc.output("bloburl");
+  const url = await getPDFBlobUrl(receipt);
   window.open(url, "_blank");
 }
 

@@ -19,7 +19,7 @@
 */
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import { downloadReceiptPDF, shareReceiptPDF, previewReceiptPDF, buildPDFBase64 } from "./components/ReceiptPDF";
+import { downloadReceiptPDF, shareReceiptPDF, previewReceiptPDF, getPDFBlobUrl, buildPDFBase64 } from "./components/ReceiptPDF";
 import {
   fetchReceipts,
   fetchReceiptById,
@@ -198,6 +198,11 @@ export default function App() {
   // Plans modal — shows Pro + Voice AI cards so users can choose before hitting Stripe
   const [showPlansModal, setShowPlansModal]         = useState(false);
 
+  // In-app PDF preview — blob: URL set when user taps Preview on mobile/PWA.
+  // Using window.open in PWA standalone mode exits the app into Safari, so we
+  // render the PDF in an iframe overlay instead.
+  const [pdfPreviewUrl, setPdfPreviewUrl]           = useState(null);
+
   // One-time modals — each shows exactly once per user, flag stored in localStorage.
   const [showWelcome, setShowWelcome]               = useState(false);
   const [showUpgradeThanks, setShowUpgradeThanks]   = useState(false);
@@ -216,7 +221,7 @@ export default function App() {
   // iOS Safari ignores overflow:hidden on body — the fix is position:fixed + top offset.
   // We save the scroll position before locking and restore it on unlock.
   useEffect(() => {
-    const anyOpen = showForm || showProfileModal || showHelp || showBilling || !!legal || !!upgradeLegal || showUpgradeConfirm || showWelcome || showUpgradeThanks || showPlansModal || showAuthModal;
+    const anyOpen = showForm || showProfileModal || showHelp || showBilling || !!legal || !!upgradeLegal || showUpgradeConfirm || showWelcome || showUpgradeThanks || showPlansModal || showAuthModal || !!pdfPreviewUrl;
     if (anyOpen) {
       const scrollY = window.scrollY;
       document.body.style.position = "fixed";
@@ -237,7 +242,7 @@ export default function App() {
       document.body.style.width = "";
       document.body.style.overflow = "";
     };
-  }, [showForm, showProfileModal, showHelp, showBilling, legal, upgradeLegal, showUpgradeConfirm, showWelcome, showUpgradeThanks, showPlansModal, showAuthModal]);
+  }, [showForm, showProfileModal, showHelp, showBilling, legal, upgradeLegal, showUpgradeConfirm, showWelcome, showUpgradeThanks, showPlansModal, showAuthModal, pdfPreviewUrl]);
 
   /*
     sendInvoiceTarget: receipt currently being emailed to a client.
@@ -639,7 +644,7 @@ export default function App() {
   }
 
   const userEmail = session?.user?.email ?? "";
-  const avatarUrl = profile?.avatar_url || profile?.logo_url || null;
+  const avatarUrl = profile?.avatar_url || null;
 
   /*
     Time-based greeting. Name priority: business_name > email username > nothing.
@@ -1103,7 +1108,18 @@ export default function App() {
                 <button
                   className="btn btn-ghost"
                   style={{ width: "100%", marginBottom: 6 }}
-                  onClick={() => previewReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier })}
+                  onClick={async () => {
+                    const receiptData = { ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier };
+                    // In PWA standalone mode window.open exits the app into Safari.
+                    // On any mobile screen, show an in-app iframe overlay instead.
+                    const isPWA = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+                    if (isPWA || window.innerWidth <= 768) {
+                      const url = await getPDFBlobUrl(receiptData);
+                      setPdfPreviewUrl(url);
+                    } else {
+                      previewReceiptPDF(receiptData);
+                    }
+                  }}
                 >
                   Preview PDF
                 </button>
@@ -1423,6 +1439,31 @@ export default function App() {
               <button className="btn btn-primary" onClick={() => setShowUpgradeThanks(false)}>Got It</button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* In-app PDF preview overlay — used on mobile/PWA where window.open exits the app */}
+      {pdfPreviewUrl && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 600,
+          display: "flex", flexDirection: "column",
+          background: "#000",
+          paddingTop: "env(safe-area-inset-top)",
+        }}>
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "10px 16px",
+            background: "var(--surface)",
+            borderBottom: "1px solid var(--border)",
+            flexShrink: 0,
+          }}>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-dim)" }}>Invoice Preview</span>
+            <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={() => {
+              URL.revokeObjectURL(pdfPreviewUrl);
+              setPdfPreviewUrl(null);
+            }}>Close</button>
+          </div>
+          <iframe src={pdfPreviewUrl} title="Invoice Preview" style={{ flex: 1, border: "none", width: "100%" }} />
         </div>
       )}
 
