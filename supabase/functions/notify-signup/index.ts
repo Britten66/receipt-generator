@@ -1,95 +1,64 @@
 /*
-  notify-signup — fires when a new user registers via Supabase Auth.
+  notify-signup — fires when a new user is created in auth.users.
 
   WIRED UP VIA:
   ─────────────
-  Supabase Dashboard → Authentication → Hooks
-  Event: "After user is created"
+  Supabase Dashboard → Database → Webhooks → Create webhook
+  Schema: auth   Table: users   Event: INSERT
   URL:   https://qajcynqmjtlzofoyklyp.supabase.co/functions/v1/notify-signup
-  Signing secret: the v1,whsec_... value Supabase generated — stored as NOTIFY_SIGNUP_SECRET
+  HTTP Headers: Authorization: Bearer <SUPABASE_SERVICE_ROLE_KEY>
 
-  SECURITY:
-  ─────────
-  Supabase signs every Auth Hook request in the format:
-    Header: x-supabase-signature: v1=<hex-encoded-hmac-sha256>
-    Secret:  stored as v1,whsec_<base64-encoded-raw-bytes>
+  Using a Database Webhook (not Auth Hook) because Auth Hooks are synchronous
+  and can block user creation if the function errors. Database Webhooks are
+  async and fire after the user is safely written to the database.
 
-  We decode the raw bytes from the secret, compute HMAC-SHA256 of the body,
-  and compare hex outputs. Requests with invalid or missing signatures return 401.
+  PAYLOAD FORMAT (database webhook):
+  {
+    "type": "INSERT",
+    "schema": "auth",
+    "table": "users",
+    "record": { "id": "...", "email": "...", "created_at": "..." },
+    "old_record": null
+  }
 */
 
 const RESEND_FROM = "noreply@invoiceprepper.com";
-
-/*
-  verifySignature — handles the Supabase Auth Hook signing format.
-
-  Secret format:   v1,whsec_<base64>  → strip prefix, base64-decode to raw bytes
-  Signature header: v1=<hex>          → strip prefix, hex-decode to bytes
-  Then HMAC-SHA256 verify(rawSecretBytes, body) === sigBytes
-*/
-async function verifySignature(body: string, signatureHeader: string | null, rawSecret: string): Promise<boolean> {
-  if (!signatureHeader) return false;
-
-  try {
-    // Parse the secret: "v1,whsec_<base64>" → raw bytes
-    const whsecMatch = rawSecret.match(/whsec_([A-Za-z0-9+/=]+)/);
-    if (!whsecMatch) return false;
-    const secretBytes = Uint8Array.from(atob(whsecMatch[1]), (c) => c.charCodeAt(0));
-
-    // Parse the signature header: "v1=<hex>" → bytes
-    const hexMatch = signatureHeader.match(/v1=([0-9a-f]+)/i);
-    if (!hexMatch) return false;
-    const sigBytes = new Uint8Array(hexMatch[1].match(/.{2}/g)!.map((b) => parseInt(b, 16)));
-
-    const key = await crypto.subtle.importKey(
-      "raw",
-      secretBytes,
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["verify"],
-    );
-
-    return await crypto.subtle.verify("HMAC", key, sigBytes, new TextEncoder().encode(body));
-  } catch {
-    return false;
-  }
-}
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
   }
 
-  const rawSecret   = Deno.env.get("NOTIFY_SIGNUP_SECRET");
-  const notifyEmail = Deno.env.get("NOTIFY_EMAIL");
-  const resendKey   = Deno.env.get("RESEND_API_KEY");
+  // Verify the request is from Supabase using the service role key
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const notifyEmail    = Deno.env.get("NOTIFY_EMAIL");
+  const resendKey      = Deno.env.get("RESEND_API_KEY");
 
-  if (!rawSecret || !notifyEmail || !resendKey) {
+  if (!serviceRoleKey || !notifyEmail || !resendKey) {
     console.error("notify-signup: missing required env vars");
     return new Response(JSON.stringify({ ok: false, error: "misconfigured" }), { status: 200 });
   }
 
-  const body      = await req.text();
-  const sigHeader = req.headers.get("x-supabase-signature");
-  const isValid   = await verifySignature(body, sigHeader, rawSecret);
-
-  if (!isValid) {
-    console.error("notify-signup: invalid signature", sigHeader);
+  const authHeader = req.headers.get("authorization") ?? "";
+  if (!authHeader.includes(serviceRoleKey)) {
+    console.error("notify-signup: unauthorized request");
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
   let payload: Record<string, unknown>;
   try {
-    payload = JSON.parse(body);
+    payload = await req.json();
   } catch {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400 });
   }
 
-  const user      = (payload?.user ?? payload) as Record<string, unknown>;
-  const email     = (user?.email as string) ?? "unknown";
-  const userId    = (user?.id as string) ?? "unknown";
-  const createdAt = user?.created_at
-    ? new Date(user.created_at as string).toLocaleString("en-CA", { timeZone: "UTC" }) + " UTC"
+  // Database webhook sends record at payload.record
+  // Fall back to payload.user or payload itself for backwards compatibility
+  const record    = (payload?.record ?? payload?.user ?? payload) as Record<string, unknown>;
+  const email     = (record?.email as string) ?? "unknown";
+  const userId    = (record?.id as string) ?? "unknown";
+  const createdAt = record?.created_at
+    ? new Date(record.created_at as string).toLocaleString("en-CA", { timeZone: "UTC" }) + " UTC"
     : new Date().toUTCString();
 
   const adminHtml = `
@@ -110,19 +79,14 @@ Deno.serve(async (req) => {
 
   const welcomeHtml = `
     <div style="font-family:helvetica,arial,sans-serif;max-width:520px;margin:0 auto;background:#f5f4f0;">
-      <!-- Header -->
       <div style="background:#1e1c18;padding:20px 32px;">
         <span style="color:#e7ddc7;font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;">InvoicePrepper</span>
       </div>
-
-      <!-- Body -->
       <div style="padding:36px 32px 28px;">
         <h1 style="font-size:22px;font-weight:700;color:#1e1c18;margin:0 0 8px;letter-spacing:-0.02em;">Your account is ready.</h1>
         <p style="font-size:14px;color:#5a5752;line-height:1.6;margin:0 0 28px;">
           Welcome to InvoicePrepper. Here is everything you need to send your first invoice in the next five minutes.
         </p>
-
-        <!-- Steps -->
         <table style="width:100%;border-collapse:collapse;margin-bottom:28px;">
           <tr>
             <td style="padding:14px 0;border-top:1px solid #e0ddd6;vertical-align:top;width:28px;">
@@ -152,21 +116,17 @@ Deno.serve(async (req) => {
             </td>
           </tr>
         </table>
-
-        <!-- CTA -->
         <a href="https://invoiceprepper.com" style="display:inline-block;background:#1e1c18;color:#f5f4f0;font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;padding:13px 28px;text-decoration:none;">
           Open InvoicePrepper
         </a>
       </div>
-
-      <!-- Footer -->
       <div style="padding:18px 32px 24px;border-top:1px solid #e0ddd6;">
         <p style="font-size:11px;color:#b4afa5;margin:0;line-height:1.6;">
           Questions? Reply to this email or reach us at
           <a href="mailto:support@invoiceprepper.com" style="color:#a06830;text-decoration:none;">support@invoiceprepper.com</a>
         </p>
         <p style="font-size:10px;color:#c4c0b8;margin:8px 0 0;">
-          invoiceprepper.com — built for freelancers, contractors and small businesses.
+          invoiceprepper.com - built for independent workers, contractors and small businesses.
         </p>
       </div>
     </div>`;
