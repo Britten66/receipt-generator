@@ -126,7 +126,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       {/* 2 — Hero: hook + invoice preview */}
       <section className="lv2-hero">
         <div className="lv2-hero-text">
-          <p className="lv2-eyebrow">Invoice Prepper</p>
+          <p className="lv2-eyebrow">InvoicePrepper</p>
           <h1 className="lv2-title">The invoice generator<br />for freelancers who<br />just want to get paid.</h1>
           <p className="lv2-desc">Create professional invoices, email to clients, and track what's paid; all in one place. Built for freelancers, contractors, and small businesses. No bloat, no learning curve.</p>
           <button className="lv2-cta" onClick={onEnter}>Start Invoicing Free</button>
@@ -212,12 +212,11 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>No credit card required</p>
               <ul className="lv2-plan-features">
                 <li>Unlimited invoices</li>
-                <li>PDF download</li>
-                <li>Email invoices to clients</li>
+                <li>PDF download and share link</li>
                 <li>Draft, sent, paid tracking</li>
                 <li>Dark mode</li>
                 <li className="lv2-plan-caveat">PDF includes invoiceprepper.com footer</li>
-                <li className="lv2-plan-caveat">Emails sent from InvoicePrepper</li>
+                <li className="lv2-plan-caveat">Cannot email directly to clients</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-ghost" onClick={onEnter}>Get Started Free</button>
             </div>
