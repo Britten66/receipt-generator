@@ -839,8 +839,8 @@
 }
 
 .lv2-plan-name {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   color: #0a0a0a;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -877,9 +877,10 @@
 }
 
 .lv2-plan-features li {
-  font-size: 12px;
+  font-size: 13.5px;
+  line-height: 1.5;
   color: var(--text-dim);
-  padding-left: 14px;
+  padding-left: 16px;
   position: relative;
 }
 
