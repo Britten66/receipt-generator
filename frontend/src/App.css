@@ -539,22 +539,23 @@ body,
   overflow: hidden;
 }
 .stat-label {
-  font-size: 11px;
-  letter-spacing: 0;
-  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
   margin-bottom: 2px;
 }
 .stat-sublabel {
   font-size: 10px;
   color: var(--text-muted);
-  opacity: 0.6;
   margin-left: 2px;
 }
 .stat-sub {
+  font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.08em;
   color: var(--text-muted);
-  opacity: 0.6;
   text-transform: uppercase;
   margin-top: 1px;
 }

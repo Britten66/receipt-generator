@@ -41,6 +41,17 @@ export async function cancelSubscription() {
   return body; // { ok: true, cancel_at: "May 2, 2026" }
 }
 
+export async function fetchSubscriptionStatus() {
+  const headers = await authHeaders();
+  const res = await fetch(`${BASE}/subscription-status`, {
+    method: "GET",
+    headers,
+  });
+  const body = await res.json();
+  if (body.error) throw new Error(body.error);
+  return body; // { status, current_period_end, cancel_at_period_end, cancel_at } or { status: "free" }
+}
+
 export async function openBillingPortal() {
   const headers = await authHeaders();
   const res = await fetch(`${BASE}/billing-portal`, {

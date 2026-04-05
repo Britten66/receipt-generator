@@ -708,10 +708,10 @@
 .lv2-faq-eyebrow {
   display: block;
   font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.3em;
+  font-size: 10px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-dim);
   margin-bottom: 16px;
 }
 

@@ -1207,7 +1207,7 @@ export default function App() {
       {legal && <LegalModal type={legal} onClose={() => setLegal(null)} />}
 
       {/* Billing modal */}
-      {showBilling && <BillingModal profile={profile} onClose={() => setShowBilling(false)} />}
+      {showBilling && <BillingModal profile={profile} onClose={() => setShowBilling(false)} onUpgrade={() => setShowPlansModal(true)} />}
 
       {/* Plans modal — two upgrade cards shown side by side */}
       {showPlansModal && (
