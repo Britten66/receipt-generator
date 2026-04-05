@@ -45,7 +45,7 @@ const CORNER_LABELS = {
   "bottom-left":  "Bottom Left",
 };
 
-export default function ReceiptForm({ onSubmit, onClose, initialData, profile, userEmail, onLogoUpdate }) {
+export default function ReceiptForm({ onSubmit, onClose, initialData, profile, userEmail, onLogoUpdate, onUpgradeClick }) {
 
   /*
     form — the main fields of the receipt.
@@ -846,7 +846,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
               type="button"
               className="btn btn-ghost"
               style={{ marginTop: 8, fontSize: 10, padding: "6px 12px" }}
-              onClick={() => alert("Upgrade to Pro to add your logo to invoices.")}
+              onClick={() => onUpgradeClick?.()}
             >
               + Add your logo
             </button>

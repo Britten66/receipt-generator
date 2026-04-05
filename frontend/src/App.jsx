@@ -621,7 +621,7 @@ export default function App() {
   /*
     Time-based greeting. Name priority: business_name > email username > nothing.
   */
-  const hour = now.getHours();
+  const hour = new Date().getHours();
   const salutation = hour >= 5 && hour < 12 ? "Good morning"
                    : hour >= 12 && hour < 17 ? "Good afternoon"
                    : "Good evening";
@@ -640,7 +640,8 @@ export default function App() {
             {darkMode ? "Light" : "Dark"}
           </button>
 
-          {/* Palette picker — collapsed to one circle by default, expands on click */}
+          {/* Palette picker — Pro/Voice only. Free users don't see theme controls. */}
+          {(profile?.tier === "pro" || profile?.tier === "voice") && (
           <div className="palette-picker" role="group" aria-label="Color palette">
 
             {/* Trigger swatch — shows current selection; click to expand */}
@@ -694,6 +695,7 @@ export default function App() {
               >✕</button>
             </div>
           </div>
+          )}
         </div>
 
         {/* Column 2 — center (intentionally empty) */}
@@ -1158,9 +1160,19 @@ export default function App() {
                     <button
                       className="btn btn-ghost"
                       style={{ width: "100%" }}
-                      onClick={() => { setSendInvoiceTarget(selectedReceipt); setSendInvoiceEmail(""); }}
+                      onClick={() => {
+                        if (profile?.tier !== "pro" && profile?.tier !== "voice") {
+                          openUpgradeConfirm("pro");
+                          return;
+                        }
+                        setSendInvoiceTarget(selectedReceipt);
+                        setSendInvoiceEmail("");
+                      }}
                     >
                       ✉ Send to Client
+                      {(!profile?.tier || profile?.tier === "free") && (
+                        <span style={{ fontSize: 9, letterSpacing: "0.1em", opacity: 0.5, marginLeft: 6 }}>PRO</span>
+                      )}
                     </button>
                   )}
                 </div>
@@ -1177,6 +1189,7 @@ export default function App() {
           profile={profile}
           userEmail={userEmail}
           onLogoUpdate={(url) => setProfile((p) => ({ ...p, logo_url: url }))}
+          onUpgradeClick={() => openUpgradeConfirm("pro")}
           onSubmit={handleSaveReceipt}
           onClose={() => setShowForm(false)}
         />
