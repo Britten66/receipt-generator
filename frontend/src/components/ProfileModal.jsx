@@ -332,7 +332,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
 
           <div className="field-group">
             <label className="field-label">Bio / Tagline</label>
-            <input className="field" placeholder="Landscaper · Serving the GTA" value={form.bio} onChange={(e) => setField("bio", e.target.value)} />
+            <input className="field" placeholder="Owner · Your City" value={form.bio} onChange={(e) => setField("bio", e.target.value)} />
           </div>
 
           <div className="field-group">
