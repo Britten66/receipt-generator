@@ -990,7 +990,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           )}
         </div>
 
-        <div className="modal-footer" style={{ alignItems: "center", ...(!isDesktop && profile?.tier === "voice" ? { padding: 0, gap: 0 } : {}) }}>
+        <div className="modal-footer" style={{ alignItems: "center", ...(!isDesktop && profile?.tier === "voice" ? { padding: 0, paddingBottom: "env(safe-area-inset-bottom, 0px)", gap: 0 } : {}) }}>
           {profile?.tier === "voice" ? (
             isDesktop ? (
               /* Desktop: small orb + label — mouse precision is fine */

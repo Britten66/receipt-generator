@@ -167,6 +167,7 @@ body,
   align-items: center;
   gap: 12px;
   justify-content: flex-end;
+  padding-bottom: 6px;
 }
 /* When the user is not signed in, the right column is empty.
    The date stays centered and the toggle stays far left — no change needed. */
@@ -208,6 +209,7 @@ body,
   display: flex;
   align-items: center;
   gap: 10px;
+  padding-bottom: 6px;
 }
 
 /* ── Palette picker ──────────────────────────────────────────────────────── */
