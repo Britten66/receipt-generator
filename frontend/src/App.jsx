@@ -1118,11 +1118,15 @@ export default function App() {
                       const url = await getPDFBlobUrl(receiptData);
                       setPdfPreviewUrl(url);
                     } else {
-                      // Open the window synchronously during the click event so browsers
-                      // don't block it as a popup. Then navigate it to the blob URL once ready.
+                      // Open window synchronously (preserves user gesture so popup isn't blocked).
+                      // Write an embed into it — navigating a new window to a blob URL from the
+                      // opener causes a blank page in most browsers.
                       const win = window.open("", "_blank");
                       const url = await getPDFBlobUrl(receiptData);
-                      if (win) win.location.href = url;
+                      if (win) {
+                        win.document.write(`<!DOCTYPE html><html><head><title>Invoice Preview</title></head><body style="margin:0;padding:0;height:100vh;"><embed src="${url}" type="application/pdf" width="100%" height="100%" /></body></html>`);
+                        win.document.close();
+                      }
                     }
                   }}
                 >
