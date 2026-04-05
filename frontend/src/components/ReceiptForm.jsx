@@ -239,7 +239,10 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
     if (fields.customer_name)      setField("customer_name", fields.customer_name);
     if (fields.currency)           setField("currency",      fields.currency);
     if (fields.notes)              { setField("notes", fields.notes); setShowNotes(true); }
-    if (fields.taxRate !== undefined) setField("taxRate", fields.taxRate);
+    if (fields.taxRate !== undefined) {
+      setField("taxRate", fields.taxRate);
+      if (fields.taxRate === "0") setField("isTaxExempt", true);
+    }
     // Append new line items instead of replacing — lets users build up a complex invoice
     // across multiple voice or text passes without losing what they already have
     if (items && items.length > 0) {
@@ -987,7 +990,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           )}
         </div>
 
-        <div className="modal-footer" style={{ alignItems: "center" }}>
+        <div className="modal-footer" style={{ alignItems: "center", ...(!isDesktop && profile?.tier === "voice" ? { padding: 0, gap: 0 } : {}) }}>
           {profile?.tier === "voice" ? (
             isDesktop ? (
               /* Desktop: small orb + label — mouse precision is fine */
@@ -1021,7 +1024,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
                 disabled={voiceParsing}
                 style={{
-                  flex: 1, alignSelf: "stretch", border: "none", borderRight: "1px solid var(--border)",
+                  flex: 1, height: 44, border: "none", borderRight: "1px solid var(--border)",
                   background: voiceRecording ? "rgba(220,80,80,0.15)" : voiceParsing ? "rgba(77,216,224,0.05)" : "rgba(77,216,224,0.12)",
                   color: voiceRecording ? "#e05555" : voiceParsing ? "var(--text-muted)" : "var(--voice-text)",
                   cursor: voiceParsing ? "not-allowed" : "pointer",
@@ -1040,7 +1043,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           ) : (
             <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
           )}
-          <button className="btn btn-primary" onClick={handleSubmit}>{submitButtonLabel}</button>
+          <button className="btn btn-primary" onClick={handleSubmit} style={!isDesktop && profile?.tier === "voice" ? { flex: "0 0 40%", height: 44, borderRadius: 0 } : {}}>{submitButtonLabel}</button>
         </div>
       </div>
     </div>
