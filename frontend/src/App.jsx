@@ -314,6 +314,16 @@ export default function App() {
           startCheckout(proIntentRef.current).catch(() => {});
           proIntentRef.current = "";
         }
+        // Welcome modal: only on a real sign-in, not on token refresh or page reload.
+        // INITIAL_SESSION and TOKEN_REFRESHED both fire on every page load — SIGNED_IN
+        // only fires when the user actively logs in, so this shows exactly once per device.
+        if (event === "SIGNED_IN" && newSession?.user?.id) {
+          const key = `welcome_shown_${newSession.user.id}`;
+          if (!localStorage.getItem(key)) {
+            localStorage.setItem(key, "1");
+            setShowWelcome(true);
+          }
+        }
       }
       setAuthLoading(false);
     });
@@ -345,15 +355,6 @@ export default function App() {
       // automatically so they can enter their business details before creating invoices.
       if (!p?.business_name) {
         setShowProfileModal(true);
-      }
-      // Welcome modal: show exactly once per user on their first session.
-      // Flag is set before showing so a re-render never double-triggers it.
-      if (session?.user?.id) {
-        const key = `welcome_shown_${session.user.id}`;
-        if (!localStorage.getItem(key)) {
-          localStorage.setItem(key, "1");
-          setShowWelcome(true);
-        }
       }
     });
   }, [session]);
