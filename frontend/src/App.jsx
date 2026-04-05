@@ -698,8 +698,10 @@ export default function App() {
           )}
         </div>
 
-        {/* Column 2 — center (intentionally empty) */}
-        <div />
+        {/* Column 2 — center: static day + date, no live clock, no re-renders */}
+        <div className="topbar-meta">
+          {new Date().toLocaleDateString("en-CA", { weekday: "long", month: "short", day: "numeric" })}
+        </div>
 
         {/* Column 3 — far right */}
         <div className="topbar-right">

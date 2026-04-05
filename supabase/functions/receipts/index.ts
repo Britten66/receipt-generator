@@ -60,8 +60,17 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Vendor name and customer name are required" }), { status: 400, headers: corsHeaders });
     }
 
+    // Global sequential receipt number — counts ALL receipts across all users
+    // so new users start at a high number, never revealing they're just starting out.
+    const { count: globalCount } = await supabase
+      .from("receipts")
+      .select("*", { count: "exact", head: true });
+    const nextNum = (globalCount ?? 0) + 1001; // floor at 1001 so no invoice ever reads INV-000001
+    const receipt_number = `INV-${String(nextNum).padStart(6, "0")}`;
+
     const { data: receipt, error } = await supabase.from("receipts").insert({
       vendor_name, customer_name,
+      receipt_number,
       status: status ?? "draft",
       date: date ?? new Date().toISOString().split("T")[0],
       subtotal: subtotal ?? 0,
