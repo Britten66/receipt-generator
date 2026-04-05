@@ -213,10 +213,11 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <ul className="lv2-plan-features">
                 <li>Unlimited invoices</li>
                 <li>PDF download and share link</li>
+                <li>Email invoices to clients</li>
                 <li>Draft, sent, paid tracking</li>
                 <li>Dark mode</li>
                 <li className="lv2-plan-caveat">PDF includes invoiceprepper.com footer</li>
-                <li className="lv2-plan-caveat">Cannot email directly to clients</li>
+                <li className="lv2-plan-caveat">Emails sent from InvoicePrepper address</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-ghost" onClick={onEnter}>Get Started Free</button>
             </div>
