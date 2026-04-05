@@ -102,15 +102,16 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
 
   return (
     <>
-      <div className="modal-backdrop">
-        <div className="auth-card" style={{ maxWidth: 380, width: "90%" }}>
+      <div className="modal-backdrop auth-backdrop">
+        <div className="auth-card">
 
           {onBack && (
             <button className="auth-back-btn" onClick={onBack}>← Back</button>
           )}
 
-          <div className="auth-brand">
-            {mode === "forgot" ? "Reset Password" : mode === "signup" ? "Create Account" : "Sign In"}
+          <div className="auth-brand">InvoicePrepper</div>
+          <div className="auth-heading">
+            {mode === "forgot" ? "Reset your password" : mode === "signup" ? "Create your account" : "Welcome back"}
           </div>
 
           {mode !== "forgot" && (
@@ -157,7 +158,7 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
                 </div>
 
                 {/* LEGAL COMPLIANCE: required consent checkbox — must be checked to proceed */}
-                <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ marginTop: 4, display: "flex", flexDirection: "column", gap: 10, borderTop: "1px solid var(--border-light)", paddingTop: 14 }}>
                   <label style={{ display: "flex", gap: 10, alignItems: "flex-start", cursor: "pointer", fontSize: 11, color: "var(--text-dim)", lineHeight: 1.5 }}>
                     <input
                       type="checkbox"

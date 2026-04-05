@@ -47,15 +47,34 @@
     0 2px 8px rgba(60, 58, 50, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
+  animation: authCardIn 0.2s ease;
+}
+
+@keyframes authCardIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .auth-brand {
-  font-size: 8px;
-  letter-spacing: 0.3em;
+  font-size: 9px;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--text-muted);
   text-align: center;
+  font-family: var(--mono);
+}
+
+/* The actual heading — large, confident, readable */
+.auth-heading {
+  font-family: var(--sans);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-top: -6px;
 }
 
 .auth-title {
@@ -207,13 +226,16 @@
   background: none;
   border: none;
   font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
+  font-size: 10px;
+  letter-spacing: 0.1em;
   color: var(--text-muted);
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
-  padding: 4px 0;
+  padding: 10px 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
   transition: color 0.15s;
 }
 .auth-text-btn:hover { color: var(--text-dim); }
@@ -285,6 +307,35 @@
   background: var(--surface-2);
 }
 
+/* ── Mobile: slide up from bottom ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .auth-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .auth-backdrop .auth-card {
+    width: 100%;
+    max-width: 100%;
+    padding: 28px 24px max(32px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border-light);
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.14);
+    animation: authSlideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  @keyframes authSlideUp {
+    from { transform: translateY(100%); opacity: 0.6; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .auth-heading {
+    font-size: 20px;
+  }
+}
+
 /* ── Dark mode overrides ───────────────────────────────────────────────────── */
 
 /* Card background — use surface-2 (#26292B) instead of white-ish glass */
@@ -308,6 +359,11 @@
 }
 [data-theme="dark"] .auth-field::placeholder { color: var(--text-muted); }
 [data-theme="dark"] .auth-field:focus        { border-color: var(--accent); }
+
+/* Heading in dark mode */
+[data-theme="dark"] .auth-heading {
+  color: var(--text);
+}
 
 /* Error / success banners */
 [data-theme="dark"] .auth-error   { background: rgba(192, 74, 74, 0.12); border-color: #7a3030; }

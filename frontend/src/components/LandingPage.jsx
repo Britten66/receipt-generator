@@ -5,11 +5,10 @@ import Threads from "./Threads";
 import "./LandingPage.css";
 
 const MOCK_INVOICE = {
-  receipt_number: "001042",
+  receipt_number: "INV-001042",
   vendor_name: "Maple & Co. Creative",
   customer_name: "Summit Tech Solutions",
-  date: "2026-03-14",
-  status: "SENT",
+  date: "March 14, 2026",
   line_items: [
     { description: "Brand Identity Package", quantity: 1, unit_price: 1200.00, total: 1200.00 },
     { description: "Social Media Asset Kit", quantity: 3, unit_price: 180.00, total: 540.00 },
@@ -25,77 +24,67 @@ function MockInvoice() {
   const fmt = (n) => `$${parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   return (
     <div className="mock-invoice">
+      {/* Header bar */}
       <div className="mock-invoice-header">
         <span className="mock-invoice-label">INVOICE</span>
-        <span className="mock-invoice-num">#{MOCK_INVOICE.receipt_number}</span>
+        <span className="mock-invoice-num">{MOCK_INVOICE.receipt_number}</span>
       </div>
+
+      {/* Parties row */}
       <div className="mock-invoice-parties">
         <div>
+          <div className="mock-party-label">FROM</div>
           <div className="mock-party-name">{MOCK_INVOICE.vendor_name}</div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div className="mock-party-label">ISSUED TO</div>
+          <div className="mock-party-label">BILLED TO</div>
           <div className="mock-party-name">{MOCK_INVOICE.customer_name}</div>
         </div>
       </div>
+
+      {/* Meta row: date + status badge */}
       <div className="mock-invoice-meta">
-        <span>Date: {MOCK_INVOICE.date}</span>
-        <span>Status: {MOCK_INVOICE.status}</span>
+        <span>{MOCK_INVOICE.date}</span>
+        <span className="mock-status-badge mock-status-sent">Sent</span>
       </div>
+
       <div className="mock-invoice-divider" />
+
       <table className="mock-invoice-table">
         <thead>
           <tr>
-            <th style={{ textAlign: "left" }}>Description</th>
-            <th style={{ textAlign: "right" }}>Qty</th>
-            <th style={{ textAlign: "right" }}>Unit Price</th>
-            <th style={{ textAlign: "right" }}>Total</th>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Unit</th>
+            <th>Total</th>
           </tr>
         </thead>
         <tbody>
           {MOCK_INVOICE.line_items.map((li, i) => (
             <tr key={i}>
-              <td style={{ textAlign: "left" }}>{li.description}</td>
-              <td style={{ textAlign: "right" }}>{li.quantity}</td>
-              <td style={{ textAlign: "right" }}>{fmt(li.unit_price)}</td>
-              <td style={{ textAlign: "right" }}>{fmt(li.total)}</td>
+              <td>{li.description}</td>
+              <td className="mock-num">{li.quantity}</td>
+              <td className="mock-num">{fmt(li.unit_price)}</td>
+              <td className="mock-num">{fmt(li.total)}</td>
             </tr>
           ))}
         </tbody>
       </table>
+
       <div className="mock-invoice-totals">
         <div className="mock-total-row"><span>Subtotal</span><span>{fmt(MOCK_INVOICE.subtotal)}</span></div>
-        <div className="mock-total-row"><span>Tax</span><span>{fmt(MOCK_INVOICE.tax)}</span></div>
+        <div className="mock-total-row"><span>Tax (13%)</span><span>{fmt(MOCK_INVOICE.tax)}</span></div>
         <div className="mock-total-row mock-total-final"><span>Total</span><span>{fmt(MOCK_INVOICE.total)}</span></div>
       </div>
-      {MOCK_INVOICE.notes && (
-        <div className="mock-invoice-notes">{MOCK_INVOICE.notes}</div>
-      )}
-      <div className="mock-invoice-footer">invoiceprepper.com</div>
+
+      <div className="mock-invoice-notes">{MOCK_INVOICE.notes}</div>
     </div>
   );
 }
 
 export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignIn, onSignUp, darkMode, onToggleDark }) {
   const [legal, setLegal] = useState(null);
-  const scrollRef = useRef(null);
   const navRef = useRef(null);
-
-  // Auto-scroll the invoice preview
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    let pos = 0;
-    const max = el.scrollHeight - el.clientHeight;
-    let dir = 1;
-    const tick = setInterval(() => {
-      pos += dir * 0.6;
-      if (pos >= max) { pos = max; dir = -1; }
-      if (pos <= 0)   { pos = 0;   dir = 1;  }
-      el.scrollTop = pos;
-    }, 16);
-    return () => clearInterval(tick);
-  }, []);
 
   // Lazy-follow nav: velocity-based drag that decays back to 0
   useEffect(() => {
@@ -157,13 +146,10 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             backgroundColor="transparent"
             className="lv2-border-glow"
           >
-            <div className="lv2-hero-preview" ref={scrollRef} aria-label="Sample invoice preview">
+            <div className="lv2-hero-preview" aria-label="Sample invoice preview">
               <MockInvoice />
             </div>
           </BorderGlow>
-          <div className="lv2-hero-reflection" aria-hidden="true">
-            <MockInvoice />
-          </div>
         </div>
       </section>
 
