@@ -455,7 +455,7 @@ body,
 }
 .stat-value {
   font-size: 18px;
-  font-weight: 400;
+  font-weight: 600;
   color: var(--text);
   white-space: nowrap;
   overflow: hidden;
@@ -1134,13 +1134,11 @@ body,
 .win-modal {
   position: fixed;
   background: var(--surface-2);
-  /* Raised bevel outer border */
-  border: 2px solid;
-  border-color: rgba(255,255,255,0.12) rgba(0,0,0,0.5) rgba(0,0,0,0.5) rgba(255,255,255,0.12);
-  box-shadow: 2px 2px 0 rgba(0,0,0,0.6), inset 1px 1px 0 rgba(255,255,255,0.06);
-  width: 360px;
-  min-width: 240px;
-  min-height: 80px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10);
+  width: 400px;
+  min-width: 280px;
+  max-height: 80vh;
   /* CSS resize — shows native grip in bottom-right corner */
   resize: both;
   overflow: hidden;
@@ -1153,47 +1151,48 @@ body,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 6px;
+  padding: 10px 14px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   cursor: move;
-  /* Don't let text get selected while dragging */
   user-select: none;
   flex-shrink: 0;
 }
 
 .win-titlebar-title {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-dim);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text);
 }
 
-/* Small Win95-style square titlebar buttons */
+/* Titlebar buttons */
 .win-btn {
-  background: var(--surface-2);
-  border: 1px solid;
-  border-color: rgba(255,255,255,0.15) rgba(0,0,0,0.4) rgba(0,0,0,0.4) rgba(255,255,255,0.15);
-  color: var(--text-dim);
-  width: 16px;
-  height: 14px;
-  font-size: 8px;
+  background: none;
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  width: 22px;
+  height: 22px;
+  font-size: 10px;
   line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   padding: 0;
+  border-radius: 2px;
+  transition: color 0.1s, background 0.1s;
 }
-.win-btn:hover  { color: var(--text); }
-.win-btn:active { border-color: rgba(0,0,0,0.4) rgba(255,255,255,0.15) rgba(255,255,255,0.15) rgba(0,0,0,0.4); }
+.win-btn:hover  { color: var(--text); background: var(--bg); }
+.win-btn:active { opacity: 0.7; }
 
 /* Scrollable content area */
 .win-body {
-  padding: 16px 20px;
+  padding: 20px 24px;
   overflow-y: auto;
   flex: 1;
+  min-height: 0; /* required: lets flex child scroll inside bounded parent */
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -1221,12 +1220,13 @@ body,
 
 /* Help section heading */
 .help-heading {
-  font-size: 9px;
-  letter-spacing: 0.2em;
+  font-size: 10px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  font-weight: 700;
   color: var(--text-muted);
-  margin: 0 0 8px;
-  text-align: center;
+  margin: 0 0 10px;
+  text-align: left;
 }
 
 /* Bullet list */
@@ -1236,23 +1236,31 @@ body,
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  text-align: center;
+  gap: 8px;
+  text-align: left;
 }
 .help-list li {
-  font-size: 11px;
+  font-size: 12.5px;
   color: var(--text-dim);
-  letter-spacing: 0.03em;
-  line-height: 1.55;
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+  padding-left: 14px;
+  position: relative;
+}
+.help-list li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+  color: var(--text-muted);
 }
 
 /* Footer sign-up nudge */
 .help-footer {
   margin-top: 16px;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-muted);
-  letter-spacing: 0.06em;
-  text-align: center;
+  letter-spacing: 0.03em;
+  text-align: left;
 }
 
 .modal-header {
