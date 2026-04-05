@@ -35,6 +35,7 @@ import PasswordUpdateModal from "./components/PasswordUpdateModal";
 import HelpModal from "./components/HelpModal";
 import LegalModal from "./components/LegalModal";
 import BillingModal from "./components/BillingModal";
+import BorderGlow from "./components/BorderGlow";
 import { supabase } from "./lib/supabase";
 import { fetchProfile } from "./api/profile";
 import { startCheckout } from "./api/billing";
@@ -1220,46 +1221,70 @@ export default function App() {
 
               {/* Pro card — only for free users */}
               {(profile?.tier === "free" || !profile?.tier) && (
-                <div className="plans-modal-card">
-                  <div className="plans-modal-name">Pro</div>
-                  <div className="plans-modal-price">CAD $9<span>/mo</span></div>
-                  <ul className="plans-modal-features">
-                    <li>No watermark on PDFs</li>
-                    <li>Your logo on every invoice</li>
-                    <li>Emails from your business name</li>
-                    <li>Share via text or WhatsApp</li>
-                    <li>Dashboard themes</li>
-                    <li>Pay Now button on invoices</li>
-                  </ul>
-                  <button
-                    className="btn btn-primary"
-                    style={{ width: "100%", marginTop: "auto" }}
-                    onClick={() => { setShowPlansModal(false); openUpgradeConfirm("pro"); }}
-                  >
-                    Get Pro
-                  </button>
-                </div>
+                <BorderGlow
+                  borderRadius={0}
+                  glowColor={darkMode ? "43 78 55" : "43 85 38"}
+                  glowIntensity={darkMode ? 1.0 : 2.2}
+                  glowRadius={darkMode ? 40 : 56}
+                  edgeSensitivity={5}
+                  coneSpread={35}
+                  fillOpacity={darkMode ? 0.2 : 0.5}
+                  colors={darkMode ? ["#E8B840", "#D4A030", "#C09020"] : ["#1a1814", "#252318", "#2e2c20"]}
+                  backgroundColor="transparent"
+                  className="plans-modal-glow"
+                >
+                  <div className="plans-modal-card">
+                    <div className="plans-modal-name">Pro</div>
+                    <div className="plans-modal-price">CAD $9<span>/mo</span></div>
+                    <ul className="plans-modal-features">
+                      <li>No watermark on PDFs</li>
+                      <li>Your logo on every invoice</li>
+                      <li>Emails from your business name</li>
+                      <li>Share via text or WhatsApp</li>
+                      <li>Dashboard themes</li>
+                      <li>Pay Now button on invoices</li>
+                    </ul>
+                    <button
+                      className="plans-modal-btn plans-modal-btn-pro"
+                      onClick={() => { setShowPlansModal(false); openUpgradeConfirm("pro"); }}
+                    >
+                      Get Pro
+                    </button>
+                  </div>
+                </BorderGlow>
               )}
 
               {/* Voice AI card — free and pro users */}
-              <div className="plans-modal-card plans-modal-card-voice">
-                <div className="plans-modal-name">Voice AI</div>
-                <div className="plans-modal-price">CAD $12<span>/mo</span></div>
-                <ul className="plans-modal-features">
-                  <li>Everything in Pro</li>
-                  <li>Speak your invoice, AI fills it in</li>
-                  <li>Detects line items, prices, clients</li>
-                  <li>Works on mobile, no typing</li>
-                  <li>20 AI parses per day</li>
-                </ul>
-                <button
-                  className="btn btn-primary"
-                  style={{ width: "100%", marginTop: "auto", background: "var(--accent)", borderColor: "var(--accent)" }}
-                  onClick={() => { setShowPlansModal(false); openUpgradeConfirm("voice"); }}
-                >
-                  Get Voice AI
-                </button>
-              </div>
+              <BorderGlow
+                borderRadius={0}
+                glowColor={darkMode ? "185 75 55" : "185 72 32"}
+                glowIntensity={darkMode ? 0.95 : 2.2}
+                glowRadius={darkMode ? 38 : 56}
+                edgeSensitivity={5}
+                coneSpread={32}
+                fillOpacity={darkMode ? 0.18 : 0.5}
+                colors={darkMode ? ["#4dd8e0", "#38c8d0", "#28b8c0"] : ["#0a1c1e", "#0e2226", "#1a1a1a"]}
+                backgroundColor="transparent"
+                className="plans-modal-glow"
+              >
+                <div className="plans-modal-card">
+                  <div className="plans-modal-name">Voice AI</div>
+                  <div className="plans-modal-price">CAD $12<span>/mo</span></div>
+                  <ul className="plans-modal-features">
+                    <li>Everything in Pro</li>
+                    <li>Speak your invoice, AI fills it in</li>
+                    <li>Detects line items, prices, clients</li>
+                    <li>Works on mobile, no typing</li>
+                    <li>20 AI parses per day</li>
+                  </ul>
+                  <button
+                    className="plans-modal-btn plans-modal-btn-voice"
+                    onClick={() => { setShowPlansModal(false); openUpgradeConfirm("voice"); }}
+                  >
+                    Get Voice AI
+                  </button>
+                </div>
+              </BorderGlow>
 
             </div>
             <div style={{ padding: "0 20px 16px", fontSize: 10, color: "var(--text-muted)", textAlign: "center" }}>

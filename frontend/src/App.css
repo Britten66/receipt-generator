@@ -359,9 +359,9 @@ body,
 
 /* Upgrade pill — rounded, sits beside the ? button */
 .btn-upgrade-pill {
-  background: var(--accent);
-  color: var(--surface);
-  border: 1px solid var(--accent);
+  background: var(--text);
+  color: var(--bg);
+  border: 1px solid var(--text);
   border-radius: 999px;
   font-family: var(--mono);
   font-size: 9px;
@@ -373,12 +373,22 @@ body,
   transition: opacity 0.15s;
   white-space: nowrap;
 }
-.btn-upgrade-pill:hover { opacity: 0.82; }
-[data-theme="dark"] .btn-upgrade-pill {
-  color: #1a1a1a;
-}
+.btn-upgrade-pill:hover { opacity: 0.75; }
 
 /* Plans modal cards */
+/* Light mode: multiply so glow is visible on light surface (same fix as landing) */
+.plans-modal-glow > .edge-light { mix-blend-mode: multiply; }
+[data-theme="dark"] .plans-modal-glow > .edge-light { mix-blend-mode: plus-lighter; }
+
+/* BorderGlow wrapper — needs to stretch to fill grid cell */
+.plans-modal-glow {
+  display: flex;
+  flex-direction: column;
+}
+.plans-modal-glow .border-glow-inner {
+  flex: 1;
+}
+
 .plans-modal-card {
   background: var(--surface);
   border: 1px solid var(--border-light);
@@ -386,10 +396,7 @@ body,
   display: flex;
   flex-direction: column;
   gap: 10px;
-}
-.plans-modal-card-voice {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent-dim);
+  height: 100%;
 }
 .plans-modal-name {
   font-size: 11px;
@@ -430,6 +437,40 @@ body,
   position: absolute;
   left: 0;
   color: var(--text-muted);
+}
+
+/* Plan buttons — match landing page exactly */
+.plans-modal-btn {
+  width: 100%;
+  padding: 12px;
+  min-height: 44px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  margin-top: auto;
+  box-shadow: 1px 1px 0 rgba(255,255,255,0.12), 2px 2px 0 rgba(0,0,0,0.3);
+  transition: opacity 0.12s;
+}
+.plans-modal-btn:hover { opacity: 0.85; }
+.plans-modal-btn:active {
+  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.3);
+  transform: translate(1px,1px);
+}
+.plans-modal-btn-pro {
+  background: linear-gradient(160deg, #ecc97e 0%, #D9B873 45%, #c49a52 100%);
+  color: #1a1814;
+  border-color: #c49a52;
+  box-shadow: 1px 1px 0 rgba(255,255,255,0.18), 2px 2px 0 rgba(0,0,0,0.4);
+}
+.plans-modal-btn-voice {
+  background: linear-gradient(160deg, #72e8f0 0%, #4dd8e0 45%, #2ec4cc 100%);
+  color: #0a1a1c;
+  border-color: #2ec4cc;
+  box-shadow: 1px 1px 0 rgba(255,255,255,0.22), 2px 2px 0 rgba(0,0,0,0.35);
 }
 
 /* SIDEBAR */
