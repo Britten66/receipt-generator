@@ -89,12 +89,6 @@ function fmt(n) {
 
 export default function App() {
 
-  // Live clock — updates every second for the topbar time display.
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
 
   /*
     darkMode — true when the user has switched to dark mode.
@@ -702,15 +696,8 @@ export default function App() {
           </div>
         </div>
 
-        {/* Column 2 — center */}
-        <div className="topbar-meta">
-          <span className="topbar-time">
-            {now.toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit", hour12: true })}
-          </span>
-          <span className="topbar-date-sep"> · </span>
-          <span className="topbar-date-full">{now.toLocaleDateString("en-CA", { weekday: "long", month: "long", day: "numeric" })}</span>
-          <span className="topbar-date-short">{now.toLocaleDateString("en-CA", { weekday: "short", month: "short", day: "numeric" })}</span>
-        </div>
+        {/* Column 2 — center (intentionally empty) */}
+        <div />
 
         {/* Column 3 — far right */}
         <div className="topbar-right">
