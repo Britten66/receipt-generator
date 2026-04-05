@@ -16,7 +16,7 @@ const ZONES = [
   {
     id: "background",
     label: "Background",
-    circle: "#c8c4be",
+    circle: "#b8b0a4",
     vars: ["--bg", "--surface-2"],
     variations: [
       {
@@ -44,7 +44,7 @@ const ZONES = [
   {
     id: "panels",
     label: "Panels",
-    circle: "#d8d4cc",
+    circle: "#d0c8bc",
     vars: ["--surface"],
     variations: [
       {
@@ -72,7 +72,7 @@ const ZONES = [
   {
     id: "accent",
     label: "Accent",
-    circle: "#a06830",
+    circle: "#c87d30",
     vars: ["--accent", "--accent-dim"],
     variations: [
       {
@@ -124,7 +124,7 @@ const ZONES = [
   {
     id: "text",
     label: "Text",
-    circle: "#2a2a28",
+    circle: "#1e1e1c",
     vars: ["--text", "--text-dim", "--text-muted"],
     variations: [
       {
@@ -184,7 +184,7 @@ const ZONES = [
   {
     id: "buttons",
     label: "Buttons",
-    circle: "#1a1a1a",
+    circle: "#2a2826",
     vars: ["--btn-bg", "--btn-text", "--btn-border", "--btn-hover-bg"],
     variations: [
       {
@@ -252,7 +252,7 @@ const ZONES = [
   {
     id: "navigation",
     label: "Navigation",
-    circle: "#4a6fa5",
+    circle: "#3d6699",
     vars: ["--nav-active"],
     variations: [
       {
@@ -280,7 +280,7 @@ const ZONES = [
   {
     id: "borders",
     label: "Borders",
-    circle: "#888884",
+    circle: "#78807a",
     vars: ["--border", "--border-light"],
     variations: [
       {
@@ -308,7 +308,7 @@ const ZONES = [
   {
     id: "status",
     label: "Status",
-    circle: "#1a5c3a",
+    circle: "#2e8c58",
     vars: ["--paid", "--sent", "--draft", "--voided"],
     variations: [
       {
