@@ -305,7 +305,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">What is the Voice AI plan?</h3>
-            <p className="lv2-faq-a2">Say your invoice out loud and the AI fills in your client, line items, quantities, and prices automatically. It handles multiple items in one sentence and gets smarter as it learns your clients and rates. You always review before sending.</p>
+            <p className="lv2-faq-a2">Say your invoice out loud and the AI fills in your client, line items, quantities, and prices automatically. It uses your invoice history to suggest your regular clients and rates. You always review before sending.</p>
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Is my voice data stored?</h3>
