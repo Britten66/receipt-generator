@@ -84,11 +84,16 @@
   <body>
     <script>
       try {
-        if (localStorage.getItem("dark_mode") === "1") {
+        var stored = localStorage.getItem("dark_mode");
+        var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var isDark = stored !== null ? stored === "1" : prefersDark;
+        if (isDark) {
           document.documentElement.setAttribute("data-theme", "dark");
           document.body.style.background = "#1e1c18";
+          if (stored === null) localStorage.setItem("dark_mode", "1");
         } else {
           document.body.style.background = "#f5f3ef";
+          if (stored === null) localStorage.setItem("dark_mode", "0");
         }
       } catch {}
     </script>
