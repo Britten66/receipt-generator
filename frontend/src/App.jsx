@@ -146,6 +146,10 @@ export default function App() {
   const [swipedId, setSwipedId] = useState(null);
   const touchStartX             = useRef(0);
 
+  // Form
+  const [showForm, setShowForm]             = useState(false);
+  const [editingReceipt, setEditingReceipt] = useState(null);
+
   // Modals
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showHelp, setShowHelp]                 = useState(false);
@@ -311,11 +315,6 @@ export default function App() {
 
     return () => clearInterval(interval);
   }, [session]);
-
-  // showForm needs to be visible in the scroll-lock effect above, so declare it after the effects.
-  // (It's a state variable but declared here rather than in the state block to keep it near its usage.)
-  const [showForm, setShowForm]               = useState(false);
-  const [editingReceipt, setEditingReceipt]   = useState(null);
 
   // ─── HANDLERS ──────────────────────────────────────────────────────────────
 
