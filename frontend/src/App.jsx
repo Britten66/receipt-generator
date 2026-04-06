@@ -47,6 +47,7 @@ import UpgradeConfirmModal from "./components/UpgradeConfirmModal";
 import WelcomeModal        from "./components/WelcomeModal";
 import UpgradeThanksModal  from "./components/UpgradeThanksModal";
 import { supabase }        from "./lib/supabase";
+import posthog             from "posthog-js";
 import { fetchProfile }    from "./api/profile";
 import { startCheckout }   from "./api/billing";
 import { applyPalette, clearPalette, PALETTE_ENTRIES, PALETTE_KEYS, readPaletteFromStorage } from "./lib/themes";
@@ -255,12 +256,13 @@ export default function App() {
         setSession(null);
         // Only clear entered on an intentional sign-out.
         // Network errors or token refresh failures show the auth modal, not the landing page.
-        if (event === "SIGNED_OUT") { localStorage.removeItem("app_entered"); setEntered(false); }
+        if (event === "SIGNED_OUT") { localStorage.removeItem("app_entered"); setEntered(false); posthog.reset(); }
         setShowAuthModal(false);
       } else {
         setSession(newSession);
         setShowAuthModal(false);
         setEntered(true);
+        if (event === "SIGNED_IN") posthog.identify(newSession.user.id, { email: newSession.user.email });
 
         // If the user clicked upgrade before signing in, kick off checkout now.
         if (proIntentRef.current) {
