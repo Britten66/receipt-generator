@@ -308,19 +308,23 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         <div className="lv2-faq-right">
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Is the free plan really free?</h3>
-            <p className="lv2-faq-a2">Yes, forever. No trial period, no credit card required. Create and send unlimited invoices at no cost.</p>
+            <p className="lv2-faq-a2">Yes, forever. No trial period, no credit card required. Create unlimited invoices, download PDFs, and track payment status at no cost.</p>
           </div>
           <div className="lv2-faq-item2">
-            <h3 className="lv2-faq-q2">Is my data safe?</h3>
-            <p className="lv2-faq-a2">All data is encrypted in transit and at rest. Your invoice data is never sold or shared with third parties.</p>
+            <h3 className="lv2-faq-q2">Can I download my invoices as PDFs?</h3>
+            <p className="lv2-faq-a2">Yes. Every invoice generates a clean PDF instantly. The free plan includes a watermark. Pro removes it and lets you add your business logo.</p>
+          </div>
+          <div className="lv2-faq-item2">
+            <h3 className="lv2-faq-q2">Can I email invoices directly to clients?</h3>
+            <p className="lv2-faq-a2">Yes, on the Pro plan. InvoicePrepper sends a professional email with the PDF attached. Free users can download and send manually.</p>
+          </div>
+          <div className="lv2-faq-item2">
+            <h3 className="lv2-faq-q2">How do I track which invoices are paid?</h3>
+            <p className="lv2-faq-a2">Every invoice has a status: Draft, Sent, Paid, or Voided. Your dashboard shows outstanding balance and total revenue so you always know where you stand.</p>
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">What is the Voice AI plan?</h3>
-            <p className="lv2-faq-a2">Say your invoice out loud and the AI fills in your client, line items, quantities, and prices automatically. It uses your invoice history to suggest your regular clients and rates. You always review before sending.</p>
-          </div>
-          <div className="lv2-faq-item2">
-            <h3 className="lv2-faq-q2">Is my voice data stored?</h3>
-            <p className="lv2-faq-a2">No. Audio is sent to Groq for transcription and deleted immediately after. InvoicePrepper never retains your recordings. Your stored invoices are never sent to any AI provider.</p>
+            <p className="lv2-faq-a2">Say your invoice out loud and the AI fills in your client, line items, and prices automatically. It uses your invoice history to suggest your regular clients and rates. You always review before sending.</p>
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Can I cancel anytime?</h3>
