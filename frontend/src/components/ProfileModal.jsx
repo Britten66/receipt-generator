@@ -22,7 +22,7 @@ import { deleteAccount } from "../api/account";
 import { supabase } from "../lib/supabase";
 import LegalModal from "./LegalModal";
 
-export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
+export default function ProfileModal({ profile, userEmail, onSave, onClose, onUpgradeClick }) {
 
   /*
     form — the editable fields.
@@ -291,7 +291,6 @@ const [logoUploading,   setLogoUploading]   = useState(false);
               placeholder="Acme Co."
               value={form.business_name}
               onChange={(e) => setField("business_name", e.target.value)}
-              autoFocus
             />
           </div>
 
@@ -336,7 +335,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
               </>
             ) : (
               <div style={{ fontSize: 11, color: "var(--text-muted)", padding: "8px 0" }}>
-                Pro feature. <button type="button" onClick={onClose} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 11, textDecoration: "underline" }}>Upgrade to Pro</button> to add your logo to every invoice and PDF.
+                Pro feature. <button type="button" onClick={onUpgradeClick} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 11, textDecoration: "underline" }}>Upgrade to Pro</button> to add your logo to every invoice and PDF.
               </div>
             )}
           </div>

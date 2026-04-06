@@ -292,8 +292,6 @@ export default function App() {
     fetchProfile().then((p) => {
       setProfile(p || null);
       setProfileLoading(false);
-      // First-login: no business_name yet → auto-open profile modal so user sets up their account.
-      if (!p?.business_name) setShowProfileModal(true);
     });
   }, [session]);
 
@@ -599,7 +597,7 @@ export default function App() {
           </button>
 
           {!profileLoading && profile?.tier !== "pro" && profile?.tier !== "voice" && (
-            <button className="btn-upgrade-pill" onClick={() => setShowPlansModal(true)}>Upgrade</button>
+            <button className="btn btn-primary btn-upgrade-pill" onClick={() => setShowPlansModal(true)}>Upgrade</button>
           )}
 
           {(profile?.tier === "pro" || profile?.tier === "voice") && (
@@ -1161,6 +1159,7 @@ export default function App() {
           userEmail={session?.user?.email}
           onSave={(p) => setProfile(p)}
           onClose={() => setShowProfileModal(false)}
+          onUpgradeClick={() => { setShowProfileModal(false); setShowPlansModal(true); }}
         />
       )}
 

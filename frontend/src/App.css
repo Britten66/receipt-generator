@@ -359,20 +359,10 @@ body,
   border-color: var(--text-dim);
 }
 
-/* Upgrade pill — rounded, sits beside the ? button */
+/* Upgrade button — inherits btn + btn-primary, just overrides size */
 .btn-upgrade-pill {
-  background: var(--text);
-  color: var(--bg);
-  border: 1px solid var(--text);
-  border-radius: 999px;
-  font-family: var(--mono);
   font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   padding: 4px 11px;
-  cursor: pointer;
-  transition: opacity 0.15s;
   white-space: nowrap;
 }
 .btn-upgrade-pill:hover { opacity: 0.75; }
