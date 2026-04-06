@@ -327,6 +327,10 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             <p className="lv2-faq-a2">Say your invoice out loud and the AI fills in your client, line items, and prices automatically. It uses your invoice history to suggest your regular clients and rates. You always review before sending.</p>
           </div>
           <div className="lv2-faq-item2">
+            <h3 className="lv2-faq-q2">Can I export my invoices?</h3>
+            <p className="lv2-faq-a2">Yes. Download all your invoices as a CSV from account settings. The file opens directly in Excel and Google Sheets with all line items included.</p>
+          </div>
+          <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Can I cancel anytime?</h3>
             <p className="lv2-faq-a2">Yes. Cancel from inside the app in one tap. You keep access until the end of your billing period. No fees, no questions.</p>
           </div>
