@@ -150,16 +150,19 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       }
 
       if (type === "start") {
-        // Two clean ascending tones — "listening" (C5 then E5)
-        note(523,  t,        0.22, 0.18);
-        note(659,  t + 0.20, 0.28, 0.20);
+        // Four ascending notes — "listening" (C5 D5 E5 G5)
+        note(523,  t,        0.18, 0.15);
+        note(587,  t + 0.16, 0.18, 0.16);
+        note(659,  t + 0.32, 0.18, 0.17);
+        note(784,  t + 0.48, 0.22, 0.18);
       } else if (type === "stop") {
-        // One clear ding — "got it" (A5, audible)
-        note(880,  t,        0.30, 0.22);
+        // Three descending notes — "stopping" (G5 E5 C5)
+        note(784,  t,        0.18, 0.18);
+        note(659,  t + 0.16, 0.18, 0.17);
+        note(523,  t + 0.32, 0.22, 0.16);
       } else {
-        // Two-note resolution — G5 then C6 ("done")
-        note(784,  t,        0.20, 0.18);
-        note(1047, t + 0.18, 0.32, 0.16);
+        // Single long ding — "recorded and saved" (A5, rings out)
+        note(880,  t,        0.65, 0.22);
       }
     } catch {}
   }
