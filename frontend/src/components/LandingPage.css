@@ -37,40 +37,38 @@
   gap: 8px;
 }
 
-/* Ghost "Sign In" link — secondary action */
-.lv2-nav-login {
-  background: none;
-  border: none;
-  color: var(--text-dim);
+/* Shared base for both nav buttons — same box model, same font as the app */
+.lv2-nav-login,
+.lv2-signin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--mono);
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 7px 10px;
-  min-height: 44px;
+  padding: 5px 12px;
+  height: 28px;
   cursor: pointer;
-  transition: color 0.15s;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.2);
   -webkit-tap-highlight-color: transparent;
+  transition: color 0.1s, border-color 0.1s, opacity 0.1s;
 }
-.lv2-nav-login:hover { color: var(--text); }
 
-/* Filled "Sign Up" — primary action */
+/* Ghost "Sign In" — secondary */
+.lv2-nav-login {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.lv2-nav-login:hover { color: var(--text); border-color: var(--text); }
+
+/* Filled "Sign Up" — primary */
 .lv2-signin {
   background: var(--text);
   border: 1px solid var(--text);
   color: var(--bg);
-  font-family: var(--mono);
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 7px 14px;
-  min-height: 44px;
-  min-width: 44px;
-  cursor: pointer;
-  transition: opacity 0.15s;
-  -webkit-tap-highlight-color: transparent;
 }
 .lv2-signin:hover { opacity: 0.8; }
 
