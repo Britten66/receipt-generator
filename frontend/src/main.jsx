@@ -9,7 +9,7 @@ posthog.init('phc_ymHXC8Q7wirEnDPba3k68eoLuipzCGYn6Q8UizA4uLFz', {
   capture_pageview: true,
   capture_pageleave: true,
   autocapture: true,
-  session_recording: { maskAllInputs: false },
+  disable_session_recording: true,
 })
 
 createRoot(document.getElementById('root')).render(
