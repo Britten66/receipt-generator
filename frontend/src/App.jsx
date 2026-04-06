@@ -352,6 +352,32 @@ export default function App() {
     setShowUpgradeConfirm(true);
   }
 
+  // handleExport — downloads all invoices + line items as a JSON file.
+  async function handleExport() {
+    try {
+      const ids = receipts.map((r) => r.id);
+      const { data: items } = await supabase.from("line_items").select("*").in("receipt_id", ids);
+      const byReceipt = {};
+      (items || []).forEach((item) => {
+        if (!byReceipt[item.receipt_id]) byReceipt[item.receipt_id] = [];
+        byReceipt[item.receipt_id].push(item);
+      });
+      const payload = {
+        exported_at: new Date().toISOString(),
+        invoices: receipts.map((r) => ({ ...r, line_items: byReceipt[r.id] || [] })),
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoiceprepper-export-${new Date().toISOString().split("T")[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      showToast("Export failed. Try again.", "error");
+    }
+  }
+
   // handleSaveReceipt — create or update. Updates list in-place, no full reload needed.
   async function handleSaveReceipt(data) {
     try {
@@ -1160,6 +1186,7 @@ export default function App() {
           onSave={(p) => setProfile(p)}
           onClose={() => setShowProfileModal(false)}
           onUpgradeClick={() => { setShowProfileModal(false); setShowPlansModal(true); }}
+          onExport={handleExport}
         />
       )}
 
