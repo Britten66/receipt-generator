@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice App for Contractors: Create and Send Invoices Fast | InvoicePrepper</title>
+  <meta name="description" content="Invoice app built for contractors, tradespeople, and independent workers. Create invoices by voice or text, send PDFs to clients, and track what gets paid. Free to start." />
+  <link rel="canonical" href="https://invoiceprepper.com/invoice-for-contractors" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <meta name="theme-color" content="#1e1c18" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://invoiceprepper.com/invoice-for-contractors" />
+  <meta property="og:title" content="Invoice App for Contractors: Create and Send Invoices Fast" />
+  <meta property="og:description" content="Invoice app built for contractors and tradespeople. Create invoices by voice, send PDFs to clients, track what gets paid. Free to start." />
+  <meta property="og:image" content="https://invoiceprepper.com/og-image.png" />
+  <meta property="og:site_name" content="InvoicePrepper" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Invoice App for Contractors",
+    "url": "https://invoiceprepper.com/invoice-for-contractors",
+    "description": "Invoice app built for contractors and tradespeople. Create invoices by voice or text, send PDFs to clients, track payments.",
+    "isPartOf": { "@type": "WebSite", "name": "InvoicePrepper", "url": "https://invoiceprepper.com" }
+  }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f4f0; --surface: #edecea; --text: #1e1c18; --text-dim: #5a5752;
+      --text-muted: #908e8a; --border: #d8d5cf; --accent: #a06830;
+      --mono: "Courier New", Courier, monospace;
+    }
+    body { font-family: helvetica, arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; border-bottom: 1px solid var(--border); }
+    .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; }
+    .nav-cta { display: inline-block; background: var(--text); color: var(--bg); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 7px 14px; text-decoration: none; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 0 32px; }
+    .hero { margin: 64px auto; }
+    .eyebrow { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+    h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 20px; }
+    h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 20px; }
+    h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .lead { font-size: 16px; color: var(--text-dim); max-width: 560px; margin-bottom: 32px; }
+    .cta-btn { display: inline-block; background: var(--text); color: var(--bg); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; padding: 14px 28px; text-decoration: none; margin-bottom: 10px; }
+    .cta-sub { display: block; font-size: 11px; color: var(--text-muted); font-family: var(--mono); letter-spacing: 0.06em; margin-top: 8px; }
+    .section { margin-bottom: 64px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+    .card { padding: 20px; border: 1px solid var(--border); background: var(--surface); }
+    .card p { font-size: 12px; color: var(--text-dim); margin-top: 4px; line-height: 1.5; }
+    .quote-block { border-left: 3px solid var(--accent); padding: 16px 20px; background: var(--surface); border-right: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 32px 0; }
+    .quote-text { font-size: 15px; color: var(--text); font-style: italic; line-height: 1.6; }
+    .quote-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 10px; }
+    hr { border: none; border-top: 1px solid var(--border); margin-bottom: 48px; }
+    .final-cta { background: var(--text); text-align: center; padding: 48px 32px; }
+    .final-cta h2 { color: #f5f4f0; margin-bottom: 12px; }
+    .final-cta p { color: #908e8a; font-size: 13px; margin-bottom: 28px; }
+    .final-cta .cta-btn { background: #f5f4f0; color: var(--text); }
+    .final-cta .cta-sub { color: #6a6864; }
+    footer { border-top: 1px solid #2e2c28; background: var(--text); padding: 20px 32px; text-align: center; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #6a6864; }
+    footer a { color: #6a6864; text-decoration: underline; }
+    @media (max-width: 600px) { nav, .wrap { padding-left: 20px; padding-right: 20px; } .hero { margin-top: 40px; } .final-cta { padding: 36px 20px; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="https://invoiceprepper.com" class="nav-brand">InvoicePrepper</a>
+    <a href="https://invoiceprepper.com" class="nav-cta">Try It Free</a>
+  </nav>
+
+  <div class="wrap hero">
+    <p class="eyebrow">For Contractors and Trades</p>
+    <h1>Invoice your clients fast. Get paid faster.</h1>
+    <p class="lead">InvoicePrepper is built for people who work by the job. Create invoices on site, send them the same day, and track exactly what is still outstanding. No accounting software, no steep learning curve.</p>
+    <a href="https://invoiceprepper.com" class="cta-btn">Start Invoicing Free</a>
+    <span class="cta-sub">Free forever. No credit card required.</span>
+  </div>
+
+  <div class="wrap section">
+    <div class="quote-block">
+      <p class="quote-text">"Invoice John Smith, 4 hours electrical at $95 an hour, and $140 for parts."</p>
+      <p class="quote-label">Say it out loud. Invoice is ready in 10 seconds.</p>
+    </div>
+    <p style="font-size:13px;color:var(--text-dim);">The Voice AI feature is built for contractors who don't want to type on a phone after a long day on the job. Speak the invoice, review it, send it.</p>
+  </div>
+
+  <div class="wrap section">
+    <h2>Built for how contractors actually work</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Invoice on site</h3>
+        <p>Works on any phone or tablet. No app download needed. Open the browser and you are ready.</p>
+      </div>
+      <div class="card">
+        <h3>Multiple line items</h3>
+        <p>Labour, materials, travel. Add as many items as the job needs with quantities and unit prices.</p>
+      </div>
+      <div class="card">
+        <h3>Tax built in</h3>
+        <p>Set your GST, HST, or sales tax rate once. It applies to every invoice automatically.</p>
+      </div>
+      <div class="card">
+        <h3>Send the PDF</h3>
+        <p>Every invoice generates a clean PDF. Email it directly to your client or download it.</p>
+      </div>
+      <div class="card">
+        <h3>Track outstanding</h3>
+        <p>See exactly which invoices are unpaid. Mark them paid with one tap when the money comes in.</p>
+      </div>
+      <div class="card">
+        <h3>Voice AI</h3>
+        <p>Speak your invoice out loud on the drive home. AI fills in the form. Done before you get inside.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap"><hr /></div>
+
+  <div class="wrap section">
+    <h2>Who uses InvoicePrepper</h2>
+    <div style="display:flex;flex-direction:column;gap:16px;margin-top:4px;">
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Electricians and plumbers</strong>Bill labour and materials separately. Multiple jobs per day, invoiced before you leave the site.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Landscapers and cleaners</strong>Regular clients, recurring invoices. Recognized from your history so you don't type the same thing every week.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Painters and renovators</strong>Project-based billing with custom line items. Download the PDF and hand it over on the spot.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Independent handypeople</strong>One-person operation. Handle your own invoicing in minutes without paying for bloated accounting software.</div>
+    </div>
+  </div>
+
+  <div class="final-cta">
+    <h2>Send your first invoice today</h2>
+    <p>Free forever. No setup. No learning curve.</p>
+    <a href="https://invoiceprepper.com" class="cta-btn">Start Invoicing Free</a>
+    <span class="cta-sub">Free forever. Upgrade when you are ready.</span>
+  </div>
+
+  <footer>
+    <a href="https://invoiceprepper.com">invoiceprepper.com</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/voice-invoicing">Voice Invoicing</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/free-invoice-generator">Free Invoice Generator</a>
+  </footer>
+</body>
+</html>
