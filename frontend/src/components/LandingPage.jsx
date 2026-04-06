@@ -126,8 +126,8 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             onChange={(e) => onCurrencyChange(e.target.value)}
             aria-label="Select currency"
           >
-            <option value="CAD">CAD</option>
-            <option value="USD">USD</option>
+            <option value="CAD">$ CAD</option>
+            <option value="USD">$ USD</option>
           </select>
           <button className="lv2-nav-login" onClick={onSignIn}>Sign In</button>
           <button className="lv2-signin" onClick={onSignUp}>Sign Up</button>
