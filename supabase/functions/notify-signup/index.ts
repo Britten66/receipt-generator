@@ -22,6 +22,8 @@
   }
 */
 
+import { createPostHogClient } from "../_shared/posthog.ts";
+
 const RESEND_FROM = "noreply@invoiceprepper.com";
 
 Deno.serve(async (req) => {
@@ -158,6 +160,23 @@ Deno.serve(async (req) => {
       const err = await welcomeRes.json().catch(() => ({}));
       console.error("notify-signup: welcome email error", JSON.stringify(err));
     }
+  }
+
+  if (userId && userId !== "unknown") {
+    const ph = createPostHogClient();
+    ph.identify({
+      distinctId: userId,
+      properties: {
+        $set: { email, tier: "free" },
+        $set_once: { created_at: createdAt },
+      },
+    });
+    ph.capture({
+      distinctId: userId,
+      event: "user signed up",
+      properties: { email },
+    });
+    await ph.shutdown();
   }
 
   return new Response(JSON.stringify({ ok: true }), { status: 200 });

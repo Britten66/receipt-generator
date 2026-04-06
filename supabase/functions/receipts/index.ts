@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { createPostHogClient } from "../_shared/posthog.ts";
 
 const ALLOWED_FIELDS = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency", "logo_url", "logo_corner"];
 const MAX_BODY_BYTES = 64 * 1024; // 64 KB
@@ -96,6 +97,21 @@ Deno.serve(async (req) => {
       await supabase.from("line_items").insert(items);
     }
 
+    const phCreate = createPostHogClient();
+    phCreate.capture({
+      distinctId: user.id,
+      event: "invoice created",
+      properties: {
+        invoice_id: receipt.id,
+        receipt_number: receipt.receipt_number,
+        status: receipt.status,
+        currency: receipt.currency,
+        total: receipt.total,
+        line_item_count: line_items?.length ?? 0,
+      },
+    });
+    await phCreate.shutdown();
+
     return new Response(JSON.stringify(receipt), { status: 201, headers: corsHeaders });
   }
 
@@ -135,6 +151,18 @@ Deno.serve(async (req) => {
       }
     }
 
+    const phUpdate = createPostHogClient();
+    phUpdate.capture({
+      distinctId: user.id,
+      event: "invoice updated",
+      properties: {
+        invoice_id: id,
+        updated_fields: Object.keys(updates),
+        line_items_replaced: Array.isArray(body.line_items),
+      },
+    });
+    await phUpdate.shutdown();
+
     return new Response(JSON.stringify(data), { headers: corsHeaders });
   }
 
@@ -144,6 +172,15 @@ Deno.serve(async (req) => {
 
     const { error } = await supabase.from("receipts").delete().eq("id", id).eq("user_id", user.id);
     if (error) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
+
+    const phDelete = createPostHogClient();
+    phDelete.capture({
+      distinctId: user.id,
+      event: "invoice deleted",
+      properties: { invoice_id: id },
+    });
+    await phDelete.shutdown();
+
     return new Response(JSON.stringify({ message: "Deleted" }), { headers: corsHeaders });
   }
 

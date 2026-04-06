@@ -12,6 +12,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@14?target=deno";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { createPostHogClient } from "../_shared/posthog.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2023-10-16",
@@ -52,6 +53,18 @@ Deno.serve(async (req) => {
 
     const cancelDate = new Date((sub.cancel_at ?? sub.current_period_end) * 1000)
       .toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" });
+
+    const ph = createPostHogClient();
+    ph.capture({
+      distinctId: user.id,
+      event: "subscription cancelled",
+      properties: {
+        tier: profile.tier,
+        cancel_at: cancelDate,
+        stripe_subscription_id: profile.stripe_subscription_id,
+      },
+    });
+    await ph.shutdown();
 
     return new Response(JSON.stringify({
       ok: true,

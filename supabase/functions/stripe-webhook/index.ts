@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@14?target=deno";
+import { createPostHogClient } from "../_shared/posthog.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2023-10-16",
@@ -80,8 +81,26 @@ Deno.serve(async (req) => {
       stripe_subscription_id: session.subscription as string,
     }, { onConflict: "user_id" });
 
-    if (error) console.error("stripe-webhook: DB upsert failed (checkout)", error);
-    else console.log(`stripe-webhook: tier set to '${tier}' for userId=${userId}`);
+    if (error) {
+      console.error("stripe-webhook: DB upsert failed (checkout)", error);
+    } else {
+      console.log(`stripe-webhook: tier set to '${tier}' for userId=${userId}`);
+      const ph = createPostHogClient();
+      ph.identify({
+        distinctId: userId,
+        properties: { $set: { tier } },
+      });
+      ph.capture({
+        distinctId: userId,
+        event: "subscription activated",
+        properties: {
+          tier,
+          stripe_session_id: session.id,
+          stripe_subscription_id: session.subscription as string,
+        },
+      });
+      await ph.shutdown();
+    }
   }
 
   // ─── customer.subscription.updated ─────────────────────────────────────────
@@ -126,12 +145,34 @@ Deno.serve(async (req) => {
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
 
+    // Fetch user_id before nulling stripe_subscription_id so the lookup still matches
+    const { data: profile } = await supabase.from("profiles")
+      .select("user_id")
+      .eq("stripe_subscription_id", sub.id)
+      .single();
+
     const { error } = await supabase.from("profiles")
       .update({ tier: "free", stripe_subscription_id: null })
       .eq("stripe_subscription_id", sub.id);
 
-    if (error) console.error("stripe-webhook: DB update failed (subscription.deleted)", error);
-    else console.log(`stripe-webhook: tier reset to 'free' for subscriptionId=${sub.id}`);
+    if (error) {
+      console.error("stripe-webhook: DB update failed (subscription.deleted)", error);
+    } else {
+      console.log(`stripe-webhook: tier reset to 'free' for subscriptionId=${sub.id}`);
+      if (profile?.user_id) {
+        const ph = createPostHogClient();
+        ph.identify({
+          distinctId: profile.user_id,
+          properties: { $set: { tier: "free" } },
+        });
+        ph.capture({
+          distinctId: profile.user_id,
+          event: "subscription downgraded",
+          properties: { stripe_subscription_id: sub.id },
+        });
+        await ph.shutdown();
+      }
+    }
   }
 
   return new Response(JSON.stringify({ received: true }), { status: 200 });

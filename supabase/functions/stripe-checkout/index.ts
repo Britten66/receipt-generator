@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@13.11.0?target=deno&no-check";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { createPostHogClient } from "../_shared/posthog.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2023-10-16",
@@ -63,6 +64,18 @@ Deno.serve(async (req) => {
       }),
     });
     if (!ownerNotifyRes.ok) console.error("Owner notify failed:", await ownerNotifyRes.text());
+
+    const ph = createPostHogClient();
+    ph.capture({
+      distinctId: user.id,
+      event: "checkout started",
+      properties: {
+        tier,
+        currency,
+        stripe_session_id: session.id,
+      },
+    });
+    await ph.shutdown();
 
     return new Response(JSON.stringify({ url: session.url }), { headers: corsHeaders });
   } catch (err) {

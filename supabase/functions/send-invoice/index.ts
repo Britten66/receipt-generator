@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { createPostHogClient } from "../_shared/posthog.ts";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_BODY_BYTES  = 3 * 1024 * 1024; // 3 MB (covers PDF attachment)
 const MAX_PDF_BYTES   = 2 * 1024 * 1024; // 2 MB base64 ≈ ~1.5 MB PDF
@@ -156,5 +157,19 @@ Deno.serve(async (req) => {
     console.error("Resend error:", JSON.stringify(resendError));
     return new Response(JSON.stringify({ error: resendError?.message ?? "Failed to send invoice" }), { status: 500, headers: corsHeaders });
   }
+
+  const ph = createPostHogClient();
+  ph.capture({
+    distinctId: user.id,
+    event: "invoice sent",
+    properties: {
+      receipt_number: safe.receipt_number,
+      is_reminder: !!is_reminder,
+      has_pdf: !!pdf_base64,
+      tier: profile?.tier ?? "free",
+    },
+  });
+  await ph.shutdown();
+
   return new Response(JSON.stringify({ ok: true }), { headers: corsHeaders });
 });

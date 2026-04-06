@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { createPostHogClient } from "../_shared/posthog.ts";
 const DAILY_LIMIT = 20; // shared with voice-parse
 Deno.serve(async (req)=>{
   const origin = req.headers.get("Origin");
@@ -222,6 +223,18 @@ Examples:
     user_id: user.id,
     date: today
   }).then(()=>{});
+
+  const ph = createPostHogClient();
+  ph.capture({
+    distinctId: user.id,
+    event: "text parse completed",
+    properties: {
+      line_item_count: parsed?.line_items?.length ?? 0,
+      has_rag_context: ragContext.length > 0,
+    },
+  });
+  await ph.shutdown();
+
   return new Response(JSON.stringify({
     parsed
   }), {
