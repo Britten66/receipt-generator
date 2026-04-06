@@ -82,7 +82,7 @@ function MockInvoice() {
   );
 }
 
-export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignIn, onSignUp, darkMode, onToggleDark }) {
+export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignIn, onSignUp, darkMode, onToggleDark, currency, onCurrencyChange }) {
   const [legal, setLegal] = useState(null);
   const navRef = useRef(null);
 
@@ -114,10 +114,21 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
 
       {/* Lazy-follow nav */}
       <nav className="lv2-topbar" ref={navRef}>
-        <div className="lv2-nav-controls">
+        <div className="lv2-nav-left">
           <button className="dark-toggle" onClick={onToggleDark}>
             {darkMode ? "Light" : "Dark"}
           </button>
+        </div>
+        <div className="lv2-nav-controls">
+          <select
+            className="lv2-currency-select"
+            value={currency}
+            onChange={(e) => onCurrencyChange(e.target.value)}
+            aria-label="Select currency"
+          >
+            <option value="CAD">CAD</option>
+            <option value="USD">USD</option>
+          </select>
           <button className="lv2-nav-login" onClick={onSignIn}>Sign In</button>
           <button className="lv2-signin" onClick={onSignUp}>Sign Up</button>
         </div>
@@ -208,7 +219,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           >
             <div className="lv2-plan">
               <div className="lv2-plan-name">Free</div>
-              <div className="lv2-plan-price">CAD $0<span>/mo</span></div>
+              <div className="lv2-plan-price">{currency || "CAD"} $0<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>No credit card required</p>
               <ul className="lv2-plan-features">
                 <li>Unlimited invoices</li>
@@ -237,7 +248,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           >
             <div className="lv2-plan lv2-plan-pro">
               <div className="lv2-plan-name">Pro</div>
-              <div className="lv2-plan-price">CAD $9<span>/mo</span></div>
+              <div className="lv2-plan-price">{currency || "CAD"} $9<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
               <ul className="lv2-plan-features">
                 <li>Everything in Free</li>
@@ -267,7 +278,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           >
             <div className="lv2-plan lv2-plan-voice">
               <div className="lv2-plan-name">Voice AI</div>
-              <div className="lv2-plan-price">CAD $12<span>/mo</span></div>
+              <div className="lv2-plan-price">{currency || "CAD"} $12<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
               <ul className="lv2-plan-features">
                 <li>Everything in Pro</li>

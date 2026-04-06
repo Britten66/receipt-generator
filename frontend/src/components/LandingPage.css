@@ -18,7 +18,7 @@
   z-index: 200;
   display: flex;
   align-items: flex-end;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding-top: env(safe-area-inset-top);
   padding-bottom: 0;
   padding-right: max(24px, env(safe-area-inset-right));
@@ -31,11 +31,40 @@
   will-change: transform;
 }
 
+.lv2-nav-left {
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
 .lv2-nav-controls {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-bottom: 10px;
 }
+
+.lv2-currency-select {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0 8px;
+  height: 28px;
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  transition: border-color 0.1s, color 0.1s;
+}
+.lv2-currency-select:hover { border-color: var(--text); color: var(--text); }
+.lv2-currency-select option { background: var(--bg); color: var(--text); }
 
 /* Shared base for both nav buttons — same box model, same font as the app */
 .lv2-nav-login,

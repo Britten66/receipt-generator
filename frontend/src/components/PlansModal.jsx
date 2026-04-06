@@ -15,8 +15,9 @@
 
 import BorderGlow from "./BorderGlow";
 
-export default function PlansModal({ profile, darkMode, onClose, onSelectPro, onSelectVoice }) {
+export default function PlansModal({ profile, darkMode, currency, onClose, onSelectPro, onSelectVoice }) {
   const isProUser = profile?.tier === "pro";
+  const currencyLabel = currency === "USD" ? "USD" : "CAD";
 
   return (
     <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -48,7 +49,7 @@ export default function PlansModal({ profile, darkMode, onClose, onSelectPro, on
             >
               <div className="plans-modal-card">
                 <div className="plans-modal-name">Pro</div>
-                <div className="plans-modal-price">CAD $9<span>/mo</span></div>
+                <div className="plans-modal-price">{currencyLabel} $9<span>/mo</span></div>
                 <ul className="plans-modal-features">
                   <li>No watermark on PDFs</li>
                   <li>Your logo on every invoice</li>
@@ -79,7 +80,7 @@ export default function PlansModal({ profile, darkMode, onClose, onSelectPro, on
           >
             <div className="plans-modal-card">
               <div className="plans-modal-name">Voice AI</div>
-              <div className="plans-modal-price">CAD $12<span>/mo</span></div>
+              <div className="plans-modal-price">{currencyLabel} $12<span>/mo</span></div>
               <ul className="plans-modal-features">
                 <li>Everything in Pro</li>
                 <li>Speak your invoice, AI fills it in</li>

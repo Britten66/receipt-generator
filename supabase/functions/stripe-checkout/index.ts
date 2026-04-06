@@ -30,11 +30,12 @@ Deno.serve(async (req) => {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
 
-  const { return_url, tier } = await req.json();
+  const { return_url, tier, currency } = await req.json();
 
+  const isUSD = currency === "USD";
   const priceId = tier === "voice"
-    ? Deno.env.get("STRIPE_VOICE_PRICE_ID")!
-    : Deno.env.get("STRIPE_PRO_PRICE_ID")!;
+    ? (isUSD ? Deno.env.get("STRIPE_VOICE_PRICE_ID_USD")! : Deno.env.get("STRIPE_VOICE_PRICE_ID")!)
+    : (isUSD ? Deno.env.get("STRIPE_PRO_PRICE_ID_USD")!   : Deno.env.get("STRIPE_PRO_PRICE_ID")!);
 
   try {
     const session = await stripe.checkout.sessions.create({

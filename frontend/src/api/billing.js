@@ -16,12 +16,12 @@ async function authHeaders() {
   };
 }
 
-export async function startCheckout(tier = "pro") {
+export async function startCheckout(tier = "pro", currency = "CAD") {
   const headers = await authHeaders();
   const res = await fetch(`${BASE}/stripe-checkout`, {
     method: "POST",
     headers,
-    body: JSON.stringify({ return_url: window.location.origin, tier }),
+    body: JSON.stringify({ return_url: window.location.origin, tier, currency }),
   });
   const body = await res.json();
   if (body.error) throw new Error(body.error);

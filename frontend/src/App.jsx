@@ -125,6 +125,15 @@ export default function App() {
   // "entered" persists in localStorage so a page refresh skips the landing screen
   const [entered, setEntered] = useState(() => !!localStorage.getItem("app_entered"));
 
+  // Preferred currency — persists in localStorage, syncs to profile on login
+  const [preferredCurrency, setPreferredCurrency] = useState(
+    () => localStorage.getItem("preferred_currency") || "CAD"
+  );
+  function handleCurrencyChange(val) {
+    setPreferredCurrency(val);
+    localStorage.setItem("preferred_currency", val);
+  }
+
   // Data
   const [receipts, setReceipts]           = useState([]);
   const [loading, setLoading]             = useState(true);
@@ -255,7 +264,7 @@ export default function App() {
 
         // If the user clicked upgrade before signing in, kick off checkout now.
         if (proIntentRef.current) {
-          startCheckout(proIntentRef.current).catch(() => {});
+          startCheckout(proIntentRef.current, profile?.currency || preferredCurrency).catch(() => {});
           proIntentRef.current = "";
         }
 
@@ -534,6 +543,8 @@ export default function App() {
         <LandingPage
           darkMode={darkMode}
           onToggleDark={() => setDarkMode(!darkMode)}
+          currency={preferredCurrency}
+          onCurrencyChange={handleCurrencyChange}
           onSignIn={() => { setAuthModalMode("login"); setShowAuthModal(true); }}
           onSignUp={() => { setAuthModalMode("signup"); setShowAuthModal(true); }}
           onEnter={() => {
@@ -545,7 +556,7 @@ export default function App() {
             proIntentRef.current = "pro";
             localStorage.setItem("app_entered", "1");
             setEntered(true);
-            if (session) { startCheckout("pro").catch(() => showToast("Couldn't open checkout. Try again.")); }
+            if (session) { startCheckout("pro", preferredCurrency).catch(() => showToast("Couldn't open checkout. Try again.")); }
             else         { setShowAuthModal(true); }
           }}
           onEnterVoice={() => {
@@ -553,7 +564,7 @@ export default function App() {
             proIntentRef.current = "voice";
             localStorage.setItem("app_entered", "1");
             setEntered(true);
-            if (session) { startCheckout("voice").catch(() => showToast("Couldn't open checkout. Try again.")); }
+            if (session) { startCheckout("voice", preferredCurrency).catch(() => showToast("Couldn't open checkout. Try again.")); }
             else         { setShowAuthModal(true); }
           }}
         />
@@ -1158,6 +1169,7 @@ export default function App() {
         <PlansModal
           profile={profile}
           darkMode={darkMode}
+          currency={profile?.currency || preferredCurrency}
           onClose={() => setShowPlansModal(false)}
           onSelectPro={()   => { setShowPlansModal(false); openUpgradeConfirm("pro");   }}
           onSelectVoice={()  => { setShowPlansModal(false); openUpgradeConfirm("voice"); }}
@@ -1171,7 +1183,7 @@ export default function App() {
           agreed={upgradeAgreed}
           onAgreeChange={(e) => setUpgradeAgreed(e.target.checked)}
           onClose={() => setShowUpgradeConfirm(false)}
-          onConfirm={() => { setShowUpgradeConfirm(false); startCheckout(upgradeTargetTier).catch(() => showToast("Couldn't open checkout. Try again.")); }}
+          onConfirm={() => { setShowUpgradeConfirm(false); startCheckout(upgradeTargetTier, profile?.currency).catch(() => showToast("Couldn't open checkout. Try again.")); }}
           onOpenLegal={(type) => setUpgradeLegal(type)}
         />
       )}
