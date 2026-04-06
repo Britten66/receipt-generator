@@ -390,9 +390,13 @@ export default function App() {
   async function handleDelete(id) {
     const rec = receipts.find((r) => r.id === id);
     if (!window.confirm(`Delete invoice ${rec?.receipt_number ?? id}?`)) return;
-    await deleteReceipt(id);
-    setReceipts((prev) => prev.filter((r) => r.id !== id));
-    if (selected && selected.id === id) setSelected(null);
+    try {
+      await deleteReceipt(id);
+      setReceipts((prev) => prev.filter((r) => r.id !== id));
+      if (selected && selected.id === id) setSelected(null);
+    } catch {
+      showToast("Delete failed. Please try again.", "error");
+    }
   }
 
   // handleSendInvoice — emails the selected receipt to the client via the send-invoice Edge Function.

@@ -458,16 +458,18 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
     setLogoUploading(true);
 
-    const freshUrl = await uploadLogo({ file, userEmail });
-    if (freshUrl) {
-      setLocalLogoUrl(freshUrl);
-      await saveProfile({ ...(profile || {}), logo_url: freshUrl });
-      if (onLogoUpdate) onLogoUpdate(freshUrl);
+    try {
+      const freshUrl = await uploadLogo({ file, userEmail });
+      if (freshUrl) {
+        setLocalLogoUrl(freshUrl);
+        await saveProfile({ ...(profile || {}), logo_url: freshUrl });
+        if (onLogoUpdate) onLogoUpdate(freshUrl);
+      }
+    } finally {
+      setLogoUploading(false);
+      // Reset the input so the same file can be re-selected if needed
+      event.target.value = "";
     }
-
-    setLogoUploading(false);
-    // Reset the input so the same file can be re-selected if needed
-    event.target.value = "";
   }
 
   /*
