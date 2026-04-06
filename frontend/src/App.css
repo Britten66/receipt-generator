@@ -1904,7 +1904,12 @@ input[type="date"].field {
 
   /* Tighter outer padding on small screens */
   .detail-panel > div:nth-child(2) {
-    padding: 8px 10px 4px;
+    padding: 8px 10px 20px;
+  }
+
+  /* Totals footer — more readable on mobile */
+  .total-line .tl-label {
+    color: var(--text-dim);
   }
 
   /* 3-col parties grid → stack FROM/BILLED TO vertically, date moves below */
