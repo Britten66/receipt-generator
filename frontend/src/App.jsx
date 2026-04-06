@@ -598,6 +598,10 @@ export default function App() {
             {darkMode ? "Light" : "Dark"}
           </button>
 
+          {!profileLoading && profile?.tier !== "pro" && profile?.tier !== "voice" && (
+            <button className="btn-upgrade-pill" onClick={() => setShowPlansModal(true)}>Upgrade</button>
+          )}
+
           {(profile?.tier === "pro" || profile?.tier === "voice") && (
           <div className="palette-picker" role="group" aria-label="Color palette">
 
@@ -739,20 +743,10 @@ export default function App() {
             + New Invoice
           </button>
           {/* Utility row: Billing + Terms centered, Upgrade pill + ? on right */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 4 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flex: 1 }}>
-              <button onClick={() => setShowBilling(true)} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Billing</button>
-              <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              {/* Upgrade pill: free → shows both options; pro → shows Voice only; voice → hidden */}
-              {!profileLoading && profile?.tier !== "voice" && (
-                <button className="btn-upgrade-pill" onClick={() => setShowPlansModal(true)}>
-                  Upgrade
-                </button>
-              )}
-              <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help">?</button>
-            </div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, paddingTop: 4 }}>
+            <button onClick={() => setShowBilling(true)} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Billing</button>
+            <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
+            <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help">?</button>
           </div>
         </div>
       </aside>
