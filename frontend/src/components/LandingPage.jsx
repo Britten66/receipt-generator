@@ -148,11 +148,11 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           <BorderGlow
             borderRadius={0}
             glowColor={darkMode ? "180 155 50" : "160 138 40"}
-            glowIntensity={darkMode ? 1.1 : 0.9}
-            glowRadius={36}
+            glowIntensity={darkMode ? 1.6 : 1.3}
+            glowRadius={48}
             edgeSensitivity={8}
             coneSpread={28}
-            fillOpacity={darkMode ? 0.22 : 0.18}
+            fillOpacity={darkMode ? 0.28 : 0.22}
             colors={darkMode ? ["#9098a8", "#D4AF37", "#4dd8e0"] : ["#606878", "#b8942a", "#28b8c0"]}
             backgroundColor="transparent"
             className="lv2-border-glow"
@@ -161,6 +161,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <MockInvoice />
             </div>
           </BorderGlow>
+          <p className="lv2-preview-caption">Sign in to access your dashboard</p>
         </div>
       </section>
 
