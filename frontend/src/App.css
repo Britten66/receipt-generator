@@ -482,6 +482,10 @@ body,
   flex-direction: column;
   overflow-y: auto;
   min-width: 0;
+  scrollbar-width: none;
+}
+.sidebar::-webkit-scrollbar {
+  display: none;
 }
 .sidebar-section {
   border-bottom: 1px solid var(--border-light);
