@@ -161,7 +161,6 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <MockInvoice />
             </div>
           </BorderGlow>
-          <p className="lv2-preview-caption">Sign in to access your dashboard</p>
         </div>
       </section>
 
