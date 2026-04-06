@@ -68,6 +68,17 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose }) {
 
   const [form, setForm] = useState(getInitialForm());
 
+  // voiceReadback — persisted in localStorage. Default on. Toggled instantly (no Save needed).
+  const [voiceReadback, setVoiceReadback] = useState(
+    () => localStorage.getItem("voice_readback") !== "0"
+  );
+
+  function toggleVoiceReadback() {
+    const next = !voiceReadback;
+    setVoiceReadback(next);
+    localStorage.setItem("voice_readback", next ? "1" : "0");
+  }
+
   // saving — true while the API call is in progress (disables the Save button)
   const [saving, setSaving] = useState(false);
 
@@ -397,6 +408,22 @@ const [logoUploading,   setLogoUploading]   = useState(false);
             <label className="field-label">Phone</label>
             <input className="field" placeholder="+1 555 000 0000" value={form.phone} onChange={(e) => setField("phone", e.target.value)} />
           </div>
+
+          {/* ---- Preferences section ---- */}
+          <div className="profile-section-label" style={{ marginTop: 16 }}>Preferences</div>
+
+          <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={voiceReadback}
+              onChange={toggleVoiceReadback}
+              style={{ width: 14, height: 14, accentColor: "var(--accent)", cursor: "pointer", flexShrink: 0 }}
+            />
+            <div>
+              <div style={{ fontSize: 11, color: "var(--text)", fontWeight: 500 }}>Read invoice back after AI parse</div>
+              <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>After voice or text AI fills in your invoice, the app reads it back to confirm.</div>
+            </div>
+          </label>
 
           {/* ---- Security section ---- */}
           <div className="profile-section-label" style={{ marginTop: 16 }}>Security</div>

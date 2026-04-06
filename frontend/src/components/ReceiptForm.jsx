@@ -168,6 +168,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   }
 
   function speakBack(parsed) {
+    if (localStorage.getItem("voice_readback") === "0") return;
     if (!window.speechSynthesis) return;
     const customer = parsed.customer_name || "your client";
     const count    = parsed.line_items?.length ?? 0;
