@@ -26,7 +26,7 @@
 // ─── 1. IMPORTS ──────────────────────────────────────────────────────────────
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import { downloadReceiptPDF, shareReceiptPDF, getPDFBlobUrl, buildPDFBase64 } from "./components/ReceiptPDF";
+// ReceiptPDF is loaded on demand — jsPDF + html2canvas are ~360 KB and only needed when generating a PDF
 import {
   fetchReceipts,
   fetchReceiptById,
@@ -407,6 +407,7 @@ export default function App() {
     setSendingInvoice(true);
     try {
       const r = sendInvoiceTarget;
+      const { buildPDFBase64 } = await import("./components/ReceiptPDF");
       const pdfBase64 = await buildPDFBase64({
         ...r,
         logo_url:    r.logo_url || profile?.logo_url || null,
@@ -987,8 +988,8 @@ export default function App() {
                   <button
                     className="btn btn-ghost"
                     style={{ width: "100%", marginBottom: 6 }}
-                    onClick={() => (profile?.tier === "pro" || profile?.tier === "voice")
-                      ? shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier })
+                    onClick={async () => (profile?.tier === "pro" || profile?.tier === "voice")
+                      ? import("./components/ReceiptPDF").then(({ shareReceiptPDF }) => shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier }))
                       : showToast("Upgrade to Pro to share invoices.", "upgrade")
                     }
                   >
@@ -1007,6 +1008,7 @@ export default function App() {
                   className="btn btn-ghost"
                   style={{ width: "100%", marginBottom: 6 }}
                   onClick={async () => {
+                    const { downloadReceiptPDF, getPDFBlobUrl } = await import("./components/ReceiptPDF");
                     const receiptData = { ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier };
                     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
                       (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.userAgent));
@@ -1035,7 +1037,7 @@ export default function App() {
                 <button
                   className="btn btn-download"
                   style={{ width: "100%", marginBottom: 6 }}
-                  onClick={() => downloadReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier })}
+                  onClick={async () => { const { downloadReceiptPDF } = await import("./components/ReceiptPDF"); downloadReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier }); }}
                 >
                   Download PDF
                 </button>
