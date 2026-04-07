@@ -157,7 +157,7 @@ export default function BillingModal({ profile, onClose, onUpgrade }) {
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>Free plan</div>
                 <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.6 }}>
-                  Upgrade to Pro for watermark-free PDFs, logo on invoices, and email delivery. Voice AI adds voice and text AI parsing.
+                  Upgrade to Pro to email invoices directly to clients, add your logo, and export invoices as CSV. Voice AI adds voice and text parsing.
                 </div>
               </div>
               {onUpgrade && (

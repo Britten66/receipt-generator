@@ -51,12 +51,11 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
                 <div className="plans-modal-name">Pro</div>
                 <div className="plans-modal-price">{currencyLabel} $9<span>/mo</span></div>
                 <ul className="plans-modal-features">
-                  <li>No watermark on PDFs</li>
-                  <li>Your logo on every invoice</li>
-                  <li>Emails from your business name</li>
-                  <li>Share via text or WhatsApp</li>
+                  <li>Email invoices directly to clients</li>
+                  <li>Your business name on every email</li>
+                  <li>Your logo on every invoice and PDF</li>
                   <li>Dashboard themes</li>
-                  <li>Pay Now button on invoices</li>
+                  <li>CSV export of all invoices</li>
                 </ul>
                 <button className="plans-modal-btn plans-modal-btn-pro" onClick={onSelectPro}>
                   Get Pro

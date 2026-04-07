@@ -35,7 +35,11 @@ Copy `frontend/.env.example` to `frontend/.env` and fill in your Supabase projec
 | | Free | Pro | Voice AI |
 |---|---|---|---|
 | Invoices | Unlimited | Unlimited | Unlimited |
-| PDF watermark | Yes | No | No |
-| Email to client | w/ watermark | Yes | Yes |
+| Clean PDF, no watermark | Yes | Yes | Yes |
+| Download and share link | Yes | Yes | Yes |
+| Email to client | | Yes | Yes |
+| Logo on PDF | | Yes | Yes |
+| Dashboard themes | | Yes | Yes |
+| CSV export | | Yes | Yes |
 | Voice + Text AI | | | Yes |
 | Price | Free | CAD $9/mo | CAD $12/mo |

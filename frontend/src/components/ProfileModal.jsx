@@ -439,16 +439,18 @@ const [logoUploading,   setLogoUploading]   = useState(false);
             </div>
             {resetPasswordElement}
           </div>
-          {/* ---- Data ---- */}
-          <div style={{ marginTop: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <div>
-              <div style={{ fontSize: 11, color: "var(--text)", fontWeight: 500 }}>Export my data</div>
-              <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>Download all invoices as a CSV. Opens in Excel and Google Sheets.</div>
+          {/* ---- Data (Pro+) ---- */}
+          {(profile?.tier === "pro" || profile?.tier === "voice") && (
+            <div style={{ marginTop: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 11, color: "var(--text)", fontWeight: 500 }}>Export my data</div>
+                <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>Download all invoices as a CSV. Opens in Excel and Google Sheets.</div>
+              </div>
+              <button className="btn btn-ghost" style={{ flexShrink: 0, fontSize: 10, padding: "6px 12px" }} onClick={onExport}>
+                Export
+              </button>
             </div>
-            <button className="btn btn-ghost" style={{ flexShrink: 0, fontSize: 10, padding: "6px 12px" }} onClick={onExport}>
-              Export
-            </button>
-          </div>
+          )}
 
           {/* ---- Danger Zone ---- */}
           <div style={{ marginTop: 20, padding: "12px 14px", border: "1px solid var(--voided)", borderRadius: 4 }}>

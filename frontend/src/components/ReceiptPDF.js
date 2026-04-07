@@ -312,17 +312,7 @@ async function buildDoc(receipt) {
     doc.addImage(logoDataUrl, "PNG", logoX, logoY, logoW, logoH);
   }
 
-  // Footer — watermark for free users only, hidden on Pro and Voice AI
-  doc.setFontSize(7);
-  doc.setTextColor(180, 176, 168);
-  if (receipt.tier !== "pro" && receipt.tier !== "voice") {
-    // Draw a rule line across the page
-    doc.setDrawColor(210, 206, 198);
-    doc.setLineWidth(0.2);
-    doc.line(m, 280, pageW - m, 280);
-    // Centered branding text between dashes
-    doc.text("— invoiceprepper.com —", pageW / 2, 285, { align: "center" });
-  }
+  // No watermark on any tier
 
   return doc;
 }
