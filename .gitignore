@@ -1,4 +1,4 @@
-# Claude Code
+# AI tooling
 .claude/
 .claudeignore
 CLAUDE.md
@@ -160,4 +160,3 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
-.claude/
