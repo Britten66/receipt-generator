@@ -84,7 +84,7 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
               <ul className="plans-modal-features">
                 <li>Everything in Pro</li>
                 <li>Speak your invoice, AI fills it in</li>
-                <li>Or type it — text AI included</li>
+                <li>Or type it - text AI included</li>
                 <li>Detects line items, prices, clients</li>
                 <li>Works on mobile, no typing</li>
                 <li>20 AI parses per day</li>

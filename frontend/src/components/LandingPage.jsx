@@ -282,6 +282,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <ul className="lv2-plan-features">
                 <li>Everything in Pro</li>
                 <li>Speak your invoice, AI fills it in</li>
+                <li>Or type it - text AI included</li>
                 <li>Detects multiple line items naturally</li>
                 <li>Works on mobile, no typing needed</li>
                 <li>20 AI parses per day</li>
