@@ -30,7 +30,7 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
 
         <div
           className="modal-body"
-          style={{ display: "grid", gridTemplateColumns: isProUser ? "1fr" : "1fr 1fr", gap: 16, padding: 20 }}
+          style={{ display: "grid", gridTemplateColumns: isProUser ? "1fr" : "1fr 1fr", gap: 16, padding: 20, alignItems: "start" }}
         >
 
           {/* Pro card — only shown to free users */}
