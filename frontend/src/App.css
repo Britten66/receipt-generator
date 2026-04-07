@@ -438,7 +438,6 @@ body,
   text-transform: uppercase;
   border: 1px solid var(--border);
   cursor: pointer;
-  margin-top: auto;
   box-shadow: 1px 1px 0 rgba(255,255,255,0.12), 2px 2px 0 rgba(0,0,0,0.3);
   transition: opacity 0.12s;
 }
