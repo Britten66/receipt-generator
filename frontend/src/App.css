@@ -377,6 +377,9 @@ body,
   display: flex;
   flex-direction: column;
 }
+.plans-modal-glow > .border-glow-inner {
+  flex: 1;
+}
 
 .plans-modal-card {
   background: var(--surface);
