@@ -1,6 +1,7 @@
 # Claude Code
 .claude/
 .claudeignore
+CLAUDE.md
 
 # Editor
 .vscode/
