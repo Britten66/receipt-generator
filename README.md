@@ -36,6 +36,6 @@ Copy `frontend/.env.example` to `frontend/.env` and fill in your Supabase projec
 |---|---|---|---|
 | Invoices | Unlimited | Unlimited | Unlimited |
 | PDF watermark | Yes | No | No |
-| Email to client | | Yes | Yes |
+| Email to client | w/ watermark | Yes | Yes |
 | Voice + Text AI | | | Yes |
 | Price | Free | CAD $9/mo | CAD $12/mo |
