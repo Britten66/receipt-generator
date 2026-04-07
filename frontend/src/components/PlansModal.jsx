@@ -96,10 +96,6 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
 
         </div>
 
-        <div style={{ padding: "0 20px 16px", fontSize: 10, color: "var(--text-muted)", textAlign: "center" }}>
-          Billed monthly. Cancel anytime from Billing.
-        </div>
-
       </div>
     </div>
   );
