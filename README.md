@@ -93,6 +93,55 @@ POSTHOG_HOST
 
 ---
 
+## Getting Started
+
+**Prerequisites:** Node.js 20+, Supabase CLI, a Cloudflare Pages account, a Stripe account, a Resend account.
+
+**1. Clone and install**
+```bash
+git clone https://github.com/Britten66/receipt-generator.git
+cd receipt-generator/frontend
+npm install
+```
+
+**2. Set up Supabase**
+- Create a new project at supabase.com
+- Run the schema from `docs/system-overview.md` to create the tables
+- Copy `frontend/.env.example` to `frontend/.env` and fill in your project URL and anon key
+
+**3. Set Supabase secrets**
+```bash
+npx supabase secrets set \
+  RESEND_API_KEY=your-key \
+  STRIPE_SECRET_KEY=your-key \
+  STRIPE_PRO_PRICE_ID=price_xxx \
+  STRIPE_PRO_PRICE_ID_USD=price_xxx \
+  STRIPE_VOICE_PRICE_ID=price_xxx \
+  STRIPE_VOICE_PRICE_ID_USD=price_xxx \
+  STRIPE_WEBHOOK_SECRET=whsec_xxx \
+  SUPABASE_SERVICE_ROLE_KEY=your-key \
+  GROQ_API_KEY=your-key \
+  NOTIFY_EMAIL=you@yourdomain.com \
+  NOTIFY_SIGNUP_SECRET=any-random-string \
+  POSTHOG_API_KEY=phc_xxx \
+  POSTHOG_HOST=https://us.i.posthog.com
+```
+
+**4. Deploy edge functions**
+```bash
+npx supabase functions deploy
+```
+
+**5. Deploy frontend**
+
+Connect the repo to Cloudflare Pages. Set the build command to `npm run build`, output directory to `dist`, and root to `frontend`. Add your `.env` values as environment variables in the Cloudflare dashboard.
+
+**6. Stripe webhook**
+
+Point your Stripe webhook to `https://your-project.supabase.co/functions/v1/stripe-webhook` and add the `checkout.session.completed` and `customer.subscription.deleted` events.
+
+---
+
 ## Tiers
 
 | | Free | Pro | Voice AI |
