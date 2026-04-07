@@ -33,7 +33,7 @@ Copy `frontend/.env.example` to `frontend/.env` and fill in your Supabase projec
 ## Tiers
 
 | | Free | Pro | Voice AI |
-|:|:|:|:|
+|---|---|---|---|
 | Invoices | Unlimited | Unlimited | Unlimited |
 | PDF watermark | Yes | No | No |
 | Email to client | | Yes | Yes |
