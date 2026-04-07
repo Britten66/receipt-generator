@@ -1,5 +1,13 @@
 # Claude Code
 .claude/
+.claudeignore
+
+# Editor
+.vscode/
+
+# Root-level package (deps live in frontend/)
+package.json
+package-lock.json
 
 # PostHog wizard output
 posthog-setup-report.md
