@@ -1,6 +1,17 @@
 # Claude Code
 .claude/
 
+# PostHog wizard output
+posthog-setup-report.md
+.posthog-events.json
+
+# Internal docs
+docs/legal-audit.md
+docs/april-2-changes.md
+docs/api-queries.txt
+docs/landing-ai-section.jsx
+docs/*.png
+
 # Logs
 logs
 *.log

@@ -1,42 +1,118 @@
-# Here Is The Idea
+# InvoicePrepper
 
-Invoicing tool for freelancers, contractors, and small businesses. Create, send, and track receipts from any device.
+Invoicing tool for freelancers, contractors, and small businesses. Create, send, and track invoices from any device.
 
-Built solo with help using LLMs to mimic industry standard structure and co-complete complex tasks to move forward in the project and think through bug fixing tasks, writing full tests, this is to practice building and seeing how it feels to scale a somewhat of a realworld workflow, view complex architecture, solo implementation, real.. very real debugging, and complete iteration, this is what it can look like as a small step.
+Live at [invoiceprepper.com](https://invoiceprepper.com)
+
+Built solo using LLMs to mimic industry standard structure and co-complete complex tasks. The goal was to practice building something real -- real architecture, real debugging, real iteration, real deployment. This is what that looks like as a solo build.
+
+---
+
+## What It Does
+
+- Create, edit, and delete invoices with line items
+- PDF generation -- download, share, or email as attachment
+- Invoice statuses: Draft, Sent, Paid, Voided
+- Email invoices to clients (Pro)
+- Business logo on every PDF (Pro)
+- QR code on invoice linking to a payment URL
+- Voice AI -- speak your invoice, AI fills in client, line items, and prices
+- Text AI -- describe a job in plain text, AI extracts the fields
+- RAG context -- AI uses your invoice history to suggest your regular clients and rates
+- Stripe subscriptions with CAD and USD pricing
+- Dark mode, color themes (Pro)
+- Mobile responsive
+
+---
 
 ## Stack
 
-React + Vite frontend on cloudlfare pages. Supabase Edge Functions (Deno) for the API. PostgreSQL via Supabase. Stripe for subscriptions. Resend for transactional email. jsPDF for PDF generation.
+| Layer | Tech |
+|---|---|
+| Frontend | React 19 + Vite 7 |
+| Hosting | Cloudflare Pages |
+| Backend | Supabase Edge Functions (Deno) |
+| Database | PostgreSQL via Supabase |
+| Auth | Supabase Auth |
+| Payments | Stripe |
+| Email | Resend |
+| AI | Groq (Whisper + LLaMA 3.3 70B) |
+| PDF | jsPDF + jsPDF-autoTable |
+| Analytics | PostHog |
 
-## Docs
+---
 
-API structure, request/response shapes, and edge function details are in `docs/api-queries.txt`.
+## Project Structure
 
-## Environment ( SO FAR )
+```
+frontend/          React + Vite app (Cloudflare Pages)
+  src/
+    App.jsx        Main shell -- auth, state, layout
+    api/           CRUD wrappers for each edge function
+    components/    All UI components
+    lib/           Supabase client, theme helpers
 
-Frontend (`frontend/.env`): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+supabase/
+  functions/       Edge functions (Deno runtime)
+    receipts/      Invoice CRUD
+    profile/       User profile
+    send-invoice/  Email via Resend
+    voice-parse/   Whisper transcription + AI extraction
+    text-parse/    AI field extraction from text
+    stripe-*/      Checkout, webhook, billing portal
+    notify-signup/ New user admin alert + welcome email
+```
 
-Supabase secrets: `RESEND_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_PRO_PRICE_ID`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`
+---
 
-## Known Issues ( ALSO SO FAR )
+## Environment
 
-Receipt numbers are currently global across all users rather than per-user sequential. The fix requires changing the DB constraint from `UNIQUE(receipt_number)` to `UNIQUE(user_id, receipt_number)` and adding a prefix field to profiles.
+**`frontend/.env`**
+```
+VITE_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY
+VITE_REMOVEBG_API_KEY   # optional -- background removal on logo upload
+```
+
+**Supabase secrets**
+```
+RESEND_API_KEY
+STRIPE_SECRET_KEY
+STRIPE_PRO_PRICE_ID
+STRIPE_PRO_PRICE_ID_USD
+STRIPE_VOICE_PRICE_ID
+STRIPE_VOICE_PRICE_ID_USD
+STRIPE_WEBHOOK_SECRET
+SUPABASE_SERVICE_ROLE_KEY
+GROQ_API_KEY
+NOTIFY_EMAIL
+NOTIFY_SIGNUP_SECRET
+POSTHOG_API_KEY
+POSTHOG_HOST
+```
+
+---
+
+## Tiers
+
+| | Free | Pro | Voice AI |
+|---|---|---|---|
+| Invoices | Unlimited | Unlimited | Unlimited |
+| PDF | Watermark | No watermark | No watermark |
+| Logo on PDF | | Yes | Yes |
+| Email to client | | Yes | Yes |
+| Themes | | Yes | Yes |
+| Voice + Text AI | | | Yes |
+| Price | Free | CAD $9/mo | CAD $12/mo |
+
+---
+
+## Known Issues
+
+Receipt numbers are global across all users instead of per-user sequential. Fix requires changing the DB constraint from `UNIQUE(receipt_number)` to `UNIQUE(user_id, receipt_number)` and adding a prefix field to profiles.
+
+---
 
 ## Planned
 
-Tester access portal — a lightweight way to issue codes that unlock the app or pro tier for invited testers, without touching the public signup flow.
-
-## new add on
-
-fetch() doesn't have the canvas taint problem SO it just reads the bytes directly.
-
-what I found out is as long as the bucket is public
-(which it is now), this will work without any CORS config changes.
-
-## new add on
-
-instead of emailing a PDF, the plan is to send a link the client opens in a browser with a Pay Now button. a QR code on the invoice that opens the stripe link for the user that entered it.
-
-what i found out is a static stripe payment link works but the better version is a stripe payment link with the amount prefilled via URL param so the client scans, lands on stripe, and the number is already there from the invoice total.
-
-the full version down the road is a public URL like invoiceprepper.com/pay/INV-000042 that shows the invoice in the browser. client sees the full invoice, hits Pay Now, goes to stripe. supabase can handle the public read with anon role RLS so no extra backend needed. probably builds after the domain is set up.
+Public invoice URL -- `invoiceprepper.com/pay/INV-000042` where the client sees the full invoice in the browser and hits Pay Now to go to Stripe. Supabase anon role RLS handles the public read with no extra backend needed.
