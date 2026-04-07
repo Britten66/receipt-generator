@@ -252,8 +252,9 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <ul className="lv2-plan-features">
                 <li>Everything in Free</li>
                 <li>Email invoices directly to clients</li>
+                <li>Send payment reminders for unpaid invoices</li>
                 <li>Your business name on every email</li>
-                <li>Your logo on every invoice and PDF</li>
+                <li>Upload your logo to every PDF</li>
                 <li>Customizable dashboard themes</li>
                 <li>CSV export of all invoices</li>
               </ul>
