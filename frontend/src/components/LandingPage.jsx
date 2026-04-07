@@ -223,12 +223,11 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>No credit card required</p>
               <ul className="lv2-plan-features">
                 <li>Unlimited invoices</li>
-                <li>PDF download and share link</li>
-                <li>Email invoices to clients</li>
+                <li>Clean PDF, no watermark</li>
+                <li>Download and share link</li>
+                <li>Pay Now button on invoices</li>
                 <li>Draft, sent, paid tracking</li>
                 <li>Dark mode</li>
-                <li className="lv2-plan-caveat">PDFs include a small InvoicePrepper watermark</li>
-                <li className="lv2-plan-caveat">Client emails are sent from our address, not yours</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-ghost" onClick={onEnter}>Get Started Free</button>
             </div>
@@ -252,12 +251,11 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
               <ul className="lv2-plan-features">
                 <li>Everything in Free</li>
-                <li>Clean PDF, no watermark</li>
+                <li>Email invoices directly to clients</li>
                 <li>Your business name on every email</li>
-                <li>Share via text, WhatsApp, or any app</li>
                 <li>Your logo on every invoice and PDF</li>
-                <li>Pay Now button on every invoice</li>
                 <li>Customizable dashboard themes</li>
+                <li>CSV export of all invoices</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro}>Get Pro</button>
             </div>
@@ -312,7 +310,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Can I download my invoices as PDFs?</h3>
-            <p className="lv2-faq-a2">Yes. Every invoice generates a clean PDF instantly. The free plan includes a watermark. Pro removes it and lets you add your business logo.</p>
+            <p className="lv2-faq-a2">Yes. Every invoice generates a clean PDF instantly, no watermark on any plan. Pro lets you add your business logo and email directly to clients.</p>
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Can I email invoices directly to clients?</h3>

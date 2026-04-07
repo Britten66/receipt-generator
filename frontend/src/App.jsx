@@ -1057,12 +1057,9 @@ export default function App() {
                   <button
                     className="btn btn-ghost"
                     style={{ width: "100%", marginBottom: 6 }}
-                    onClick={async () => (profile?.tier === "pro" || profile?.tier === "voice")
-                      ? import("./components/ReceiptPDF").then(({ shareReceiptPDF }) => shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier }))
-                      : showToast("Upgrade to Pro to share invoices.", "upgrade")
-                    }
+                    onClick={async () => import("./components/ReceiptPDF").then(({ shareReceiptPDF }) => shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier }))}
                   >
-                    Share Invoice {!profileLoading && (profile?.tier === "free" || !profile?.tier) && <span style={{ fontSize: 9, letterSpacing: "0.1em", opacity: 0.5, marginLeft: 4 }}>PRO</span>}
+                    Share Invoice
                   </button>
                 )}
 
@@ -1167,20 +1164,18 @@ export default function App() {
                       )}
                     </div>
                   ) : (
-                    <button
-                      className="btn btn-ghost"
-                      style={{ width: "100%" }}
-                      onClick={() => {
-                        if (profile?.tier !== "pro" && profile?.tier !== "voice") { openUpgradeConfirm("pro"); return; }
-                        setSendInvoiceTarget(selectedReceipt);
-                        setSendInvoiceEmail("");
-                      }}
-                    >
-                      ✉ Send to Client
-                      {(!profile?.tier || profile?.tier === "free") && (
-                        <span style={{ fontSize: 9, letterSpacing: "0.1em", opacity: 0.5, marginLeft: 6 }}>PRO</span>
-                      )}
-                    </button>
+                    (profile?.tier === "pro" || profile?.tier === "voice") && (
+                      <button
+                        className="btn btn-ghost"
+                        style={{ width: "100%" }}
+                        onClick={() => {
+                          setSendInvoiceTarget(selectedReceipt);
+                          setSendInvoiceEmail("");
+                        }}
+                      >
+                        ✉ Send to Client
+                      </button>
+                    )
                   )}
                 </div>
               </div>
