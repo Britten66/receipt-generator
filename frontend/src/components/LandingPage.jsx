@@ -228,6 +228,8 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 <li>Pay Now button on invoices</li>
                 <li>Draft, sent, paid tracking</li>
                 <li>Dark mode</li>
+                <li>No app to install - works in any browser</li>
+                <li>Syncs across desktop and mobile</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-ghost" onClick={onEnter}>Get Started Free</button>
             </div>
