@@ -297,6 +297,16 @@ export default function App() {
     });
   }, [session]);
 
+  // Open signup modal when arriving from SEO pages with ?signup=1
+  useEffect(() => {
+    if (session) return; // already logged in
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("signup")) return;
+    window.history.replaceState({}, "", window.location.pathname);
+    setAuthModalMode("signup");
+    setShowAuthModal(true);
+  }, [session]);
+
   // After returning from Stripe checkout (?upgraded=true), poll until the webhook confirms
   // the tier change in the DB, then show the one-time upgrade thanks modal.
   useEffect(() => {

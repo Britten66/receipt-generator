@@ -124,8 +124,8 @@ Deno.serve(async (req) => {
       ${safe.notes ? `<div style="margin-top:20px;font-size:11px;color:#908e8a;border-top:1px solid #e8e6e1;padding-top:16px;"><strong>Note:</strong> ${safe.notes}</div>` : ""}
       ${safePaymentUrl ? `<div style="text-align:center;margin-top:24px;"><a href="${safePaymentUrl}" style="display:inline-block;background:#1e1c18;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:13px;font-weight:600;">Pay Now</a></div>` : ""}
     </div>
-    <div style="background:#f5f4f0;padding:10px 28px;text-align:center;font-size:9px;color:#c4c0b8;">This is an automatically generated invoice. Invoice ID: #${safe.receipt_number}</div>
-    ${tier !== "pro" ? `<div style="background:#f5f4f0;padding:0 28px 14px;text-align:center;font-size:10px;color:#b4afa5;"><a href="https://invoiceprepper.com" style="color:#b4afa5;text-decoration:none;">invoiceprepper.com</a></div>` : ""}
+    <div style="background:#f5f4f0;padding:10px 28px 6px;text-align:center;font-size:9px;color:#c4c0b8;">This is an automatically generated invoice. Invoice ID: #${safe.receipt_number}</div>
+    <div style="background:#f5f4f0;padding:0 28px 16px;text-align:center;font-size:10px;color:#b4afa5;">Sent via <a href="https://invoiceprepper.com" style="color:#908e8a;text-decoration:none;font-weight:600;">InvoicePrepper</a></div>
   </div>
 </body></html>`;
 

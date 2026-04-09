@@ -25,6 +25,34 @@
     "isPartOf": { "@type": "WebSite", "name": "InvoicePrepper", "url": "https://invoiceprepper.com" }
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Can I invoice for both labour and materials on the same invoice?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Add as many line items as the job needs — labour hours at your rate, materials, travel, or any other charge. Each item has its own description, quantity, and unit price." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it work on mobile on a job site?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. InvoicePrepper runs in any mobile browser — no app download needed. You can create and send an invoice from your phone before you leave the site." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I speak my invoice instead of typing it?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes, on the Voice AI plan. Say the client name, what you did, how many hours, and your rate out loud. The AI fills in the invoice in seconds. Useful when your hands are dirty or you're on the road." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it handle GST and HST automatically?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Set your tax rate once in your profile and it applies to every new invoice automatically. The invoice shows the subtotal, tax amount, and total clearly." }
+      }
+    ]
+  }
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -79,14 +107,14 @@
 <body>
   <nav>
     <a href="https://invoiceprepper.com" class="nav-brand">InvoicePrepper</a>
-    <a href="https://invoiceprepper.com" class="nav-cta">Try It Free</a>
+    <a href="https://invoiceprepper.com/?signup=1" class="nav-cta">Try It Free</a>
   </nav>
 
   <div class="wrap hero">
     <p class="eyebrow">For Contractors and Trades</p>
     <h1>Invoice your clients fast. Get paid faster.</h1>
     <p class="lead">InvoicePrepper is built for people who work by the job. Create invoices on site, send them the same day, and track exactly what is still outstanding. No accounting software, no steep learning curve.</p>
-    <a href="https://invoiceprepper.com" class="cta-btn">Start Invoicing Free</a>
+    <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
     <span class="cta-sub">Free forever. No credit card required.</span>
   </div>
 
@@ -143,7 +171,7 @@
   <div class="final-cta">
     <h2>Send your first invoice today</h2>
     <p>Free forever. No setup. No learning curve.</p>
-    <a href="https://invoiceprepper.com" class="cta-btn">Start Invoicing Free</a>
+    <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
     <span class="cta-sub">Free forever. Upgrade when you are ready.</span>
   </div>
 
