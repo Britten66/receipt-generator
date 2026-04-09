@@ -1113,7 +1113,10 @@ export default function App() {
                     } else {
                       const url = await getPDFBlobUrl(receiptData);
                       if (win) {
-                        win.location.href = url;
+                        const title = `Invoice ${receiptData.receipt_number || ""}`.trim();
+                        win.document.open();
+                        win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title></head><body style="margin:0;padding:0;height:100vh;overflow:hidden;"><embed src="${url}" type="application/pdf" width="100%" height="100%"></body></html>`);
+                        win.document.close();
                       } else {
                         downloadReceiptPDF(receiptData);
                       }
