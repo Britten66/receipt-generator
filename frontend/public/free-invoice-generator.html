@@ -63,7 +63,19 @@
     .final-cta .cta-sub { color: #6a6864; }
     footer { border-top: 1px solid #2e2c28; background: var(--text); padding: 20px 32px; text-align: center; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #6a6864; }
     footer a { color: #6a6864; text-decoration: underline; }
-    @media (max-width: 600px) { nav, .wrap { padding-left: 20px; padding-right: 20px; } .hero { margin-top: 40px; } .final-cta { padding: 36px 20px; } }
+    @media (max-width: 640px) {
+      nav { padding: 12px 20px; flex-wrap: wrap; gap: 8px; }
+      .nav-cta { font-size: 8px; padding: 6px 10px; }
+      .wrap { padding-left: 20px; padding-right: 20px; }
+      h1 { font-size: 28px !important; }
+      .hero { margin-top: 36px; }
+      .lead { font-size: 14px; }
+      .features { grid-template-columns: 1fr; }
+      .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .compare { min-width: 420px; }
+      .final-cta { padding: 36px 20px; }
+      .final-cta h2 { font-size: 20px; }
+    }
   </style>
 </head>
 <body>
@@ -114,7 +126,7 @@
 
   <div class="wrap section">
     <h2>Why not just use Word or Excel?</h2>
-    <table class="compare">
+    <div class="table-wrap"><table class="compare">
       <thead>
         <tr><th>Feature</th><th>InvoicePrepper</th><th>Word / Excel</th></tr>
       </thead>
@@ -126,7 +138,7 @@
         <tr><td>Works on mobile</td><td class="yes">Yes</td><td class="no">Poor experience</td></tr>
         <tr><td>Voice AI</td><td class="yes">Available</td><td class="no">No</td></tr>
       </tbody>
-    </table>
+    </table></div>
   </div>
 
   <div class="wrap"><hr /></div>
