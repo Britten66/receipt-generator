@@ -51,6 +51,7 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
                 <div className="plans-modal-name">Pro</div>
                 <div className="plans-modal-price">{currencyLabel} $9<span>/mo</span></div>
                 <ul className="plans-modal-features">
+                  <li className="plans-modal-includes">Includes Free Plan</li>
                   <li>Email invoices directly to clients</li>
                   <li>Your business name on every email</li>
                   <li>Upload your logo to every PDF</li>
@@ -82,7 +83,7 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
               <div className="plans-modal-name">Voice AI</div>
               <div className="plans-modal-price">{currencyLabel} $12<span>/mo</span></div>
               <ul className="plans-modal-features">
-                <li>Everything in Pro</li>
+                <li className="plans-modal-includes">Includes Pro Plan</li>
                 <li>Speak your invoice, AI fills it in</li>
                 <li>Or type it - text AI included</li>
                 <li>Detects line items, prices, clients</li>
