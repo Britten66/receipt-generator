@@ -1106,8 +1106,7 @@ export default function App() {
                     } else {
                       const url = await getPDFBlobUrl(receiptData);
                       if (win) {
-                        win.document.write(`<!DOCTYPE html><html><head><title>Invoice Preview</title></head><body style="margin:0;padding:0;height:100vh;"><embed src="${url}" type="application/pdf" width="100%" height="100%" /></body></html>`);
-                        win.document.close();
+                        win.location.href = url;
                       } else {
                         downloadReceiptPDF(receiptData);
                       }
