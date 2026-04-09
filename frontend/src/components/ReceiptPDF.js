@@ -378,13 +378,10 @@ export async function shareReceiptPDF(receipt) {
     { type: "application/pdf" }
   );
 
-  // Build the share text — include the total amount if available
-  let shareText = `Receipt from ${receipt.vendor_name}`;
-  if (receipt.total) {
-    shareText += ` — ${fmtMoney(receipt.total)}`;
-  }
+  const shareText = receipt.total
+    ? `Receipt from ${receipt.vendor_name} for ${fmtMoney(receipt.total)}`
+    : `Receipt from ${receipt.vendor_name}`;
 
-  // Check if this browser supports sharing files before trying
   const canShareFiles = navigator.canShare && navigator.canShare({ files: [file] });
 
   if (canShareFiles) {
@@ -394,7 +391,6 @@ export async function shareReceiptPDF(receipt) {
       text: shareText,
     });
   } else {
-    // Browser doesn't support the file share API — just download instead
     downloadReceiptPDF(receipt);
   }
 }

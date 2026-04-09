@@ -1062,12 +1062,19 @@ export default function App() {
               {/* PDF actions */}
               <div className="detail-section">
 
-                {/* Share Invoice (Web Share API — not available on all platforms) */}
-                {"share" in navigator && (
+                {/* Share Invoice — mobile only; desktop has no meaningful share target */}
+                {"share" in navigator && window.innerWidth <= 768 && (
                   <button
                     className="btn btn-ghost"
                     style={{ width: "100%", marginBottom: 6 }}
-                    onClick={async () => import("./components/ReceiptPDF").then(({ shareReceiptPDF }) => shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier }))}
+                    onClick={async () => {
+                      try {
+                        const { shareReceiptPDF } = await import("./components/ReceiptPDF");
+                        await shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier });
+                      } catch (err) {
+                        if (err?.name !== "AbortError") console.error("Share failed:", err);
+                      }
+                    }}
                   >
                     Share Invoice
                   </button>
