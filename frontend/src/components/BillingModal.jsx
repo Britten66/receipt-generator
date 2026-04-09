@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { cancelSubscription, openBillingPortal, fetchSubscriptionStatus } from "../api/billing";
+import { FileText, Mail, Image, Mic, BarChart2, Link } from "lucide-react";
 
 export default function BillingModal({ profile, onClose, onUpgrade }) {
   const [status,        setStatus]        = useState(null);  // null = loading
@@ -154,16 +155,44 @@ export default function BillingModal({ profile, onClose, onUpgrade }) {
           ) : (
             /* Free plan */
             <>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>Free plan</div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.6 }}>
-                  Upgrade to Pro to email invoices directly to clients, add your logo, and export invoices as CSV. Voice AI adds voice and text parsing.
-                </div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Free plan</div>
+                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "var(--text-muted)", border: "1px solid var(--border)", padding: "2px 8px", textTransform: "uppercase" }}>FREE</span>
               </div>
+
+              {/* What's included on free */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {[
+                  { icon: <FileText size={12} />, text: "Unlimited invoices + PDF download" },
+                  { icon: <BarChart2 size={12} />, text: "Track Draft, Sent, and Paid" },
+                  { icon: <Link size={12} />, text: "Payment link + QR code on PDFs" },
+                ].map(({ icon, text }) => (
+                  <div key={text} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "var(--text-dim)" }}>
+                    <span style={{ color: "var(--text-muted)", flexShrink: 0 }}>{icon}</span>
+                    {text}
+                  </div>
+                ))}
+              </div>
+
+              {/* What Pro/Voice adds */}
+              <div style={{ borderTop: "1px solid var(--border-light)", paddingTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 4 }}>Unlock with Pro / Voice AI</div>
+                {[
+                  { icon: <Mail size={12} />,  text: "Email invoices to clients (Pro)" },
+                  { icon: <Image size={12} />, text: "Logo on every PDF (Pro)" },
+                  { icon: <Mic size={12} />,   text: "Voice + text AI parsing (Voice AI)" },
+                ].map(({ icon, text }) => (
+                  <div key={text} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "var(--text-muted)" }}>
+                    <span style={{ flexShrink: 0 }}>{icon}</span>
+                    {text}
+                  </div>
+                ))}
+              </div>
+
               {onUpgrade && (
                 <button
                   className="btn"
-                  style={{ fontSize: 10, padding: "8px 16px", alignSelf: "flex-start" }}
+                  style={{ fontSize: 10, padding: "8px 16px", alignSelf: "flex-start", marginTop: 4 }}
                   onClick={() => { onClose(); onUpgrade(); }}
                 >
                   View Plans

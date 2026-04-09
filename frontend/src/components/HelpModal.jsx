@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { FileText, Mic, Mail, Scale } from "lucide-react";
 
 export default function HelpModal({ onClose, isPro, onLegal }) {
   /*
@@ -103,51 +104,51 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
         {!minimized && (
           <div className="win-body">
 
-            <p className="help-heading">Getting started</p>
-            <ul className="help-list">
-              <li>Hit <strong>+ New Invoice</strong> to create one</li>
-              <li>Add your business info, client, line items and date</li>
-              <li>Set status: Draft → Sent → Paid (or Voided)</li>
-              <li>Tap any invoice to preview, download PDF, or send</li>
-            </ul>
+            {/* Getting started */}
+            <div className="help-section">
+              <div className="help-section-head"><FileText size={13} strokeWidth={2} /><span>Getting started</span></div>
+              <div className="help-row"><span className="help-step">1</span>Hit <strong>+ New Invoice</strong> to create one</div>
+              <div className="help-row"><span className="help-step">2</span>Add your client, line items, and date</div>
+              <div className="help-row"><span className="help-step">3</span>Move status: Draft → Sent → Paid</div>
+              <div className="help-row"><span className="help-step">4</span>Preview, download PDF, or send to client</div>
+            </div>
 
             <div className="win-divider" />
 
-            <p className="help-heading">AI Features</p>
-            <ul className="help-list">
-              <li>Voice AI plan lets you speak or type an invoice description and AI fills in the fields</li>
-              <li>Supports multiple line items. Say "web design and hosting" to get two separate lines</li>
-              <li>Detects currency (USD, CAD, EUR, GBP) from what you say or type</li>
-              <li>Limited to 20 AI parses per day per account</li>
-              <li>Always review AI-filled fields before sending to a client</li>
-              <li>AI input is processed by Groq, Inc. See Privacy Policy for details</li>
-            </ul>
+            {/* AI */}
+            <div className="help-section">
+              <div className="help-section-head"><Mic size={13} strokeWidth={2} /><span>Voice AI</span></div>
+              <div className="help-row"><span className="help-dot" />Speak or type a description — AI fills in the fields</div>
+              <div className="help-row"><span className="help-dot" />Say "web design and hosting" to get two line items</div>
+              <div className="help-row"><span className="help-dot" />Detects currency from context (USD, CAD, EUR, GBP)</div>
+              <div className="help-row"><span className="help-dot" />20 parses per day — always review before sending</div>
+            </div>
 
             <div className="win-divider" />
 
-            <p className="help-heading">Need Help?</p>
-            <ul className="help-list">
-              <li>Email <a href="mailto:support@invoiceprepper.com" style={{ color: "var(--accent)", textDecoration: "underline" }}>support@invoiceprepper.com</a> and we will get back to you.</li>
-            </ul>
-
-            <p className="help-footer">invoiceprepper.com. Built for independent workers, contractors &amp; small businesses worldwide.</p>
+            {/* Support */}
+            <div className="help-section">
+              <div className="help-section-head"><Mail size={13} strokeWidth={2} /><span>Support</span></div>
+              <div className="help-row">
+                <span className="help-dot" />
+                <a href="mailto:support@invoiceprepper.com" style={{ color: "var(--accent)" }}>support@invoiceprepper.com</a>
+              </div>
+            </div>
 
             {onLegal && (
               <>
                 <div className="win-divider" />
-                <p className="help-heading">Legal</p>
-                <ul className="help-list">
-                  <li>
-                    <button onClick={() => { onLegal("terms"); onClose(); }} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 12, textDecoration: "underline" }}>
-                      Terms of Service
-                    </button>
-                  </li>
-                  <li>
-                    <button onClick={() => { onLegal("privacy"); onClose(); }} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 12, textDecoration: "underline" }}>
-                      Privacy Policy
-                    </button>
-                  </li>
-                </ul>
+                <div className="help-section">
+                  <div className="help-section-head"><Scale size={13} strokeWidth={2} /><span>Legal</span></div>
+                  <div className="help-row">
+                    <span className="help-dot" />
+                    <button onClick={() => { onLegal("terms"); onClose(); }} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 11 }}>Terms of Service</button>
+                  </div>
+                  <div className="help-row">
+                    <span className="help-dot" />
+                    <button onClick={() => { onLegal("privacy"); onClose(); }} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 11 }}>Privacy Policy</button>
+                  </div>
+                </div>
               </>
             )}
 
