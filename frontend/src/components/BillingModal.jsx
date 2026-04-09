@@ -176,11 +176,11 @@ export default function BillingModal({ profile, onClose, onUpgrade }) {
 
               {/* What Pro/Voice adds */}
               <div style={{ borderTop: "1px solid var(--border-light)", paddingTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 4 }}>Unlock with Pro / Voice AI</div>
+                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 4 }}>Unlock on Pro and Voice AI</div>
                 {[
-                  { icon: <Mail size={12} />,  text: "Email invoices to clients (Pro)" },
-                  { icon: <Image size={12} />, text: "Logo on every PDF (Pro)" },
-                  { icon: <Mic size={12} />,   text: "Voice + text AI parsing (Voice AI)" },
+                  { icon: <Mail size={12} />,  text: "Email invoices to clients" },
+                  { icon: <Image size={12} />, text: "Logo on every PDF" },
+                  { icon: <Mic size={12} />,   text: "Voice and text AI parsing" },
                 ].map(({ icon, text }) => (
                   <div key={text} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "var(--text-muted)" }}>
                     <span style={{ flexShrink: 0 }}>{icon}</span>

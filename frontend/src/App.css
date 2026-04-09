@@ -429,6 +429,16 @@ body,
   left: 0;
   color: var(--text-muted);
 }
+.plans-modal-includes {
+  font-size: 9px !important;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted) !important;
+  padding-left: 0 !important;
+  margin-bottom: 2px;
+}
+.plans-modal-includes::before { display: none !important; }
 
 /* Plan buttons — match landing page exactly */
 .plans-modal-btn {
