@@ -312,8 +312,6 @@ async function buildDoc(receipt) {
     doc.addImage(logoDataUrl, "PNG", logoX, logoY, logoW, logoH);
   }
 
-  // No watermark on any tier
-
   return doc;
 }
 

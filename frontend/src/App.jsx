@@ -1074,18 +1074,26 @@ export default function App() {
                   className="btn btn-ghost"
                   style={{ width: "100%", marginBottom: 6 }}
                   onClick={async () => {
-                    const { downloadReceiptPDF, getPDFBlobUrl } = await import("./components/ReceiptPDF");
-                    const receiptData = { ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier };
                     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
                       (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.userAgent));
+                    const isMobile = window.innerWidth <= 768;
+
+                    // Open the popup window synchronously BEFORE any awaits.
+                    // Browsers block window.open() called after an await because
+                    // the user gesture context is lost. Opening early with "" keeps
+                    // it alive; we populate it with the blob URL once built.
+                    const win = (!isIOS && !isMobile) ? window.open("", "_blank") : null;
+
+                    const { downloadReceiptPDF, getPDFBlobUrl } = await import("./components/ReceiptPDF");
+                    const receiptData = { ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier };
 
                     if (isIOS) {
+                      if (win) win.close();
                       downloadReceiptPDF(receiptData);
-                    } else if (window.innerWidth <= 768) {
+                    } else if (isMobile) {
                       const url = await getPDFBlobUrl(receiptData);
                       setPdfPreviewUrl(url);
                     } else {
-                      const win = window.open("", "_blank");
                       const url = await getPDFBlobUrl(receiptData);
                       if (win) {
                         win.document.write(`<!DOCTYPE html><html><head><title>Invoice Preview</title></head><body style="margin:0;padding:0;height:100vh;"><embed src="${url}" type="application/pdf" width="100%" height="100%" /></body></html>`);

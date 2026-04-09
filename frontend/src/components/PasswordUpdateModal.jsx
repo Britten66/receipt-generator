@@ -20,6 +20,18 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 
+// Same rules as AuthModal: 8+ chars and at least one number or symbol
+function checkPassword(pw) {
+  if (!pw) return null;
+  const longEnough = pw.length >= 8;
+  const hasNumber  = /[0-9]/.test(pw);
+  const hasSymbol  = /[^a-zA-Z0-9]/.test(pw);
+  if (!longEnough)              return { ok: false, level: "weak",   msg: "At least 8 characters required" };
+  if (!hasNumber && !hasSymbol) return { ok: false, level: "weak",   msg: "Add a number or symbol (!@#$%)" };
+  if (hasNumber && hasSymbol)   return { ok: true,  level: "strong", msg: "Strong" };
+  return { ok: true, level: "good", msg: "Good" };
+}
+
 export default function PasswordUpdateModal({ onClose }) {
   const [password, setPassword] = useState("");
   const [confirm,  setConfirm]  = useState("");
@@ -44,15 +56,14 @@ export default function PasswordUpdateModal({ onClose }) {
     event.preventDefault();
     setError("");
 
-    // Make sure both fields match
-    if (password !== confirm) {
-      setError("Passwords don't match.");
+    const pwCheck = checkPassword(password);
+    if (!pwCheck?.ok) {
+      setError(pwCheck?.msg ?? "Password does not meet requirements.");
       return;
     }
 
-    // Supabase requires passwords to be at least 6 characters
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (password !== confirm) {
+      setError("Passwords don't match.");
       return;
     }
 
@@ -116,6 +127,24 @@ export default function PasswordUpdateModal({ onClose }) {
             required
             autoFocus
           />
+          {password && (() => {
+            const s = checkPassword(password);
+            const color = s.level === "strong" ? "var(--paid)" : s.level === "good" ? "#7aab5a" : "var(--voided)";
+            return (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
+                <div style={{ display: "flex", gap: 3 }}>
+                  {["weak","good","strong"].map((lvl, i) => (
+                    <div key={i} style={{
+                      width: 28, height: 3, borderRadius: 2,
+                      background: (["weak","good","strong"].indexOf(s.level) >= i) ? color : "var(--border)",
+                      transition: "background 0.2s",
+                    }} />
+                  ))}
+                </div>
+                <span style={{ fontSize: 10, color, fontFamily: "var(--mono)", letterSpacing: "0.06em" }}>{s.msg}</span>
+              </div>
+            );
+          })()}
         </div>
 
         <div className="field-group">

@@ -3,14 +3,33 @@ import { supabase } from "../lib/supabase";
 import LegalModal from "./LegalModal";
 import "./AuthPage.css";
 
+/*
+  checkPassword — validates password strength.
+  Rules: 8+ characters AND at least one number or special character.
+  Returns { ok, level, msg } — ok=false blocks form submission.
+*/
+function checkPassword(pw) {
+  if (!pw) return null;
+  const longEnough = pw.length >= 8;
+  const hasNumber  = /[0-9]/.test(pw);
+  const hasSymbol  = /[^a-zA-Z0-9]/.test(pw);
+  if (!longEnough)             return { ok: false, level: "weak",   msg: "At least 8 characters required" };
+  if (!hasNumber && !hasSymbol) return { ok: false, level: "weak",   msg: "Add a number or symbol (!@#$%)" };
+  if (hasNumber && hasSymbol)   return { ok: true,  level: "strong", msg: "Strong" };
+  return { ok: true, level: "good", msg: "Good" };
+}
+
+
 export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
-  const [mode, setMode]       = useState(initialMode);
-  const [email, setEmail]     = useState("");
+  const [mode, setMode]         = useState(initialMode);
+  const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [error, setError]     = useState("");
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [confirm, setConfirm]   = useState("");
+  const [error, setError]       = useState("");
+  const [message, setMessage]   = useState("");
+  const [loading, setLoading]   = useState(false);
+  // Honeypot: bots autofill hidden fields, humans never see or touch this
+  const [honeypot, setHoneypot] = useState("");
 
   // LEGAL COMPLIANCE: consent must be checked before account creation.
   // Unchecked by default — user must actively agree (CASL / PIPEDA requirement).
@@ -38,14 +57,21 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
     setMessage("");
 
     if (mode === "signup") {
+      // Bot check: honeypot field must be empty — bots fill it, humans never see it
+      if (honeypot) return;
+
       // LEGAL COMPLIANCE: block signup without explicit consent to T&C and Privacy Policy.
       if (!agreed) {
         setError("You must agree to the Terms and Privacy Policy to create an account.");
         return;
       }
+      const pwCheck = checkPassword(password);
+      if (!pwCheck?.ok) {
+        setError(pwCheck?.msg ?? "Password does not meet requirements.");
+        return;
+      }
       if (password !== confirm) {
         setError("Passwords don't match.");
-        setLoading(false);
         return;
       }
     }
@@ -138,6 +164,18 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
           )}
 
           <form className="auth-form" onSubmit={handleSubmit}>
+            {/* Honeypot — visually hidden, bots fill it, real users never see it */}
+            <div style={{ position: "absolute", left: "-9999px", top: "-9999px", opacity: 0, pointerEvents: "none" }} aria-hidden="true">
+              <input
+                type="text"
+                name="website"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
+
             <div className="field-group">
               <label className="field-label">Email</label>
               <input className="auth-field" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
@@ -147,6 +185,24 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
               <div className="field-group">
                 <label className="field-label">Password</label>
                 <input className="auth-field" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                {mode === "signup" && password && (() => {
+                  const s = checkPassword(password);
+                  const color = s.level === "strong" ? "var(--paid)" : s.level === "good" ? "#7aab5a" : "var(--voided)";
+                  return (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
+                      <div style={{ display: "flex", gap: 3 }}>
+                        {["weak","good","strong"].map((lvl, i) => (
+                          <div key={i} style={{
+                            width: 28, height: 3, borderRadius: 2,
+                            background: (["weak","good","strong"].indexOf(s.level) >= i) ? color : "var(--border)",
+                            transition: "background 0.2s",
+                          }} />
+                        ))}
+                      </div>
+                      <span style={{ fontSize: 10, color, fontFamily: "var(--mono)", letterSpacing: "0.06em" }}>{s.msg}</span>
+                    </div>
+                  );
+                })()}
               </div>
             )}
 

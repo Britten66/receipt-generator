@@ -2,8 +2,24 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { createPostHogClient } from "../_shared/posthog.ts";
 
-const ALLOWED_FIELDS = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency", "logo_url", "logo_corner"];
-const MAX_BODY_BYTES = 64 * 1024; // 64 KB
+const ALLOWED_FIELDS  = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency", "logo_url", "logo_corner"];
+const VALID_STATUSES  = new Set(["draft", "sent", "paid", "voided"]);
+const VALID_CORNERS   = new Set(["top-left", "top-right", "bottom-left", "bottom-right"]);
+const VALID_CURRENCIES = new Set(["CAD", "USD", "EUR", "GBP", "AUD", "NZD", "CHF", "JPY", "MXN", "SGD", "HKD", "INR"]);
+const MAX_BODY_BYTES  = 64 * 1024; // 64 KB
+const MAX_LINE_ITEMS  = 100;
+
+// Trims and caps a string field. Returns null if the value is not a string.
+function str(val: unknown, maxLen: number): string | null {
+  if (typeof val !== "string") return null;
+  return val.trim().slice(0, maxLen) || null;
+}
+
+// Clamps a numeric field to a safe range (no negative totals, no absurd values).
+function num(val: unknown): number {
+  const n = parseFloat(String(val ?? 0));
+  return isNaN(n) ? 0 : Math.min(Math.max(n, 0), 999_999_999);
+}
 
 Deno.serve(async (req) => {
   const origin = req.headers.get("Origin");
@@ -56,10 +72,21 @@ Deno.serve(async (req) => {
 
   // POST — create receipt + line items
   if (req.method === "POST") {
-    const { vendor_name, customer_name, status, date, subtotal, tax, total, notes, currency, line_items, logo_url, logo_corner } = await req.json();
+    const body = await req.json();
+    const vendor_name   = str(body.vendor_name,   200);
+    const customer_name = str(body.customer_name, 200);
+    const notes         = str(body.notes,         2000);
+    const status        = VALID_STATUSES.has(body.status)    ? body.status    : "draft";
+    const currency      = VALID_CURRENCIES.has(body.currency) ? body.currency : "CAD";
+    const logo_corner   = VALID_CORNERS.has(body.logo_corner) ? body.logo_corner : null;
+    const logo_url      = str(body.logo_url, 500);
+    const date          = typeof body.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.date) ? body.date : new Date().toISOString().split("T")[0];
+
     if (!vendor_name || !customer_name) {
       return new Response(JSON.stringify({ error: "Vendor name and customer name are required" }), { status: 400, headers: corsHeaders });
     }
+
+    const raw_items = Array.isArray(body.line_items) ? body.line_items.slice(0, MAX_LINE_ITEMS) : [];
 
     // Global sequential receipt number — counts ALL receipts across all users
     // so new users start at a high number, never revealing they're just starting out.
@@ -72,27 +99,27 @@ Deno.serve(async (req) => {
     const { data: receipt, error } = await supabase.from("receipts").insert({
       vendor_name, customer_name,
       receipt_number,
-      status: status ?? "draft",
-      date: date ?? new Date().toISOString().split("T")[0],
-      subtotal: subtotal ?? 0,
-      tax: tax ?? 0,
-      total: total ?? 0,
-      notes: notes ?? null,
-      currency: currency ?? "CAD",
-      logo_url: logo_url ?? null,
-      logo_corner: logo_corner ?? null,
+      status,
+      date,
+      subtotal: num(body.subtotal),
+      tax:      num(body.tax),
+      total:    num(body.total),
+      notes,
+      currency,
+      logo_url,
+      logo_corner,
       user_id: user.id,
     }).select().single();
 
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
 
-    if (line_items?.length) {
-      const items = line_items.map((li: { description: string; quantity: number; unit_price: number; total: number }) => ({
-        receipt_id: receipt.id,
-        description: li.description,
-        quantity: li.quantity,
-        unit_price: li.unit_price,
-        total: li.total,
+    if (raw_items.length) {
+      const items = raw_items.map((li: { description: string; quantity: number; unit_price: number; total: number }) => ({
+        receipt_id:  receipt.id,
+        description: str(li.description, 500) ?? "",
+        quantity:    num(li.quantity),
+        unit_price:  num(li.unit_price),
+        total:       num(li.total),
       }));
       await supabase.from("line_items").insert(items);
     }
@@ -107,7 +134,7 @@ Deno.serve(async (req) => {
         status: receipt.status,
         currency: receipt.currency,
         total: receipt.total,
-        line_item_count: line_items?.length ?? 0,
+        line_item_count: raw_items.length,
       },
     });
     await phCreate.shutdown();
@@ -122,7 +149,19 @@ Deno.serve(async (req) => {
 
     const updates: Record<string, unknown> = {};
     for (const key of ALLOWED_FIELDS) {
-      if (key in body) updates[key] = body[key];
+      if (!(key in body)) continue;
+      // Sanitize each field type appropriately
+      if (key === "vendor_name" || key === "customer_name") updates[key] = str(body[key], 200);
+      else if (key === "notes")       updates[key] = str(body[key], 2000);
+      else if (key === "logo_url")    updates[key] = str(body[key], 500);
+      else if (key === "status")      updates[key] = VALID_STATUSES.has(body[key])    ? body[key] : undefined;
+      else if (key === "currency")    updates[key] = VALID_CURRENCIES.has(body[key])  ? body[key] : undefined;
+      else if (key === "logo_corner") updates[key] = VALID_CORNERS.has(body[key])     ? body[key] : null;
+      else if (key === "date")        updates[key] = /^\d{4}-\d{2}-\d{2}$/.test(body[key] ?? "") ? body[key] : undefined;
+      else if (["subtotal","tax","total"].includes(key)) updates[key] = num(body[key]);
+      else updates[key] = body[key];
+      // Drop undefined values (invalid enum entries above)
+      if (updates[key] === undefined) delete updates[key];
     }
     if (!Object.keys(updates).length) {
       return new Response(JSON.stringify({ error: "No valid fields to update" }), { status: 400, headers: corsHeaders });
@@ -138,14 +177,15 @@ Deno.serve(async (req) => {
     // Replace line items if provided — delete old rows then insert fresh ones
     if (Array.isArray(body.line_items)) {
       await supabase.from("line_items").delete().eq("receipt_id", id);
-      if (body.line_items.length > 0) {
-        const items = (body.line_items as Array<{ description: string; quantity: number; unit_price: number; total: number }>)
+      const raw_patch_items = body.line_items.slice(0, MAX_LINE_ITEMS);
+      if (raw_patch_items.length > 0) {
+        const items = (raw_patch_items as Array<{ description: string; quantity: number; unit_price: number; total: number }>)
           .map((li) => ({
-            receipt_id: id,
-            description: li.description,
-            quantity: li.quantity,
-            unit_price: li.unit_price,
-            total: li.total,
+            receipt_id:  id,
+            description: str(li.description, 500) ?? "",
+            quantity:    num(li.quantity),
+            unit_price:  num(li.unit_price),
+            total:       num(li.total),
           }));
         await supabase.from("line_items").insert(items);
       }
