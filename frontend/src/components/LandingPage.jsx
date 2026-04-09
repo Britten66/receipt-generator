@@ -352,6 +352,17 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
 
       {/* Footer */}
       <footer className="lv2-footer">
+        <p style={{ marginBottom: 8 }}>
+          <a href="/free-invoice-generator" className="lv2-footer-link">Free Invoice Generator</a>
+          {" · "}
+          <a href="/invoice-for-freelancers" className="lv2-footer-link">For Freelancers</a>
+          {" · "}
+          <a href="/invoice-for-contractors" className="lv2-footer-link">For Contractors</a>
+          {" · "}
+          <a href="/how-to-invoice-clients" className="lv2-footer-link">How to Invoice</a>
+          {" · "}
+          <a href="/voice-invoicing" className="lv2-footer-link">Voice Invoicing</a>
+        </p>
         <p>
           <a href="#terms" onClick={(e) => { e.preventDefault(); setLegal("terms"); }} className="lv2-footer-link">Terms</a>
           {" · "}

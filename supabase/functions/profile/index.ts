@@ -1,7 +1,20 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 
-const MAX_BODY_BYTES = 32 * 1024; // 32 KB
+const MAX_BODY_BYTES   = 32 * 1024; // 32 KB
+const VALID_CURRENCIES = new Set(["CAD", "USD", "EUR", "GBP", "AUD", "NZD", "CHF", "JPY", "MXN", "SGD", "HKD", "INR"]);
+
+function str(val: unknown, maxLen: number): string | null {
+  if (typeof val !== "string") return null;
+  return val.trim().slice(0, maxLen) || null;
+}
+
+// URL fields: must start with https:// or http:// to prevent javascript: injection
+function safeUrl(val: unknown, maxLen = 500): string | null {
+  const s = str(val, maxLen);
+  if (!s) return null;
+  return /^https?:\/\//i.test(s) ? s : null;
+}
 
 Deno.serve(async (req) => {
   const origin = req.headers.get("Origin");
@@ -38,21 +51,26 @@ Deno.serve(async (req) => {
   }
 
   if (req.method === "PUT") {
-    const { business_name, address, email, phone, bio, website, payment_url, logo_url, avatar_url, theme, tax_rate, tax_label } = await req.json();
+    const body = await req.json();
+
+    // Sanitize all profile fields — lengths are generous but bounded.
+    // URL fields are validated to prevent javascript: injection via payment_url/website.
+    const tax_rate_val = parseFloat(String(body.tax_rate ?? ""));
     const { data, error } = await supabase.from("profiles").upsert({
-      user_id: user.id,
-      business_name: business_name ?? null,
-      address: address ?? null,
-      email: email ?? null,
-      phone: phone ?? null,
-      bio: bio ?? null,
-      website: website ?? null,
-      payment_url: payment_url ?? null,
-      logo_url: logo_url ?? null,
-      avatar_url: avatar_url ?? null,
-      ...(theme !== undefined ? { theme } : {}),
-      ...(tax_rate !== undefined ? { tax_rate } : {}),
-      ...(tax_label !== undefined ? { tax_label } : {}),
+      user_id:       user.id,
+      business_name: str(body.business_name, 200),
+      address:       str(body.address,       400),
+      email:         str(body.email,         254),
+      phone:         str(body.phone,         30),
+      bio:           str(body.bio,           500),
+      website:       safeUrl(body.website),
+      payment_url:   safeUrl(body.payment_url),
+      logo_url:      str(body.logo_url,      500),
+      avatar_url:    str(body.avatar_url,    500),
+      ...(body.theme    !== undefined ? { theme:     str(body.theme, 50) }                                       : {}),
+      ...(body.tax_rate !== undefined ? { tax_rate:  isNaN(tax_rate_val) ? 0 : Math.min(Math.max(tax_rate_val, 0), 100) } : {}),
+      ...(body.tax_label !== undefined ? { tax_label: str(body.tax_label, 50) }                                  : {}),
+      ...(body.currency !== undefined ? { currency: VALID_CURRENCIES.has(body.currency) ? body.currency : "CAD" } : {}),
     }, { onConflict: "user_id" }).select().single();
 
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
