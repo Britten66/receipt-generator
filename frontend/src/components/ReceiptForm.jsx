@@ -550,7 +550,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="modal">
+      <div className={`modal${!isDesktop && profile?.tier === "voice" ? " receipt-form-voice" : ""}`}>
         <div className="modal-header">
           <span className="modal-title">{modalTitle}</span>
           <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={onClose}>✕</button>
