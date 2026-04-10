@@ -556,8 +556,8 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={onClose}>✕</button>
         </div>
 
-        {/* Text AI entry — all tiers. Voice recording status shown on mobile for voice tier only. */}
-        <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", background: "var(--surface-2)", display: "flex", alignItems: "center", gap: 10 }}>
+        {/* Text AI entry — Pro and Voice AI tiers only. Voice recording status shown on mobile for voice tier. */}
+        {(profile?.tier === "pro" || profile?.tier === "voice") && <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", background: "var(--surface-2)", display: "flex", alignItems: "center", gap: 10 }}>
 
           {/* Desktop: always show text input. Mobile voice tier: show recording status. Mobile free/pro: show text input. */}
           {(isDesktop || profile?.tier !== "voice") ? (
@@ -628,7 +628,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             title="Clear all AI-filled fields"
             style={{ fontSize: 9, background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "0 2px", flexShrink: 0, letterSpacing: "0.06em", textTransform: "uppercase" }}
           >Clear</button>
-        </div>
+        </div>}
 
         <div className="modal-body">
 
