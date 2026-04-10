@@ -1,3 +1,14 @@
+# HTML — always revalidate so meta, favicon, and OG tags are never stale
+/*.html
+  Cache-Control: no-cache
+
+/
+  Cache-Control: no-cache
+
+# Hashed assets — cache forever, filename changes on rebuild
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /*
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
