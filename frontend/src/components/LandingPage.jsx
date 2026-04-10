@@ -243,7 +243,6 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 <li>Download and share link</li>
                 <li>Pay Now button on invoices</li>
                 <li>Draft, sent, paid tracking</li>
-                <li>3 text AI parses per month</li>
                 <li>Dark mode</li>
                 <li>No app to install. Works in any browser</li>
                 <li>Syncs across desktop and mobile</li>
@@ -274,7 +273,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 <li>Your business name on every email</li>
                 <li>Upload your logo to every PDF</li>
                 <li>Send payment reminders for unpaid invoices</li>
-                <li>Unlimited text AI parsing</li>
+                <li>Text AI parsing (15 per day)</li>
                 <li>Customizable dashboard themes</li>
                 <li>CSV export of all invoices</li>
               </ul>

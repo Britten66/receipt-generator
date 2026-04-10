@@ -118,10 +118,10 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
             {/* AI */}
             <div className="help-section">
               <div className="help-section-head"><Mic size={13} strokeWidth={2} /><span>Voice AI</span></div>
-              <div className="help-row"><span className="help-dot" />Type a description and AI fills in the fields</div>
+              <div className="help-row"><span className="help-dot" />Type a description and AI fills in the fields (Pro: 15/day, Voice AI: unlimited)</div>
               <div className="help-row"><span className="help-dot" />Say "web design and hosting" to get two line items</div>
               <div className="help-row"><span className="help-dot" />Detects currency from context (USD, CAD, EUR, GBP)</div>
-              <div className="help-row"><span className="help-dot" />Free: 3 parses per month. Pro: unlimited. Always review before sending.</div>
+              <div className="help-row"><span className="help-dot" />Always review before sending</div>
             </div>
 
             <div className="win-divider" />

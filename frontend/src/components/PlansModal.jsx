@@ -56,7 +56,7 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
                   <li>Your business name on every email</li>
                   <li>Upload your logo to every PDF</li>
                   <li>Send payment reminders for unpaid invoices</li>
-                  <li>Unlimited text AI parsing</li>
+                  <li>Text AI parsing (15 per day)</li>
                   <li>Dashboard themes</li>
                   <li>CSV export of all invoices</li>
                 </ul>

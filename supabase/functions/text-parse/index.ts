@@ -32,25 +32,28 @@ Deno.serve(async (req)=>{
   console.log("tier-check:", user.id, "tier:", profile?.tier, "err:", profileError?.message);
   const tier = profile?.tier ?? "free";
 
+  // Free tier has no text AI access
+  if (tier === "free") {
+    return new Response(JSON.stringify({ error: "Text AI requires the Pro plan or higher." }), { status: 403, headers: corsHeaders });
+  }
+
   // Rate limiting by tier — skip for admins
   const adminIds = (Deno.env.get("ADMIN_USER_IDS") ?? "").split(",").map(s => s.trim()).filter(Boolean);
   const isAdmin = adminIds.includes(user.id);
   const today = new Date().toISOString().slice(0, 10);
 
   if (!isAdmin) {
-    if (tier === "free") {
-      // Free tier: 3 text parses per calendar month
-      // Use year-month prefix match to avoid off-by-one on months with fewer than 31 days
-      const yearMonth = today.slice(0, 7); // "2025-04"
+    if (tier === "pro") {
+      // Pro tier: 15 text parses per day, resets at midnight UTC
       const { count } = await supabase.from("voice_usage").select("*", { count: "exact", head: true })
-        .eq("user_id", user.id).like("date", yearMonth + "%");
-      if ((count ?? 0) >= 3) {
+        .eq("user_id", user.id).eq("date", today);
+      if ((count ?? 0) >= 15) {
         return new Response(JSON.stringify({
-          error: "Monthly AI limit reached. Upgrade to Pro for unlimited text AI."
+          error: "Daily AI limit reached. Try again tomorrow."
         }), { status: 429, headers: corsHeaders });
       }
     }
-    // Pro and Voice AI: no limit on text parsing
+    // Voice AI tier: unlimited text parsing
   }
   const groqKey = Deno.env.get("GROQ_API_KEY");
   if (!groqKey) return new Response(JSON.stringify({

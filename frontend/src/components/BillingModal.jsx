@@ -180,7 +180,7 @@ export default function BillingModal({ profile, onClose, onUpgrade }) {
                 {[
                   { icon: <Mail size={12} />,  text: "Email invoices to clients" },
                   { icon: <Image size={12} />, text: "Logo on every PDF" },
-                  { icon: <Mic size={12} />,   text: "Voice AI (speak your invoice)" },
+                  { icon: <Mic size={12} />,   text: "Voice AI: speak your invoice (Voice AI plan)" },
                 ].map(({ icon, text }) => (
                   <div key={text} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "var(--text-muted)" }}>
                     <span style={{ flexShrink: 0 }}>{icon}</span>
