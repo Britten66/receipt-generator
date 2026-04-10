@@ -463,6 +463,10 @@ body,
   color: var(--text);
   border-color: var(--text-muted);
 }
+@media (max-width: 768px) {
+  .feedback-fab { display: none; }
+  .receipt-form-voice .modal-body { padding-bottom: 60px; }
+}
 
 /* Plan buttons — match landing page exactly */
 .plans-modal-btn {
