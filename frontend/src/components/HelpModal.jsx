@@ -133,9 +133,19 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
                 <span className="help-dot" />
                 <a href="mailto:support@invoiceprepper.com" style={{ color: "var(--accent)" }}>support@invoiceprepper.com</a>
               </div>
-              <div className="help-row">
-                <span className="help-dot" />
-                <a href={`mailto:support@invoiceprepper.com?subject=${encodeURIComponent("Bug Report")}&body=${encodeURIComponent("Hi,\n\nI found a bug:\n\n")}`} style={{ color: "var(--accent)" }}>Found a bug? Tap to report</a>
+              <div className="help-row" style={{ gap: 6, marginTop: 4 }}>
+                <a
+                  href={`mailto:support@invoiceprepper.com?subject=${encodeURIComponent("Feedback")}&body=${encodeURIComponent("Hi,\n\nHere is my feedback:\n\n")}`}
+                  style={{ fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", padding: "5px 12px", border: "1px solid var(--border)", color: "var(--text-muted)", textDecoration: "none", display: "inline-block" }}
+                >
+                  Send Feedback
+                </a>
+                <a
+                  href={`mailto:support@invoiceprepper.com?subject=${encodeURIComponent("Bug Report")}&body=${encodeURIComponent("Hi,\n\nI found a bug:\n\n")}`}
+                  style={{ fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", padding: "5px 12px", border: "1px solid var(--border)", color: "var(--text-muted)", textDecoration: "none", display: "inline-block" }}
+                >
+                  Report Bug
+                </a>
               </div>
             </div>
 
