@@ -124,6 +124,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   const audioChunksRef   = useRef([]);
   const voiceTimerRef    = useRef(null);
   const voiceMimeRef     = useRef("audio/webm");
+  const audioCtxRef      = useRef(null);
   const MAX_RECORDING_SECONDS = 45;
 
   // True on desktop (mouse pointer) — shows text input instead of mic orb
@@ -131,7 +132,11 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
   function playChime(type = "start") {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
+        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === "suspended") ctx.resume();
       const t   = ctx.currentTime;
 
       function note(freq, startAt, duration, peakGain) {

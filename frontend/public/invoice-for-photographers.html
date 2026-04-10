@@ -3,25 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Invoice Generator for Freelancers: Send Professional Invoices Fast | InvoicePrepper</title>
-  <meta name="description" content="Invoice generator built for freelancers. Sign in with Google, no password needed. Create professional PDF invoices, track payments, and email clients. Free to start." />
-  <link rel="canonical" href="https://invoiceprepper.com/invoice-for-freelancers" />
+  <title>Invoice App for Photographers | InvoicePrepper</title>
+  <meta name="description" content="Invoice app for photographers. Send deposit and final invoices, itemize retouching and travel, add your logo. Sign in with Google, no password needed." />
+  <link rel="canonical" href="https://invoiceprepper.com/invoice-for-photographers" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <meta name="theme-color" content="#1e1c18" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://invoiceprepper.com/invoice-for-freelancers" />
-  <meta property="og:title" content="Invoice Generator for Freelancers: Send Professional Invoices Fast" />
-  <meta property="og:description" content="Invoice generator built for freelancers. Create professional PDF invoices, track payments, email clients on Pro. Free to start." />
+  <meta property="og:url" content="https://invoiceprepper.com/invoice-for-photographers" />
+  <meta property="og:title" content="Invoice App for Photographers | InvoicePrepper" />
+  <meta property="og:description" content="Bill photography clients cleanly. Deposit invoices, final payments, retouching fees, and travel. Send a professional PDF by email. Free to start." />
   <meta property="og:image" content="https://invoiceprepper.com/og-image.png" />
   <meta property="og:site_name" content="InvoicePrepper" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "Invoice Generator for Freelancers",
-    "url": "https://invoiceprepper.com/invoice-for-freelancers",
-    "description": "Invoice generator built for freelancers. Create professional PDF invoices, track payments, and email clients directly on Pro.",
+    "name": "Invoice App for Photographers",
+    "url": "https://invoiceprepper.com/invoice-for-photographers",
+    "description": "Invoice app for photographers. Bill session fees, retouching, travel, and usage rights. Send PDF invoices by email from any device.",
     "isPartOf": { "@type": "WebSite", "name": "InvoicePrepper", "url": "https://invoiceprepper.com" }
   }
   </script>
@@ -32,23 +32,23 @@
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "Do I need accounting software as a freelancer?",
-        "acceptedAnswer": { "@type": "Answer", "text": "No. Most freelancers only need to send invoices and track what has been paid. InvoicePrepper handles both without the complexity or cost of full accounting software." }
+        "name": "Can I send a deposit invoice and a final invoice for the same shoot?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Create the deposit invoice first with a line item for the booking deposit. After the shoot, create the final invoice for the remaining balance, retouching, and any extras. Each invoice has its own number and PDF." }
       },
       {
         "@type": "Question",
-        "name": "Can I track which invoices have been paid?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every invoice has a status — Draft, Sent, or Paid. You can see your total outstanding balance at a glance and mark invoices paid with one tap when the money comes in." }
+        "name": "Can I add usage rights or licensing fees as a separate line item?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Add a line item with a clear description such as commercial usage rights, web licence, or print licence and set the price. The invoice lists it alongside the session fee so the client sees exactly what they are paying for." }
       },
       {
         "@type": "Question",
-        "name": "Can I email invoices directly to clients?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes, on the Pro plan. Invoices are emailed from your business name to your client with the PDF attached. The free plan lets you download and send the PDF yourself." }
+        "name": "Can I add my photography business logo to invoices?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Pro plan ($9 per month CAD) lets you upload your logo. It appears at the top of every invoice PDF, making your invoices look polished and on-brand." }
       },
       {
         "@type": "Question",
-        "name": "Does it work for hourly billing?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Add line items with a description, quantity (hours), and unit price (your rate). The total calculates automatically. You can also use it for project-based or flat-rate billing." }
+        "name": "Is InvoicePrepper free for photographers just starting out?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. The free plan includes unlimited invoices and PDF download with no credit card required and no expiry. When you are ready to email invoices directly and add your logo, upgrade to Pro for $9 per month CAD." }
       }
     ]
   }
@@ -77,6 +77,9 @@
     .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
     .card { padding: 20px; border: 1px solid var(--border); background: var(--surface); }
     .card p { font-size: 12px; color: var(--text-dim); margin-top: 4px; line-height: 1.5; }
+    .quote-block { border-left: 3px solid var(--accent); padding: 16px 20px; background: var(--surface); border-right: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 32px 0; }
+    .quote-text { font-size: 15px; color: var(--text); font-style: italic; line-height: 1.6; }
+    .quote-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 10px; }
     hr { border: none; border-top: 1px solid var(--border); margin-bottom: 48px; }
     .final-cta { background: var(--text); text-align: center; padding: 48px 32px; }
     .final-cta h2 { color: #f5f4f0; margin-bottom: 12px; }
@@ -108,39 +111,47 @@
   </nav>
 
   <div class="wrap hero">
-    <p class="eyebrow">For Freelancers</p>
-    <h1>Stop chasing payments. Start sending better invoices.</h1>
-    <p class="lead">InvoicePrepper makes it easy to create professional invoices and track exactly what is outstanding. Download or share PDFs for free. Email directly to clients on Pro. Spend less time on admin and more time on work that pays.</p>
+    <p class="eyebrow">For Photographers</p>
+    <h1>Invoice every shoot. Sessions, deposits, retouching, and rights.</h1>
+    <p class="lead">InvoicePrepper lets photographers send clean, itemized invoices for any job. Booking deposits, final balances, retouching fees, travel, and usage rights — all on one professional PDF. Sign in with Google, no password needed.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
     <span class="cta-sub">Free forever. No credit card required.</span>
   </div>
 
   <div class="wrap section">
-    <h2>Everything a freelancer needs to get paid</h2>
+    <div class="quote-block">
+      <p class="quote-text">"Invoice Bloom Bakery, brand shoot 4 hours at 200 dollars per hour, retouching 150 dollars, commercial usage rights 300 dollars."</p>
+      <p class="quote-label">Voice AI plan. Describe the job out loud. Done before you pack up your gear.</p>
+    </div>
+    <p style="font-size:13px;color:var(--text-dim);">The Voice AI plan ($12/mo CAD) is useful after a long shoot day. Speak the invoice out loud, confirm the numbers, and send. No typing on a small phone screen with tired hands.</p>
+  </div>
+
+  <div class="wrap section">
+    <h2>How photographers bill with InvoicePrepper</h2>
     <div class="cards">
       <div class="card">
-        <h3>Professional PDFs</h3>
-        <p>Clean, professional invoices every time. Download or share the PDF instantly. Email directly to your client on Pro.</p>
+        <h3>Deposit and final invoices</h3>
+        <p>Send a booking deposit invoice to lock in the date. After the shoot, send the final invoice for the remaining balance and any extras.</p>
       </div>
       <div class="card">
-        <h3>Email from your name</h3>
-        <p>Pro plan sends invoices from your business name, not a generic address. Looks more professional.</p>
+        <h3>Itemize everything</h3>
+        <p>Session fee, retouching, travel, second shooter, prints, and usage rights as separate line items. Clients see exactly what they are paying for.</p>
       </div>
       <div class="card">
         <h3>Your logo on every invoice</h3>
-        <p>Upload your logo once. It appears on every PDF automatically. Builds your brand with every send.</p>
+        <p>Pro plan ($9/mo CAD) adds your photography business logo to every PDF. Looks professional and on-brand for every client.</p>
       </div>
       <div class="card">
-        <h3>Outstanding balance</h3>
-        <p>See your total outstanding at a glance. Know exactly how much you are owed right now.</p>
+        <h3>Email the PDF directly</h3>
+        <p>Pro plan sends the invoice to the client by email straight from InvoicePrepper. No downloading and forwarding required.</p>
       </div>
       <div class="card">
-        <h3>Payment link</h3>
-        <p>Add your Stripe or PayPal link once. A QR code appears on every unpaid invoice automatically.</p>
+        <h3>Track payments</h3>
+        <p>See which clients have paid the deposit, who owes the final balance, and who is overdue. Mark invoices paid when the money arrives.</p>
       </div>
       <div class="card">
-        <h3>Voice AI</h3>
-        <p>Describe your project out loud. AI fills in the invoice. Useful when you bill by the hour and just finished a session.</p>
+        <h3>Works on mobile</h3>
+        <p>Any phone browser. No app to download. Invoice on location or from home, the same day as the shoot.</p>
       </div>
     </div>
   </div>
@@ -148,19 +159,18 @@
   <div class="wrap"><hr /></div>
 
   <div class="wrap section">
-    <h2>Works for any type of freelance work</h2>
-    <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Designers and creatives</strong> — Project packages, revision rounds, and hourly work all supported as line items.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Writers and editors</strong> — Per-word, per-article, or hourly. Invoice the moment you deliver the work.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Developers and consultants</strong> — Hourly billing with detailed line items. Looks professional enough for corporate clients.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Photographers and videographers</strong> — Shoot fees, editing, and licensing. All in one invoice.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Coaches and tutors</strong> — Session-based billing. Track which clients have paid and which have not.</div>
+    <h2>Portrait, event, and commercial photographers</h2>
+    <div style="display:flex;flex-direction:column;gap:16px;margin-top:4px;">
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Wedding and event photographers</strong>Large invoices with multiple components. Engagement session, full-day coverage, second shooter, album, and prints — all itemized clearly so couples understand the breakdown.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Portrait photographers</strong>Family sessions, headshots, and newborns. Regular clients billed quickly. Pull up the client name, enter the session details, and send before they leave the studio.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Commercial and product photographers</strong>Licensing fees, usage rights, and day rates billed on the same invoice. Commercial clients expect a clean PDF and InvoicePrepper delivers one.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Freelance photographers on multiple shoots</strong>Separate invoices per client and per job. All invoices in one place, all payment statuses visible at a glance.</div>
     </div>
   </div>
 
   <div class="final-cta">
-    <h2>Send your first invoice in two minutes</h2>
-    <p>Free forever. No accounting knowledge needed.</p>
+    <h2>Send your first photography invoice today</h2>
+    <p>Free forever. No learning curve. Works on any device.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
     <span class="cta-sub">Free forever. Upgrade when you are ready.</span>
   </div>
@@ -176,6 +186,8 @@
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-electricians">Electricians</a>
     &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-freelancers">Freelancers</a>
+    &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-cleaners">Cleaners</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-landscapers">Landscapers</a>
@@ -185,8 +197,6 @@
     <a href="https://invoiceprepper.com/invoice-for-plumbers">Plumbers</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-tutors">Tutors</a>
-    &nbsp;·&nbsp;
-    <a href="https://invoiceprepper.com/invoice-for-photographers">Photographers</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-personal-trainers">Personal Trainers</a>
     &nbsp;·&nbsp;

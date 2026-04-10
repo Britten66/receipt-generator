@@ -3,25 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Invoice Generator for Freelancers: Send Professional Invoices Fast | InvoicePrepper</title>
-  <meta name="description" content="Invoice generator built for freelancers. Sign in with Google, no password needed. Create professional PDF invoices, track payments, and email clients. Free to start." />
-  <link rel="canonical" href="https://invoiceprepper.com/invoice-for-freelancers" />
+  <title>Invoice App for Plumbers | InvoicePrepper</title>
+  <meta name="description" content="Invoice app for plumbers. Sign in with Google, no password needed. Bill service calls, labour, and materials. GST/HST built in. Free to start." />
+  <link rel="canonical" href="https://invoiceprepper.com/invoice-for-plumbers" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <meta name="theme-color" content="#1e1c18" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://invoiceprepper.com/invoice-for-freelancers" />
-  <meta property="og:title" content="Invoice Generator for Freelancers: Send Professional Invoices Fast" />
-  <meta property="og:description" content="Invoice generator built for freelancers. Create professional PDF invoices, track payments, email clients on Pro. Free to start." />
+  <meta property="og:url" content="https://invoiceprepper.com/invoice-for-plumbers" />
+  <meta property="og:title" content="Invoice App for Plumbers | InvoicePrepper" />
+  <meta property="og:description" content="Bill service calls, labour, and materials on one clean invoice. Apply GST or HST automatically. Send a PDF before you leave. Free to start." />
   <meta property="og:image" content="https://invoiceprepper.com/og-image.png" />
   <meta property="og:site_name" content="InvoicePrepper" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "Invoice Generator for Freelancers",
-    "url": "https://invoiceprepper.com/invoice-for-freelancers",
-    "description": "Invoice generator built for freelancers. Create professional PDF invoices, track payments, and email clients directly on Pro.",
+    "name": "Invoice App for Plumbers",
+    "url": "https://invoiceprepper.com/invoice-for-plumbers",
+    "description": "Invoice app built for plumbers. Bill service calls, labour, and materials. GST and HST calculated automatically.",
     "isPartOf": { "@type": "WebSite", "name": "InvoicePrepper", "url": "https://invoiceprepper.com" }
   }
   </script>
@@ -32,23 +32,23 @@
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "Do I need accounting software as a freelancer?",
-        "acceptedAnswer": { "@type": "Answer", "text": "No. Most freelancers only need to send invoices and track what has been paid. InvoicePrepper handles both without the complexity or cost of full accounting software." }
+        "name": "Can I add a service call fee plus labour and parts on the same plumbing invoice?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Each charge is its own line item. Add a flat service call fee on one line, your hourly labour rate on another, and list every part with its quantity and unit cost. The invoice totals everything and calculates tax." }
       },
       {
         "@type": "Question",
-        "name": "Can I track which invoices have been paid?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every invoice has a status — Draft, Sent, or Paid. You can see your total outstanding balance at a glance and mark invoices paid with one tap when the money comes in." }
+        "name": "Does InvoicePrepper handle GST and HST for plumbing invoices?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Enter your GST or HST rate once in your profile. Every new invoice applies it automatically and shows the subtotal, tax amount, and total clearly at the bottom." }
       },
       {
         "@type": "Question",
-        "name": "Can I email invoices directly to clients?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes, on the Pro plan. Invoices are emailed from your business name to your client with the PDF attached. The free plan lets you download and send the PDF yourself." }
+        "name": "Can I invoice from my phone after a service call?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. InvoicePrepper works in any mobile browser. No app download required. Build the invoice in the driveway, email the PDF to your client, and drive to your next job." }
       },
       {
         "@type": "Question",
-        "name": "Does it work for hourly billing?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Add line items with a description, quantity (hours), and unit price (your rate). The total calculates automatically. You can also use it for project-based or flat-rate billing." }
+        "name": "What plans does InvoicePrepper offer for plumbers?",
+        "acceptedAnswer": { "@type": "Answer", "text": "The free plan gives you unlimited invoices and PDF download with no credit card required. The Pro plan at $9 per month CAD adds email sending and logo upload. The Voice AI plan at $12 per month CAD lets you speak your invoice out loud and have it filled in automatically." }
       }
     ]
   }
@@ -77,6 +77,9 @@
     .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
     .card { padding: 20px; border: 1px solid var(--border); background: var(--surface); }
     .card p { font-size: 12px; color: var(--text-dim); margin-top: 4px; line-height: 1.5; }
+    .quote-block { border-left: 3px solid var(--accent); padding: 16px 20px; background: var(--surface); border-right: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 32px 0; }
+    .quote-text { font-size: 15px; color: var(--text); font-style: italic; line-height: 1.6; }
+    .quote-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 10px; }
     hr { border: none; border-top: 1px solid var(--border); margin-bottom: 48px; }
     .final-cta { background: var(--text); text-align: center; padding: 48px 32px; }
     .final-cta h2 { color: #f5f4f0; margin-bottom: 12px; }
@@ -108,39 +111,47 @@
   </nav>
 
   <div class="wrap hero">
-    <p class="eyebrow">For Freelancers</p>
-    <h1>Stop chasing payments. Start sending better invoices.</h1>
-    <p class="lead">InvoicePrepper makes it easy to create professional invoices and track exactly what is outstanding. Download or share PDFs for free. Email directly to clients on Pro. Spend less time on admin and more time on work that pays.</p>
+    <p class="eyebrow">For Plumbers</p>
+    <h1>Service call. Labour. Parts. One invoice. Done.</h1>
+    <p class="lead">InvoicePrepper is built for plumbers running service calls. Add a flat call fee, hourly labour, and every part used, then apply GST or HST automatically and send the PDF before you drive away. Sign in with Google, no password needed.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
     <span class="cta-sub">Free forever. No credit card required.</span>
   </div>
 
   <div class="wrap section">
-    <h2>Everything a freelancer needs to get paid</h2>
+    <div class="quote-block">
+      <p class="quote-text">"Invoice Sarah Lee, service call $85, 2 hours labour at $95, shutoff valve $42, copper fittings $28."</p>
+      <p class="quote-label">Voice AI plan. Speak the job. Invoice is ready in seconds.</p>
+    </div>
+    <p style="font-size:13px;color:var(--text-dim);">The Voice AI plan ($12/mo CAD) is useful when your hands are still damp. Speak the job from the driveway, glance at the invoice to confirm everything is right, and send it.</p>
+  </div>
+
+  <div class="wrap section">
+    <h2>Built for how plumbers actually bill</h2>
     <div class="cards">
       <div class="card">
-        <h3>Professional PDFs</h3>
-        <p>Clean, professional invoices every time. Download or share the PDF instantly. Email directly to your client on Pro.</p>
+        <h3>Service call fees</h3>
+        <p>Add a flat diagnostic or call-out fee as its own line item, separate from hourly labour and parts.</p>
       </div>
       <div class="card">
-        <h3>Email from your name</h3>
-        <p>Pro plan sends invoices from your business name, not a generic address. Looks more professional.</p>
+        <h3>Parts with quantities</h3>
+        <p>List every fitting, valve, pipe, and fixture with unit cost and quantity. The invoice calculates the total automatically.</p>
       </div>
       <div class="card">
-        <h3>Your logo on every invoice</h3>
-        <p>Upload your logo once. It appears on every PDF automatically. Builds your brand with every send.</p>
+        <h3>GST and HST built in</h3>
+        <p>Set your tax rate once. It applies to every invoice going forward. No manual math ever.</p>
       </div>
       <div class="card">
-        <h3>Outstanding balance</h3>
-        <p>See your total outstanding at a glance. Know exactly how much you are owed right now.</p>
+        <h3>Send from the job site</h3>
+        <p>Works on any phone browser. Email the PDF directly to your client. Pro plan adds your logo and business name.</p>
       </div>
       <div class="card">
-        <h3>Payment link</h3>
-        <p>Add your Stripe or PayPal link once. A QR code appears on every unpaid invoice automatically.</p>
+        <h3>Track overdue invoices</h3>
+        <p>All your invoices in one list. See what is unpaid at a glance and mark jobs paid when money arrives.</p>
       </div>
       <div class="card">
-        <h3>Voice AI</h3>
-        <p>Describe your project out loud. AI fills in the invoice. Useful when you bill by the hour and just finished a session.</p>
+        <h3>Free. No catch.</h3>
+        <p>Unlimited invoices and PDF download on the free plan. No credit card, no expiry, no watermark.</p>
       </div>
     </div>
   </div>
@@ -148,19 +159,18 @@
   <div class="wrap"><hr /></div>
 
   <div class="wrap section">
-    <h2>Works for any type of freelance work</h2>
-    <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Designers and creatives</strong> — Project packages, revision rounds, and hourly work all supported as line items.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Writers and editors</strong> — Per-word, per-article, or hourly. Invoice the moment you deliver the work.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Developers and consultants</strong> — Hourly billing with detailed line items. Looks professional enough for corporate clients.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Photographers and videographers</strong> — Shoot fees, editing, and licensing. All in one invoice.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Coaches and tutors</strong> — Session-based billing. Track which clients have paid and which have not.</div>
+    <h2>What a plumbing invoice covers</h2>
+    <div style="display:flex;flex-direction:column;gap:16px;margin-top:4px;">
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Service and diagnostic fees</strong>Flat fees for showing up and diagnosing the problem. Bill it clearly so clients understand what they are paying for.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Hourly labour</strong>Set your rate, enter the hours, and the invoice calculates the labour total. Useful for jobs that run longer than expected.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Parts and materials</strong>Every part itemized with supplier cost or marked-up price. Clients get a clear breakdown, you have a record.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Tax, subtotal, and total</strong>GST or HST calculated automatically. The invoice layout is clean and professional enough to hand to any homeowner or property manager.</div>
     </div>
   </div>
 
   <div class="final-cta">
-    <h2>Send your first invoice in two minutes</h2>
-    <p>Free forever. No accounting knowledge needed.</p>
+    <h2>Send your first plumbing invoice today</h2>
+    <p>Free forever. No setup. No accounting software to learn.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
     <span class="cta-sub">Free forever. Upgrade when you are ready.</span>
   </div>
@@ -176,13 +186,13 @@
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-electricians">Electricians</a>
     &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-freelancers">Freelancers</a>
+    &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-cleaners">Cleaners</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-landscapers">Landscapers</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-painters">Painters</a>
-    &nbsp;·&nbsp;
-    <a href="https://invoiceprepper.com/invoice-for-plumbers">Plumbers</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-tutors">Tutors</a>
     &nbsp;·&nbsp;
