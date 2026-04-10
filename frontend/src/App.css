@@ -440,6 +440,30 @@ body,
 }
 .plans-modal-includes::before { display: none !important; }
 
+/* Feedback floating button */
+.feedback-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  z-index: 490;
+  background: var(--surface-raised, var(--surface));
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.feedback-fab:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
 /* Plan buttons — match landing page exactly */
 .plans-modal-btn {
   width: 100%;

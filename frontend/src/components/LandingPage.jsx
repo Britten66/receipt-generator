@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import posthog from "posthog-js";
 import LegalModal from "./LegalModal";
 import BorderGlow from "./BorderGlow";
 import Threads from "./Threads";
@@ -84,7 +85,17 @@ function MockInvoice() {
 
 export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignIn, onSignUp, darkMode, onToggleDark, currency, onCurrencyChange }) {
   const [legal, setLegal] = useState(null);
+  const [ctaVariant, setCtaVariant] = useState("control");
   const navRef = useRef(null);
+
+  // A/B test: hero CTA copy. Flag key: landing-cta-copy
+  // Variants: control ("Start Invoicing Free") vs first-invoice ("Create Your First Invoice")
+  useEffect(() => {
+    posthog.onFeatureFlags(() => {
+      const flag = posthog.getFeatureFlag("landing-cta-copy");
+      if (flag === "first-invoice") setCtaVariant("first-invoice");
+    });
+  }, []);
 
   // Lazy-follow nav: velocity-based drag that decays back to 0
   useEffect(() => {
@@ -140,7 +151,12 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           <p className="lv2-eyebrow">InvoicePrepper</p>
           <h1 className="lv2-title">The invoice generator<br />for people who<br />just want to get paid.</h1>
           <p className="lv2-desc">Create professional invoices, email to clients, and track what's paid; all in one place. Built for independent workers, contractors, and small businesses. No bloat, no learning curve.</p>
-          <button className="lv2-cta" onClick={onEnter}>Start Invoicing Free</button>
+          <button className="lv2-cta" onClick={() => {
+            posthog.capture("cta_clicked", { variant: ctaVariant, location: "hero" });
+            onEnter();
+          }}>
+            {ctaVariant === "first-invoice" ? "Create Your First Invoice" : "Start Invoicing Free"}
+          </button>
           <p className="lv2-sub">Free forever · No credit card required</p>
         </div>
 

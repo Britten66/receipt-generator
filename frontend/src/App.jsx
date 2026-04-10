@@ -262,7 +262,7 @@ export default function App() {
         setSession(newSession);
         setShowAuthModal(false);
         setEntered(true);
-        if (event === "SIGNED_IN") posthog.identify(newSession.user.id, { email: newSession.user.email });
+        if (event === "SIGNED_IN") posthog.identify(newSession.user.id);
 
         // If the user clicked upgrade before signing in, kick off checkout now.
         if (proIntentRef.current) {
@@ -274,7 +274,12 @@ export default function App() {
         // created_at check is used instead of localStorage because localStorage is unreliable in iOS PWA.
         if (event === "SIGNED_IN" && newSession?.user?.created_at) {
           const ageMs = Date.now() - new Date(newSession.user.created_at).getTime();
-          if (ageMs < 2 * 60 * 1000) setShowWelcome(true);
+          if (ageMs < 2 * 60 * 1000) {
+            setShowWelcome(true);
+            posthog.capture("signup_completed", {
+              method: newSession.user.app_metadata?.provider ?? "email",
+            });
+          }
         }
       }
       setAuthLoading(false);
@@ -321,6 +326,10 @@ export default function App() {
       attempts++;
       const p = await fetchProfile();
       if (p?.tier === "pro" || p?.tier === "voice") {
+        posthog.capture("plan_upgraded", {
+          plan: p.tier,
+          invoice_count: receipts.length,
+        });
         setProfile(p);
         clearInterval(interval);
         if (session?.user?.id) {
@@ -453,6 +462,11 @@ export default function App() {
         const result = await createReceipt(data);
         if (result?.error) throw new Error(result.error);
         setReceipts((prev) => [result, ...prev]);
+        posthog.capture("invoice_created", {
+          invoice_count: receipts.length + 1,
+          has_line_items: (data.line_items?.length ?? 0) > 0,
+          currency: data.currency || "CAD",
+        });
         showToast("Invoice created.", "success");
       }
       setShowForm(false);
@@ -469,6 +483,12 @@ export default function App() {
     setReceipts((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     if (selected && selected.id === id) setSelected((s) => ({ ...s, status }));
     showToast(STATUS_LABELS[status] || "Status updated", "success");
+    if (status === "paid") {
+      posthog.capture("invoice_marked_paid", {
+        tier: profile?.tier ?? "free",
+        total_paid_count: receipts.filter((r) => r.status === "paid").length + 1,
+      });
+    }
   }
 
   // handleDelete — confirms before deleting. Shows receipt number in the confirm dialog.
@@ -539,6 +559,11 @@ export default function App() {
         if (selected?.id === r.id) setSelected((s) => ({ ...s, status: "sent" }));
       }
 
+      posthog.capture("invoice_sent", {
+        is_reminder: !!r._isReminder,
+        invoice_status_before: r.status,
+        tier: profile?.tier ?? "free",
+      });
       showToast(`Invoice sent to ${sendInvoiceEmail}.`, "success");
       setSendInvoiceTarget(null);
       setSendInvoiceEmail("");
@@ -1130,7 +1155,11 @@ export default function App() {
                 <button
                   className="btn btn-download"
                   style={{ width: "100%", marginBottom: 6 }}
-                  onClick={async () => { const { downloadReceiptPDF } = await import("./components/ReceiptPDF"); downloadReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier }); }}
+                  onClick={async () => {
+                    const { downloadReceiptPDF } = await import("./components/ReceiptPDF");
+                    downloadReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier });
+                    posthog.capture("pdf_downloaded", { invoice_status: selectedReceipt.status, tier: profile?.tier ?? "free" });
+                  }}
                 >
                   Download PDF
                 </button>
@@ -1305,6 +1334,16 @@ export default function App() {
 
       {/* Upgrade thanks (post-checkout, shown once) */}
       {showUpgradeThanks && <UpgradeThanksModal onClose={() => setShowUpgradeThanks(false)} />}
+
+      {/* Feedback button: floating bottom-right, authenticated users only */}
+      <a
+        href={`mailto:support@invoiceprepper.com?subject=${encodeURIComponent("InvoicePrepper Feedback")}&body=${encodeURIComponent("Hi,\n\nHere is my feedback:\n\n")}`}
+        className="feedback-fab"
+        onClick={() => posthog.capture("feedback_clicked", { tier: profile?.tier ?? "free" })}
+        aria-label="Send feedback"
+      >
+        Feedback
+      </a>
 
       {/* Toast: success (green) / upgrade (accent copper) / error (red) */}
       {toast && (
