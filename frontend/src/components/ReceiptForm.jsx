@@ -556,81 +556,79 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={onClose}>✕</button>
         </div>
 
-        {/* Voice AI entry — voice tier only */}
-        {profile?.tier === "voice" && (
-          <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", background: "var(--surface-2)", display: "flex", alignItems: "center", gap: 10 }}>
+        {/* Text AI entry — all tiers. Voice recording status shown on mobile for voice tier only. */}
+        <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", background: "var(--surface-2)", display: "flex", alignItems: "center", gap: 10 }}>
 
-            {isDesktop ? (
-              /* Desktop: text input box */
-              <>
-                <input
-                  type="text"
-                  value={voiceText}
-                  onChange={(e) => { setVoiceText(e.target.value); setVoiceError(""); setVoiceTranscript(""); }}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); parseVoiceText(voiceText); } }}
-                  placeholder="Invoice to John, 3 hrs at 85, logo for 300..."
-                  disabled={voiceParsing}
-                  style={{
-                    flex: 1, minWidth: 0, fontSize: 11, padding: "5px 10px",
-                    borderRadius: 6, border: "1px solid rgba(77,216,224,0.3)",
-                    background: "rgba(77,216,224,0.05)", color: "var(--text)",
-                    outline: "none",
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => parseVoiceText(voiceText)}
-                  disabled={voiceParsing || !voiceText.trim()}
-                  style={{
-                    fontSize: 10, padding: "5px 10px", borderRadius: 6, border: "none",
-                    background: voiceParsing ? "rgba(77,216,224,0.2)" : "rgba(77,216,224,0.85)",
-                    color: voiceParsing ? "var(--voice-text)" : "#0a1a1c",
-                    cursor: voiceParsing || !voiceText.trim() ? "not-allowed" : "pointer",
-                    fontWeight: 700, letterSpacing: "0.04em", flexShrink: 0,
-                    animation: voiceParsing ? "voice-spin 1.4s linear infinite" : "none",
-                  }}
-                >
-                  {voiceParsing ? "Parsing..." : "Parse"}
-                </button>
-                {/* Status messages */}
-                {(voiceError || voiceTranscript) && (
-                  <span style={{ fontSize: 10, flexShrink: 0, color: voiceError ? "var(--voided)" : "var(--voice-text)", fontWeight: 600 }}>
-                    {voiceError || "Done. Review below."}
-                  </span>
-                )}
-              </>
-            ) : (
-              /* Mobile: status text only — the recording button is the full-width bar in the footer */
-              <div style={{ flex: 1, minWidth: 0 }}>
-                {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
-                  <span style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic" }}>
-                    Tap &ldquo;Speak Invoice&rdquo; below to fill in by voice
-                  </span>
-                )}
-                {voiceRecording && (
-                  <span style={{ fontSize: 10, color: "#e05555", fontWeight: 600 }}>Listening... {MAX_RECORDING_SECONDS - voiceSeconds}s</span>
-                )}
-                {voiceParsing && (
-                  <span style={{ fontSize: 10, color: "var(--voice-text)" }}>Filling in your invoice...</span>
-                )}
-                {voiceTranscript && !voiceRecording && !voiceParsing && !voiceError && (
-                  <span style={{ fontSize: 10, color: "#4dd8e0", fontWeight: 600 }}>Done. Review below.</span>
-                )}
-                {voiceError && (
-                  <span style={{ fontSize: 10, color: "var(--voided)" }}>{voiceError}</span>
-                )}
-              </div>
-            )}
+          {/* Desktop: always show text input. Mobile voice tier: show recording status. Mobile free/pro: show text input. */}
+          {(isDesktop || profile?.tier !== "voice") ? (
+            /* Text input — desktop all tiers, mobile free/pro */
+            <>
+              <input
+                type="text"
+                value={voiceText}
+                onChange={(e) => { setVoiceText(e.target.value); setVoiceError(""); setVoiceTranscript(""); }}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); parseVoiceText(voiceText); } }}
+                placeholder="Invoice to John, 3 hrs at 85, logo for 300..."
+                disabled={voiceParsing}
+                style={{
+                  flex: 1, minWidth: 0, fontSize: 11, padding: "5px 10px",
+                  borderRadius: 6, border: "1px solid rgba(77,216,224,0.3)",
+                  background: "rgba(77,216,224,0.05)", color: "var(--text)",
+                  outline: "none",
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => parseVoiceText(voiceText)}
+                disabled={voiceParsing || !voiceText.trim()}
+                style={{
+                  fontSize: 10, padding: "5px 10px", borderRadius: 6, border: "none",
+                  background: voiceParsing ? "rgba(77,216,224,0.2)" : "rgba(77,216,224,0.85)",
+                  color: voiceParsing ? "var(--voice-text)" : "#0a1a1c",
+                  cursor: voiceParsing || !voiceText.trim() ? "not-allowed" : "pointer",
+                  fontWeight: 700, letterSpacing: "0.04em", flexShrink: 0,
+                  animation: voiceParsing ? "voice-spin 1.4s linear infinite" : "none",
+                }}
+              >
+                {voiceParsing ? "Parsing..." : "Parse"}
+              </button>
+              {(voiceError || voiceTranscript) && (
+                <span style={{ fontSize: 10, flexShrink: 0, color: voiceError ? "var(--voided)" : "var(--voice-text)", fontWeight: 600 }}>
+                  {voiceError || "Done. Review below."}
+                </span>
+              )}
+            </>
+          ) : (
+            /* Mobile voice tier: recording status only — recording button is the full-width bar in the footer */
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
+                <span style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic" }}>
+                  Tap &ldquo;Speak Invoice&rdquo; below to fill in by voice
+                </span>
+              )}
+              {voiceRecording && (
+                <span style={{ fontSize: 10, color: "#e05555", fontWeight: 600 }}>Listening... {MAX_RECORDING_SECONDS - voiceSeconds}s</span>
+              )}
+              {voiceParsing && (
+                <span style={{ fontSize: 10, color: "var(--voice-text)" }}>Filling in your invoice...</span>
+              )}
+              {voiceTranscript && !voiceRecording && !voiceParsing && !voiceError && (
+                <span style={{ fontSize: 10, color: "#4dd8e0", fontWeight: 600 }}>Done. Review below.</span>
+              )}
+              {voiceError && (
+                <span style={{ fontSize: 10, color: "var(--voided)" }}>{voiceError}</span>
+              )}
+            </div>
+          )}
 
-            <span style={{ fontSize: 8, padding: "1px 5px", background: "rgba(77,216,224,0.12)", border: "1px solid rgba(77,216,224,0.25)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "var(--voice-text)", flexShrink: 0 }}>beta</span>
-            <button
-              type="button"
-              onClick={clearParsed}
-              title="Clear all AI-filled fields"
-              style={{ fontSize: 9, background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "0 2px", flexShrink: 0, letterSpacing: "0.06em", textTransform: "uppercase" }}
-            >Clear</button>
-          </div>
-        )}
+          <span style={{ fontSize: 8, padding: "1px 5px", background: "rgba(77,216,224,0.12)", border: "1px solid rgba(77,216,224,0.25)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "var(--voice-text)", flexShrink: 0 }}>beta</span>
+          <button
+            type="button"
+            onClick={clearParsed}
+            title="Clear all AI-filled fields"
+            style={{ fontSize: 9, background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "0 2px", flexShrink: 0, letterSpacing: "0.06em", textTransform: "uppercase" }}
+          >Clear</button>
+        </div>
 
         <div className="modal-body">
 

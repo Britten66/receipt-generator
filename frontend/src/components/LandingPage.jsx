@@ -185,22 +185,22 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       {/* 5 — How it works */}
       <section className="lv2-steps">
         <p className="lv2-steps-eyebrow">How it works</p>
-        <h2 className="lv2-steps-title">Up and running in minutes</h2>
+        <h2 className="lv2-steps-title">Invoice sent in under 60 seconds</h2>
         <div className="lv2-steps-grid">
           <div className="lv2-step">
             <div className="lv2-step-num">01</div>
-            <div className="lv2-step-label">Create your invoice</div>
-            <p className="lv2-step-desc">Fill in your business details, add line items, set your rate. Done in under two minutes.</p>
+            <div className="lv2-step-label">Speak or type your invoice</div>
+            <p className="lv2-step-desc">Say what you did and who to bill. AI pulls out the line items, quantities, and amounts automatically.</p>
           </div>
           <div className="lv2-step">
             <div className="lv2-step-num">02</div>
-            <div className="lv2-step-label">Send to your client</div>
-            <p className="lv2-step-desc">Email directly from the app or download the PDF. No switching between tools.</p>
+            <div className="lv2-step-label">Review and send</div>
+            <p className="lv2-step-desc">Confirm the details, attach your logo, and email a professional PDF directly from the app.</p>
           </div>
           <div className="lv2-step">
             <div className="lv2-step-num">03</div>
-            <div className="lv2-step-label">Track and get paid</div>
-            <p className="lv2-step-desc">Mark invoices as sent or paid. See exactly what is outstanding at a glance.</p>
+            <div className="lv2-step-label">Track every dollar</div>
+            <p className="lv2-step-desc">See what is draft, sent, and paid at a glance. Know exactly what is outstanding without opening a spreadsheet.</p>
           </div>
         </div>
       </section>
@@ -243,6 +243,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 <li>Download and share link</li>
                 <li>Pay Now button on invoices</li>
                 <li>Draft, sent, paid tracking</li>
+                <li>3 text AI parses per month</li>
                 <li>Dark mode</li>
                 <li>No app to install. Works in any browser</li>
                 <li>Syncs across desktop and mobile</li>
@@ -268,11 +269,12 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <div className="lv2-plan-price">{currency || "CAD"} $9<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
               <ul className="lv2-plan-features">
-                <li>Everything in Free</li>
+                <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Includes Free Plan</li>
                 <li>Email invoices directly to clients</li>
                 <li>Your business name on every email</li>
                 <li>Upload your logo to every PDF</li>
                 <li>Send payment reminders for unpaid invoices</li>
+                <li>Unlimited text AI parsing</li>
                 <li>Customizable dashboard themes</li>
                 <li>CSV export of all invoices</li>
               </ul>
@@ -298,12 +300,11 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <div className="lv2-plan-price">{currency || "CAD"} $12<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
               <ul className="lv2-plan-features">
-                <li>Everything in Pro</li>
+                <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Includes Pro Plan</li>
                 <li>Speak your invoice, AI fills it in</li>
-                <li>Or type it - text AI included</li>
+                <li>Works on mobile, hands-free</li>
                 <li>Detects multiple line items naturally</li>
-                <li>Works on mobile, no typing needed</li>
-                <li>20 AI parses per day</li>
+                <li>Unlimited AI parses</li>
                 <li style={{ color: "var(--text-muted)", fontSize: 11 }}>
                   <span style={{ fontSize: 9, padding: "1px 5px", background: "rgba(77,216,224,0.15)", border: "1px solid rgba(77,216,224,0.3)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "#0a8a96", marginRight: 5 }}>beta</span>
                   First on new AI features

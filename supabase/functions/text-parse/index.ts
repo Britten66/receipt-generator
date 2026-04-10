@@ -30,26 +30,27 @@ Deno.serve(async (req)=>{
   });
   const { data: profile, error: profileError } = await adminClient.from("profiles").select("tier, business_name").eq("user_id", user.id).single();
   console.log("tier-check:", user.id, "tier:", profile?.tier, "err:", profileError?.message);
-  if (profile?.tier !== "voice") {
-    return new Response(JSON.stringify({ error: "AI parsing requires the Voice AI tier." }), { status: 403, headers: corsHeaders });
-  }
-  // Daily rate limit — skip for admin users listed in ADMIN_USER_IDS (comma-separated)
+  const tier = profile?.tier ?? "free";
+
+  // Rate limiting by tier — skip for admins
   const adminIds = (Deno.env.get("ADMIN_USER_IDS") ?? "").split(",").map(s => s.trim()).filter(Boolean);
   const isAdmin = adminIds.includes(user.id);
   const today = new Date().toISOString().slice(0, 10);
+
   if (!isAdmin) {
-    const { count } = await supabase.from("voice_usage").select("*", {
-      count: "exact",
-      head: true
-    }).eq("user_id", user.id).eq("date", today);
-    if ((count ?? 0) >= DAILY_LIMIT) {
-      return new Response(JSON.stringify({
-        error: "Daily AI limit reached. Try again tomorrow."
-      }), {
-        status: 429,
-        headers: corsHeaders
-      });
+    if (tier === "free") {
+      // Free tier: 3 text parses per calendar month
+      // Use year-month prefix match to avoid off-by-one on months with fewer than 31 days
+      const yearMonth = today.slice(0, 7); // "2025-04"
+      const { count } = await supabase.from("voice_usage").select("*", { count: "exact", head: true })
+        .eq("user_id", user.id).like("date", yearMonth + "%");
+      if ((count ?? 0) >= 3) {
+        return new Response(JSON.stringify({
+          error: "Monthly AI limit reached. Upgrade to Pro for unlimited text AI."
+        }), { status: 429, headers: corsHeaders });
+      }
     }
+    // Pro and Voice AI: no limit on text parsing
   }
   const groqKey = Deno.env.get("GROQ_API_KEY");
   if (!groqKey) return new Response(JSON.stringify({
