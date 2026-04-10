@@ -3,25 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Invoice Generator for Freelancers: Send Professional Invoices Fast | InvoicePrepper</title>
-  <meta name="description" content="Invoice generator built for freelancers. Sign in with Google, no password needed. Create professional PDF invoices, track payments, and email clients. Free to start." />
-  <link rel="canonical" href="https://invoiceprepper.com/invoice-for-freelancers" />
+  <title>Invoice App for Personal Trainers | InvoicePrepper</title>
+  <meta name="description" content="Invoice app for personal trainers. Bill sessions, packages, and online coaching. Sign in with Google, no password needed. Free forever, no credit card." />
+  <link rel="canonical" href="https://invoiceprepper.com/invoice-for-personal-trainers" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <meta name="theme-color" content="#1e1c18" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://invoiceprepper.com/invoice-for-freelancers" />
-  <meta property="og:title" content="Invoice Generator for Freelancers: Send Professional Invoices Fast" />
-  <meta property="og:description" content="Invoice generator built for freelancers. Create professional PDF invoices, track payments, email clients on Pro. Free to start." />
+  <meta property="og:url" content="https://invoiceprepper.com/invoice-for-personal-trainers" />
+  <meta property="og:title" content="Invoice App for Personal Trainers | InvoicePrepper" />
+  <meta property="og:description" content="Bill training sessions, packages, and online coaching clients. Send professional PDF invoices from any device. Free forever, no credit card required." />
   <meta property="og:image" content="https://invoiceprepper.com/og-image.png" />
   <meta property="og:site_name" content="InvoicePrepper" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "Invoice Generator for Freelancers",
-    "url": "https://invoiceprepper.com/invoice-for-freelancers",
-    "description": "Invoice generator built for freelancers. Create professional PDF invoices, track payments, and email clients directly on Pro.",
+    "name": "Invoice App for Personal Trainers",
+    "url": "https://invoiceprepper.com/invoice-for-personal-trainers",
+    "description": "Invoice app for personal trainers. Bill hourly sessions, training packages, and online coaching clients. Send professional PDF invoices from any device.",
     "isPartOf": { "@type": "WebSite", "name": "InvoicePrepper", "url": "https://invoiceprepper.com" }
   }
   </script>
@@ -32,23 +32,23 @@
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "Do I need accounting software as a freelancer?",
-        "acceptedAnswer": { "@type": "Answer", "text": "No. Most freelancers only need to send invoices and track what has been paid. InvoicePrepper handles both without the complexity or cost of full accounting software." }
+        "name": "Can I invoice clients for a block of training sessions upfront?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Add a flat-rate line item for the package, such as 10-session strength training block at $700. Clients pay once and you track who has paid from your invoice list. You can also break the package into individual sessions if you prefer." }
       },
       {
         "@type": "Question",
-        "name": "Can I track which invoices have been paid?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every invoice has a status — Draft, Sent, or Paid. You can see your total outstanding balance at a glance and mark invoices paid with one tap when the money comes in." }
+        "name": "Can I bill monthly for recurring training clients?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. At the end of each month, create an invoice listing the sessions for that month. Client names are saved in your account so repeat invoices take under a minute. Change the date, update the session count, and send." }
       },
       {
         "@type": "Question",
-        "name": "Can I email invoices directly to clients?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes, on the Pro plan. Invoices are emailed from your business name to your client with the PDF attached. The free plan lets you download and send the PDF yourself." }
+        "name": "Does InvoicePrepper work for online coaching clients in other cities?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Pro plan ($9 per month CAD) emails invoices directly to clients wherever they are. No printing, no mailing. Works for in-person clients and remote coaching clients on the same account." }
       },
       {
         "@type": "Question",
-        "name": "Does it work for hourly billing?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Add line items with a description, quantity (hours), and unit price (your rate). The total calculates automatically. You can also use it for project-based or flat-rate billing." }
+        "name": "Do personal trainers need to charge GST or HST in Canada?",
+        "acceptedAnswer": { "@type": "Answer", "text": "If your personal training revenue exceeds the CRA small supplier threshold, you are required to register for and collect GST or HST. InvoicePrepper supports it. Set your rate once and every invoice applies it automatically. Consult the CRA or a tax professional for your specific situation." }
       }
     ]
   }
@@ -77,6 +77,9 @@
     .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
     .card { padding: 20px; border: 1px solid var(--border); background: var(--surface); }
     .card p { font-size: 12px; color: var(--text-dim); margin-top: 4px; line-height: 1.5; }
+    .quote-block { border-left: 3px solid var(--accent); padding: 16px 20px; background: var(--surface); border-right: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 32px 0; }
+    .quote-text { font-size: 15px; color: var(--text); font-style: italic; line-height: 1.6; }
+    .quote-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 10px; }
     hr { border: none; border-top: 1px solid var(--border); margin-bottom: 48px; }
     .final-cta { background: var(--text); text-align: center; padding: 48px 32px; }
     .final-cta h2 { color: #f5f4f0; margin-bottom: 12px; }
@@ -108,39 +111,47 @@
   </nav>
 
   <div class="wrap hero">
-    <p class="eyebrow">For Freelancers</p>
-    <h1>Stop chasing payments. Start sending better invoices.</h1>
-    <p class="lead">InvoicePrepper makes it easy to create professional invoices and track exactly what is outstanding. Download or share PDFs for free. Email directly to clients on Pro. Spend less time on admin and more time on work that pays.</p>
+    <p class="eyebrow">For Personal Trainers</p>
+    <h1>Invoice every client. Sessions, packages, and online coaching.</h1>
+    <p class="lead">InvoicePrepper lets personal trainers send clean, professional invoices without any accounting knowledge. Bill by the session, by the month, or by the package. Download a PDF or email it directly. Sign in with Google, no password needed.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
     <span class="cta-sub">Free forever. No credit card required.</span>
   </div>
 
   <div class="wrap section">
-    <h2>Everything a freelancer needs to get paid</h2>
+    <div class="quote-block">
+      <p class="quote-text">"Invoice David Kim, 8 personal training sessions in April, one hour each at 70 dollars per session."</p>
+      <p class="quote-label">Voice AI plan. Speak the invoice after your last client. Done before you leave the gym.</p>
+    </div>
+    <p style="font-size:13px;color:var(--text-dim);">The Voice AI plan ($12/mo CAD) fits the end of a full training day. Describe the month's sessions out loud, confirm the numbers, and send the invoice without typing on a small screen.</p>
+  </div>
+
+  <div class="wrap section">
+    <h2>How personal trainers bill with InvoicePrepper</h2>
     <div class="cards">
       <div class="card">
-        <h3>Professional PDFs</h3>
-        <p>Clean, professional invoices every time. Download or share the PDF instantly. Email directly to your client on Pro.</p>
+        <h3>Hourly sessions</h3>
+        <p>Set your session rate. Enter the number of sessions for the month. The invoice calculates the total automatically.</p>
       </div>
       <div class="card">
-        <h3>Email from your name</h3>
-        <p>Pro plan sends invoices from your business name, not a generic address. Looks more professional.</p>
+        <h3>Training packages</h3>
+        <p>Sell a block of 10 or 20 sessions at a flat rate. Add it as one line item. Clients pay upfront and you track who has paid.</p>
       </div>
       <div class="card">
-        <h3>Your logo on every invoice</h3>
-        <p>Upload your logo once. It appears on every PDF automatically. Builds your brand with every send.</p>
+        <h3>Recurring monthly billing</h3>
+        <p>Regular clients billed every month. Pull up the client name, enter the session count, and send. Takes under two minutes.</p>
       </div>
       <div class="card">
-        <h3>Outstanding balance</h3>
-        <p>See your total outstanding at a glance. Know exactly how much you are owed right now.</p>
+        <h3>Online coaching clients</h3>
+        <p>Pro plan ($9/mo CAD) emails invoices directly to clients anywhere in the country. No printing, no mailing, no chasing.</p>
       </div>
       <div class="card">
-        <h3>Payment link</h3>
-        <p>Add your Stripe or PayPal link once. A QR code appears on every unpaid invoice automatically.</p>
+        <h3>Track payments</h3>
+        <p>See who has paid for this month and who still owes. Mark invoices paid when the e-transfer arrives.</p>
       </div>
       <div class="card">
-        <h3>Voice AI</h3>
-        <p>Describe your project out loud. AI fills in the invoice. Useful when you bill by the hour and just finished a session.</p>
+        <h3>Works on any device</h3>
+        <p>Phone, tablet, or laptop. InvoicePrepper runs in the browser. No app to download and no software to install.</p>
       </div>
     </div>
   </div>
@@ -148,19 +159,18 @@
   <div class="wrap"><hr /></div>
 
   <div class="wrap section">
-    <h2>Works for any type of freelance work</h2>
-    <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Designers and creatives</strong> — Project packages, revision rounds, and hourly work all supported as line items.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Writers and editors</strong> — Per-word, per-article, or hourly. Invoice the moment you deliver the work.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Developers and consultants</strong> — Hourly billing with detailed line items. Looks professional enough for corporate clients.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Photographers and videographers</strong> — Shoot fees, editing, and licensing. All in one invoice.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Coaches and tutors</strong> — Session-based billing. Track which clients have paid and which have not.</div>
+    <h2>Gym-based, in-home, and online trainers</h2>
+    <div style="display:flex;flex-direction:column;gap:16px;margin-top:4px;">
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Independent gym trainers</strong>You train clients at a commercial gym and invoice them directly. Keep your billing separate from the gym, professional and on time.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">In-home personal trainers</strong>You travel to clients. Add a travel fee as a separate line item on top of the session rate. Clients see the full breakdown clearly.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Online fitness coaches</strong>You coach clients remotely through video and programming. Email invoices directly to clients across the country without leaving the app.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Boot camp and group fitness instructors</strong>Charge per participant or per session block. List each participant as a line item or bill the group rate as a single item.</div>
     </div>
   </div>
 
   <div class="final-cta">
-    <h2>Send your first invoice in two minutes</h2>
-    <p>Free forever. No accounting knowledge needed.</p>
+    <h2>Send your first training invoice today</h2>
+    <p>Free forever. No accounting knowledge required. Works on any device.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
     <span class="cta-sub">Free forever. Upgrade when you are ready.</span>
   </div>
@@ -176,6 +186,8 @@
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-electricians">Electricians</a>
     &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-freelancers">Freelancers</a>
+    &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-cleaners">Cleaners</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-landscapers">Landscapers</a>
@@ -187,8 +199,6 @@
     <a href="https://invoiceprepper.com/invoice-for-tutors">Tutors</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-photographers">Photographers</a>
-    &nbsp;·&nbsp;
-    <a href="https://invoiceprepper.com/invoice-for-personal-trainers">Personal Trainers</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-handymen">Handymen</a>
   </footer>

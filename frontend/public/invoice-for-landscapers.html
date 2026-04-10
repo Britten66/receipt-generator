@@ -3,25 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Invoice Generator for Freelancers: Send Professional Invoices Fast | InvoicePrepper</title>
-  <meta name="description" content="Invoice generator built for freelancers. Sign in with Google, no password needed. Create professional PDF invoices, track payments, and email clients. Free to start." />
-  <link rel="canonical" href="https://invoiceprepper.com/invoice-for-freelancers" />
+  <title>Invoice App for Landscapers | InvoicePrepper</title>
+  <meta name="description" content="Invoice app for landscapers with recurring clients. Sign in with Google, no password needed. GST/HST built in. Free to start, no credit card." />
+  <link rel="canonical" href="https://invoiceprepper.com/invoice-for-landscapers" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <meta name="theme-color" content="#1e1c18" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://invoiceprepper.com/invoice-for-freelancers" />
-  <meta property="og:title" content="Invoice Generator for Freelancers: Send Professional Invoices Fast" />
-  <meta property="og:description" content="Invoice generator built for freelancers. Create professional PDF invoices, track payments, email clients on Pro. Free to start." />
+  <meta property="og:url" content="https://invoiceprepper.com/invoice-for-landscapers" />
+  <meta property="og:title" content="Invoice App for Landscapers | InvoicePrepper" />
+  <meta property="og:description" content="Invoice recurring landscaping clients fast. Bill mowing, mulching, and materials on one invoice. GST/HST automatic. Free to start." />
   <meta property="og:image" content="https://invoiceprepper.com/og-image.png" />
   <meta property="og:site_name" content="InvoicePrepper" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "Invoice Generator for Freelancers",
-    "url": "https://invoiceprepper.com/invoice-for-freelancers",
-    "description": "Invoice generator built for freelancers. Create professional PDF invoices, track payments, and email clients directly on Pro.",
+    "name": "Invoice App for Landscapers",
+    "url": "https://invoiceprepper.com/invoice-for-landscapers",
+    "description": "Invoice app built for landscapers. Bill recurring clients, apply GST or HST automatically, and send PDF invoices from any device.",
     "isPartOf": { "@type": "WebSite", "name": "InvoicePrepper", "url": "https://invoiceprepper.com" }
   }
   </script>
@@ -32,23 +32,23 @@
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "Do I need accounting software as a freelancer?",
-        "acceptedAnswer": { "@type": "Answer", "text": "No. Most freelancers only need to send invoices and track what has been paid. InvoicePrepper handles both without the complexity or cost of full accounting software." }
+        "name": "Can I invoice recurring landscaping clients without retyping their information every time?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. InvoicePrepper saves your client names so you can select them quickly on the next invoice. You do not need to retype addresses or contact details for regular customers." }
       },
       {
         "@type": "Question",
-        "name": "Can I track which invoices have been paid?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every invoice has a status — Draft, Sent, or Paid. You can see your total outstanding balance at a glance and mark invoices paid with one tap when the money comes in." }
+        "name": "Can I bill for both labour and materials like mulch and plants on the same invoice?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Add separate line items for mowing, edging, cleanup labour, mulch by the yard, plants, soil, and any other materials. Each item has its own quantity and price." }
       },
       {
         "@type": "Question",
-        "name": "Can I email invoices directly to clients?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes, on the Pro plan. Invoices are emailed from your business name to your client with the PDF attached. The free plan lets you download and send the PDF yourself." }
+        "name": "Does InvoicePrepper support GST and HST for landscaping businesses?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Set your GST or HST rate once and it applies to every invoice automatically. The invoice clearly shows the subtotal, tax, and total for your client." }
       },
       {
         "@type": "Question",
-        "name": "Does it work for hourly billing?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Add line items with a description, quantity (hours), and unit price (your rate). The total calculates automatically. You can also use it for project-based or flat-rate billing." }
+        "name": "Is InvoicePrepper free for landscapers?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. The free plan gives you unlimited invoices and PDF download with no credit card required. The Pro plan at $9 per month CAD adds email sending and logo upload for a more professional look." }
       }
     ]
   }
@@ -77,6 +77,9 @@
     .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
     .card { padding: 20px; border: 1px solid var(--border); background: var(--surface); }
     .card p { font-size: 12px; color: var(--text-dim); margin-top: 4px; line-height: 1.5; }
+    .quote-block { border-left: 3px solid var(--accent); padding: 16px 20px; background: var(--surface); border-right: 1px solid var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 32px 0; }
+    .quote-text { font-size: 15px; color: var(--text); font-style: italic; line-height: 1.6; }
+    .quote-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 10px; }
     hr { border: none; border-top: 1px solid var(--border); margin-bottom: 48px; }
     .final-cta { background: var(--text); text-align: center; padding: 48px 32px; }
     .final-cta h2 { color: #f5f4f0; margin-bottom: 12px; }
@@ -108,39 +111,47 @@
   </nav>
 
   <div class="wrap hero">
-    <p class="eyebrow">For Freelancers</p>
-    <h1>Stop chasing payments. Start sending better invoices.</h1>
-    <p class="lead">InvoicePrepper makes it easy to create professional invoices and track exactly what is outstanding. Download or share PDFs for free. Email directly to clients on Pro. Spend less time on admin and more time on work that pays.</p>
+    <p class="eyebrow">For Landscapers</p>
+    <h1>Invoice your landscaping clients. Weekly, monthly, or by the job.</h1>
+    <p class="lead">InvoicePrepper helps landscapers bill recurring clients without retyping the same information every visit. Add labour, materials, and equipment line items, apply GST or HST automatically, and send a clean PDF from your phone. Sign in with Google, no password needed.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
     <span class="cta-sub">Free forever. No credit card required.</span>
   </div>
 
   <div class="wrap section">
-    <h2>Everything a freelancer needs to get paid</h2>
+    <div class="quote-block">
+      <p class="quote-text">"Invoice the Hendersons, weekly lawn maintenance $180, 3 bags cedar mulch at $22 each, spring cleanup $95."</p>
+      <p class="quote-label">Voice AI plan. Say it from the truck. Invoice is ready to send.</p>
+    </div>
+    <p style="font-size:13px;color:var(--text-dim);">The Voice AI plan ($12/mo CAD) is ideal when you are running a full day of properties. Speak the invoice in the truck before your next stop. No typing, no waiting until you get home.</p>
+  </div>
+
+  <div class="wrap section">
+    <h2>What landscapers use InvoicePrepper for</h2>
     <div class="cards">
       <div class="card">
-        <h3>Professional PDFs</h3>
-        <p>Clean, professional invoices every time. Download or share the PDF instantly. Email directly to your client on Pro.</p>
+        <h3>Weekly and monthly clients</h3>
+        <p>Recurring billing is fast. Client names are saved so you are not retyping addresses and contact info every week.</p>
       </div>
       <div class="card">
-        <h3>Email from your name</h3>
-        <p>Pro plan sends invoices from your business name, not a generic address. Looks more professional.</p>
+        <h3>Labour and materials together</h3>
+        <p>Bill mowing, edging, cleanup, and planting labour separately from soil, mulch, plants, and supplies.</p>
       </div>
       <div class="card">
-        <h3>Your logo on every invoice</h3>
-        <p>Upload your logo once. It appears on every PDF automatically. Builds your brand with every send.</p>
+        <h3>Equipment fees</h3>
+        <p>Charge for machinery use as its own line item. Aeration, dethatching, stump grinding. It all fits on one invoice.</p>
       </div>
       <div class="card">
-        <h3>Outstanding balance</h3>
-        <p>See your total outstanding at a glance. Know exactly how much you are owed right now.</p>
+        <h3>GST and HST automatic</h3>
+        <p>Set your rate once. Every invoice applies it and shows the tax breakdown clients need for their records.</p>
       </div>
       <div class="card">
-        <h3>Payment link</h3>
-        <p>Add your Stripe or PayPal link once. A QR code appears on every unpaid invoice automatically.</p>
+        <h3>PDF by email</h3>
+        <p>Send a professional PDF from your phone. Pro plan ($9/mo CAD) adds your company logo to every invoice.</p>
       </div>
       <div class="card">
-        <h3>Voice AI</h3>
-        <p>Describe your project out loud. AI fills in the invoice. Useful when you bill by the hour and just finished a session.</p>
+        <h3>Track who has paid</h3>
+        <p>One view of all outstanding invoices. Mark paid when money arrives. No spreadsheet juggling.</p>
       </div>
     </div>
   </div>
@@ -148,19 +159,18 @@
   <div class="wrap"><hr /></div>
 
   <div class="wrap section">
-    <h2>Works for any type of freelance work</h2>
-    <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Designers and creatives</strong> — Project packages, revision rounds, and hourly work all supported as line items.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Writers and editors</strong> — Per-word, per-article, or hourly. Invoice the moment you deliver the work.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Developers and consultants</strong> — Hourly billing with detailed line items. Looks professional enough for corporate clients.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Photographers and videographers</strong> — Shoot fees, editing, and licensing. All in one invoice.</div>
-      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Coaches and tutors</strong> — Session-based billing. Track which clients have paid and which have not.</div>
+    <h2>Seasonal work, billed clearly</h2>
+    <div style="display:flex;flex-direction:column;gap:16px;margin-top:4px;">
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Spring and fall cleanups</strong>One-time jobs with multiple line items. Labour for debris removal, disposal fees, soil prep, and planting all on a single invoice.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Regular maintenance routes</strong>Weekly or bi-weekly clients. Pull up the same client, update the date, adjust any charges that changed, and send. Two minutes per invoice.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Landscaping installs</strong>Large jobs with detailed material lists. Plants, sod, gravel, edging, and hours of installation labour. All line items calculated and totaled cleanly.</div>
+      <div style="padding:16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);display:block;margin-bottom:4px;">Snow removal (winter)</strong>Per-push or seasonal billing. Flat fees, hourly rates, or material charges for salt and sand. One tool year-round.</div>
     </div>
   </div>
 
   <div class="final-cta">
-    <h2>Send your first invoice in two minutes</h2>
-    <p>Free forever. No accounting knowledge needed.</p>
+    <h2>Invoice your next client in under two minutes</h2>
+    <p>Free forever. Works on any phone. No accounting software required.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
     <span class="cta-sub">Free forever. Upgrade when you are ready.</span>
   </div>
@@ -176,9 +186,9 @@
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-electricians">Electricians</a>
     &nbsp;·&nbsp;
-    <a href="https://invoiceprepper.com/invoice-for-cleaners">Cleaners</a>
+    <a href="https://invoiceprepper.com/invoice-for-freelancers">Freelancers</a>
     &nbsp;·&nbsp;
-    <a href="https://invoiceprepper.com/invoice-for-landscapers">Landscapers</a>
+    <a href="https://invoiceprepper.com/invoice-for-cleaners">Cleaners</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-painters">Painters</a>
     &nbsp;·&nbsp;
