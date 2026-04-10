@@ -133,6 +133,10 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
                 <span className="help-dot" />
                 <a href="mailto:support@invoiceprepper.com" style={{ color: "var(--accent)" }}>support@invoiceprepper.com</a>
               </div>
+              <div className="help-row">
+                <span className="help-dot" />
+                <a href={`mailto:support@invoiceprepper.com?subject=${encodeURIComponent("Bug Report")}&body=${encodeURIComponent("Hi,\n\nI found a bug:\n\n")}`} style={{ color: "var(--accent)" }}>Found a bug? Tap to report</a>
+              </div>
             </div>
 
             {onLegal && (
