@@ -85,7 +85,7 @@ export default function BillingModal({ profile, onClose, onUpgrade }) {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", lineHeight: 1.3 }}>
-                    {tierLabel} — {tierPrice}
+                    {tierLabel} · {tierPrice}
                   </div>
                   {status === null && !statusErr && (
                     <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 3 }}>Loading billing info...</div>
@@ -180,7 +180,7 @@ export default function BillingModal({ profile, onClose, onUpgrade }) {
                 {[
                   { icon: <Mail size={12} />,  text: "Email invoices to clients" },
                   { icon: <Image size={12} />, text: "Logo on every PDF" },
-                  { icon: <Mic size={12} />,   text: "Voice and text AI parsing" },
+                  { icon: <Mic size={12} />,   text: "Voice AI (speak your invoice)" },
                 ].map(({ icon, text }) => (
                   <div key={text} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "var(--text-muted)" }}>
                     <span style={{ flexShrink: 0 }}>{icon}</span>
