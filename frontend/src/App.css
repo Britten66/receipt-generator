@@ -1513,6 +1513,16 @@ input[type="date"].field {
   -webkit-appearance: none;
   appearance: none;
 }
+/* Calendar picker icon: match theme */
+input[type="date"].field::-webkit-calendar-picker-indicator {
+  filter: invert(0);
+  opacity: 0.5;
+  cursor: pointer;
+}
+[data-theme="dark"] input[type="date"].field::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.6;
+}
 /* Tax inputs: desktop widths */
 .tax-label-input { width: 110px; }
 .tax-rate-input  { width: 56px; }
