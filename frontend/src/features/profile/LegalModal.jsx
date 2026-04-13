@@ -69,7 +69,7 @@ function Terms() {
       <Accordion title="Billing & AI Features">
         <p style={{ marginBottom: 6 }}><strong>Subscriptions:</strong> Pro and Voice AI plans are billed monthly via Stripe. Price is shown at checkout. Subscriptions auto-renew unless cancelled. Cancel any time from the Billing section. Access continues until the end of the paid period.</p>
         <p style={{ marginBottom: 6 }}><strong>Refunds:</strong> No refunds for partial billing periods, unless mandatory under your local consumer protection law. Price changes require 30 days notice by email.</p>
-        <p style={{ marginBottom: 6 }}><strong>Voice AI:</strong> Parsing is powered by Groq, Inc. Only content you actively submit is sent to Groq and deleted immediately after. Your stored invoices and credentials are never shared. Limit: 20 parses per day. Always review AI output before sending to clients.</p>
+        <p style={{ marginBottom: 6 }}><strong>Voice AI:</strong> Parsing is powered by Groq, Inc. Only content you actively submit is sent to Groq and deleted immediately after. Your stored invoices and credentials are never shared. Always review AI output before sending to clients.</p>
         <p>By creating an account you consent to transactional emails (password resets, billing confirmations). You may not use the Service to send unsolicited commercial messages.</p>
       </Accordion>
 
@@ -104,7 +104,7 @@ function Privacy() {
       </Accordion>
 
       <Accordion title="Third Parties and Data Transfers">
-        <p style={{ marginBottom: 6 }}><strong>Supabase</strong> (database and auth, US, SOC 2 Type II), <strong>Stripe</strong> (payments, PCI-DSS Level 1), <strong>Resend</strong> (email delivery), <strong>Cloudflare</strong> (CDN and security), <strong>Groq, Inc.</strong> (Voice AI parsing only).</p>
+        <p style={{ marginBottom: 6 }}><strong>Supabase</strong> (database and auth, US, SOC 2 Type II), <strong>Stripe</strong> (payments, PCI-DSS Level 1), <strong>Resend</strong> (email delivery), <strong>Cloudflare</strong> (CDN and security), <strong>Groq, Inc.</strong> (Voice AI parsing only), <strong>PostHog</strong> (product analytics, EU servers), <strong>Sentry</strong> (error monitoring, US).</p>
         <p style={{ marginBottom: 6 }}>We do not sell your data to any third party or share it with advertisers.</p>
         <p>Data may be processed in Canada and the United States. EEA/UK transfers are made under standard contractual clauses.</p>
       </Accordion>
@@ -117,7 +117,7 @@ function Privacy() {
 
       <Accordion title="Security, Cookies and Contact">
         <p style={{ marginBottom: 6 }}><strong>Security:</strong> All data is encrypted in transit (TLS 1.2+) and at rest. Row-level security ensures users can only access their own data.</p>
-        <p style={{ marginBottom: 6 }}><strong>Cookies:</strong> Only functional cookies for authentication (session token). No tracking, advertising, or analytics cookies.</p>
+        <p style={{ marginBottom: 6 }}><strong>Cookies:</strong> We use functional cookies for authentication (session token) and analytics cookies via PostHog to understand how the app is used. No advertising or third-party tracking cookies are used. You can opt out of analytics by contacting us.</p>
         <p style={{ marginBottom: 6 }}><strong>Children:</strong> The Service is not directed at anyone under 16. Contact us to remove a minor's account.</p>
         <p>Questions or data requests: <a href="mailto:support@invoiceprepper.com" style={{ color: "var(--accent)" }}>support@invoiceprepper.com</a>. EU/UK residents may also contact their local data protection authority.</p>
       </Accordion>

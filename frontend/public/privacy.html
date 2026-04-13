@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy | InvoicePrepper</title>
+  <meta name="description" content="InvoicePrepper Privacy Policy. What we collect, how we use it, your rights under GDPR, PIPEDA, and CCPA." />
+  <link rel="canonical" href="https://invoiceprepper.com/privacy" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
+  <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico" />
+  <meta name="theme-color" content="#1e1c18" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://invoiceprepper.com/privacy" />
+  <meta property="og:title" content="Privacy Policy | InvoicePrepper" />
+  <meta property="og:description" content="What InvoicePrepper collects, how it's used, and your rights under GDPR, PIPEDA, and CCPA." />
+  <meta property="og:image" content="https://invoiceprepper.com/og-image.png" />
+  <meta property="og:site_name" content="InvoicePrepper" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f4f0; --surface: #edecea; --text: #1e1c18; --text-dim: #5a5752;
+      --text-muted: #908e8a; --border: #d8d5cf; --accent: #a06830;
+      --mono: "Courier New", Courier, monospace;
+    }
+    body { font-family: helvetica, arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; border-bottom: 1px solid var(--border); }
+    .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; }
+    .nav-cta { display: inline-block; background: var(--text); color: var(--bg); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 7px 14px; text-decoration: none; }
+    .wrap { max-width: 680px; margin: 0 auto; padding: 0 32px; }
+    .header { margin: 40px auto 48px; }
+    .eyebrow { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+    h1 { font-size: clamp(24px, 4vw, 36px); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 16px; }
+    .meta { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; }
+    .body { margin-bottom: 80px; }
+    .section { margin-bottom: 36px; padding-bottom: 36px; border-bottom: 1px solid var(--border); }
+    .section:last-child { border-bottom: none; }
+    .section h2 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 12px; letter-spacing: -0.01em; }
+    .section p { font-size: 13px; color: var(--text-dim); line-height: 1.7; margin-bottom: 10px; }
+    .section p:last-child { margin-bottom: 0; }
+    .section a { color: var(--accent); }
+    footer { border-top: 1px solid #2e2c28; background: var(--text); padding: 20px 32px; text-align: center; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #6a6864; }
+    footer a { color: #6a6864; text-decoration: underline; }
+    @media (max-width: 640px) {
+      nav { padding: 12px 20px; }
+      .wrap { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="https://invoiceprepper.com" class="nav-brand">InvoicePrepper</a>
+    <a href="https://invoiceprepper.com/?signup=1" class="nav-cta">Try It Free</a>
+  </nav>
+
+  <div class="wrap header">
+    <p class="eyebrow">Legal</p>
+    <h1>Privacy Policy</h1>
+    <div class="meta">Last updated: April 2026 &nbsp;·&nbsp; Operated by an individual in Canada</div>
+  </div>
+
+  <div class="wrap body">
+
+    <div class="section">
+      <h2>What We Collect</h2>
+      <p>InvoicePrepper is operated by an individual based in Canada. This policy applies to all users globally.</p>
+      <p><strong>Account:</strong> email and hashed password. Plaintext passwords are never stored.</p>
+      <p><strong>Profile:</strong> business name, address, contact details, payment link, and logo (only what you choose to enter).</p>
+      <p><strong>Invoices:</strong> client names, amounts, line items, dates, and notes.</p>
+      <p><strong>Billing:</strong> Stripe handles payment processing. We receive only a customer ID and subscription status, never your card number or bank details.</p>
+      <p><strong>Usage logs:</strong> IP address and request timestamps for security and debugging only. Not sold or used for advertising.</p>
+      <p><strong>AI data (Voice AI only):</strong> input submitted for parsing is sent to Groq and deleted immediately after. We store only a daily count for rate-limiting. Your stored invoices are never sent to Groq.</p>
+    </div>
+
+    <div class="section">
+      <h2>How We Use It</h2>
+      <p>Solely to provide the Service: storing invoices, sending transactional emails, and (on paid plans) sending invoices to your clients. On Voice AI, past invoice history is used locally to personalise AI results and is never shared externally.</p>
+      <p>We use PostHog for product analytics to understand how features are used in aggregate. This helps us improve the app. We do not use your invoice content or client data for analytics.</p>
+      <p>We do not use your data for advertising or behavioural profiling. For EEA/UK users, processing is based on contract performance, legitimate interests (security), and consent for optional features.</p>
+    </div>
+
+    <div class="section">
+      <h2>Third Parties and Data Transfers</h2>
+      <p><strong>Supabase</strong> (database and auth, US, SOC 2 Type II), <strong>Stripe</strong> (payments, PCI-DSS Level 1), <strong>Resend</strong> (email delivery), <strong>Cloudflare</strong> (CDN and security), <strong>Groq, Inc.</strong> (Voice AI parsing only), <strong>PostHog</strong> (product analytics, EU servers), <strong>Sentry</strong> (error monitoring, US).</p>
+      <p>We do not sell your data to any third party or share it with advertisers.</p>
+      <p>Data may be processed in Canada and the United States. EEA/UK transfers are made under standard contractual clauses.</p>
+    </div>
+
+    <div class="section">
+      <h2>Your Rights and Data Retention</h2>
+      <p>You can access, correct, export, or delete your data at any time. Canadian users: PIPEDA. EU/UK users: GDPR (including portability and objection rights). California users: CCPA.</p>
+      <p>Data is retained while your account is active. Request deletion and we will delete within 30 days. Billing records may be retained as required by Stripe and applicable regulations.</p>
+      <p>Email <a href="mailto:support@invoiceprepper.com">support@invoiceprepper.com</a> to exercise any of these rights. We respond within 30 days.</p>
+    </div>
+
+    <div class="section">
+      <h2>Security, Cookies and Contact</h2>
+      <p><strong>Security:</strong> All data is encrypted in transit (TLS 1.2+) and at rest. Row-level security ensures users can only access their own data.</p>
+      <p><strong>Cookies:</strong> We use functional cookies for authentication (session token) and analytics cookies via PostHog to understand how the app is used. No advertising or third-party tracking cookies are used. You can opt out of analytics by contacting us.</p>
+      <p><strong>Children:</strong> The Service is not directed at anyone under 16. Contact us to remove a minor's account.</p>
+      <p>Questions or data requests: <a href="mailto:support@invoiceprepper.com">support@invoiceprepper.com</a>. EU/UK residents may also contact their local data protection authority.</p>
+    </div>
+
+  </div>
+
+  <footer>
+    <a href="https://invoiceprepper.com">invoiceprepper.com</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/terms">Terms</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/privacy">Privacy</a>
+    &nbsp;·&nbsp;
+    <a href="mailto:support@invoiceprepper.com">support@invoiceprepper.com</a>
+  </footer>
+</body>
+</html>
