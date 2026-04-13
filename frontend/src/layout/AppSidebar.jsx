@@ -56,7 +56,11 @@ export default function AppSidebar({
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, paddingTop: 4 }}>
           <button onClick={() => setShowBilling(true)} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Billing</button>
           <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
-          <button className="trash-btn" onClick={() => setShowTrash(true)} aria-label="Recently deleted" title="Recently deleted">🗑</button>
+          <button className="trash-btn" onClick={() => setShowTrash(true)} aria-label="Recently deleted" title="Recently deleted">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"block"}}>
+              <path d="M1.5 3h10M4.5 3V2a1 1 0 011-1h2a1 1 0 011 1v1M5.5 6v4M7.5 6v4M2.5 3l.75 7.5A1 1 0 004.25 11.5h4.5a1 1 0 001-.994L10.5 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
           <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help">?</button>
         </div>
       </div>
