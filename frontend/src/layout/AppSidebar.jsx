@@ -5,7 +5,7 @@ export default function AppSidebar({
   filter, setFilter,
   profile,
   setShowProfileModal, openNewReceipt,
-  setShowBilling, setLegal, setShowHelp,
+  setShowBilling, setLegal, setShowHelp, setShowTrash,
 }) {
   return (
     <aside className="sidebar">
@@ -56,6 +56,7 @@ export default function AppSidebar({
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, paddingTop: 4 }}>
           <button onClick={() => setShowBilling(true)} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Billing</button>
           <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
+          <button className="trash-btn" onClick={() => setShowTrash(true)} aria-label="Recently deleted" title="Recently deleted">🗑</button>
           <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help">?</button>
         </div>
       </div>

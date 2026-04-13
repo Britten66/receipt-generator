@@ -64,8 +64,15 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ ...receipt, line_items: items ?? [] }), { headers: corsHeaders });
     }
 
-    const { data, error } = await supabase
-      .from("receipts").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
+    // ?trash=1 returns soft-deleted invoices; default returns active ones
+    const trashView = url.searchParams.get("trash") === "1";
+    let listQuery = supabase.from("receipts").select("*").eq("user_id", user.id);
+    if (trashView) {
+      listQuery = listQuery.not("deleted_at", "is", null).order("deleted_at", { ascending: false });
+    } else {
+      listQuery = listQuery.is("deleted_at", null).order("created_at", { ascending: false });
+    }
+    const { data, error } = await listQuery;
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
     return new Response(JSON.stringify(data), { headers: corsHeaders });
   }
@@ -142,6 +149,15 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify(receipt), { status: 201, headers: corsHeaders });
   }
 
+  // PATCH ?restore=1 — move invoice out of trash
+  if (req.method === "PATCH" && queryId && url.searchParams.get("restore") === "1") {
+    const { error } = await supabase.from("receipts")
+      .update({ deleted_at: null })
+      .eq("id", queryId).eq("user_id", user.id);
+    if (error) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
+    return new Response(JSON.stringify({ message: "Restored" }), { headers: corsHeaders });
+  }
+
   // PATCH — update fields (whitelist enforced) + replace line items
   if (req.method === "PATCH" && queryId) {
     const body = await req.json();
@@ -206,22 +222,30 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify(data), { headers: corsHeaders });
   }
 
-  // DELETE
+  // DELETE — soft delete by default; ?purge=1 for permanent hard delete
   if (req.method === "DELETE" && queryId) {
     const id = queryId;
+    const purge = url.searchParams.get("purge") === "1";
 
-    const { error } = await supabase.from("receipts").delete().eq("id", id).eq("user_id", user.id);
-    if (error) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
+    if (purge) {
+      const { error } = await supabase.from("receipts").delete().eq("id", id).eq("user_id", user.id);
+      if (error) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
+    } else {
+      const { error } = await supabase.from("receipts")
+        .update({ deleted_at: new Date().toISOString() })
+        .eq("id", id).eq("user_id", user.id);
+      if (error) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
+    }
 
     const phDelete = createPostHogClient();
     phDelete.capture({
       distinctId: user.id,
-      event: "invoice deleted",
+      event: purge ? "invoice purged" : "invoice deleted",
       properties: { invoice_id: id },
     });
     await phDelete.shutdown();
 
-    return new Response(JSON.stringify({ message: "Deleted" }), { headers: corsHeaders });
+    return new Response(JSON.stringify({ message: purge ? "Purged" : "Deleted" }), { headers: corsHeaders });
   }
 
   return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: corsHeaders });

@@ -104,7 +104,6 @@
 }
 
 /* Text/icon-only elements that just change color on hover */
-[data-theme="dark"] .help-btn { color: #ffffff; }
 
 [data-theme="dark"] .dark-toggle:hover,
 [data-theme="dark"] .help-btn:hover,
@@ -335,28 +334,32 @@ body,
   color: var(--text-dim);
 }
 
-/* Help button — circled ? in the topbar */
-.help-btn {
+/* Help + Trash icon buttons in the sidebar utility row */
+.help-btn,
+.trash-btn {
   background: none;
-  border: 1px solid var(--border);
-  color: var(--text-muted);
+  border: 1.5px solid var(--text-dim);
+  color: var(--text);
   font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 600;
-  width: 26px;
-  height: 26px;
+  font-size: 13px;
+  font-weight: 700;
+  width: 30px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
   padding: 0;
   line-height: 1;
+  flex-shrink: 0;
 }
-.help-btn:hover {
-  color: var(--text);
-  border-color: var(--text-dim);
+.help-btn:hover,
+.trash-btn:hover {
+  color: var(--surface);
+  background: var(--text);
+  border-color: var(--text);
 }
 
 /* Upgrade button — inherits btn + btn-primary, just overrides size */
@@ -1246,7 +1249,9 @@ body,
   width: 100%;
   max-width: 540px;
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-shadow: 4px 4px 0 var(--border), 0 16px 48px rgba(0,0,0,0.18);
   animation: slideModal 0.15s ease;
 }

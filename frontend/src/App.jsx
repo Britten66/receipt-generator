@@ -19,11 +19,11 @@ import { applyPalette, clearPalette, PALETTE_KEYS, readPaletteFromStorage } from
 import { STATUS_CONFIG } from "./lib/constants";
 import { useAuth } from "./features/auth/AuthContext";
 import { useInvoices } from "./features/invoices/useInvoices";
-import { useSendInvoice } from "./features/invoices/useSendInvoice";
 import AppTopbar       from "./layout/AppTopbar";
 import AppSidebar      from "./layout/AppSidebar";
 import InvoiceGrid     from "./features/invoices/InvoiceGrid";
 import InvoiceDetail   from "./features/invoices/InvoiceDetail";
+import TrashModal      from "./features/invoices/trash/TrashModal";
 import "./App.css";
 
 // ─── 3. APP COMPONENT ────────────────────────────────────────────────────────
@@ -58,6 +58,7 @@ export default function App() {
 const [showProfileModal, setShowProfileModal]           = useState(false);
   const [showHelp, setShowHelp]                           = useState(false);
   const [showBilling, setShowBilling]                     = useState(false);
+  const [showTrash, setShowTrash]                         = useState(false);
   const [showPlansModal, setShowPlansModal]               = useState(false);
   const [showUpgradeThanks, setShowUpgradeThanks]         = useState(false);
   const [legal, setLegal]                                 = useState(null);
@@ -85,15 +86,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
     counts, revenue, outstanding, filtered,
   } = useInvoices({ session, profile, showToast });
 
-  const {
-    sendInvoiceTarget, setSendInvoiceTarget,
-    sendInvoiceEmail, setSendInvoiceEmail,
-    sendingInvoice,
-    sendInvoiceConfirming, setSendInvoiceConfirming,
-    handleSendInvoice,
-  } = useSendInvoice({ profile, handleStatusChange, showToast });
-
-  // ─── EFFECTS ───────────────────────────────────────────────────────────────
+// ─── EFFECTS ───────────────────────────────────────────────────────────────
 
   // Load receipts when session changes
   useEffect(() => {
@@ -277,7 +270,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
         filter={filter} setFilter={setFilter}
         profile={profile}
         setShowProfileModal={setShowProfileModal} openNewReceipt={openNewReceipt}
-        setShowBilling={setShowBilling} setLegal={setLegal} setShowHelp={setShowHelp}
+        setShowBilling={setShowBilling} setLegal={setLegal} setShowHelp={setShowHelp} setShowTrash={setShowTrash}
       />
 
       {/* ── MAIN ── toolbar greeting + receipt grid + detail panel */}
@@ -303,11 +296,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
             selectedReceipt={selectedReceipt} profile={profile}
             setSelected={setSelected} openEditReceipt={openEditReceipt}
             handleDelete={handleDelete} handleStatusChange={handleStatusChange}
-            sendInvoiceTarget={sendInvoiceTarget} setSendInvoiceTarget={setSendInvoiceTarget}
-            sendInvoiceEmail={sendInvoiceEmail} setSendInvoiceEmail={setSendInvoiceEmail}
-            sendInvoiceConfirming={sendInvoiceConfirming} setSendInvoiceConfirming={setSendInvoiceConfirming}
-            sendingInvoice={sendingInvoice} handleSendInvoice={handleSendInvoice}
-            setPdfPreviewUrl={setPdfPreviewUrl}
+            setPdfPreviewUrl={setPdfPreviewUrl} showToast={showToast}
           />
         </div>
       </main>
@@ -403,6 +392,14 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
 
       {/* Welcome (new user, shown once) */}
       {showWelcome && <WelcomeModal onClose={() => setShowWelcome(false)} />}
+
+      {showTrash && (
+        <TrashModal
+          onClose={() => setShowTrash(false)}
+          showToast={showToast}
+          onRestored={loadReceipts}
+        />
+      )}
 
       {/* Upgrade thanks (post-checkout, shown once) */}
       {showUpgradeThanks && <UpgradeThanksModal onClose={() => setShowUpgradeThanks(false)} />}
