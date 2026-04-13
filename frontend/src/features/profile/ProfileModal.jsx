@@ -16,10 +16,10 @@
 */
 
 import { useState, useRef } from "react";
-import { saveProfile } from "../api/profile";
-import { uploadLogo } from "../api/uploadLogo";
-import { deleteAccount } from "../api/account";
-import { supabase } from "../lib/supabase";
+import { saveProfile } from "../../api/profile";
+import { uploadLogo } from "../../api/uploadLogo";
+import { deleteAccount } from "../../api/account";
+import { supabase } from "../../lib/supabase";
 import LegalModal from "./LegalModal";
 
 export default function ProfileModal({ profile, userEmail, onSave, onClose, onUpgradeClick, onExport }) {

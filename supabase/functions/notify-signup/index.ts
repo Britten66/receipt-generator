@@ -50,7 +50,9 @@ Deno.serve(async (req) => {
   let payload: Record<string, unknown>;
   try {
     payload = await req.json();
-  } catch {
+    console.log("notify-signup: payload received", JSON.stringify(payload).slice(0, 200));
+  } catch (e) {
+    console.error("notify-signup: JSON parse failed", e);
     return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400 });
   }
 

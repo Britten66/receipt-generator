@@ -16,9 +16,9 @@
 */
 
 import { useState, useEffect, useRef } from "react";
-import { saveProfile } from "../api/profile";
-import { uploadLogo } from "../api/uploadLogo";
-import { parseText, parseAudio, mapParsedToForm } from "../api/aiParse";
+import { saveProfile } from "../../api/profile";
+import { uploadLogo } from "../../api/uploadLogo";
+import { parseText, parseAudio, mapParsedToForm } from "../../api/aiParse";
 
 /*
   EMPTY_ITEM is the default shape of a new blank line item.

@@ -128,10 +128,10 @@ Deno.serve(async (req)=>{
         .map(([desc, { total, count }]) => `"${desc}" at $${(total / count).toFixed(2)}/unit`);
 
       const parts: string[] = [];
-      if (customerNames.length) parts.push(`Past clients (use for name matching if the description is vague): ${customerNames.join(", ")}`);
-      if (commonItems.length) parts.push(`Common services and typical unit prices: ${commonItems.join("; ")}`);
+      if (customerNames.length) parts.push(`Known clients: ${customerNames.join(", ")}. If the input contains a partial name, abbreviation, or likely typo that closely matches any name in this list, use the full name from the list. Example: "jon smth" should resolve to "John Smith" if that is a known client. Prefer a history match over the literal input when the match is confident.`);
+      if (commonItems.length) parts.push(`Common services and typical unit prices: ${commonItems.join("; ")}. If a service description appears to be a typo or shorthand for a known service, normalize it to the known description.`);
       if (parts.length) {
-        ragContext = `\nUser invoice history — use as hints when the description is vague, but do NOT override anything explicitly stated:\n${parts.join("\n")}`;
+        ragContext = `\nUser invoice history. Use this data actively: correct typos, expand abbreviations, and normalize names and service descriptions against the lists below. Only correct when there is a confident match. Do not invent data.\n${parts.join("\n")}`;
       }
     }
   } catch {
@@ -183,6 +183,7 @@ Rules:
 - If a field is not mentioned set it to null or empty array.
 - Do not invent data not present in the description.
 - Always return line_items as an array even if only one item.
+- Spelling and name correction: if a client name or service description is a plausible typo, abbreviation, or partial match of an entry in the user invoice history, use the corrected version from history. Only apply a correction when the match is confident. Never invent a name that is not in the input or history.
 
 Examples:
 - "4 apples at 2 dollars each" → [{ description: "Apples", quantity: 4, unit_price: 2 }]

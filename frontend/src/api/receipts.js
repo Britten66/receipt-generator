@@ -36,3 +36,18 @@ export const deleteReceipt = async (id) =>
     method: "DELETE",
     headers: await headers(),
   }).then(r => r.json());
+
+export const fetchDeletedReceipts = async () =>
+  fetch(`${BASE}/receipts?trash=1`, { headers: await headers() }).then(r => r.json());
+
+export const restoreReceipt = async (id) =>
+  fetch(`${BASE}/receipts?id=${id}&restore=1`, {
+    method: "PATCH",
+    headers: await headers(),
+  }).then(r => r.json());
+
+export const purgeReceipt = async (id) =>
+  fetch(`${BASE}/receipts?id=${id}&purge=1`, {
+    method: "DELETE",
+    headers: await headers(),
+  }).then(r => r.json());

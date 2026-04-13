@@ -4,6 +4,7 @@ import posthog from 'posthog-js'
 import * as Sentry from '@sentry/react'
 import './index.css'
 import App from './App.jsx'
+import { AuthProvider } from './features/auth/AuthContext.jsx'
 
 // Sentry: only initialises when VITE_SENTRY_DSN is set (production).
 // In dev the DSN env var is absent so Sentry stays silent.
@@ -43,7 +44,9 @@ function ErrorFallback() {
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Sentry.ErrorBoundary fallback={<ErrorFallback />}>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </Sentry.ErrorBoundary>
   </StrictMode>,
 )
