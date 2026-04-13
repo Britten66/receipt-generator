@@ -3,8 +3,17 @@ import { supabase } from "../lib/supabase";
 const BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 
 async function headers() {
-  const { data: { session } } = await supabase.auth.getSession();
-return {
+  let { data: { session } } = await supabase.auth.getSession();
+  if (session?.access_token) {
+    try {
+      const { exp } = JSON.parse(atob(session.access_token.split(".")[1]));
+      if (exp * 1000 <= Date.now()) {
+        const { data } = await supabase.auth.refreshSession();
+        session = data.session;
+      }
+    } catch {}
+  }
+  return {
     "Content-Type": "application/json",
     "Authorization": `Bearer ${session?.access_token ?? ""}`,
     "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
