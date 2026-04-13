@@ -34,72 +34,28 @@ import {
   updateReceipt,
   deleteReceipt,
 } from "./api/receipts";
-import ReceiptForm         from "./components/ReceiptForm";
-import LandingPage         from "./components/LandingPage";
-import AuthModal           from "./components/AuthModal";
-import ProfileModal        from "./components/ProfileModal";
-import PasswordUpdateModal from "./components/PasswordUpdateModal";
-import HelpModal           from "./components/HelpModal";
-import LegalModal          from "./components/LegalModal";
-import BillingModal        from "./components/BillingModal";
-import PlansModal          from "./components/PlansModal";
-import UpgradeConfirmModal from "./components/UpgradeConfirmModal";
-import WelcomeModal        from "./components/WelcomeModal";
-import UpgradeThanksModal  from "./components/UpgradeThanksModal";
+import ReceiptForm         from "./features/invoices/ReceiptForm";
+import LandingPage         from "./layout/LandingPage";
+import AuthModal           from "./features/auth/AuthModal";
+import ProfileModal        from "./features/profile/ProfileModal";
+import PasswordUpdateModal from "./features/profile/PasswordUpdateModal";
+import HelpModal           from "./features/profile/HelpModal";
+import LegalModal          from "./features/profile/LegalModal";
+import BillingModal        from "./features/billing/BillingModal";
+import PlansModal          from "./features/billing/PlansModal";
+import UpgradeConfirmModal from "./features/billing/UpgradeConfirmModal";
+import WelcomeModal        from "./features/auth/WelcomeModal";
+import UpgradeThanksModal  from "./features/billing/UpgradeThanksModal";
 import { supabase }        from "./lib/supabase";
 import posthog             from "posthog-js";
 import { fetchProfile }    from "./api/profile";
 import { startCheckout }   from "./api/billing";
+import { exportInvoicesCSV } from "./services/csvExport";
 import { applyPalette, clearPalette, PALETTE_ENTRIES, PALETTE_KEYS, readPaletteFromStorage } from "./lib/themes";
+import { STATUS_CONFIG, NAV, STATUS_LABELS, fmt, fmtStat } from "./lib/constants";
 import { QRCodeSVG }       from "qrcode.react";
 import * as DropdownMenu   from "@radix-ui/react-dropdown-menu";
 import "./App.css";
-
-// ─── 2. CONSTANTS ────────────────────────────────────────────────────────────
-
-/*
-  STATUS_CONFIG — the four states a receipt can be in.
-  Used to build the sidebar nav and the status-change buttons in the detail panel.
-
-    draft  → saved, not sent yet
-    sent   → delivered to client, awaiting payment
-    paid   → client paid, counts toward revenue
-    voided → cancelled, excluded from all stats
-*/
-const STATUS_CONFIG = {
-  draft:  { label: "Draft" },
-  sent:   { label: "Sent" },
-  paid:   { label: "Paid" },
-  voided: { label: "Voided" },
-};
-
-/*
-  NAV — filter list shown in the sidebar.
-  "ALL" shows every receipt regardless of status.
-*/
-const NAV = [
-  { key: "ALL",    label: "All" },
-  { key: "draft",  label: "Draft" },
-  { key: "sent",   label: "Sent" },
-  { key: "paid",   label: "Paid" },
-  { key: "voided", label: "Voided" },
-];
-
-/*
-  STATUS_LABELS — toast copy shown after changing a receipt's status.
-  Example: marking a receipt as paid → "Marked as paid"
-*/
-const STATUS_LABELS = {
-  draft:  "Saved as draft",
-  sent:   "Marked as sent",
-  paid:   "Marked as paid",
-  voided: "Invoice voided",
-};
-
-// fmt: "$1,234.56" — used on cards and in the detail panel totals block
-function fmt(n) {
-  return "$" + parseFloat(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
 
 // ─── 3. APP COMPONENT ────────────────────────────────────────────────────────
 
@@ -373,76 +329,10 @@ export default function App() {
     setShowUpgradeConfirm(true);
   }
 
-  // handleExport — downloads all invoices + line items as a formatted CSV.
-  // One row per line item; invoice fields repeat on each row so the file
-  // opens cleanly in Excel / Google Sheets with no transformation needed.
+  // handleExport — delegates to services/csvExport.js
   async function handleExport() {
     try {
-      const ids = receipts.map((r) => r.id);
-      const { data: items } = await supabase.from("line_items").select("*").in("receipt_id", ids);
-      const byReceipt = {};
-      (items || []).forEach((item) => {
-        if (!byReceipt[item.receipt_id]) byReceipt[item.receipt_id] = [];
-        byReceipt[item.receipt_id].push(item);
-      });
-
-      // Wrap a value in quotes and escape any internal quotes (RFC 4180)
-      const cell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-      const num  = (v) => (v == null ? "" : Number(v).toFixed(2));
-
-      const HEADERS = [
-        "Invoice #", "Date", "Status", "Currency",
-        "Issued By", "Billed To",
-        "Item Description", "Qty", "Unit Price", "Item Total",
-        "Subtotal", "Tax", "Invoice Total",
-        "Notes",
-      ];
-
-      const rows = [HEADERS.map(cell).join(",")];
-
-      receipts.forEach((r) => {
-        const lineItems = byReceipt[r.id] || [];
-        const base = [
-          cell(r.receipt_number || ""),
-          cell(r.date || ""),
-          cell(r.status || ""),
-          cell(r.currency || "CAD"),
-          cell(r.vendor_name || ""),
-          cell(r.customer_name || ""),
-        ];
-        const totals = [
-          cell(num(r.subtotal)),
-          cell(num(r.tax)),
-          cell(num(r.total)),
-          cell(r.notes || ""),
-        ];
-
-        if (lineItems.length === 0) {
-          // Invoice with no line items — still emit one row
-          rows.push([...base, cell(""), cell(""), cell(""), cell(""), ...totals].join(","));
-        } else {
-          lineItems.forEach((item, i) => {
-            rows.push([
-              ...base,
-              cell(item.description || ""),
-              cell(item.quantity ?? ""),
-              cell(num(item.unit_price)),
-              cell(num(item.total)),
-              // Subtotal / tax / total / notes only on the first line item row to avoid repetition
-              ...(i === 0 ? totals : [cell(""), cell(""), cell(""), cell("")]),
-            ].join(","));
-          });
-        }
-      });
-
-      const csv  = rows.join("\r\n");
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href     = url;
-      a.download = `invoiceprepper-export-${new Date().toISOString().split("T")[0]}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
+      await exportInvoicesCSV(receipts);
     } catch {
       showToast("Export failed. Try again.", "error");
     }
@@ -512,7 +402,7 @@ export default function App() {
     setSendingInvoice(true);
     try {
       const r = sendInvoiceTarget;
-      const { buildPDFBase64 } = await import("./components/ReceiptPDF");
+      const { buildPDFBase64 } = await import("./features/invoices/ReceiptPDF");
       const pdfBase64 = await buildPDFBase64({
         ...r,
         logo_url:    r.logo_url || profile?.logo_url || null,
@@ -615,12 +505,6 @@ export default function App() {
     .filter((r) => r.status === "sent")
     .reduce((sum, r) => sum + parseFloat(r.total || 0), 0);
 
-  // fmtStat: compact format for sidebar stat values — avoids overflow in narrow columns
-  function fmtStat(n) {
-    if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-    if (n >= 10_000)    return `$${(n / 1_000).toFixed(1)}K`;
-    return `$${n.toFixed(2)}`;
-  }
 
   const filtered = useMemo(() => {
     if (filter === "ALL") return receipts;
@@ -1094,7 +978,7 @@ export default function App() {
                     style={{ width: "100%", marginBottom: 6 }}
                     onClick={async () => {
                       try {
-                        const { shareReceiptPDF } = await import("./components/ReceiptPDF");
+                        const { shareReceiptPDF } = await import("./features/invoices/ReceiptPDF");
                         await shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier });
                       } catch (err) {
                         if (err?.name !== "AbortError") console.error("Share failed:", err);
@@ -1126,7 +1010,7 @@ export default function App() {
                     // it alive; we populate it with the blob URL once built.
                     const win = (!isIOS && !isMobile) ? window.open("", "_blank") : null;
 
-                    const { downloadReceiptPDF, getPDFBlobUrl } = await import("./components/ReceiptPDF");
+                    const { downloadReceiptPDF, getPDFBlobUrl } = await import("./features/invoices/ReceiptPDF");
                     const receiptData = { ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier };
 
                     if (isIOS) {
@@ -1156,7 +1040,7 @@ export default function App() {
                   className="btn btn-download"
                   style={{ width: "100%", marginBottom: 6 }}
                   onClick={async () => {
-                    const { downloadReceiptPDF } = await import("./components/ReceiptPDF");
+                    const { downloadReceiptPDF } = await import("./features/invoices/ReceiptPDF");
                     downloadReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier });
                     posthog.capture("pdf_downloaded", { invoice_status: selectedReceipt.status, tier: profile?.tier ?? "free" });
                   }}

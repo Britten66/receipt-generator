@@ -18,7 +18,7 @@
 */
 
 import { useState } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../../lib/supabase";
 
 // Same rules as AuthModal: 8+ chars and at least one number or symbol
 function checkPassword(pw) {

@@ -13,7 +13,7 @@
     onSelectVoice — called when user clicks "Get Voice AI"
 */
 
-import BorderGlow from "./BorderGlow";
+import BorderGlow from "../../layout/BorderGlow";
 
 export default function PlansModal({ profile, darkMode, currency, onClose, onSelectPro, onSelectVoice }) {
   const isProUser = profile?.tier === "pro";
