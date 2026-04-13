@@ -153,7 +153,7 @@ export default function InvoiceDetail({
       {/* PDF actions */}
       <div className="detail-section">
 
-        {"share" in navigator && window.innerWidth <= 768 && (
+        {"share" in navigator && window.innerWidth <= 768 && (profile?.tier === "pro" || profile?.tier === "voice") && (
           <button
             className="btn btn-ghost"
             style={{ width: "100%", marginBottom: 6 }}
