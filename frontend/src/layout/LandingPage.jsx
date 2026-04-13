@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import posthog from "posthog-js";
-import LegalModal from "./LegalModal";
+import LegalModal from "../features/profile/LegalModal";
 import BorderGlow from "./BorderGlow";
 import Threads from "./Threads";
 import "./LandingPage.css";

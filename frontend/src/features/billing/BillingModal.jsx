@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { cancelSubscription, openBillingPortal, fetchSubscriptionStatus } from "../api/billing";
+import { cancelSubscription, openBillingPortal, fetchSubscriptionStatus } from "../../api/billing";
 import { FileText, Mail, Image, Mic, BarChart2, Link } from "lucide-react";
 
 export default function BillingModal({ profile, onClose, onUpgrade }) {

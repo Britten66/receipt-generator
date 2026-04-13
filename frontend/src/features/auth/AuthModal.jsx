@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { supabase } from "../lib/supabase";
-import LegalModal from "./LegalModal";
+import { supabase } from "../../lib/supabase";
+import LegalModal from "../profile/LegalModal";
 import "./AuthPage.css";
 
 /*
