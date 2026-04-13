@@ -307,6 +307,8 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 <li>Remembers your regular clients and rates</li>
                 <li>Create invoices on the fly, anywhere</li>
                 <li>Unlimited Voice AI and Text AI parses</li>
+                <li>Your invoicing companion on every job</li>
+                <li>Speak or type. Smart parsing does the rest</li>
                 <li>First access to new AI features</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-voice" onClick={onEnterVoice}>Get Voice AI</button>

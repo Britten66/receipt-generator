@@ -92,6 +92,8 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
                 <li>Remembers your regular clients and rates</li>
                 <li>Create invoices on the fly, anywhere</li>
                 <li>Unlimited Voice AI and Text AI parses</li>
+                <li>Your invoicing companion on every job</li>
+                <li>Speak or type. Smart parsing does the rest</li>
                 <li>First access to new AI features</li>
               </ul>
               <button className="plans-modal-btn plans-modal-btn-voice" onClick={onSelectVoice}>
