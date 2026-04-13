@@ -305,7 +305,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 <li>Works on mobile, hands-free</li>
                 <li>Detects line items, prices, and clients</li>
                 <li>Remembers your regular clients and rates</li>
-                <li>Invoice from a job site in seconds</li>
+                <li>Create invoices on the fly, anywhere</li>
                 <li>Unlimited Voice AI and Text AI parses</li>
                 <li>First access to new AI features</li>
               </ul>
