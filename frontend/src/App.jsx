@@ -404,17 +404,6 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
       {/* Upgrade thanks (post-checkout, shown once) */}
       {showUpgradeThanks && <UpgradeThanksModal onClose={() => setShowUpgradeThanks(false)} />}
 
-      {/* Feedback button: floating bottom-right, authenticated users only */}
-      <a
-        href="https://tally.so/r/2EJZRM"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="feedback-fab"
-        onClick={() => posthog.capture("feedback_clicked", { tier: profile?.tier ?? "free" })}
-        aria-label="Send feedback"
-      >
-        Feedback
-      </a>
 
       {/* Toast: success (green) / upgrade (accent copper) / error (red) */}
       {toast && (
