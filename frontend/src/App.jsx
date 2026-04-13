@@ -406,7 +406,9 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
 
       {/* Feedback button: floating bottom-right, authenticated users only */}
       <a
-        href={`mailto:support@invoiceprepper.com?subject=${encodeURIComponent("InvoicePrepper Feedback")}&body=${encodeURIComponent("Hi,\n\nHere is my feedback:\n\n")}`}
+        href="https://tally.so/r/2EJZRM"
+        target="_blank"
+        rel="noopener noreferrer"
         className="feedback-fab"
         onClick={() => posthog.capture("feedback_clicked", { tier: profile?.tier ?? "free" })}
         aria-label="Send feedback"
