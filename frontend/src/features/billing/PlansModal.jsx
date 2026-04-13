@@ -53,6 +53,7 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
                 <ul className="plans-modal-features">
                   <li className="plans-modal-includes">Includes Free Plan</li>
                   <li>Email invoices directly to clients</li>
+                  <li>Share invoice PDF directly from your phone</li>
                   <li>Your business name on every email</li>
                   <li>Upload your logo to every PDF</li>
                   <li>Send payment reminders for unpaid invoices</li>
@@ -87,8 +88,11 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
                 <li className="plans-modal-includes">Includes Pro Plan</li>
                 <li>Speak your invoice, AI fills it in</li>
                 <li>Works on mobile, hands-free</li>
-                <li>Detects line items, prices, clients</li>
-                <li>Unlimited AI parses</li>
+                <li>Detects line items, prices, and clients</li>
+                <li>Remembers your regular clients and rates</li>
+                <li>Invoice from a job site in seconds</li>
+                <li>Unlimited Voice AI and Text AI parses</li>
+                <li>First access to new AI features</li>
               </ul>
               <button className="plans-modal-btn plans-modal-btn-voice" onClick={onSelectVoice}>
                 Get Voice AI

@@ -270,6 +270,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <ul className="lv2-plan-features">
                 <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Includes Free Plan</li>
                 <li>Email invoices directly to clients</li>
+                <li>Share invoice PDF directly from your phone</li>
                 <li>Your business name on every email</li>
                 <li>Upload your logo to every PDF</li>
                 <li>Send payment reminders for unpaid invoices</li>
@@ -302,12 +303,11 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Includes Pro Plan</li>
                 <li>Speak your invoice, AI fills it in</li>
                 <li>Works on mobile, hands-free</li>
-                <li>Detects multiple line items naturally</li>
-                <li>Unlimited AI parses</li>
-                <li style={{ color: "var(--text-muted)", fontSize: 11 }}>
-                  <span style={{ fontSize: 9, padding: "1px 5px", background: "rgba(77,216,224,0.15)", border: "1px solid rgba(77,216,224,0.3)", borderRadius: 2, letterSpacing: "0.08em", fontWeight: 700, textTransform: "uppercase", color: "#0a8a96", marginRight: 5 }}>beta</span>
-                  First on new AI features
-                </li>
+                <li>Detects line items, prices, and clients</li>
+                <li>Remembers your regular clients and rates</li>
+                <li>Invoice from a job site in seconds</li>
+                <li>Unlimited Voice AI and Text AI parses</li>
+                <li>First access to new AI features</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-voice" onClick={onEnterVoice}>Get Voice AI</button>
             </div>
