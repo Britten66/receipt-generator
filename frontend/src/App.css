@@ -106,7 +106,6 @@
 /* Text/icon-only elements that just change color on hover */
 
 [data-theme="dark"] .dark-toggle:hover,
-[data-theme="dark"] .help-btn:hover,
 [data-theme="dark"] .btn-icon:hover,
 [data-theme="dark"] .win-btn:hover {
   color: #e7ddc7;
@@ -358,6 +357,12 @@ body,
 .help-btn:hover,
 .trash-btn:hover {
   color: var(--surface);
+  background: var(--text);
+  border-color: var(--text);
+}
+[data-theme="dark"] .help-btn:hover,
+[data-theme="dark"] .trash-btn:hover {
+  color: var(--bg);
   background: var(--text);
   border-color: var(--text);
 }
