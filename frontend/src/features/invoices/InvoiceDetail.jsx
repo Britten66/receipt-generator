@@ -1,16 +1,20 @@
 import { QRCodeSVG } from "qrcode.react";
 import posthog from "posthog-js";
 import { STATUS_CONFIG, fmt } from "../../lib/constants";
+import { useSendInvoice } from "./useSendInvoice";
 
 export default function InvoiceDetail({
   selectedReceipt, profile,
   setSelected, openEditReceipt, handleDelete, handleStatusChange,
-  sendInvoiceTarget, setSendInvoiceTarget,
-  sendInvoiceEmail, setSendInvoiceEmail,
-  sendInvoiceConfirming, setSendInvoiceConfirming,
-  sendingInvoice, handleSendInvoice,
-  setPdfPreviewUrl,
+  setPdfPreviewUrl, showToast,
 }) {
+  const {
+    sendInvoiceTarget, setSendInvoiceTarget,
+    sendInvoiceEmail, setSendInvoiceEmail,
+    sendingInvoice,
+    sendInvoiceConfirming, setSendInvoiceConfirming,
+    handleSendInvoice,
+  } = useSendInvoice({ profile, handleStatusChange, showToast });
   if (!selectedReceipt) return null;
 
   return (
