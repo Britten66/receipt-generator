@@ -135,7 +135,9 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
               </div>
               <div className="help-row" style={{ gap: 6, marginTop: 4 }}>
                 <a
-                  href={`mailto:support@invoiceprepper.com?subject=${encodeURIComponent("Feedback")}&body=${encodeURIComponent("Hi,\n\nHere is my feedback:\n\n")}`}
+                  href="https://tally.so/r/2EJZRM"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{ fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", padding: "5px 12px", border: "1px solid var(--border)", color: "var(--text-muted)", textDecoration: "none", display: "inline-block" }}
                 >
                   Send Feedback
