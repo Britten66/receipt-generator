@@ -6,7 +6,7 @@
   Supabase Dashboard → Database → Webhooks → Create webhook
   Schema: auth   Table: users   Event: INSERT
   URL:   https://qajcynqmjtlzofoyklyp.supabase.co/functions/v1/notify-signup
-  HTTP Headers: Authorization: Bearer <SUPABASE_SERVICE_ROLE_KEY>
+  HTTP Headers: Authorization: Bearer <NOTIFY_SIGNUP_SECRET>
 
   Using a Database Webhook (not Auth Hook) because Auth Hooks are synchronous
   and can block user creation if the function errors. Database Webhooks are
@@ -32,17 +32,17 @@ Deno.serve(async (req) => {
   }
 
   // Verify the request is from Supabase using the service role key
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const notifyEmail    = Deno.env.get("NOTIFY_EMAIL");
-  const resendKey      = Deno.env.get("RESEND_API_KEY");
+  const webhookSecret = Deno.env.get("NOTIFY_SIGNUP_SECRET");
+  const notifyEmail   = Deno.env.get("NOTIFY_EMAIL");
+  const resendKey     = Deno.env.get("RESEND_API_KEY");
 
-  if (!serviceRoleKey || !notifyEmail || !resendKey) {
+  if (!webhookSecret || !notifyEmail || !resendKey) {
     console.error("notify-signup: missing required env vars");
     return new Response(JSON.stringify({ ok: false, error: "misconfigured" }), { status: 200 });
   }
 
   const authHeader = req.headers.get("authorization") ?? "";
-  if (!authHeader.includes(serviceRoleKey)) {
+  if (!authHeader.includes(webhookSecret)) {
     console.error("notify-signup: unauthorized request");
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
