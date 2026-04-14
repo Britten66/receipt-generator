@@ -1,34 +1,70 @@
 # InvoicePrepper
 
-Invoicing tool for freelancers, contractors, and small businesses. Create, send, and track invoices from any device.
+Invoicing tool for freelancers, contractors, and small businesses. Create, send, track, and get paid from any device.
 
 Live at [invoiceprepper.com](https://invoiceprepper.com)
 
-Built solo using LLMs to mimic industry standard structure and co-complete complex tasks. Real architecture, real debugging, real iteration, real deployment as a solo build.
+---
 
-:
+## How this was built
+
+Built solo using Claude as a senior engineering collaborator throughout: architecture decisions, debugging, writing and reviewing code, and acting as QA across the full stack.
+
+The goal was to build something that matches industry-standard structure for a SaaS product without a team behind it. Feature-based folder structure, typed edge functions, RLS on every table, rate limiting on AI endpoints, and proper auth token handling on mobile are all here because they are the right way to build it, not because the app currently needs them at scale.
+
+### Test coverage
+
+QA and test coverage were treated as a primary deliverable, not a post-launch afterthought. By leveraging AI to rapidly scale boilerplate test generation during feature builds, a robust, production-grade testing suite was implemented across 391 automated tests.
+
+**Business logic.** Pure function coverage for all invoice math, tax calculations, currency formatting, and edge cases including zero quantities, floating point rounding, and large totals.
+
+**API and security.** Comprehensive coverage enforcing strict API behaviors, security boundaries, and complex authentication edge cases including JWT handling, rate limiting, webhook signature verification, and input sanitization.
+
+**AI parsing validation.** Dedicated test paths securing all AI data parsing logic against unpredictable outputs, malformed responses, and missing fields.
+
+**Component tests.** Full coverage of every modal, form, and key UI surface: tier gates, consent flows, billing states, status transitions, and callback wiring.
+
+**End-to-end tests.** Playwright tests running against real Chromium covering the full landing page funnel, auth modal flows, consent gate enforcement, and all SEO pages.
+
+**Continuous regression.** Every edge case discovered during debugging was immediately codified into an automated regression test, ensuring the same bug cannot reappear silently.
+
+---
 
 ## Stack
 
-React 19 + Vite on Cloudflare Pages. Supabase Edge Functions (Deno) for the API. PostgreSQL via Supabase. Stripe for subscriptions. Resend for email. Groq for voice and text AI. jsPDF for PDF generation. PostHog for analytics.
-
-:
+React 19 + Vite on Cloudflare Pages. Supabase Edge Functions (Deno) for the API layer. PostgreSQL via Supabase with row-level security. Stripe for subscription billing. Resend for transactional email. Groq for voice and text AI parsing. jsPDF for client-side PDF generation. PostHog for product analytics. Sentry for error tracking.
 
 ## Structure
 
 ```
-frontend/    React app (Cloudflare Pages)
-supabase/    Edge functions (Deno runtime)
-docs/        System overview and architecture
+frontend/
+  src/
+    features/       invoices, auth, billing, profile
+    layout/         app shell, landing page, sidebar, topbar
+    api/            fetch wrappers (receipts, profile, billing, AI)
+    lib/            supabase client, themes, constants
+    __tests__/      391 tests: logic, API, security, components, E2E
+supabase/
+  functions/        Edge functions: receipts, send-invoice, stripe-checkout,
+                    voice-parse, text-parse, notify-signup, stripe-webhook
+docs/               System overview and architecture
 ```
-
-:
 
 ## Setup
 
 Copy `frontend/.env.example` to `frontend/.env` and fill in your Supabase project URL and anon key. Set the remaining secrets in Supabase via `npx supabase secrets set`. Full list in `frontend/.env.example` and `docs/system-overview.md`.
 
-:
+Run unit and component tests:
+
+```bash
+cd frontend && npx vitest run
+```
+
+Run E2E tests (requires dev server, uses real Chromium):
+
+```bash
+cd frontend && npx playwright test --workers=2
+```
 
 ## Tiers
 
@@ -36,10 +72,38 @@ Copy `frontend/.env.example` to `frontend/.env` and fill in your Supabase projec
 |---|---|---|---|
 | Invoices | Unlimited | Unlimited | Unlimited |
 | Clean PDF, no watermark | Yes | Yes | Yes |
-| Download and share link | Yes | Yes | Yes |
-| Email to client | | Yes | Yes |
-| Logo on PDF | | Yes | Yes |
+| Download PDF | Yes | Yes | Yes |
+| Email invoice to client | | Yes | Yes |
+| Share invoice PDF from mobile | | Yes | Yes |
+| Business name on outgoing emails | | Yes | Yes |
+| Upload logo to PDF | | Yes | Yes |
+| Send payment reminders | | Yes | Yes |
+| Text AI parsing (15 per day) | | Yes | Yes |
 | Dashboard themes | | Yes | Yes |
 | CSV export | | Yes | Yes |
-| Voice + Text AI | | | Yes |
+| Voice AI (unlimited) | | | Yes |
+| Text AI (unlimited) | | | Yes |
+| First access to new AI features | | | Yes |
 | Price | Free | CAD $9/mo | CAD $12/mo |
+
+## Features
+
+**Invoicing.** Create invoices with line items, tax, due dates, and notes. Download as PDF or email directly to clients. Track status from Draft to Sent to Paid. Outstanding balance updates automatically.
+
+**AI parsing.** Describe a job in plain text or speak it aloud. The AI fills in the invoice fields, detects line items and prices, and infers currency from context. Pro users get 15 text parses per day. Voice AI users get unlimited voice and text parses.
+
+**Email delivery.** Pro and Voice AI users can email invoices directly to clients with their business name in the sender field. Send payment reminders for unpaid invoices.
+
+**PDF sharing.** Every invoice generates a clean PDF. Pro and Voice AI users can share the PDF directly from their phone using the native share sheet.
+
+**Subscriptions.** Stripe handles billing for Pro (CAD/USD $9/mo) and Voice AI (CAD/USD $12/mo). Post-checkout webhook upgrades the user tier in Supabase automatically.
+
+**Analytics and error tracking.** PostHog tracks activation events: signup, invoice created, invoice sent, invoice paid, upgrade, PDF downloaded. Sentry catches frontend errors in production.
+
+**Notifications.** A database webhook fires on every new user registration, sending an admin notification and a welcome email via Resend.
+
+**SEO.** Static HTML pages in `/public` for trade and service verticals. Sitemap at `/sitemap.xml`.
+
+## Changelog
+
+[invoiceprepper.com/blog](https://invoiceprepper.com/blog)

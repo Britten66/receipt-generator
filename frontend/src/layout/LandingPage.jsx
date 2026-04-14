@@ -374,6 +374,8 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           <a href="/terms" className="lv2-footer-link">Terms</a>
           {" · "}
           <a href="/privacy" className="lv2-footer-link">Privacy</a>
+          {" · "}
+          <a href="/blog" className="lv2-footer-link">Changelog</a>
         </p>
         <p className="lv2-footer-disclaimer">For personal record-keeping only. Not a substitute for professional accounting or tax advice.</p>
       </footer>
