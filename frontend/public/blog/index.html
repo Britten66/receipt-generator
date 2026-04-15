@@ -28,9 +28,11 @@
     .entry-date { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; padding-top: 4px; }
     .entry-tag { display: inline-block; font-family: var(--mono); font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
     .entry-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 10px; }
-    .entry-body ul { padding-left: 16px; margin-top: 4px; display: flex; flex-direction: column; gap: 6px; }
-    .entry-body li { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
-    .entry-body li span { font-family: var(--mono); font-size: 10px; color: var(--text-muted); display: block; margin-top: 2px; }
+    .entry-summary { font-size: 13px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.6; }
+    .entry-body { display: flex; flex-direction: column; gap: 14px; }
+    .section-label { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .entry-body ul { padding-left: 16px; display: flex; flex-direction: column; gap: 4px; }
+    .entry-body li { font-size: 13px; color: var(--text); line-height: 1.5; }
     footer { border-top: 1px solid var(--border); margin-top: 64px; padding: 20px 32px; text-align: center; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
     footer a { color: var(--text-muted); text-decoration: none; }
     footer a:hover { color: var(--text); }
@@ -58,24 +60,23 @@
       <div>
         <div class="entry-tag">Improvement</div>
         <div class="entry-title">Sign in and account setup</div>
+        <div class="entry-summary">Cleaned up the whole sign-in experience. Simpler signup, a proper forgot password path, and better feedback while you type.</div>
         <div class="entry-body">
-          <ul>
-            <li>Accounts created with Google now see a consent step on first login. The app waits for confirmation before continuing.
-              <span>Blocking modal writes terms_agreed_at to the user profile via the profile Edge Function on accept.</span>
-            </li>
-            <li>Signup form simplified. Email, password, and confirm are all that is required to create an account.
-              <span>Consent and opt-in moved to post-login flow, applied uniformly across all signup methods.</span>
-            </li>
-            <li>Fixed an issue where accounts were not correctly identified after signing in via redirect.
-              <span>posthog.identify call updated to pass email alongside user ID on every SIGNED_IN event.</span>
-            </li>
-            <li>Password strength indicator now shows inline as you type. Weak, good, and strong states with colour feedback.
-              <span>Client-side only, no network call. Regex checks for length, number, and symbol presence.</span>
-            </li>
-            <li>Forgot password flow added. Enter your email, receive a reset link, set a new password.
-              <span>Supabase auth.resetPasswordForEmail with redirectTo pointing back to the app.</span>
-            </li>
-          </ul>
+          <div>
+            <div class="section-label">[AUTH]</div>
+            <ul>
+              <li>Google sign-in now shows a consent step on first login before continuing</li>
+              <li>Signup trimmed down — email, password, and confirm only</li>
+              <li>Forgot password flow added — enter your email, receive a reset link, set a new password</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">[UI]</div>
+            <ul>
+              <li>Password strength now shows inline as you type — weak, good, and strong with colour feedback</li>
+              <li>Fixed accounts not being correctly identified after signing in via redirect</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -85,24 +86,23 @@
       <div>
         <div class="entry-tag">New</div>
         <div class="entry-title">Text AI invoice parsing (Pro)</div>
+        <div class="entry-summary">Type what you did and who to bill. AI reads the description and fills in the invoice for you — no clicking through fields.</div>
         <div class="entry-body">
-          <ul>
-            <li>Type what you did and who to bill. AI reads the description and fills in line items, quantities, and amounts automatically.
-              <span>Groq LLM inference via a Supabase Edge Function. Structured JSON output mapped to invoice form fields.</span>
-            </li>
-            <li>Text AI is available on Pro and Voice AI plans. Limited to 15 parses per day on Pro, unlimited on Voice AI.
-              <span>Rate limit enforced server-side using a monthly counter stored in the profiles table. Resets on the first of each month.</span>
-            </li>
-            <li>Text input only renders on desktop pointer devices. On mobile, voice input is the default AI method.
-              <span>Detected via window.matchMedia("(pointer: fine)") on mount.</span>
-            </li>
-            <li>AI section hidden entirely for free users. No input shown, no prompt visible.
-              <span>Conditional render gated on profile.tier at the ReceiptForm component level.</span>
-            </li>
-            <li>Upgrade prompt shown inline when a free user attempts to access AI features.
-              <span>onUpgradeClick prop passed down from App, opens PlansModal directly.</span>
-            </li>
-          </ul>
+          <div>
+            <div class="section-label">[NEW]</div>
+            <ul>
+              <li>Describe a job in plain text, AI fills in line items, quantities, and amounts automatically</li>
+              <li>Desktop gets text input, mobile gets voice — each device uses the right tool</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">[ACCESS]</div>
+            <ul>
+              <li>Pro: 15 text parses per day</li>
+              <li>Voice AI: unlimited</li>
+              <li>Free: feature not shown</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -112,24 +112,28 @@
       <div>
         <div class="entry-tag">New</div>
         <div class="entry-title">Voice AI invoice parsing (Voice AI plan)</div>
+        <div class="entry-summary">Speak your invoice out loud. Tap the mic, describe the job, and the fields fill in automatically.</div>
         <div class="entry-body">
-          <ul>
-            <li>Speak your invoice out loud. Tap the microphone, describe the job, and AI fills in the invoice fields automatically.
-              <span>Audio recorded in the browser, uploaded to Supabase Storage audio-temp bucket, transcribed and parsed via Groq.</span>
-            </li>
-            <li>Voice input available on any device with a microphone. Works on mobile and desktop.
-              <span>MediaRecorder API with audio/webm encoding. Falls back to audio/mp4 on iOS Safari.</span>
-            </li>
-            <li>Voice AI is unlimited on the Voice AI plan. No daily cap.
-              <span>No rate limit applied server-side for voice tier. Tier check only.</span>
-            </li>
-            <li>Audio files are deleted from storage immediately after parsing. Nothing is retained.
-              <span>Supabase Storage delete called in the Edge Function after the parse response is returned.</span>
-            </li>
-            <li>Voice input footer stays fixed at the bottom of the form while recording is active.
-              <span>Position fixed, z-index layered above invoice content. Padding added to form bottom to prevent overlap.</span>
-            </li>
-          </ul>
+          <div>
+            <div class="section-label">[NEW]</div>
+            <ul>
+              <li>Tap the microphone, describe the job, invoice fills automatically</li>
+              <li>Works on mobile and desktop — any device with a mic</li>
+              <li>Unlimited on the Voice AI plan, no daily cap</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">[PRIVACY]</div>
+            <ul>
+              <li>Audio deleted immediately after parsing — nothing is stored or retained</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">[UI]</div>
+            <ul>
+              <li>Recording controls stay pinned at the bottom of the screen while the mic is active</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -139,21 +143,27 @@
       <div>
         <div class="entry-tag">Improvement</div>
         <div class="entry-title">Trash, themes, and export</div>
+        <div class="entry-summary">Softer deletes so nothing is gone for good, colour themes to make the dashboard yours, and CSV export to get your data out anytime.</div>
         <div class="entry-body">
-          <ul>
-            <li>Deleted invoices now go to a trash folder instead of being permanently removed. Restore any invoice within 30 days.
-              <span>Soft delete via deleted_at timestamp. TrashModal queries invoices where deleted_at is not null. Hard delete on confirm or after 30 days.</span>
-            </li>
-            <li>Dashboard themes added. Six colour palettes with separate light and dark selections. Your choice is saved between sessions.
-              <span>CSS custom property overrides applied via applyPalette. Palette key stored in localStorage and profile.</span>
-            </li>
-            <li>CSV export of all invoices. One click downloads a spreadsheet-ready file with every invoice and line item.
-              <span>Client-side CSV generation. Fields escaped for injection safety. BOM prepended for Excel compatibility.</span>
-            </li>
-            <li>Trash, themes, and export are available on Pro and Voice AI plans.
-              <span>Feature flags checked against profile.tier before rendering controls in the sidebar and topbar.</span>
-            </li>
-          </ul>
+          <div>
+            <div class="section-label">[QOL]</div>
+            <ul>
+              <li>Deleted invoices go to trash — restore anything within 30 days</li>
+              <li>CSV export — one click downloads all your invoices in a spreadsheet-ready file</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">[UI]</div>
+            <ul>
+              <li>Six dashboard colour themes added with separate light and dark options — saved between sessions</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">[ACCESS]</div>
+            <ul>
+              <li>Trash, themes, and CSV export available on Pro and Voice AI plans</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -163,24 +173,22 @@
       <div>
         <div class="entry-tag">New</div>
         <div class="entry-title">Logo, mobile share, and billing portal</div>
+        <div class="entry-summary">Your brand on every PDF, send invoices straight from your phone, and manage your plan without ever leaving the app.</div>
         <div class="entry-body">
-          <ul>
-            <li>Upload your business logo. It appears on every PDF you generate, replacing the plain text business name header.
-              <span>Image uploaded to Supabase Storage, URL saved to profile. jsPDF addImage call pulls from the stored URL at generation time.</span>
-            </li>
-            <li>Share invoice PDF directly from your phone using the native share sheet. Send to any app, email, or messaging service without leaving InvoicePrepper.
-              <span>navigator.share Web Share API with a generated Blob. Falls back gracefully on unsupported browsers.</span>
-            </li>
-            <li>Manage your subscription from inside the app. View your plan, renewal date, and access the billing portal to update payment details or cancel.
-              <span>Stripe Customer Portal session created server-side via a Supabase Edge Function. Redirects to Stripe-hosted portal.</span>
-            </li>
-            <li>Cancelled subscriptions show a notice with the date access ends. No abrupt cutoff.
-              <span>cancel_at_period_end flag returned from Stripe subscription fetch, displayed in BillingModal.</span>
-            </li>
-            <li>Logo upload, mobile share, and billing management are available on Pro and Voice AI plans.
-              <span>Tier gate applied at the component level and enforced server-side in the profile Edge Function.</span>
-            </li>
-          </ul>
+          <div>
+            <div class="section-label">[NEW]</div>
+            <ul>
+              <li>Upload your business logo — it appears on every PDF you generate</li>
+              <li>Share invoice PDFs directly from mobile using the native share sheet</li>
+              <li>Manage your subscription from inside the app — view plan, renewal date, and billing details</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">[QOL]</div>
+            <ul>
+              <li>Cancelled subscriptions show the exact date access ends — no abrupt cutoff</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -190,24 +198,22 @@
       <div>
         <div class="entry-tag">New</div>
         <div class="entry-title">Pro plan, email to client, and payment reminders</div>
+        <div class="entry-summary">Upgrade inside the app, send invoices straight to your client's inbox, and follow up on unpaid ones in one tap.</div>
         <div class="entry-body">
-          <ul>
-            <li>Pro plan now available at CAD $9 per month. Upgrade from inside the app with no external sign-up required.
-              <span>Stripe Checkout session created via Supabase Edge Function. Post-checkout webhook updates profile tier automatically.</span>
-            </li>
-            <li>Email invoices directly to your client from inside the app. Your business name appears in the sender field.
-              <span>PDF generated client-side, attached to an email sent via Resend through a Supabase Edge Function.</span>
-            </li>
-            <li>Send a payment reminder on any invoice with a sent status. One tap resends a professional follow-up.
-              <span>Same email Edge Function as invoice send. Reminder copy and subject line differ from initial send.</span>
-            </li>
-            <li>Your business name, not a generic address, shows as the sender when emailing clients.
-              <span>Resend from field set dynamically from profile.business_name. Falls back to app default if not set.</span>
-            </li>
-            <li>Email, reminders, and Pro features are locked for free accounts. An upgrade prompt appears inline where the feature would be.
-              <span>Tier check at render time in InvoiceDetail. No server call made, gate is client-side only for UI.</span>
-            </li>
-          </ul>
+          <div>
+            <div class="section-label">[NEW]</div>
+            <ul>
+              <li>Pro plan available at CAD $9/month — upgrade without leaving the app</li>
+              <li>Email invoices directly to your client — your business name shows as the sender</li>
+              <li>Send a payment reminder on any sent invoice — one tap, professional follow-up</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">[ACCESS]</div>
+            <ul>
+              <li>Email and reminders are Pro features — an upgrade prompt appears inline for free accounts</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -217,24 +223,28 @@
       <div>
         <div class="entry-tag">Improvement</div>
         <div class="entry-title">Profile, tax settings, and mobile fixes</div>
+        <div class="entry-summary">Set your business details once and have them show on every invoice. A few mobile layout issues sorted out too.</div>
         <div class="entry-body">
-          <ul>
-            <li>Business profile now includes address, phone, email, and a short bio. All fields appear on generated PDFs.
-              <span>Profile fields saved to Supabase profiles table via PUT on the profile Edge Function. All inputs length-bounded server-side.</span>
-            </li>
-            <li>Tax rate and tax label are now configurable per account. Set your rate once and it applies to every new invoice.
-              <span>tax_rate and tax_label stored on the profile. ReceiptForm reads from profile on mount as default values.</span>
-            </li>
-            <li>Currency preference added. Switch between CAD and USD. Your selection is remembered across sessions.
-              <span>Stored in localStorage and synced to profile. Passed down through AuthContext to all invoice and PDF generation calls.</span>
-            </li>
-            <li>Save button in profile modal now stays pinned at the bottom on all screen sizes. No more scrolling past the form to find it.
-              <span>Modal footer position changed to sticky. Max-height with overflow-y scroll applied to modal body.</span>
-            </li>
-            <li>Fixed a layout issue on mobile where the invoice notes field was partially hidden behind the voice input footer.
-              <span>Bottom padding on the form increased to account for fixed footer height on small viewports.</span>
-            </li>
-          </ul>
+          <div>
+            <div class="section-label">[QOL]</div>
+            <ul>
+              <li>Business profile now includes address, phone, email, and bio — all printed on PDFs</li>
+              <li>Tax rate and label configurable per account — set once, applies to every new invoice</li>
+              <li>Currency preference added — CAD or USD, remembered between sessions</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">[UI]</div>
+            <ul>
+              <li>Save button in profile modal now stays pinned at the bottom on all screen sizes</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">[FIX]</div>
+            <ul>
+              <li>Invoice notes field no longer hidden behind the voice input bar on mobile</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -243,28 +253,20 @@
       <div class="entry-date">Feb 24 2026</div>
       <div>
         <div class="entry-tag">Release</div>
-        <div class="entry-title">v1.0 -- Invoice creation, PDF, and status tracking</div>
+        <div class="entry-title">v1.0 — Invoice creation, PDF, and status tracking</div>
+        <div class="entry-summary">First release. Create invoices, download clean PDFs, and track what is paid and what is still outstanding.</div>
         <div class="entry-body">
-          <ul>
-            <li>Create invoices with line items, quantities, unit prices, tax, due dates, and notes. Everything generates a clean PDF instantly.
-              <span>jsPDF with jspdf-autotable for line item rendering. All generation happens client-side, no server required.</span>
-            </li>
-            <li>Download your invoice as a PDF at any time. No watermark, no branding from us.
-              <span>Blob URL generated from jsPDF output. Triggered via anchor download attribute.</span>
-            </li>
-            <li>Track invoice status across Draft, Sent, Paid, and Voided. Outstanding balance updates automatically as invoices are marked paid.
-              <span>Status stored on the receipt row in Supabase. Revenue and outstanding calculated client-side from the receipts array on each load.</span>
-            </li>
-            <li>Filter your invoice list by status. See only what is outstanding, what has been sent, or everything at once.
-              <span>Client-side filter applied to the receipts array. No re-fetch on filter change.</span>
-            </li>
-            <li>Invoice numbers auto-increment per account starting from INV-000100. Each invoice gets a unique number that never repeats.
-              <span>Counter stored in the profiles table. Incremented atomically in a Postgres function on insert to prevent duplicates under concurrent writes.</span>
-            </li>
-            <li>All invoice data is saved to your account and accessible from any device.
-              <span>React frontend on Cloudflare Pages. Supabase Postgres with row-level security. Every query is scoped to the authenticated user.</span>
-            </li>
-          </ul>
+          <div>
+            <div class="section-label">[NEW]</div>
+            <ul>
+              <li>Create invoices with line items, quantities, prices, tax, due dates, and notes</li>
+              <li>Download as a clean PDF — no watermark, no branding from us</li>
+              <li>Track status across Draft, Sent, Paid, and Voided</li>
+              <li>Filter invoice list by status</li>
+              <li>Invoice numbers auto-increment per account starting from INV-000100</li>
+              <li>All data saved to your account and accessible from any device</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
