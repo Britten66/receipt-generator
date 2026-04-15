@@ -8,10 +8,8 @@ Live at [invoiceprepper.com](https://invoiceprepper.com)
 
 ## How this was built
 
-Built this solo from a frame work I had an LLM help get to industry spec.  frontend, backend, edge functions, CI pipeline, DNS, and payments. The goal was to build it the way a proper engineering team would.
 
-feature based structure, edge functions, row level security on every table, rate limiting on AI endpoints, and a full test suite.
-
+Built this solo from framework to production. Used an LLM to pressure test architecture decisions and get the structure to industry spec. Every line of implementation written, debugged, and shipped solo. Frontend, backend, edge functions, CI pipeline, DNS, and payments. Feature based structure, row level security on every table, rate limiting on AI endpoints, full test suite.
 
 
 ### Test coverage
