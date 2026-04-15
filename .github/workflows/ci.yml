@@ -1,22 +1,3 @@
-# ══════════════════════════════════════════════════════════════════════════════
-# InvoicePrepper — CI Security Pipeline
-# ══════════════════════════════════════════════════════════════════════════════
-#
-# Runs on every push to main and every pull request targeting main.
-# Mirrors a Jenkins pipeline: install → security tests → build → audit.
-#
-# STAGES:
-# ┌─────────────────────────────────────────────────────────────────────────┐
-# │ 1. install      — npm ci (exact lockfile, no surprises)                 │
-# │ 2. security     — vitest runs all src/__tests__/security/*.test.js      │
-# │ 3. build        — vite build (catches TS/import errors before deploy)   │
-# │ 4. audit        — npm audit (fails on high/critical CVEs in deps)       │
-# └─────────────────────────────────────────────────────────────────────────┘
-#
-# No Supabase / Stripe / Resend credentials are needed — all tests are pure
-# unit tests that replicate the edge function logic in isolation.
-# ══════════════════════════════════════════════════════════════════════════════
-
 name: CI Security Pipeline
 
 on:
@@ -25,69 +6,44 @@ on:
   pull_request:
     branches: [main]
 
+# Allow GitHub Pages deployment
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 defaults:
   run:
-    working-directory: frontend   # all steps run inside the frontend/ directory
+    working-directory: frontend
 
 jobs:
   security-pipeline:
-    name: Security Tests + Build
+    name: Security Tests + Build + Report
     runs-on: ubuntu-latest
 
     steps:
-      # ── 1. Checkout ────────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ── 2. Node setup ──────────────────────────────────────────────────────
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
-        # Node 20 LTS matches Cloudflare Pages' build environment.
-        # Using a fixed version (not "latest") prevents surprise breakage
-        # when Node releases a new major.
 
-      # ── 3. Install (exact lockfile) ─────────────────────────────────────
       - name: Install dependencies
         run: npm ci
-        # npm ci (not npm install) — uses the lockfile exactly as committed.
-        # Fails fast if lockfile and package.json are out of sync, which
-        # prevents "works on my machine" dependency drift.
 
-      # ── 4. Security tests ───────────────────────────────────────────────
       - name: Run security tests
         run: npm test
-        # Runs vitest in "run" mode (non-interactive, exits with code 1 on
-        # any failure). Tests cover:
-        #   • CSS injection prevention (themes.test.js)
-        #   • XSS / email / URL validation (validation.test.js)
-        #   • CORS allowlist integrity (cors.test.js)
-        #   • Mass assignment / field whitelist (fields-whitelist.test.js)
-        #
-        # No environment variables required — all tests are pure unit tests.
 
-      # ── 5. Production build ─────────────────────────────────────────────
       - name: Build for production
         run: npm run build
-        # Catches:
-        #   • Import errors (missing files, bad paths)
-        #   • Syntax errors that only appear after tree-shaking
-        #   • Missing VITE_* env vars referenced in build-time code
-        #
-        # The build output is NOT deployed from here — Cloudflare Pages
-        # handles its own build. This step exists only to confirm the code
-        # compiles cleanly on a clean machine.
         env:
-          # Provide dummy values so Vite doesn't fail on missing env vars.
-          # These are NOT real credentials — the build just needs the vars
-          # to exist; it doesn't make real API calls during build.
           VITE_SUPABASE_URL: https://placeholder.supabase.co
           VITE_SUPABASE_ANON_KEY: placeholder-anon-key
 
-      # ── 6. Playwright E2E tests ─────────────────────────────────────────
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
@@ -97,14 +53,18 @@ jobs:
           VITE_SUPABASE_URL: https://placeholder.supabase.co
           VITE_SUPABASE_ANON_KEY: placeholder-anon-key
 
-      # ── 7. Dependency audit ─────────────────────────────────────────────
+      - name: Generate Allure report
+        if: always()
+        run: npx allure generate allure-results --clean -o allure-report
+
+      - name: Deploy Allure report to GitHub Pages
+        if: always() && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: frontend/allure-report
+          destination_dir: test-report
+
       - name: Audit dependencies for vulnerabilities
         run: npm audit --audit-level=high
-        # Fails the pipeline if any dependency has a HIGH or CRITICAL CVE.
-        # Moderate vulnerabilities are reported but don't block the build.
-        # Review with: npm audit
-        # Fix with:    npm audit fix (or pin to a safe version manually)
         continue-on-error: true
-        # continue-on-error: true because audit may flag issues in transitive
-        # deps we can't control. Change to false once the current moderate
-        # vulnerability (from jspdf or similar) is resolved.

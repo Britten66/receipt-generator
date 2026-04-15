@@ -77,6 +77,11 @@ This is the core technical piece of the Voice AI tier. No third-party voice-to-i
 
 The same extraction logic runs for text input on desktop, minus the audio step. Rate limiting is enforced server-side per user per month using a counter in the profiles table.
 
+## Test Report
+
+Live Allure report — updated on every push to main:
+[britten66.github.io/receipt-generator/test-report](https://britten66.github.io/receipt-generator/test-report)
+
 ## Changelog
 
 [invoiceprepper.com/blog](https://invoiceprepper.com/blog)

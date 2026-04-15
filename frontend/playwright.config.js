@@ -20,7 +20,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 4 : 2,
-  reporter: [["html", { open: "never" }]],
+  reporter: [
+    ["html", { open: "never" }],
+    ["allure-playwright"],
+  ],
 
   use: {
     baseURL: "http://localhost:5173",
