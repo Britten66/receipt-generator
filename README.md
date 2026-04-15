@@ -8,9 +8,11 @@ Live at [invoiceprepper.com](https://invoiceprepper.com)
 
 ## How this was built
 
-Built solo using Claude as a senior engineering collaborator throughout: architecture decisions, debugging, writing and reviewing code, and acting as QA across the full stack.
+Built this solo from a frame work I had an LLM help get to industry spec.  frontend, backend, edge functions, CI pipeline, DNS, and payments. The goal was to build it the way a proper engineering team would.
 
-The goal was to build something that matches industry-standard structure for a SaaS product without a team behind it. Feature-based folder structure, typed edge functions, RLS on every table, rate limiting on AI endpoints, and proper auth token handling on mobile are all here because they are the right way to build it, not because the app currently needs them at scale.
+feature based structure, edge functions, row level security on every table, rate limiting on AI endpoints, and a full test suite.
+
+
 
 ### Test coverage
 
