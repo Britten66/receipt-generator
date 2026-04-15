@@ -118,23 +118,11 @@
       border-bottom: 1px solid var(--border);
     }
     .entry-date {
-      padding-top: 3px;
-    }
-    .entry-date-day {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1;
-      letter-spacing: -0.02em;
-    }
-    .entry-date-month {
+      padding-top: 4px;
       font-family: var(--mono);
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
+      font-size: 11px;
       color: var(--text-muted);
-      margin-top: 2px;
+      letter-spacing: 0.04em;
     }
     .entry-tag {
       display: inline-block;
@@ -188,8 +176,6 @@
       nav { padding: 12px 20px; }
       .wrap { padding: 0 20px; }
       .entry { grid-template-columns: 1fr; gap: 6px; }
-      .entry-date { display: flex; align-items: baseline; gap: 8px; }
-      .entry-date-month { margin-top: 0; }
     }
   </style>
 </head>
@@ -212,10 +198,39 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">
-        <div class="entry-date-day">13</div>
-        <div class="entry-date-month">Apr 2026</div>
+      <div class="entry-date">Apr 15, 2026</div>
+      <div>
+        <div class="entry-tag">Improvement</div>
+        <div class="entry-title">Faster sign-in, keyboard support, and legal updates</div>
+        <div class="entry-summary">Sign-in modal is noticeably faster. Full keyboard support added. Privacy and terms updated with clearer data rights.</div>
+        <div class="entry-body">
+          <div>
+            <div class="section-label">[UI]</div>
+            <ul>
+              <li>Sign-in and sign-up modal opens faster — removed a GPU-heavy blur effect that was slowing it down</li>
+              <li>Text contrast improved across the app — easier to read in all lighting conditions</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">[ACCESS]</div>
+            <ul>
+              <li>Press Escape to close the sign-in modal from the keyboard</li>
+              <li>Focus moves automatically into the email field when the modal opens</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">[LEGAL]</div>
+            <ul>
+              <li>Privacy policy updated — clearer data deletion rights, PIPEDA escalation path added for Canadian users</li>
+              <li>Terms of service updated — added indemnification, force majeure, and severability clauses</li>
+            </ul>
+          </div>
+        </div>
       </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">Apr 13, 2026</div>
       <div>
         <div class="entry-tag">Improvement</div>
         <div class="entry-title">Sign in and account setup</div>
@@ -241,10 +256,7 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">
-        <div class="entry-date-day">07</div>
-        <div class="entry-date-month">Apr 2026</div>
-      </div>
+      <div class="entry-date">Apr 7, 2026</div>
       <div>
         <div class="entry-tag">New</div>
         <div class="entry-title">Text AI invoice parsing (Pro)</div>
@@ -270,10 +282,7 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">
-        <div class="entry-date-day">31</div>
-        <div class="entry-date-month">Mar 2026</div>
-      </div>
+      <div class="entry-date">Mar 31, 2026</div>
       <div>
         <div class="entry-tag">New</div>
         <div class="entry-title">Voice AI invoice parsing (Voice AI plan)</div>
@@ -304,10 +313,7 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">
-        <div class="entry-date-day">24</div>
-        <div class="entry-date-month">Mar 2026</div>
-      </div>
+      <div class="entry-date">Mar 24, 2026</div>
       <div>
         <div class="entry-tag">Improvement</div>
         <div class="entry-title">Trash, themes, and export</div>
@@ -337,10 +343,7 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">
-        <div class="entry-date-day">17</div>
-        <div class="entry-date-month">Mar 2026</div>
-      </div>
+      <div class="entry-date">Mar 17, 2026</div>
       <div>
         <div class="entry-tag">New</div>
         <div class="entry-title">Logo, mobile share, and billing portal</div>
@@ -365,10 +368,7 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">
-        <div class="entry-date-day">10</div>
-        <div class="entry-date-month">Mar 2026</div>
-      </div>
+      <div class="entry-date">Mar 10, 2026</div>
       <div>
         <div class="entry-tag">New</div>
         <div class="entry-title">Pro plan, email to client, and payment reminders</div>
@@ -393,10 +393,7 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">
-        <div class="entry-date-day">03</div>
-        <div class="entry-date-month">Mar 2026</div>
-      </div>
+      <div class="entry-date">Mar 3, 2026</div>
       <div>
         <div class="entry-tag">Improvement</div>
         <div class="entry-title">Profile, tax settings, and mobile fixes</div>
@@ -427,10 +424,7 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">
-        <div class="entry-date-day">24</div>
-        <div class="entry-date-month">Feb 2026</div>
-      </div>
+      <div class="entry-date">Feb 24, 2026</div>
       <div>
         <div class="entry-tag">Release</div>
         <div class="entry-title">v1.0 — Invoice creation, PDF, and status tracking</div>
