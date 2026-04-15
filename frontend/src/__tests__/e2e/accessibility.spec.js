@@ -92,7 +92,9 @@ test.describe("Accessibility — WCAG + best practice", () => {
 
 test.describe("Accessibility — Layout structure", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.goto("/");
+    // Wait for React to render — nav is the first landmark React produces
+    await page.locator("nav").first().waitFor({ timeout: 15000 });
   });
 
   test("page has exactly one h1", async ({ page }) => {

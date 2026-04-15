@@ -35,7 +35,7 @@ test.describe("Invoices", () => {
   test("cancel closes the invoice form", async ({ page }) => {
     await page.getByRole("button", { name: /new invoice/i }).click();
     await page.locator(".modal").waitFor();
-    await page.getByRole("button", { name: /cancel|close|✕/i }).first().click();
+    await page.locator(".modal button.btn-ghost").first().click();
     await expect(page.locator(".modal")).not.toBeVisible();
   });
 
