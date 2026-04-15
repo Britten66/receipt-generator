@@ -25,6 +25,8 @@ dist-ssr
 .vercel
 .env
 
-# Playwright
+# Playwright / Allure
 playwright-report
 test-results
+allure-results
+allure-report
