@@ -6,10 +6,9 @@
 
   WHY THIS MATTERS:
   ─────────────────
-  Auth is the gateway to the whole app. The consent checkbox blocks signup
-  without T&C agreement — a CASL/PIPEDA compliance requirement. If the
-  password validation or the consent gate breaks, we let in bots or
-  expose the app to legal risk. These tests run against the real UI.
+  Auth is the gateway to the whole app. Password validation blocks weak
+  passwords. Consent is handled post-login via the ConsentModal. These
+  tests run against the real UI.
 
   WHAT WE VERIFY:
   ───────────────
@@ -19,10 +18,10 @@
   4.  Auth modal shows "Create your account" heading in signup mode
   5.  Clicking the Sign Up tab inside the modal switches to signup mode
   6.  Clicking the Sign In tab inside the modal switches to login mode
-  7.  Attempting signup without checking the consent checkbox shows an error
-  8.  Consent error clears when the checkbox is checked
+  7.  Weak password shows a validation error
+  8.  Mismatched passwords shows an error
   9.  "Continue with Google" button is visible in the auth modal
-  10. Back button (when present) closes modal and returns to landing
+  10. Forgot password flow works end to end
   ══════════════════════════════════════════════════════════════════════════════
 */
 
@@ -74,30 +73,20 @@ test.describe("Auth modal — Sign Up", () => {
     await expect(page.getByText("Welcome back")).toBeVisible();
   });
 
-  test("submitting without consent shows error", async ({ page }) => {
-    // Fill in valid-looking data, leave consent unchecked
+  test("submitting with a weak password shows an error", async ({ page }) => {
     await page.getByPlaceholder("you@example.com").fill("test@example.com");
-    await page.locator('input[type="password"]').first().fill("TestPass1!");
-    await page.locator('input[type="password"]').last().fill("TestPass1!");
-    // Do NOT check the consent checkbox
+    await page.locator('input[type="password"]').first().fill("weak");
+    await page.locator('input[type="password"]').last().fill("weak");
     await page.getByRole("button", { name: /create account/i }).click();
-    await expect(page.getByText(/you must agree to the terms/i)).toBeVisible();
+    await expect(page.locator(".auth-error")).toBeVisible();
   });
 
-  test("consent error clears after checking the checkbox", async ({ page }) => {
-    // Trigger the error first
+  test("mismatched passwords shows an error", async ({ page }) => {
     await page.getByPlaceholder("you@example.com").fill("test@example.com");
-    await page.locator('input[type="password"]').first().fill("TestPass1!");
-    await page.locator('input[type="password"]').last().fill("TestPass1!");
+    await page.locator('input[type="password"]').first().fill("StrongPass1!");
+    await page.locator('input[type="password"]').last().fill("DifferentPass1!");
     await page.getByRole("button", { name: /create account/i }).click();
-    await expect(page.getByText(/you must agree to the terms/i)).toBeVisible();
-
-    // Now check the checkbox — error should disappear (state resets on next submit)
-    await page.locator('input[type="checkbox"]').first().check();
-    // The error is cleared by setError("") in handleSubmit on the next attempt,
-    // but checking the box itself doesn't reset the error — just verify the
-    // checkbox is now checked and the form is in a submittable state
-    await expect(page.locator('input[type="checkbox"]').first()).toBeChecked();
+    await expect(page.getByText(/passwords don't match/i)).toBeVisible();
   });
 
   test("Forgot password link appears in login mode", async ({ page }) => {

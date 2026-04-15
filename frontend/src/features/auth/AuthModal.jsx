@@ -31,11 +31,7 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
   // Honeypot: bots autofill hidden fields, humans never see or touch this
   const [honeypot, setHoneypot] = useState("");
 
-  // LEGAL COMPLIANCE: consent must be checked before account creation.
-  // Unchecked by default — user must actively agree (CASL / PIPEDA requirement).
-  const [agreed, setAgreed]         = useState(false);
-  const [emailOptIn, setEmailOptIn] = useState(true); // pre-checked: transactional emails are expected
-  const [legal, setLegal]           = useState(null);  // "terms" | "privacy" | null
+  const [legal, setLegal] = useState(null); // "terms" | "privacy" | null
 
   function switchMode(newMode) {
     setMode(newMode);
@@ -60,11 +56,6 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
       // Bot check: honeypot field must be empty — bots fill it, humans never see it
       if (honeypot) return;
 
-      // LEGAL COMPLIANCE: block signup without explicit consent to T&C and Privacy Policy.
-      if (!agreed) {
-        setError("You must agree to the Terms and Privacy Policy to create an account.");
-        return;
-      }
       const pwCheck = checkPassword(password);
       if (!pwCheck?.ok) {
         setError(pwCheck?.msg ?? "Password does not meet requirements.");
@@ -79,26 +70,14 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
     setLoading(true);
 
     if (mode === "signup") {
-      const consentAt = new Date().toISOString();
       const { error: err } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: window.location.origin,
-          // Store consent timestamp and email-opt-in in user metadata.
-          // This creates a server-side audit trail of when the user agreed.
-          data: {
-            terms_agreed_at:    consentAt,
-            email_marketing_ok: emailOptIn,
-          },
-        },
+        options: { emailRedirectTo: window.location.origin },
       });
       if (err) {
         setError(err.message);
       } else {
-        // Also store in localStorage as a local fallback record.
-        localStorage.setItem("consent_at", consentAt);
-        localStorage.setItem("email_opt_in", emailOptIn ? "1" : "0");
         setMessage("Check your email to confirm your account.");
       }
 
@@ -207,46 +186,10 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
             )}
 
             {mode === "signup" && (
-              <>
-                <div className="field-group">
-                  <label className="field-label">Confirm Password</label>
-                  <input className="auth-field" type="password" placeholder="••••••••" value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
-                </div>
-
-                {/* LEGAL COMPLIANCE: required consent checkbox — must be checked to proceed */}
-                <div style={{ marginTop: 4, display: "flex", flexDirection: "column", gap: 10, borderTop: "1px solid var(--border-light)", paddingTop: 14 }}>
-                  <label style={{ display: "flex", gap: 10, alignItems: "flex-start", cursor: "pointer", fontSize: 11, color: "var(--text-dim)", lineHeight: 1.5 }}>
-                    <input
-                      type="checkbox"
-                      checked={agreed}
-                      onChange={(e) => setAgreed(e.target.checked)}
-                      style={{ marginTop: 2, flexShrink: 0 }}
-                    />
-                    <span>
-                      I have read and agree to the{" "}
-                      <button type="button" onClick={() => setLegal("terms")} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 11, textDecoration: "underline" }}>
-                        Terms of Service
-                      </button>
-                      {" "}and{" "}
-                      <button type="button" onClick={() => setLegal("privacy")} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 11, textDecoration: "underline" }}>
-                        Privacy Policy
-                      </button>
-                      . *
-                    </span>
-                  </label>
-
-                  {/* CASL / CAN-SPAM: pre-checked opt-in for transactional email is acceptable */}
-                  <label style={{ display: "flex", gap: 10, alignItems: "flex-start", cursor: "pointer", fontSize: 11, color: "var(--text-dim)", lineHeight: 1.5 }}>
-                    <input
-                      type="checkbox"
-                      checked={emailOptIn}
-                      onChange={(e) => setEmailOptIn(e.target.checked)}
-                      style={{ marginTop: 2, flexShrink: 0 }}
-                    />
-                    <span>I agree to receive email receipts and account notifications.</span>
-                  </label>
-                </div>
-              </>
+              <div className="field-group">
+                <label className="field-label">Confirm Password</label>
+                <input className="auth-field" type="password" placeholder="••••••••" value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
+              </div>
             )}
 
             {error   && <div className="auth-error">{error}</div>}

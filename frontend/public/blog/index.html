@@ -4,85 +4,275 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Changelog | InvoicePrepper</title>
-  <meta name="description" content="What is new in InvoicePrepper. Product updates, new features, and fixes for freelancers and small businesses." />
+  <meta name="description" content="What is new in InvoicePrepper. Product updates, new features, and fixes." />
   <link rel="canonical" href="https://invoiceprepper.com/blog" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
   <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico" />
   <meta name="theme-color" content="#1e1c18" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://invoiceprepper.com/blog" />
-  <meta property="og:title" content="Changelog | InvoicePrepper" />
-  <meta property="og:description" content="What is new in InvoicePrepper. Product updates, new features, and fixes." />
-  <meta property="og:image" content="https://invoiceprepper.com/og-image.png" />
-  <meta property="og:site_name" content="InvoicePrepper" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #f5f4f0; --surface: #edecea; --text: #1e1c18; --text-dim: #5a5752;
+      --bg: #f5f4f0; --text: #1e1c18; --text-dim: #5a5752;
       --text-muted: #908e8a; --border: #d8d5cf; --accent: #a06830;
       --mono: "Courier New", Courier, monospace;
     }
     body { font-family: helvetica, arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
     nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; border-bottom: 1px solid var(--border); }
     .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; }
-    .nav-cta { display: inline-block; background: var(--text); color: var(--bg); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 7px 14px; text-decoration: none; }
-    .wrap { max-width: 720px; margin: 0 auto; padding: 0 32px; }
-    .hero { margin: 64px auto 48px; }
-    .eyebrow { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
-    h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 16px; }
-    .lead { font-size: 15px; color: var(--text-dim); max-width: 540px; }
-    .post-list { display: flex; flex-direction: column; gap: 0; margin-bottom: 80px; }
-    .post-item { display: flex; gap: 24px; align-items: flex-start; padding: 24px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: inherit; }
-    .post-item:first-child { border-top: 1px solid var(--border); }
-    .post-item:hover .post-title { color: var(--accent); }
-    .post-date { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; white-space: nowrap; padding-top: 3px; min-width: 80px; }
-    .post-title { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; transition: color 0.15s; }
-    .post-excerpt { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
-    .post-tag { display: inline-block; font-family: var(--mono); font-size: 8px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background: var(--surface); border: 1px solid var(--border); padding: 2px 7px; margin-bottom: 8px; color: var(--text-muted); }
-    footer { border-top: 1px solid #2e2c28; background: var(--text); padding: 20px 32px; text-align: center; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #6a6864; }
-    footer a { color: #6a6864; text-decoration: underline; }
-    @media (max-width: 640px) {
+    .nav-back { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); text-decoration: none; }
+    .nav-back:hover { color: var(--text); }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 0 32px; }
+    .page-header { padding: 48px 0 40px; border-bottom: 1px solid var(--border); }
+    .page-title { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); }
+    .entry { display: grid; grid-template-columns: 100px 1fr; gap: 0 32px; padding: 32px 0; border-bottom: 1px solid var(--border); }
+    .entry-date { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; padding-top: 4px; }
+    .entry-tag { display: inline-block; font-family: var(--mono); font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+    .entry-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 10px; }
+    .entry-body ul { padding-left: 16px; margin-top: 4px; display: flex; flex-direction: column; gap: 6px; }
+    .entry-body li { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+    .entry-body li span { font-family: var(--mono); font-size: 10px; color: var(--text-muted); display: block; margin-top: 2px; }
+    footer { border-top: 1px solid var(--border); margin-top: 64px; padding: 20px 32px; text-align: center; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+    footer a { color: var(--text-muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+    @media (max-width: 600px) {
       nav { padding: 12px 20px; }
-      .wrap { padding-left: 20px; padding-right: 20px; }
-      .hero { margin-top: 40px; }
-      .post-item { flex-direction: column; gap: 6px; }
-      .post-date { min-width: auto; }
+      .wrap { padding: 0 20px; }
+      .entry { grid-template-columns: 1fr; gap: 4px; }
+      .entry-date { padding-top: 0; }
     }
   </style>
 </head>
 <body>
   <nav>
     <a href="https://invoiceprepper.com" class="nav-brand">InvoicePrepper</a>
-    <a href="https://invoiceprepper.com/?signup=1" class="nav-cta">Try It Free</a>
+    <a href="https://invoiceprepper.com" class="nav-back">Back</a>
   </nav>
 
-  <div class="wrap hero">
-    <p class="eyebrow">Changelog</p>
-    <h1>What is new in InvoicePrepper</h1>
-    <p class="lead">Every update, fix, and new feature. Updated with each release.</p>
-  </div>
-
   <div class="wrap">
-    <div class="post-list">
-
-      <a href="https://invoiceprepper.com/blog/whats-new-april-2026" class="post-item">
-        <div class="post-date">Apr 2026</div>
-        <div>
-          <div class="post-tag">Update</div>
-          <div class="post-title">Voice AI, Pro plan, Sentry, PostHog, signup emails, and more</div>
-          <div class="post-excerpt">Voice AI and Text AI parsing, Pro and Voice AI subscription tiers, Stripe payments, error tracking, analytics, signup notifications, share invoice from mobile, dashboard themes, CSV export, recently deleted trash, legal pages, and a full SEO presence.</div>
-        </div>
-      </a>
-
+    <div class="page-header">
+      <div class="page-title">Changelog</div>
     </div>
+
+    <div class="entry">
+      <div class="entry-date">Apr 13 2026</div>
+      <div>
+        <div class="entry-tag">Improvement</div>
+        <div class="entry-title">Sign in and account setup</div>
+        <div class="entry-body">
+          <ul>
+            <li>Accounts created with Google now see a consent step on first login. The app waits for confirmation before continuing.
+              <span>Blocking modal writes terms_agreed_at to the user profile via the profile Edge Function on accept.</span>
+            </li>
+            <li>Signup form simplified. Email, password, and confirm are all that is required to create an account.
+              <span>Consent and opt-in moved to post-login flow, applied uniformly across all signup methods.</span>
+            </li>
+            <li>Fixed an issue where accounts were not correctly identified after signing in via redirect.
+              <span>posthog.identify call updated to pass email alongside user ID on every SIGNED_IN event.</span>
+            </li>
+            <li>Password strength indicator now shows inline as you type. Weak, good, and strong states with colour feedback.
+              <span>Client-side only, no network call. Regex checks for length, number, and symbol presence.</span>
+            </li>
+            <li>Forgot password flow added. Enter your email, receive a reset link, set a new password.
+              <span>Supabase auth.resetPasswordForEmail with redirectTo pointing back to the app.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">Apr 7 2026</div>
+      <div>
+        <div class="entry-tag">New</div>
+        <div class="entry-title">Text AI invoice parsing (Pro)</div>
+        <div class="entry-body">
+          <ul>
+            <li>Type what you did and who to bill. AI reads the description and fills in line items, quantities, and amounts automatically.
+              <span>Groq LLM inference via a Supabase Edge Function. Structured JSON output mapped to invoice form fields.</span>
+            </li>
+            <li>Text AI is available on Pro and Voice AI plans. Limited to 15 parses per day on Pro, unlimited on Voice AI.
+              <span>Rate limit enforced server-side using a monthly counter stored in the profiles table. Resets on the first of each month.</span>
+            </li>
+            <li>Text input only renders on desktop pointer devices. On mobile, voice input is the default AI method.
+              <span>Detected via window.matchMedia("(pointer: fine)") on mount.</span>
+            </li>
+            <li>AI section hidden entirely for free users. No input shown, no prompt visible.
+              <span>Conditional render gated on profile.tier at the ReceiptForm component level.</span>
+            </li>
+            <li>Upgrade prompt shown inline when a free user attempts to access AI features.
+              <span>onUpgradeClick prop passed down from App, opens PlansModal directly.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">Mar 31 2026</div>
+      <div>
+        <div class="entry-tag">New</div>
+        <div class="entry-title">Voice AI invoice parsing (Voice AI plan)</div>
+        <div class="entry-body">
+          <ul>
+            <li>Speak your invoice out loud. Tap the microphone, describe the job, and AI fills in the invoice fields automatically.
+              <span>Audio recorded in the browser, uploaded to Supabase Storage audio-temp bucket, transcribed and parsed via Groq.</span>
+            </li>
+            <li>Voice input available on any device with a microphone. Works on mobile and desktop.
+              <span>MediaRecorder API with audio/webm encoding. Falls back to audio/mp4 on iOS Safari.</span>
+            </li>
+            <li>Voice AI is unlimited on the Voice AI plan. No daily cap.
+              <span>No rate limit applied server-side for voice tier. Tier check only.</span>
+            </li>
+            <li>Audio files are deleted from storage immediately after parsing. Nothing is retained.
+              <span>Supabase Storage delete called in the Edge Function after the parse response is returned.</span>
+            </li>
+            <li>Voice input footer stays fixed at the bottom of the form while recording is active.
+              <span>Position fixed, z-index layered above invoice content. Padding added to form bottom to prevent overlap.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">Mar 24 2026</div>
+      <div>
+        <div class="entry-tag">Improvement</div>
+        <div class="entry-title">Trash, themes, and export</div>
+        <div class="entry-body">
+          <ul>
+            <li>Deleted invoices now go to a trash folder instead of being permanently removed. Restore any invoice within 30 days.
+              <span>Soft delete via deleted_at timestamp. TrashModal queries invoices where deleted_at is not null. Hard delete on confirm or after 30 days.</span>
+            </li>
+            <li>Dashboard themes added. Six colour palettes with separate light and dark selections. Your choice is saved between sessions.
+              <span>CSS custom property overrides applied via applyPalette. Palette key stored in localStorage and profile.</span>
+            </li>
+            <li>CSV export of all invoices. One click downloads a spreadsheet-ready file with every invoice and line item.
+              <span>Client-side CSV generation. Fields escaped for injection safety. BOM prepended for Excel compatibility.</span>
+            </li>
+            <li>Trash, themes, and export are available on Pro and Voice AI plans.
+              <span>Feature flags checked against profile.tier before rendering controls in the sidebar and topbar.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">Mar 17 2026</div>
+      <div>
+        <div class="entry-tag">New</div>
+        <div class="entry-title">Logo, mobile share, and billing portal</div>
+        <div class="entry-body">
+          <ul>
+            <li>Upload your business logo. It appears on every PDF you generate, replacing the plain text business name header.
+              <span>Image uploaded to Supabase Storage, URL saved to profile. jsPDF addImage call pulls from the stored URL at generation time.</span>
+            </li>
+            <li>Share invoice PDF directly from your phone using the native share sheet. Send to any app, email, or messaging service without leaving InvoicePrepper.
+              <span>navigator.share Web Share API with a generated Blob. Falls back gracefully on unsupported browsers.</span>
+            </li>
+            <li>Manage your subscription from inside the app. View your plan, renewal date, and access the billing portal to update payment details or cancel.
+              <span>Stripe Customer Portal session created server-side via a Supabase Edge Function. Redirects to Stripe-hosted portal.</span>
+            </li>
+            <li>Cancelled subscriptions show a notice with the date access ends. No abrupt cutoff.
+              <span>cancel_at_period_end flag returned from Stripe subscription fetch, displayed in BillingModal.</span>
+            </li>
+            <li>Logo upload, mobile share, and billing management are available on Pro and Voice AI plans.
+              <span>Tier gate applied at the component level and enforced server-side in the profile Edge Function.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">Mar 10 2026</div>
+      <div>
+        <div class="entry-tag">New</div>
+        <div class="entry-title">Pro plan, email to client, and payment reminders</div>
+        <div class="entry-body">
+          <ul>
+            <li>Pro plan now available at CAD $9 per month. Upgrade from inside the app with no external sign-up required.
+              <span>Stripe Checkout session created via Supabase Edge Function. Post-checkout webhook updates profile tier automatically.</span>
+            </li>
+            <li>Email invoices directly to your client from inside the app. Your business name appears in the sender field.
+              <span>PDF generated client-side, attached to an email sent via Resend through a Supabase Edge Function.</span>
+            </li>
+            <li>Send a payment reminder on any invoice with a sent status. One tap resends a professional follow-up.
+              <span>Same email Edge Function as invoice send. Reminder copy and subject line differ from initial send.</span>
+            </li>
+            <li>Your business name, not a generic address, shows as the sender when emailing clients.
+              <span>Resend from field set dynamically from profile.business_name. Falls back to app default if not set.</span>
+            </li>
+            <li>Email, reminders, and Pro features are locked for free accounts. An upgrade prompt appears inline where the feature would be.
+              <span>Tier check at render time in InvoiceDetail. No server call made, gate is client-side only for UI.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">Mar 3 2026</div>
+      <div>
+        <div class="entry-tag">Improvement</div>
+        <div class="entry-title">Profile, tax settings, and mobile fixes</div>
+        <div class="entry-body">
+          <ul>
+            <li>Business profile now includes address, phone, email, and a short bio. All fields appear on generated PDFs.
+              <span>Profile fields saved to Supabase profiles table via PUT on the profile Edge Function. All inputs length-bounded server-side.</span>
+            </li>
+            <li>Tax rate and tax label are now configurable per account. Set your rate once and it applies to every new invoice.
+              <span>tax_rate and tax_label stored on the profile. ReceiptForm reads from profile on mount as default values.</span>
+            </li>
+            <li>Currency preference added. Switch between CAD and USD. Your selection is remembered across sessions.
+              <span>Stored in localStorage and synced to profile. Passed down through AuthContext to all invoice and PDF generation calls.</span>
+            </li>
+            <li>Save button in profile modal now stays pinned at the bottom on all screen sizes. No more scrolling past the form to find it.
+              <span>Modal footer position changed to sticky. Max-height with overflow-y scroll applied to modal body.</span>
+            </li>
+            <li>Fixed a layout issue on mobile where the invoice notes field was partially hidden behind the voice input footer.
+              <span>Bottom padding on the form increased to account for fixed footer height on small viewports.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">Feb 24 2026</div>
+      <div>
+        <div class="entry-tag">Release</div>
+        <div class="entry-title">v1.0 -- Invoice creation, PDF, and status tracking</div>
+        <div class="entry-body">
+          <ul>
+            <li>Create invoices with line items, quantities, unit prices, tax, due dates, and notes. Everything generates a clean PDF instantly.
+              <span>jsPDF with jspdf-autotable for line item rendering. All generation happens client-side, no server required.</span>
+            </li>
+            <li>Download your invoice as a PDF at any time. No watermark, no branding from us.
+              <span>Blob URL generated from jsPDF output. Triggered via anchor download attribute.</span>
+            </li>
+            <li>Track invoice status across Draft, Sent, Paid, and Voided. Outstanding balance updates automatically as invoices are marked paid.
+              <span>Status stored on the receipt row in Supabase. Revenue and outstanding calculated client-side from the receipts array on each load.</span>
+            </li>
+            <li>Filter your invoice list by status. See only what is outstanding, what has been sent, or everything at once.
+              <span>Client-side filter applied to the receipts array. No re-fetch on filter change.</span>
+            </li>
+            <li>Invoice numbers auto-increment per account starting from INV-000100. Each invoice gets a unique number that never repeats.
+              <span>Counter stored in the profiles table. Incremented atomically in a Postgres function on insert to prevent duplicates under concurrent writes.</span>
+            </li>
+            <li>All invoice data is saved to your account and accessible from any device.
+              <span>React frontend on Cloudflare Pages. Supabase Postgres with row-level security. Every query is scoped to the authenticated user.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <footer>
     <a href="https://invoiceprepper.com">invoiceprepper.com</a>
-    &nbsp;·&nbsp;
-    <a href="https://invoiceprepper.com/?signup=1">Start Free</a>
-    &nbsp;·&nbsp;
-    <a href="https://invoiceprepper.com/blog">Changelog</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/terms">Terms</a>
     &nbsp;·&nbsp;

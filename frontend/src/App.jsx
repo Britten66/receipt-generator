@@ -10,10 +10,11 @@ import BillingModal        from "./features/billing/BillingModal";
 import PlansModal          from "./features/billing/PlansModal";
 import UpgradeConfirmModal from "./features/billing/UpgradeConfirmModal";
 import WelcomeModal        from "./features/auth/WelcomeModal";
+import ConsentModal        from "./features/auth/ConsentModal";
 import UpgradeThanksModal  from "./features/billing/UpgradeThanksModal";
 import posthog             from "posthog-js";
 import { startCheckout }   from "./api/billing";
-import { fetchProfile }    from "./api/profile";
+import { fetchProfile, saveProfile } from "./api/profile";
 import { exportInvoicesCSV } from "./services/csvExport";
 import { applyPalette, clearPalette, PALETTE_KEYS, readPaletteFromStorage } from "./lib/themes";
 import { STATUS_CONFIG } from "./lib/constants";
@@ -68,6 +69,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
   const [upgradeTargetTier, setUpgradeTargetTier]         = useState("pro");
   const [pdfPreviewUrl, setPdfPreviewUrl]                 = useState(null);
   const [toast, setToast]                                 = useState(null);
+  const [showConsent, setShowConsent]                     = useState(false);
 
   // ─── INVOICES (from useInvoices hook) ──────────────────────────────────────
   function showToast(msg, type = "error") {
@@ -94,6 +96,21 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
     loadReceipts();
   }, [session]);
 
+  // Show consent modal for users who have not yet agreed (covers Google OAuth users)
+  useEffect(() => {
+    if (!session || profileLoading) return;
+    if (!profile?.terms_agreed_at) setShowConsent(true);
+  }, [session, profile, profileLoading]);
+
+  async function handleConsentAccept({ optIn }) {
+    const consentAt = new Date().toISOString();
+    await saveProfile({ terms_agreed_at: consentAt, email_marketing_ok: optIn });
+    localStorage.setItem("consent_at", consentAt);
+    localStorage.setItem("email_opt_in", optIn ? "1" : "0");
+    setProfile((p) => ({ ...p, terms_agreed_at: consentAt, email_marketing_ok: optIn }));
+    setShowConsent(false);
+  }
+
   // Dark mode
   useEffect(() => {
     if (darkMode) {
@@ -114,7 +131,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
   // Lock body scroll when any modal is open
   useEffect(() => {
     const anyOpen = showForm || showProfileModal || showHelp || showBilling || !!legal || !!upgradeLegal
-      || showUpgradeConfirm || showWelcome || showUpgradeThanks || showPlansModal || showAuthModal || !!pdfPreviewUrl;
+      || showUpgradeConfirm || showWelcome || showUpgradeThanks || showPlansModal || showAuthModal || !!pdfPreviewUrl || showConsent;
     if (anyOpen) {
       const scrollY = window.scrollY;
       document.body.style.position  = "fixed";
@@ -135,7 +152,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
       document.body.style.width     = "";
       document.body.style.overflow  = "";
     };
-  }, [showForm, showProfileModal, showHelp, showBilling, legal, upgradeLegal, showUpgradeConfirm, showWelcome, showUpgradeThanks, showPlansModal, showAuthModal, pdfPreviewUrl]);
+  }, [showForm, showProfileModal, showHelp, showBilling, legal, upgradeLegal, showUpgradeConfirm, showWelcome, showUpgradeThanks, showPlansModal, showAuthModal, pdfPreviewUrl, showConsent]);
 
   // Post-checkout upgrade poll
   useEffect(() => {
@@ -388,6 +405,14 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
           </div>
           <iframe src={pdfPreviewUrl} title="Invoice Preview" style={{ flex: 1, border: "none", width: "100%" }} />
         </div>
+      )}
+
+      {/* Consent (Google OAuth users who skipped signup form, shown once) */}
+      {showConsent && (
+        <ConsentModal
+          onAccept={handleConsentAccept}
+          onOpenLegal={(type) => setLegal(type)}
+        />
       )}
 
       {/* Welcome (new user, shown once) */}

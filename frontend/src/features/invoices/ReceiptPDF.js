@@ -80,8 +80,10 @@ async function loadImageAsDataUrl(url) {
     284:   footer text at page bottom
 */
 // Format a number as currency with thousand separators — e.g. 43252345 → "$43,252,345.00"
-function fmtMoney(n) {
-  return "$" + parseFloat(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// currency param is the ISO code from profile (CAD, USD, etc.) — all use $ symbol
+function fmtMoney(n, currency) {
+  const symbol = (currency && currency !== "CAD" && currency !== "USD") ? (currency + " ") : "$";
+  return symbol + parseFloat(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 async function buildDoc(receipt) {
@@ -193,8 +195,8 @@ async function buildDoc(receipt) {
     tableRows = receipt.line_items.map((item) => [
       item.description || "—",
       String(item.quantity),
-      fmtMoney(item.unit_price),
-      fmtMoney(item.total),
+      fmtMoney(item.unit_price, receipt.currency),
+      fmtMoney(item.total, receipt.currency),
     ]);
   } else {
     // No line items — show a placeholder row so the table isn't empty
@@ -256,12 +258,12 @@ async function buildDoc(receipt) {
   // We only show Subtotal and Tax if they have values
   const totalRows = [];
   if (subtotal > 0) {
-    totalRows.push(["Subtotal", fmtMoney(subtotal)]);
+    totalRows.push(["Subtotal", fmtMoney(subtotal, receipt.currency)]);
   }
   if (tax > 0) {
-    totalRows.push(["Tax", fmtMoney(tax)]);
+    totalRows.push(["Tax", fmtMoney(tax, receipt.currency)]);
   }
-  totalRows.push(["Total", fmtMoney(total)]); // Total is always shown
+  totalRows.push(["Total", fmtMoney(total, receipt.currency)]); // Total is always shown
 
   // Draw each row in the totals block
   totalRows.forEach(([label, value], rowIndex) => {
@@ -379,7 +381,7 @@ export async function shareReceiptPDF(receipt) {
   );
 
   const shareText = receipt.total
-    ? `Receipt from ${receipt.vendor_name} for ${fmtMoney(receipt.total)}`
+    ? `Receipt from ${receipt.vendor_name} for ${fmtMoney(receipt.total, receipt.currency)}`
     : `Receipt from ${receipt.vendor_name}`;
 
   const canShareFiles = navigator.canShare && navigator.canShare({ files: [file] });

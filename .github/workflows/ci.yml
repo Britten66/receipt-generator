@@ -87,7 +87,17 @@ jobs:
           VITE_SUPABASE_URL: https://placeholder.supabase.co
           VITE_SUPABASE_ANON_KEY: placeholder-anon-key
 
-      # ── 6. Dependency audit ─────────────────────────────────────────────
+      # ── 6. Playwright E2E tests ─────────────────────────────────────────
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: npx playwright test --workers=4
+        env:
+          VITE_SUPABASE_URL: https://placeholder.supabase.co
+          VITE_SUPABASE_ANON_KEY: placeholder-anon-key
+
+      # ── 7. Dependency audit ─────────────────────────────────────────────
       - name: Audit dependencies for vulnerabilities
         run: npm audit --audit-level=high
         # Fails the pipeline if any dependency has a HIGH or CRITICAL CVE.

@@ -160,7 +160,7 @@ export default function InvoiceDetail({
             onClick={async () => {
               try {
                 const { shareReceiptPDF } = await import("./ReceiptPDF");
-                await shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier });
+                await shareReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier, currency: profile?.currency || "CAD" });
               } catch (err) {
                 if (err?.name !== "AbortError") console.error("Share failed:", err);
               }
@@ -179,7 +179,7 @@ export default function InvoiceDetail({
             const isMobile = window.innerWidth <= 768;
             const win = (!isIOS && !isMobile) ? window.open("", "_blank") : null;
             const { downloadReceiptPDF, getPDFBlobUrl } = await import("./ReceiptPDF");
-            const receiptData = { ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier };
+            const receiptData = { ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier, currency: profile?.currency || "CAD" };
             if (isIOS) {
               if (win) win.close();
               downloadReceiptPDF(receiptData);
@@ -207,7 +207,7 @@ export default function InvoiceDetail({
           style={{ width: "100%", marginBottom: 6 }}
           onClick={async () => {
             const { downloadReceiptPDF } = await import("./ReceiptPDF");
-            downloadReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier });
+            downloadReceiptPDF({ ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier, currency: profile?.currency || "CAD" });
             posthog.capture("pdf_downloaded", { invoice_status: selectedReceipt.status, tier: profile?.tier ?? "free" });
           }}
         >

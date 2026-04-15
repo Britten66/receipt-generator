@@ -70,7 +70,9 @@ Deno.serve(async (req) => {
       ...(body.theme    !== undefined ? { theme:     str(body.theme, 50) }                                       : {}),
       ...(body.tax_rate !== undefined ? { tax_rate:  isNaN(tax_rate_val) ? 0 : Math.min(Math.max(tax_rate_val, 0), 100) } : {}),
       ...(body.tax_label !== undefined ? { tax_label: str(body.tax_label, 50) }                                  : {}),
-      ...(body.currency !== undefined ? { currency: VALID_CURRENCIES.has(body.currency) ? body.currency : "CAD" } : {}),
+      ...(body.currency          !== undefined ? { currency: VALID_CURRENCIES.has(body.currency) ? body.currency : "CAD" } : {}),
+      ...(body.terms_agreed_at   !== undefined ? { terms_agreed_at: typeof body.terms_agreed_at === "string" ? body.terms_agreed_at : null } : {}),
+      ...(body.email_marketing_ok !== undefined ? { email_marketing_ok: !!body.email_marketing_ok } : {}),
     }, { onConflict: "user_id" }).select().single();
 
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });

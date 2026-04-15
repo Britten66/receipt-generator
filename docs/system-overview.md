@@ -1,5 +1,4 @@
-# InvoicePrepper — System Overview
-### Onboarding Documentation for the Solo Developer
+# InvoicePrepper -- System Overview
 
 ---
 
@@ -8,7 +7,7 @@
 1. What This Product Is
 2. Tech Stack
 3. How the Codebase Is Organized
-4. Frontend Components
+4. Frontend Features
 5. API Layer
 6. Backend Edge Functions
 7. Database Tables
@@ -18,18 +17,17 @@
 11. Environment Variables
 12. Deployment
 13. SEO and Public Pages
-14. Coding Patterns and Techniques
-15. Complex Implementations Explained
-16. What Can Break and Where to Look
+14. Coding Patterns
+15. What Can Break and Where to Look
 
 ---
 
 ## 1. What This Product Is
 
-InvoicePrepper is a SaaS invoicing tool for freelancers, contractors, and independent workers. Users create invoices, download or email them as PDFs, and track payment status. The differentiating feature is Voice AI — users can speak an invoice description out loud and the AI parses it into a filled form automatically.
+InvoicePrepper is a SaaS invoicing tool for freelancers, contractors, and independent workers. Users create invoices, download or email them as PDFs, and track payment status. Voice AI and Text AI allow users to describe a job out loud or in text and have the invoice filled in automatically.
 
-**Live at:** invoiceprepper.com
-**Pricing:** Free (limited), Pro at CAD $9/month, Voice AI at CAD $12/month
+Live at: invoiceprepper.com
+Pricing: Free, Pro at CAD $9/month, Voice AI at CAD $12/month
 
 ---
 
@@ -41,16 +39,17 @@ InvoicePrepper is a SaaS invoicing tool for freelancers, contractors, and indepe
 | Hosting | Cloudflare Pages | Serves the React app and static HTML pages |
 | Backend | Supabase Edge Functions (Deno) | Server-side logic, auth, AI calls |
 | Database | PostgreSQL via Supabase | Stores invoices, profiles, usage |
-| Auth | Supabase Auth | Email/password login, sessions, password reset |
+| Auth | Supabase Auth | Email/password and Google OAuth |
 | Payments | Stripe | Subscriptions, webhooks, billing portal |
 | Email | Resend | Invoice emails to clients, signup notifications |
 | AI Transcription | Groq Whisper | Converts voice audio to text |
 | AI Extraction | Groq LLaMA 3.3 70B | Parses text into structured invoice fields |
 | PDF | jsPDF 4 + jsPDF-autoTable 5 | Generates invoice PDFs in the browser |
-| QR Codes | qrcode.react | Renders QR code linking to payment URL |
-| UI Primitives | Radix UI | Dropdown menus |
-| Icons | Lucide React | All UI icons |
 | Storage | Supabase Storage | Logos, avatars, temp audio files |
+| Analytics | PostHog | Activation events, funnel tracking, A/B flags |
+| Error Tracking | Sentry | Frontend error capture and reporting |
+| UI Primitives | Radix UI | Dropdown menus |
+| Icons | Lucide React | UI icons |
 
 ---
 
@@ -59,414 +58,274 @@ InvoicePrepper is a SaaS invoicing tool for freelancers, contractors, and indepe
 ```
 receipt-generator/
   frontend/
-    index.html               - App entry point, meta tags, favicon refs
     public/
       _headers               - Cloudflare HTTP security headers and CSP
       _redirects             - Cloudflare routing rules
-      sitemap.xml            - Google sitemap listing all pages
-      site.webmanifest       - PWA manifest for mobile home screen
-      voice-invoicing.html   - SEO landing page: voice invoice feature
-      free-invoice-generator.html  - SEO landing page: free tool
-      invoice-for-contractors.html - SEO landing page: trades audience
-      invoice-for-freelancers.html - SEO landing page: freelancer audience
-      how-to-invoice-clients.html  - SEO guide article
+      sitemap.xml            - Google sitemap
+      blog/                  - Changelog (static HTML)
+      invoice-for-*.html     - SEO landing pages (11 pages)
+      free-invoice-generator.html
+      how-to-invoice-clients.html
+      voice-invoicing.html
+      terms.html
+      privacy.html
     src/
-      App.jsx                - Main shell: all state, effects, layout
+      App.jsx                - Main shell: all state, effects, modal wiring
       App.css                - Global styles, CSS variables, dark mode
-      api/                   - Thin fetch wrappers, one file per resource
-      components/            - All React UI components
-      lib/
-        supabase.js          - Supabase client initialization
-        themes.js            - Palette system (6 color themes)
+      features/
+        auth/                - AuthModal, AuthContext, WelcomeModal, ConsentModal
+        invoices/            - ReceiptForm, InvoiceGrid, InvoiceDetail, ReceiptPDF, useInvoices, trash/
+        billing/             - BillingModal, PlansModal, UpgradeConfirmModal, UpgradeThanksModal
+        profile/             - ProfileModal, HelpModal, LegalModal, PasswordUpdateModal
+      layout/                - AppTopbar, AppSidebar, LandingPage, BorderGlow, ThemePicker, Threads
+      api/                   - Thin fetch wrappers: receipts, profile, billing, aiParse, uploadLogo
+      lib/                   - supabase client, themes, constants
+      services/              - csvExport
+      __tests__/             - 391 tests: logic, components, security, E2E
   supabase/
     functions/               - One folder per edge function
-      _shared/cors.ts        - Shared CORS headers used by all functions
+      _shared/cors.ts        - Shared CORS headers
+    migrations/              - SQL migration files
   docs/
-    api-queries.txt          - Plain English explanation of every API call
     system-overview.md       - This document
+    edge-case-test-workflow.md
 ```
 
 ---
 
-## 4. Frontend Components
+## 4. Frontend Features
 
 ### App.jsx
-The main shell of the entire app. Every piece of state lives here. It is organized into labeled sections you can jump to with Ctrl+F:
+Main shell. All UI state, effects, and modal wiring live here. Organized into labeled sections: imports, state, effects, handlers, derived values, early returns, render, modals.
 
-- **IMPORTS** - all external packages and components
-- **CONSTANTS** - STATUS_CONFIG (four invoice states), NAV (sidebar filters), formatting helpers
-- **STATE** - every useState and useRef in one block. Do not move state declarations below the effects that reference them or you will get a production crash.
-- **EFFECTS** - dark mode, palette, auth session, data loading, post-checkout poll
-- **HANDLERS** - save invoice, delete, status change, send email, open/close modals
-- **DERIVED VALUES** - counts per status, revenue total, outstanding balance, filtered list
-- **EARLY RETURNS** - loading spinner, landing page gate, auth gate
-- **RENDER** - topbar, sidebar, invoice grid, detail panel
-- **MODALS** - all modal components rendered at the bottom
+Layout: topbar / sidebar / invoice grid / detail panel side by side on desktop. Full-screen detail panel on mobile tap.
 
-**Layout:**
-- Desktop: topbar / sidebar / invoice grid / detail panel (side by side)
-- Mobile: topbar / stats strip / invoice grid / full screen detail on tap
-
----
-
-### LandingPage.jsx + LandingPage.css
-The pre-auth marketing page shown to users who have not yet entered the app. Uses localStorage key `app_entered` to decide whether to show. Once a user clicks in or signs up, this never shows again on that device.
-
-Contains: hero section, How It Works, pricing cards with BorderGlow, FAQ. All CTAs call `onEnter` or `onSignIn` passed down from App.jsx. The palette is always default here regardless of the user's theme setting.
-
----
+### LandingPage.jsx
+Pre-auth marketing page. Shows when user has not entered the app. Contains hero, How It Works, pricing cards, FAQ. All CTAs call props passed from App.jsx.
 
 ### AuthModal.jsx
-Handles sign in and sign up in a single modal. Toggles between two views. Calls Supabase auth directly. Password reset triggers `supabase.auth.resetPasswordForEmail()` which sends an email with a link back to the app.
+Sign in, sign up, and forgot password in one modal. Calls Supabase auth directly. Google OAuth supported via supabase.auth.signInWithOAuth.
 
----
+### ConsentModal.jsx
+Fires once for any user whose profile has no terms_agreed_at. Covers Google OAuth users who skip the signup form. Blocks the app until accepted. Saves terms_agreed_at and email_marketing_ok to the profile.
 
 ### ReceiptForm.jsx
-The invoice creation and editing form. The most complex component in the app.
-
-Key responsibilities:
-- Renders all invoice fields: vendor, customer, line items, date, due date, notes, currency
-- Logo panel: shows current logo, allows upload, cycles corner position on click
-- AI parse button: opens voice recording or text input, sends to backend, maps result to form fields
-- Voice recording: uses MediaRecorder API, uploads audio blob to Supabase Storage, sends signed URL to edge function
-- Chime system: Web Audio API plays 4-note ascending start, 3-note descending stop, 1 long ding on completion
-- Voice readback: speaks parsed invoice back using SpeechSynthesis (can be toggled off in Profile)
-- On submit: calls createReceipt or updateReceipt depending on whether editingReceipt is set
-
----
+Invoice creation and editing form. Handles line items, logo upload, AI parse (voice and text), currency, tax, due date, notes. Voice recording uses MediaRecorder API.
 
 ### ReceiptPDF.js
-Not a React component. A module that exports PDF generation functions using jsPDF.
-
-Functions:
-- `downloadReceiptPDF(receipt, profile)` - generates PDF and triggers browser download
-- `shareReceiptPDF(receipt, profile)` - uses Web Share API for mobile sharing
-- `getPDFBlobUrl(receipt, profile)` - returns a blob URL for in-browser preview
-- `buildPDFBase64(receipt, profile)` - returns base64 string for email attachment
-
-PDF contents: logo (if profile has one, placed in chosen corner), vendor info, client info, invoice number, date, due date, line items table, subtotal, tax, total, notes, payment QR code (if payment_url set and status is not paid).
-
-Watermark: "INVOICEPREPPER.COM" appears diagonally on every PDF for free tier users. Pro removes it.
-
----
+Not a React component. Exports downloadReceiptPDF, shareReceiptPDF, getPDFBlobUrl, buildPDFBase64. All PDF generation is client-side using jsPDF. Currency symbol reads from receipt.currency.
 
 ### ProfileModal.jsx
-User settings panel. Two major sections:
-
-**Business Info** - business name, address, email, phone, bio, website, payment URL, tax rate, currency, default due days
-**Logo** - separate from avatar. Uploaded to Supabase Storage at `{email}/logo`. Appears on PDFs.
-**Avatar** - topbar profile image. Uploaded to `{email}/avatar`. Does not appear on PDFs.
-**Preferences** - voice readback toggle. Stored in localStorage as `voice_readback` (1 = on, 0 = off).
-**Security** - change password link.
-
----
-
-### PlansModal.jsx
-Shows the Pro and Voice AI upgrade cards with BorderGlow effect. Calls `onSelectPro` or `onSelectVoice` which triggers UpgradeConfirmModal before going to Stripe.
-
----
-
-### UpgradeConfirmModal.jsx
-Pre-Stripe consent step. User must check an agreement checkbox before the Stripe checkout session opens. Prevents accidental subscription starts.
-
----
+Business info, logo, avatar, tax settings, currency, preferences, and security (password change).
 
 ### BillingModal.jsx
-Shows current plan, links to Stripe billing portal for managing subscription, and cancel subscription option.
+Shows current plan, renewal date, and links to Stripe billing portal. Shows cancellation notice when cancel_at_period_end is true.
 
----
+### PlansModal.jsx
+Pro and Voice AI upgrade cards with pricing. Triggers UpgradeConfirmModal before going to Stripe.
+
+### UpgradeConfirmModal.jsx
+Pre-Stripe consent step. User must check a recurring billing agreement checkbox before checkout opens.
 
 ### WelcomeModal.jsx
-One-time modal shown to new users. Triggered when account `created_at` is less than 2 minutes ago. Explains the first steps. Dismissed permanently after closing.
-
----
-
-### UpgradeThanksModal.jsx
-One-time modal shown after a successful Stripe checkout. Triggered by the `upgrade_thanks` localStorage key set after the post-checkout poll confirms tier change.
-
----
+Shown once to new users. Triggered when account created_at is less than 2 minutes old.
 
 ### HelpModal.jsx
-Static help content. Keyboard shortcuts, feature explanations, support email.
+Help content with minimize/restore. Links to Terms and Privacy. Feedback and bug report links on mobile.
 
----
-
-### LegalModal.jsx
-Privacy policy and terms of service. Displayed in-app rather than on a separate page.
-
----
-
-### PasswordUpdateModal.jsx
-Shown when a user arrives via a password reset email link. Supabase sets the session via the URL hash. This modal captures the new password and calls `supabase.auth.updateUser()`.
-
----
+### TrashModal.jsx
+Shows soft-deleted invoices. Users can restore within 30 days or permanently delete.
 
 ### BorderGlow.jsx
-A visual effect component. Tracks mouse position and renders a gradient glow that follows the cursor around the border of the card. Used on pricing cards and the hero invoice preview on the landing page.
-
-Props: `glowColor`, `glowIntensity`, `glowRadius`, `colors` (array of border colors that cycle).
-
----
-
-### ThemePicker.jsx
-Renders the 6 color palette options. Calls `applyPalette(key, mode)` from themes.js when a palette is selected. Only visible when the app is in the entered/authenticated state.
+Visual effect component. Tracks mouse position and animates a gradient around the card border. Used on pricing cards and hero invoice preview.
 
 ---
 
 ## 5. API Layer
 
-Located in `frontend/src/api/`. Each file is a set of thin fetch wrappers that add the Supabase JWT token to the Authorization header automatically.
+Located in `src/api/`. Each file adds the Supabase JWT to the Authorization header automatically.
 
 ### receipts.js
-- `fetchReceipts(token)` - GET all invoices for the logged-in user
-- `fetchReceiptById(id, token)` - GET one invoice with line items
-- `createReceipt(data, token)` - POST new invoice
-- `updateReceipt(id, data, token)` - PATCH update fields
-- `deleteReceipt(id, token)` - DELETE permanently
+fetchReceipts, fetchReceiptById, createReceipt, updateReceipt, deleteReceipt
 
 ### profile.js
-- `fetchProfile(token)` - GET profile row or empty object if none exists
-- `saveProfile(data, token)` - PUT upsert profile
+fetchProfile, saveProfile
 
 ### billing.js
-- `startCheckout(tier, token)` - POST to stripe-checkout edge function, returns Stripe checkout URL
-- `cancelSubscription(token)` - POST to cancel-subscription edge function
-- `openBillingPortal(token)` - POST to billing-portal edge function, returns Stripe portal URL
+startCheckout, cancelSubscription, openBillingPortal, fetchSubscriptionStatus
 
 ### aiParse.js
-- `parseText(description, token)` - POST text to text-parse edge function
-- `parseAudio(audioBlob, token)` - uploads audio to Supabase Storage, POST signed URL to voice-parse
-- `mapParsedToForm(parsed)` - converts AI response object into ReceiptForm field shape
+parseText, parseAudio, mapParsedToForm
 
 ### uploadLogo.js
-- Uploads logo image to Supabase Storage
-- Optionally calls remove.bg API to remove background if `VITE_REMOVEBG_API_KEY` is set
-- Returns public URL of uploaded logo
-
-### account.js
-- `deleteAccount(token)` - POST to delete-account edge function. Removes all user data.
+Uploads logo to Supabase Storage. Optionally calls remove.bg API if VITE_REMOVEBG_API_KEY is set.
 
 ---
 
 ## 6. Backend Edge Functions
 
-Located in `supabase/functions/`. Each runs on Deno in Supabase's edge runtime. All share the CORS handler from `_shared/cors.ts`.
-
-Every function authenticates the request by verifying the JWT token from the Authorization header before doing anything else.
+Located in `supabase/functions/`. All run on Deno. All share the CORS handler from `_shared/cors.ts`. All verify the JWT before executing.
 
 ### receipts/index.ts
-Handles all invoice CRUD.
-- GET with no ID: returns all receipts for the user, newest first
-- GET with ID: returns one receipt with its line items
-- POST: creates receipt and line items in a transaction. Generates sequential receipt number globally (REC-000001, REC-000002, etc.) with retry logic for race conditions.
-- PATCH: updates specific fields on a receipt
-- DELETE: permanently removes a receipt
+Full invoice CRUD. GET (all or by ID), POST (creates receipt and line items in a transaction), PATCH, DELETE. Invoice numbers are per-user sequential starting at INV-000100, incremented atomically in a Postgres function.
 
 ### profile/index.ts
-- GET: returns profile row, auto-creates empty row on first login
-- PUT: upserts (insert or update) profile data
+GET returns profile row, auto-creates on first login. PUT upserts all profile fields including terms_agreed_at and email_marketing_ok.
 
 ### send-invoice/index.ts
-Sends an HTML invoice email to the client via Resend. Pro tier only — enforced server-side by checking the user's tier in the profiles table. Builds the full HTML email on the server. Includes a Pay Now button if `payment_url` is set in the profile. Can include a PDF attachment if base64 PDF data is sent in the request body.
+Sends HTML invoice email via Resend. Pro tier only, enforced server-side. Includes PDF attachment and Pay Now button if payment_url is set.
 
 ### voice-parse/index.ts
-Handles the voice AI feature.
-1. Receives a signed URL pointing to the audio file in Supabase Storage
-2. Downloads the audio file server-side
-3. Sends to Groq Whisper for transcription
-4. Sends transcript to Groq LLaMA 3.3 70B with RAG context (past invoices for this user) injected into the prompt
-5. Returns structured JSON: customer_name, line_items array, notes
-6. Checks and increments the daily usage counter in `voice_usage` table (limit: 20/day)
-7. Audio file is deleted from storage after processing
+1. Receives signed URL to audio file in Supabase Storage
+2. Downloads audio server-side
+3. Transcribes via Groq Whisper
+4. Injects user's recent invoice history as RAG context
+5. Sends to Groq LLaMA for structured JSON extraction
+6. Deletes audio from storage
+7. Returns customer_name, line_items, notes
 
 ### text-parse/index.ts
-Same as voice-parse but skips the audio transcription step. Takes a plain text description and sends directly to LLaMA for extraction. Also rate-limited via `voice_usage`.
+Same as voice-parse but skips transcription. Takes plain text directly to LLaMA. Rate limited to 15 parses per month on Pro, unlimited on Voice AI. Counter stored in profiles.month_parse_count, resets monthly.
 
 ### stripe-checkout/index.ts
-Creates a Stripe Checkout session for Pro or Voice AI tier. Stores or retrieves the Stripe customer ID from the user's profile. Returns the checkout URL that the frontend redirects to.
+Creates Stripe Checkout session. Returns checkout URL.
 
 ### stripe-webhook/index.ts
-Listens for Stripe events. Key events handled:
-- `checkout.session.completed` - upgrades user tier in profiles table
-- `customer.subscription.deleted` - downgrades user tier back to free
+Handles checkout.session.completed (upgrades tier) and customer.subscription.deleted (downgrades to free).
 
 ### cancel-subscription/index.ts
-Cancels the user's active Stripe subscription. Sets cancel_at_period_end so they keep access until the billing period ends.
+Sets cancel_at_period_end on the Stripe subscription. Access continues until period ends.
 
 ### billing-portal/index.ts
-Creates a Stripe Customer Portal session. Returns URL that the frontend redirects to for managing payment method, viewing invoices, etc.
+Creates Stripe Customer Portal session. Returns portal URL.
 
 ### notify-signup/index.ts
-Sends a notification email to the admin (you) when a new user signs up. Called via Supabase Auth webhook.
+Sends admin notification email via Resend when a new user registers. Called via Supabase Auth webhook. Authenticated with NOTIFY_SIGNUP_SECRET.
 
 ### delete-account/index.ts
 Removes all user data: receipts, line items, profile, storage files, Stripe subscription, and Supabase auth account.
 
 ### subscription-status/index.ts
-Returns the current tier and subscription state for the logged-in user.
+Returns current tier and subscription state for the logged-in user.
 
 ---
 
 ## 7. Database Tables
 
 ### receipts
-Stores every invoice.
 
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid | Primary key |
 | user_id | uuid | Foreign key to auth.users |
-| receipt_number | text | REC-000001, globally unique |
-| vendor_name | text | Business name from profile |
-| customer_name | text | Client name |
+| receipt_number | text | INV-000100+, per-user sequential |
+| vendor_name | text | |
+| customer_name | text | |
 | status | text | draft, sent, paid, voided |
-| date | date | Invoice date |
-| subtotal | numeric | Before tax |
-| tax | numeric | Tax amount |
-| total | numeric | Final amount |
-| notes | text | Optional footer notes |
+| date | date | |
+| due_date | date | Optional |
+| subtotal | numeric | |
+| tax | numeric | |
+| total | numeric | |
+| notes | text | |
 | currency | text | CAD, USD, etc. |
-| logo_url | text | URL from Supabase Storage |
+| logo_url | text | |
 | logo_corner | text | top-left, top-right, bottom-left, bottom-right |
-| created_at | timestamptz | Auto set |
+| deleted_at | timestamptz | Soft delete, null means active |
+| created_at | timestamptz | |
 
 ### line_items
-Each row is one line on an invoice.
 
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid | Primary key |
 | receipt_id | uuid | Foreign key to receipts |
-| description | text | What was done |
-| quantity | numeric | Hours, units, etc. |
-| unit_price | numeric | Price per unit |
-| total | numeric | quantity x unit_price |
+| description | text | |
+| quantity | numeric | |
+| unit_price | numeric | |
+| total | numeric | |
 
 ### profiles
-One row per user. Auto-created on first login.
 
 | Column | Type | Notes |
 |---|---|---|
-| user_id | uuid | Primary key, foreign key to auth.users |
+| user_id | uuid | Primary key |
 | tier | text | free, pro, voice |
 | business_name | text | |
 | address | text | |
 | email | text | Business contact email |
 | phone | text | |
-| bio | text | Optional tagline |
+| bio | text | |
 | website | text | |
-| payment_url | text | Stripe/PayPal link for QR code |
-| logo_url | text | PDF logo |
-| avatar_url | text | Topbar avatar |
-| stripe_customer_id | text | Stripe customer reference |
-| stripe_subscription_id | text | Active subscription reference |
-| currency | text | Default currency |
-
-### voice_usage
-Rate limiting table for AI features.
-
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | Primary key |
-| user_id | uuid | Foreign key to auth.users |
-| date | date | The calendar day |
-
-One row per parse. Count rows for `user_id` + today's `date` to get daily usage. Limit is 20.
+| payment_url | text | User's payment link for QR code |
+| logo_url | text | |
+| avatar_url | text | |
+| stripe_customer_id | text | |
+| stripe_subscription_id | text | |
+| currency | text | |
+| tax_rate | numeric | |
+| tax_label | text | |
+| month_parse_count | integer | Text AI usage counter, resets monthly |
+| terms_agreed_at | timestamptz | Consent timestamp, required for contact |
+| email_marketing_ok | boolean | Email opt-in preference |
 
 ---
 
 ## 8. Auth Flow
 
-1. App loads, calls `supabase.auth.getSession()` to check for existing session
+1. App loads, calls supabase.auth.getSession() to check for existing session
 2. If session exists, load profile and receipts, show app
 3. If no session, show LandingPage
 4. LandingPage has Sign In and Sign Up buttons that open AuthModal
-5. On successful auth, `onAuthStateChange` fires, session is stored, app loads
-6. Password reset: user requests reset, Supabase emails a link, link returns to app with hash, `onAuthStateChange` detects `PASSWORD_RECOVERY` event, PasswordUpdateModal opens
-7. Sign out: calls `supabase.auth.signOut()`, state clears, LandingPage shows
+5. Email signup: create account, confirm email, sign in
+6. Google OAuth: click Continue with Google, redirect to Google, redirect back to app with session
+7. On SIGNED_IN event, posthog.identify fires with user ID and email
+8. ConsentModal checks profile.terms_agreed_at -- if null, blocks app until accepted
+9. Password reset: user requests reset, Supabase emails link, link returns to app, PasswordUpdateModal opens
+10. Sign out: supabase.auth.signOut(), state clears, LandingPage shows
 
-**Important:** The JWT token from `session.access_token` is passed to every API call. Edge functions verify this token server-side before doing anything. Never send requests without it.
+JWT from session.access_token is passed to every API call. Edge functions verify server-side before executing.
 
 ---
 
 ## 9. Tier Model and Billing
 
-### Tiers
-
 | Feature | Free | Pro | Voice AI |
 |---|---|---|---|
 | Create invoices | Unlimited | Unlimited | Unlimited |
-| PDF download | Yes (watermark) | Yes (no watermark) | Yes (no watermark) |
+| PDF download | Yes | Yes | Yes |
 | Email to client | No | Yes | Yes |
+| Share PDF from mobile | No | Yes | Yes |
+| Send payment reminders | No | Yes | Yes |
 | Logo on PDF | No | Yes | Yes |
 | Dashboard themes | No | Yes | Yes |
-| Voice AI parsing | No | No | Yes |
-| Text AI parsing | No | No | Yes |
+| CSV export | No | Yes | Yes |
+| Text AI parsing | No | 15/month | Unlimited |
+| Voice AI parsing | No | No | Unlimited |
 | Price | Free | CAD $9/mo | CAD $12/mo |
 
-### How Tier Enforcement Works
-- Tier is stored in `profiles.tier` column
-- Edge functions read this column server-side before executing Pro/Voice gated actions
-- Frontend reads `profile.tier` to show/hide UI elements
-- Stripe webhook updates the tier column when a subscription starts or ends
-- Tier changes are not trusted from the frontend alone
+Tier enforcement: stored in profiles.tier, verified server-side in every gated edge function. Stripe webhook updates it on subscription change. Frontend reads it for UI gating only.
 
-### Upgrade Flow
-1. User clicks upgrade
-2. PlansModal shows plan options
-3. UpgradeConfirmModal shows terms, user agrees
-4. `startCheckout(tier, token)` calls stripe-checkout edge function
-5. User is redirected to Stripe hosted checkout page
-6. On success, Stripe sends `checkout.session.completed` webhook to stripe-webhook edge function
-7. Edge function updates `profiles.tier`
-8. Frontend polls for tier change after returning from Stripe
-9. UpgradeThanksModal shows once
+Upgrade flow: PlansModal > UpgradeConfirmModal (consent checkbox) > Stripe Checkout > webhook updates tier > frontend polls for change > UpgradeThanksModal shown once.
 
 ---
 
 ## 10. Key User Flows
 
 ### Create an Invoice
-1. Click New Invoice button (topbar or empty state)
-2. ReceiptForm opens
-3. Fill in customer name, line items, date, notes
-4. Submit
-5. `createReceipt()` POST to receipts edge function
-6. New invoice appears in the grid as Draft
-7. Detail panel opens showing the invoice
+New Invoice button > ReceiptForm opens > fill fields > submit > createReceipt POST > appears in grid as Draft.
 
 ### Send Invoice to Client (Pro)
-1. Open an invoice in the detail panel
-2. Click Send by Email
-3. App checks profile.tier is pro or voice
-4. Calls `buildPDFBase64()` to generate PDF
-5. POST to send-invoice edge function with PDF attachment
-6. Resend delivers HTML email with PDF to client
-7. Invoice status updates to Sent
+Open invoice > Send by Email > builds PDF as base64 > POST to send-invoice edge function > Resend delivers HTML email with PDF > status updates to Sent.
 
 ### Voice AI Invoice
-1. Open New Invoice form
-2. Click the microphone button (Voice AI tier only)
-3. ReceiptForm starts recording via MediaRecorder
-4. 4-note ascending chime plays
-5. User speaks: "Invoice John Smith, 4 hours at $95, and $140 for materials"
-6. User clicks stop
-7. 3-note descending chime plays
-8. Audio blob uploaded to Supabase Storage temp bucket
-9. Signed URL sent to voice-parse edge function
-10. Groq Whisper transcribes audio
-11. LLaMA parses transcript into structured fields
-12. Audio deleted from storage
-13. Single long ding plays
-14. Form fields populate automatically
-15. Voice readback speaks the invoice summary (if enabled in preferences)
+Open New Invoice > tap microphone (Voice AI only) > speak description > stop > audio uploaded to Storage > signed URL sent to voice-parse > Groq transcribes > LLaMA extracts fields > audio deleted > form populates.
 
 ### Mark Invoice Paid
-1. Open invoice in detail panel
-2. Click the Paid status button
-3. `updateReceipt()` PATCH with `{ status: "paid" }`
-4. Revenue counter in sidebar updates
-5. Invoice moves to Paid filter tab
+Open invoice > click Paid button > PATCH status to paid > revenue counter updates > invoice moves to Paid filter.
+
+### Upgrade to Pro
+Click upgrade > PlansModal > select plan > UpgradeConfirmModal > agree to billing terms > Stripe Checkout > return to app > post-checkout poll confirms tier change > UpgradeThanksModal.
 
 ---
 
@@ -474,269 +333,117 @@ One row per parse. Count rows for `user_id` + today's `date` to get daily usage.
 
 ### Frontend (.env in frontend/)
 ```
-VITE_SUPABASE_URL          - Your Supabase project URL
-VITE_SUPABASE_ANON_KEY     - Supabase anonymous key (safe to expose)
-VITE_REMOVEBG_API_KEY      - Optional. Activates background removal on logo upload.
+VITE_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY
+VITE_REMOVEBG_API_KEY      - Optional, activates background removal on logo upload
 ```
 
 ### Supabase Edge Function Secrets
-Set in Supabase Dashboard under Project Settings > Edge Functions > Secrets.
 ```
-RESEND_API_KEY             - For sending invoice emails and signup notifications
-STRIPE_SECRET_KEY          - Stripe API key for checkout and webhooks
-STRIPE_PRO_PRICE_ID        - Stripe price ID for the Pro plan
-STRIPE_VOICE_PRICE_ID      - Stripe price ID for the Voice AI plan
-STRIPE_WEBHOOK_SECRET      - For verifying Stripe webhook signatures
-SUPABASE_SERVICE_ROLE_KEY  - For edge functions that need admin DB access
-GROQ_API_KEY               - For Whisper transcription and LLaMA extraction
+RESEND_API_KEY
+STRIPE_SECRET_KEY
+STRIPE_PRO_PRICE_ID
+STRIPE_VOICE_PRICE_ID
+STRIPE_WEBHOOK_SECRET
+SUPABASE_SERVICE_ROLE_KEY
+GROQ_API_KEY
+NOTIFY_SIGNUP_SECRET       - Plain string used to authenticate the notify-signup webhook
+NOTIFY_EMAIL               - Admin email address for signup notifications
 ```
 
 ---
 
 ## 12. Deployment
 
-**Frontend:** Cloudflare Pages
-- Connected to the GitHub repo main branch
-- Auto-deploys on every push to main
-- Build command: `npm run build` (runs Vite)
-- Build output directory: `dist`
-- Environment variables set in Cloudflare Pages dashboard
+**Frontend:** Cloudflare Pages, connected to GitHub main branch. Auto-deploys on push. Build command: `npm run build`. Output: `dist/`.
 
-**Backend:** Supabase Edge Functions
-- Deployed with `supabase functions deploy [function-name]`
-- Deno runtime, no npm, no node_modules
-- Secrets managed in Supabase dashboard
+**CI:** GitHub Actions runs all 391 tests and a production build check on every push. Deploy is separate from CI -- Cloudflare picks up the push independently.
 
-**Static pages in `public/`:**
-- Cloudflare Pages serves everything in `public/` directly at the root domain
-- `public/voice-invoicing.html` is served at `invoiceprepper.com/voice-invoicing`
-- No React routing involved, pure HTML
+**Backend:** `npx supabase functions deploy [function-name]`. Deno runtime, no npm.
 
-**Security headers:**
-Defined in `frontend/public/_headers`. Applied by Cloudflare to every response.
-Includes: Content Security Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, HTTPS enforcement.
+**Database migrations:** `npx supabase db push` applies any new .sql files in `supabase/migrations/`.
+
+**Static pages:** Everything in `public/` is served directly at the root domain by Cloudflare. No React routing involved. Folder structure maps directly to URL paths -- do not restructure without updating canonical URLs.
 
 ---
 
 ## 13. SEO and Public Pages
 
-Five static HTML pages live in `frontend/public/`. They are served directly by Cloudflare Pages with no React involved.
+All static HTML in `frontend/public/`. Served directly by Cloudflare Pages.
 
-| URL | File | Target Keyword |
-|---|---|---|
-| /voice-invoicing | voice-invoicing.html | voice invoice generator |
-| /free-invoice-generator | free-invoice-generator.html | free invoice generator |
-| /invoice-for-contractors | invoice-for-contractors.html | invoice app for contractors |
-| /invoice-for-freelancers | invoice-for-freelancers.html | invoice generator for freelancers |
-| /how-to-invoice-clients | how-to-invoice-clients.html | how to invoice clients |
+| URL | Target |
+|---|---|
+| /invoice-for-cleaners | cleaning businesses |
+| /invoice-for-electricians | electricians |
+| /invoice-for-landscapers | landscapers |
+| /invoice-for-painters | painters |
+| /invoice-for-plumbers | plumbers |
+| /invoice-for-tutors | tutors |
+| /invoice-for-handymen | handymen |
+| /invoice-for-photographers | photographers |
+| /invoice-for-personal-trainers | personal trainers |
+| /invoice-for-contractors | contractors |
+| /invoice-for-freelancers | freelancers |
+| /free-invoice-generator | free tool |
+| /how-to-invoice-clients | guide |
+| /voice-invoicing | voice feature |
+| /blog | changelog |
 
-All pages:
-- Have canonical URLs, Open Graph tags, and Schema.org structured data
-- Cross-link to each other in footers so Google crawls the full network
-- Use the same visual style as the main app (CSS variables, same palette)
-- Have CTAs pointing back to invoiceprepper.com
-
-Sitemap is at `public/sitemap.xml` and has been submitted to Google Search Console.
-
----
-
-## 14. What Can Break and Where to Look
-
-### White screen on load
-**Cause:** State declared after a useEffect that references it. React hits a TDZ crash in production builds.
-**Fix:** Make sure all useState declarations are in the STATE section at the top of App.jsx, before any useEffect.
-
-### Invoices not loading after login
-**Check:** Supabase dashboard > Edge Functions > receipts > Logs. Look for 401 (bad token) or 500 (DB error).
-
-### Voice AI not working
-**Check:** voice-parse edge function logs. Common causes: GROQ_API_KEY expired, audio file not uploaded (Storage permissions), daily limit hit.
-
-### Email not sending
-**Check:** send-invoice edge function logs. Common causes: RESEND_API_KEY expired, user is not Pro tier server-side.
-
-### Stripe checkout not opening
-**Check:** stripe-checkout edge function logs. Common causes: STRIPE_SECRET_KEY wrong environment (test vs live), price ID mismatch.
-
-### Tier not updating after payment
-**Check:** stripe-webhook edge function logs. Common causes: STRIPE_WEBHOOK_SECRET wrong, webhook not registered in Stripe dashboard, event type not handled.
-
-### CSP blocking a new script
-**File:** `frontend/public/_headers`
-**Fix:** Add the domain to the `script-src` directive.
-
-### Logo not showing on PDF
-**Check:** profile.logo_url is set and the Supabase Storage bucket has public read access.
-
-### PDF watermark still showing for Pro user
-**Check:** `profile.tier` is actually `pro` or `voice` in the database. If Stripe webhook did not fire, tier was not updated.
+Sitemap at `/sitemap.xml`. Submitted to Google Search Console.
 
 ---
 
----
+## 14. Coding Patterns
 
-## 14. Coding Patterns and Techniques
+**Lazy useState initializers:** State that reads from localStorage uses a function initializer so it runs once on mount, not every render.
 
-### Lazy useState Initializers
-Throughout the app, `useState` is initialized with a function rather than a value when the initial state comes from localStorage or a computation. This runs the function only once on mount instead of on every render.
+**TDZ rule:** Every useState and useRef in App.jsx must be declared before any useEffect that references it. Production builds will white-screen silently if this order is wrong.
 
-```js
-// Runs once — reads from localStorage once, not on every render
-const [darkMode, setDarkMode] = useState(() => localStorage.getItem("dark_mode") === "1");
-```
+**Controlled inputs with string state:** Numeric fields store strings in state. Conversion to numbers happens only at submit time. Avoids issues with partial input like "1." mid-typing.
 
-This pattern is used for: dark mode, palette, entered state, voice readback, currency preference.
+**Optimistic UI:** Status changes update React state immediately before server confirmation. Reverted on failure.
 
-### State Declaration Order Matters (TDZ Rule)
-In production builds, Vite/Rollup hoists function declarations but NOT const declarations. If a `useEffect` dependency array references a state variable that is declared later in the file, you get a Temporal Dead Zone (TDZ) crash — a white screen with no error message in the console.
+**CSS custom properties for theming:** All colors are CSS variables. applyPalette writes directly to document.documentElement.style. No React re-renders needed for theme changes.
 
-**Rule: Every `useState` and `useRef` must be declared in the STATE section at the top of App.jsx, before any `useEffect` that references it.**
+**Upsert pattern:** Profile PUT always uses INSERT ... ON CONFLICT DO UPDATE. No need to check if a row exists first.
 
-This was the cause of the white screen bug that occurred after the App.jsx refactor.
+**Transaction wrapping:** Receipt creation wraps receipts and line_items inserts in a Postgres transaction. Nothing is left half-saved.
 
-### Controlled Inputs with String-to-Number Conversion
-All numeric form fields (quantity, unit_price, tax rate) are stored as strings in React state because HTML inputs always return strings. Conversion to numbers happens only in `handleSubmit` before sending to the server. This avoids problems with partial input like "1." where the user is mid-typing.
+**Race condition retry:** Invoice number generation retries up to 10 times on unique constraint violation. Prevents duplicate numbers under concurrent writes.
 
-```js
-// Stored as string
-const [items, setItems] = useState([{ quantity: "1", unit_price: "", ... }]);
-
-// Converted at submit time
-quantity: parseFloat(item.quantity) || 0
-```
-
-### Refs for Non-Rendering State
-`useRef` is used for values that need to persist across renders but should NOT trigger a re-render when they change. In this app:
-
-- `mediaRecorderRef` — the active MediaRecorder instance
-- `audioChunksRef` — accumulating audio data chunks during recording
-- `voiceTimerRef` — the setInterval timer ID for recording countdown
-- `voiceMimeRef` — detected audio MIME type
-- `touchStartX` — touch position for swipe detection
-- `proIntentRef` — stores which tier the user wanted before being interrupted by auth
-
-### Optimistic UI
-Status changes (draft/sent/paid/voided) update React state immediately before the server confirms success. If the server call fails, the state is reverted. This makes the UI feel instant even on slow connections.
-
-### useMemo for Derived Values
-Filtered receipt lists, status counts, revenue totals, and outstanding balance are all computed with `useMemo`. They only recompute when `receipts` or `filter` changes, not on every render.
-
-### CSS Custom Properties for Theming
-All colors are defined as CSS custom properties (variables) on `:root` in App.css. Dark mode overrides them under `[data-theme="dark"]`. The `applyPalette()` function in themes.js writes new values directly to `document.documentElement.style.setProperty()`, overriding the defaults inline. Calling `clearPalette()` removes the inline overrides and the CSS file defaults take back over.
-
-This means themes work with zero React re-renders — the browser repaints automatically when CSS vars change.
-
-### CORS Shared Handler
-All Supabase edge functions import `getCorsHeaders()` from `_shared/cors.ts`. This returns the correct CORS headers based on the request's Origin header, checked against an allowlist. Every function handles the OPTIONS preflight request before doing any logic. This prevents cross-origin errors when the frontend calls backend functions.
-
-### Upsert Pattern (Profile)
-The profile edge function uses PostgreSQL `INSERT ... ON CONFLICT DO UPDATE` (upsert). This means you call the same PUT endpoint whether creating a profile for the first time or updating an existing one. You never need to check if a row exists first.
-
-### Transaction Wrapping (Receipt Creation)
-Creating a receipt involves two table writes: one to `receipts` and one to `line_items`. These are wrapped in a PostgreSQL transaction. If the line items insert fails, the receipt insert is also rolled back. Nothing is left half-saved.
-
-### Race Condition Retry (Receipt Numbers)
-Receipt numbers (REC-000001, etc.) are generated by reading the current highest number and incrementing by one. In a serverless environment, two simultaneous requests could read the same max and try to insert the same number. The edge function retries up to 10 times with the next available number if a unique constraint violation occurs.
-
-### Content Security Policy
-Defined in `frontend/public/_headers`. Cloudflare applies these headers to every response. The CSP `script-src` directive is an allowlist — only scripts from approved domains can execute. Adding a new third-party script requires adding its domain to this file or the browser will silently block it.
+**iOS scroll lock:** Standard overflow:hidden does not prevent scroll on iOS Safari. Fix: save scrollY, set body to position:fixed with top:-scrollY, restore on modal close.
 
 ---
 
-## 15. Complex Implementations Explained
+## 15. What Can Break and Where to Look
 
-### Voice AI Pipeline (the hardest part of the codebase)
+**White screen on load**
+State declared after a useEffect that references it. Move all useState to the STATE section at the top of App.jsx.
 
-This is a multi-step async pipeline across the frontend and two external AI services.
+**Invoices not loading**
+Supabase dashboard > Edge Functions > receipts > Logs. Look for 401 (bad token) or 500 (DB error).
 
-**Step 1: MIME type detection**
-Different browsers support different audio formats. The `getMimeType()` function tests `MediaRecorder.isTypeSupported()` against a priority list: webm, mp4, ogg, wav. The first supported type wins and is stored in `voiceMimeRef` so the blob is created with the right type.
+**Voice AI not working**
+voice-parse edge function logs. Common causes: GROQ_API_KEY expired, Storage permissions, daily limit hit.
 
-**Step 2: MediaRecorder**
-The Web MediaRecorder API streams audio from the microphone into chunks. Each `ondataavailable` event appends a chunk to `audioChunksRef`. On stop, all chunks are combined into a single Blob.
+**Email not sending**
+send-invoice edge function logs. Common causes: RESEND_API_KEY expired, user is not Pro server-side.
 
-```js
-recorder.ondataavailable = (e) => {
-  if (e.data.size > 0) audioChunksRef.current.push(e.data);
-};
-recorder.onstop = async () => {
-  const blob = new Blob(audioChunksRef.current, { type: voiceMimeRef.current });
-  await parseVoice(blob);
-};
-```
+**Stripe checkout not opening**
+stripe-checkout logs. Common causes: wrong key environment (test vs live), price ID mismatch.
 
-**Step 3: Upload to Supabase Storage**
-The audio blob is uploaded to a temp bucket in Supabase Storage. A signed URL is generated with a short expiry. This URL is sent to the edge function instead of the raw audio data — edge functions have request size limits that make direct blob upload unreliable.
+**Tier not updating after payment**
+stripe-webhook logs. Common causes: STRIPE_WEBHOOK_SECRET wrong, webhook not registered in Stripe dashboard.
 
-**Step 4: Edge function fetches and transcribes**
-The `voice-parse` edge function downloads the audio from the signed URL server-side, sends it to Groq Whisper as multipart/form-data, and gets back a text transcript.
+**Signup notification not arriving**
+notify-signup logs. Check NOTIFY_SIGNUP_SECRET matches what is set in the Supabase Auth webhook Authorization header.
 
-**Step 5: RAG context injection**
-Before calling LLaMA, the edge function queries the user's recent invoices (client names, service descriptions, typical prices). This history is injected into the LLaMA prompt as context. This is why the AI can recognize "John from last week" or suggest your usual hourly rate.
+**CSP blocking a new script**
+Edit `frontend/public/_headers`. Add the domain to the script-src directive.
 
-**Step 6: LLaMA extraction**
-The transcript plus context is sent to Groq LLaMA 3.3 70B with a structured prompt that demands a specific JSON shape: `customer_name`, `line_items` array, `notes`. The response is parsed and returned to the frontend.
-
-**Step 7: Cleanup and form fill**
-Audio is deleted from Storage. `mapParsedToForm()` converts the AI response into the exact shape ReceiptForm expects. Form fields update. Voice readback speaks a summary.
+**Consent modal showing for existing users**
+profiles.terms_agreed_at is null for that user. Run SQL to backfill if needed: `UPDATE profiles SET terms_agreed_at = now() WHERE terms_agreed_at IS NULL AND tier != 'free'` -- or just let them go through it once.
 
 ---
 
-### Web Audio API Chime System
-
-The chime system creates audio programmatically — no audio files loaded, no external dependencies.
-
-Each call to `playChime(type)` creates a fresh `AudioContext`. Inside it, a `note()` helper function:
-1. Creates an `OscillatorNode` (generates a sine wave at a given frequency)
-2. Creates a `GainNode` (controls volume over time)
-3. Connects: Oscillator → Gain → destination (speakers)
-4. Uses `linearRampToValueAtTime` to fade in and `exponentialRampToValueAtTime` to fade out
-
-Three sequences:
-- **start** (4 ascending notes): C5(523Hz) → D5(587Hz) → E5(659Hz) → G5(784Hz), 160ms apart
-- **stop** (3 descending notes): G5(784Hz) → E5(659Hz) → C5(523Hz), 160ms apart
-- **done** (1 long ding): A5(880Hz), 650ms duration
-
-All notes are scheduled ahead of time using `ctx.currentTime` offsets. The AudioContext handles timing precisely without JavaScript timers.
-
----
-
-### Theme and Palette System
-
-The palette system is built for zero-flicker theme switching without React re-renders.
-
-`themes.js` exports a hardcoded `PALETTES` object with 6 named palettes, each with a `light` and `dark` variant. Each variant is a flat object of CSS variable names to hex values.
-
-`applyPalette(key, mode)` validates the key against `PALETTE_KEYS` (a Set for O(1) lookup), then writes each CSS var directly to `document.documentElement.style.setProperty()`. The browser re-paints immediately.
-
-`clearPalette()` calls `removeProperty()` on each managed var, restoring the App.css defaults.
-
-Per-mode persistence: `theme_light_palette` and `theme_dark_palette` are stored separately in localStorage so switching dark/light mode restores the last palette used in each mode independently.
-
-Security: the function only accepts known keys. Raw color values from user input are never written to the DOM.
-
----
-
-### iOS Safari Scroll Lock
-
-Standard `overflow: hidden` on `body` does not prevent scroll on iOS Safari when a modal is open — the page scrolls behind the modal. The fix used here:
-
-1. Save the current `window.scrollY` position
-2. Set `body { position: fixed; top: -scrollY; width: 100%; }`
-3. On modal close, remove those styles and restore `window.scrollY`
-
-This is implemented in the modal open/close `useEffect` in App.jsx and handles every modal in the app from one place.
-
----
-
-### BorderGlow Component
-
-`BorderGlow.jsx` wraps any card in a container that tracks mouse position via `onMouseMove`. It calculates the angle from the card center to the cursor and uses that to animate a gradient that sweeps around the border.
-
-The glow colors cycle through an array of hex values (`colors` prop). The intensity and radius are configurable. On the landing page hero and pricing cards, the colors are silver/gold/blue to match the free/pro/voice tier theme.
-
-This is a purely visual component. It has no effect on functionality and can be removed without breaking anything.
-
----
-
-*Document generated April 2026. Update this file when new features or functions are added.*
+*Last updated April 2026.*

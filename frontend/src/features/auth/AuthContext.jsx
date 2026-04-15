@@ -55,7 +55,7 @@ export function AuthProvider({ children }) {
         setSession(newSession);
         setShowAuthModal(false);
         setEntered(true);
-        if (event === "SIGNED_IN") posthog.identify(newSession.user.id);
+        if (event === "SIGNED_IN") posthog.identify(newSession.user.id, { email: newSession.user.email });
 
         if (proIntentRef.current) {
           startCheckout(proIntentRef.current, profile?.currency || preferredCurrency).catch(() => {});
