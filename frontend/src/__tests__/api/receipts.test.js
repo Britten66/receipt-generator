@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-describe("API", () => {
-
 /*
   Tests for src/api/receipts.js — the CRUD wrappers around the /receipts edge function.
 
@@ -36,6 +34,8 @@ beforeEach(() => {
 function mockFetch(body, status = 200) {
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ json: () => Promise.resolve(body), status }));
 }
+
+describe("API", () => {
 
 describe("fetchReceipts", () => {
   it("calls GET /receipts and returns parsed JSON", async () => {

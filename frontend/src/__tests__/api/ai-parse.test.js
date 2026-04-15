@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-describe("API", () => {
-
 /*
   Tests for src/api/aiParse.js
 
@@ -67,6 +65,8 @@ function mockFetch(body, status = 200) {
     json: () => Promise.resolve(body),
   }));
 }
+
+describe("API", () => {
 
 // ---------------------------------------------------------------------------
 // parseText
