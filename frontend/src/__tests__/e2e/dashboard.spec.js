@@ -1,11 +1,6 @@
 /*
-  ══════════════════════════════════════════════════════════════════════════════
   E2E: Dashboard — core layout and navigation
   Suite: Dashboard
-  ══════════════════════════════════════════════════════════════════════════════
-
-  Requires an authenticated session (storageState set in playwright.config.js).
-  Tests the shell that wraps every dashboard feature.
 */
 
 import { test, expect } from "@playwright/test";
@@ -13,6 +8,8 @@ import { test, expect } from "@playwright/test";
 test.describe("Dashboard", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
+    // Wait for dashboard shell to be ready
+    await page.locator(".sidebar").waitFor({ timeout: 15000 });
   });
 
   test("sidebar is visible after login", async ({ page }) => {
@@ -20,7 +17,7 @@ test.describe("Dashboard", () => {
   });
 
   test("invoice list loads", async ({ page }) => {
-    await expect(page.locator(".invoice-grid, .empty-state")).toBeVisible();
+    await expect(page.locator(".receipt-grid, .empty")).toBeVisible();
   });
 
   test("new invoice button is visible", async ({ page }) => {
@@ -30,7 +27,7 @@ test.describe("Dashboard", () => {
 
   test("clicking new invoice opens the form", async ({ page }) => {
     await page.getByRole("button", { name: /new invoice/i }).click();
-    await expect(page.locator(".receipt-form, form")).toBeVisible();
+    await expect(page.locator(".modal")).toBeVisible();
   });
 
   test("sidebar shows invoices nav link", async ({ page }) => {

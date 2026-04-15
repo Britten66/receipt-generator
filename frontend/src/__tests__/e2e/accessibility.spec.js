@@ -92,7 +92,7 @@ test.describe("Accessibility — WCAG + best practice", () => {
 
 test.describe("Accessibility — Layout structure", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
   });
 
   test("page has exactly one h1", async ({ page }) => {
