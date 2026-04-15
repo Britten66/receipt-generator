@@ -709,7 +709,7 @@
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 52px;
   font-weight: 700;
-  color: var(--border);
+  color: var(--text-muted);
   line-height: 1;
   margin-bottom: 8px;
   letter-spacing: -0.03em;
@@ -1026,7 +1026,6 @@
 .lv2-footer-disclaimer {
   font-size: 10px;
   color: var(--text-muted);
-  opacity: 0.6;
 }
 
 /* ── MOBILE ── */

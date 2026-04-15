@@ -132,12 +132,12 @@ const ZONES = [
         light: {
           "--text": "#111110",
           "--text-dim": "#3a3a38",
-          "--text-muted": "#666663",
+          "--text-muted": "#555553",
         },
         dark: {
           "--text": "#e8dcc8",
           "--text-dim": "#c4b99a",
-          "--text-muted": "#7a7672",
+          "--text-muted": "#989896",
         },
       },
       {

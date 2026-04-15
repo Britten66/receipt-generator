@@ -38,9 +38,15 @@ test.describe("Accessibility — Landing page", () => {
 
 test.describe("Accessibility — Auth modal", () => {
   test("sign in modal has no critical WCAG violations", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
     await page.getByRole("button", { name: /^sign in$/i }).click();
     await page.getByText("Welcome back").waitFor();
+    await page.evaluate(() =>
+      document.querySelectorAll("*").forEach((el) =>
+        el.getAnimations().forEach((a) => a.finish())
+      )
+    );
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa"])
       .analyze();
@@ -48,9 +54,15 @@ test.describe("Accessibility — Auth modal", () => {
   });
 
   test("sign up modal has no critical WCAG violations", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
     await page.getByRole("button", { name: /^sign up$/i }).click();
     await page.getByText("Create your account").waitFor();
+    await page.evaluate(() =>
+      document.querySelectorAll("*").forEach((el) =>
+        el.getAnimations().forEach((a) => a.finish())
+      )
+    );
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa"])
       .analyze();

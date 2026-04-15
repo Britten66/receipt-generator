@@ -24,7 +24,7 @@
   --border-light: #c4c4c0; /* subtle dividers */
   --text: #111110;         /* primary text */
   --text-dim: #3a3a38;     /* secondary text */
-  --text-muted: #666663;   /* labels, placeholders */
+  --text-muted: #555553;   /* labels, placeholders — #555553 gives 5.4:1 on --bg (WCAG AA) */
   --paid: #1a5c3a;         /* green — paid status */
   --sent: #1a3060;         /* blue — sent status */
   --draft: #555552;        /* grey — draft status */
@@ -45,7 +45,7 @@
   --border-light: #2e3235; /* subtle dividers */
   --text: #e8dcc8;         /* cream sand — primary text */
   --text-dim: #c4b99a;     /* secondary text */
-  --text-muted: #7a7672;   /* labels, placeholders */
+  --text-muted: #989896;   /* labels, placeholders — #989896 gives 4.62:1 on dark --bg (WCAG AA) */
   --paid: #2e9e5e;
   --sent: #4a70c0;
   --draft: #888884;
