@@ -189,10 +189,7 @@ export default function InvoiceDetail({
             } else {
               const url = await getPDFBlobUrl(receiptData);
               if (win) {
-                const title = `Invoice ${receiptData.receipt_number || ""}`.trim();
-                win.document.open();
-                win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title></head><body style="margin:0;padding:0;height:100vh;overflow:hidden;"><embed src="${url}" type="application/pdf" width="100%" height="100%"></body></html>`);
-                win.document.close();
+                win.location.href = url;
               } else {
                 downloadReceiptPDF(receiptData);
               }
