@@ -10,7 +10,7 @@ npm test -- --reporter=verbose  # full test names
 ```
 
 All tests live in `frontend/src/__tests__/`. Green = safe to deploy.
-Current count: **265 tests, all passing.**
+Current count: **391 tests, all passing.**
 
 ---
 
@@ -123,11 +123,6 @@ it("handles AI returning string quantity", () => {
 
 ---
 
-## CI integration (future)
+## CI integration
 
-```yaml
-- name: Run tests
-  run: cd frontend && npm test
-```
-
-Plug into Cloudflare Pages build command or a GitHub Action. Tests fail the build automatically — zero manual checking needed.
+Live on GitHub Actions. Runs on every push to main: install, security tests, production build, Playwright E2E, dependency audit. See `.github/workflows/ci.yml`.

@@ -279,7 +279,7 @@ Returns current tier and subscription state for the logged-in user.
 4. LandingPage has Sign In and Sign Up buttons that open AuthModal
 5. Email signup: create account, confirm email, sign in
 6. Google OAuth: click Continue with Google, redirect to Google, redirect back to app with session
-7. On SIGNED_IN event, posthog.identify fires with user ID and email
+7. On SIGNED_IN event, posthog.identify fires with user ID only (no PII)
 8. ConsentModal checks profile.terms_agreed_at -- if null, blocks app until accepted
 9. Password reset: user requests reset, Supabase emails link, link returns to app, PasswordUpdateModal opens
 10. Sign out: supabase.auth.signOut(), state clears, LandingPage shows
@@ -300,7 +300,7 @@ JWT from session.access_token is passed to every API call. Edge functions verify
 | Logo on PDF | No | Yes | Yes |
 | Dashboard themes | No | Yes | Yes |
 | CSV export | No | Yes | Yes |
-| Text AI parsing | No | 15/month | Unlimited |
+| Text AI parsing | No | 15/day | Unlimited |
 | Voice AI parsing | No | No | Unlimited |
 | Price | Free | CAD $9/mo | CAD $12/mo |
 
