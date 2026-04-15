@@ -10,172 +10,45 @@
   <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico" />
   <meta name="theme-color" content="#1e1c18" />
   <script>
-    /* Match the app's dark mode preference. Defaults to dark. */
-    (function() {
+    try {
       var stored = localStorage.getItem("dark_mode");
-      var dark = stored !== "0";
-      if (dark) document.documentElement.setAttribute("data-theme", "dark");
-    })();
+      var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var isDark = stored !== null ? stored === "1" : prefersDark;
+      if (isDark) document.documentElement.setAttribute("data-theme", "dark");
+    } catch {}
   </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #dcdcda;
-      --surface: #e8e8e5;
-      --border: #c4c4c0;
-      --text: #111110;
-      --text-dim: #3a3a38;
-      --text-muted: #666663;
-      --accent: #a06830;
-      --mono: ui-monospace, "Courier New", monospace;
+      --bg: #f5f4f0; --surface: #edecea; --text: #1e1c18; --text-dim: #5a5752;
+      --text-muted: #908e8a; --border: #d8d5cf; --accent: #a06830;
+      --mono: "Courier New", Courier, monospace;
     }
     [data-theme="dark"] {
-      --bg: #2c3032;
-      --surface: #181a1b;
-      --border: #2e3235;
-      --text: #e8dcc8;
-      --text-dim: #c4b99a;
-      --text-muted: #7a7672;
-      --accent: #D9B873;
+      --bg: #1e1c18; --surface: #2a2824; --text: #f0ede6; --text-dim: #b8b4ac;
+      --text-muted: #6a6864; --border: #3a3830; --accent: #c8902a;
     }
-
-    body {
-      font-family: helvetica, arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      transition: background 0.15s, color 0.15s;
-    }
-
-    /* ── Nav ── */
-    nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 32px;
-      border-bottom: 1px solid var(--border);
-      background: color-mix(in srgb, var(--bg) 85%, transparent);
-      backdrop-filter: blur(8px);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    .nav-brand {
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--text);
-      text-decoration: none;
-    }
+    body { font-family: helvetica, arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; border-bottom: 1px solid var(--border); }
+    .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; }
     .nav-right { display: flex; align-items: center; gap: 12px; }
-    .nav-toggle {
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      background: none;
-      border: 1px solid var(--border);
-      padding: 4px 10px;
-      cursor: pointer;
-    }
-    .nav-toggle:hover { color: var(--text); border-color: var(--text); }
-    .nav-signin {
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--bg);
-      background: var(--text);
-      border: 1px solid var(--text);
-      padding: 4px 12px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .nav-signin:hover { opacity: 0.85; }
-
-    /* ── Layout ── */
-    .wrap { max-width: 640px; margin: 0 auto; padding: 0 32px; }
-    .page-header { padding: 48px 0 40px; border-bottom: 1px solid var(--border); }
-    .page-title {
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
-    /* ── Entry ── */
-    .entry {
-      display: grid;
-      grid-template-columns: 120px 1fr;
-      gap: 0 32px;
-      padding: 36px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .entry-date {
-      padding-top: 4px;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--text-muted);
-      letter-spacing: 0.04em;
-    }
-    .entry-tag {
-      display: inline-block;
-      font-family: var(--mono);
-      font-size: 8px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 6px;
-    }
-    .entry-title {
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      margin-bottom: 8px;
-    }
-    .entry-summary {
-      font-size: 13px;
-      color: var(--text-dim);
-      margin-bottom: 18px;
-      line-height: 1.6;
-    }
-    .entry-body { display: flex; flex-direction: column; gap: 14px; }
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 5px;
-      letter-spacing: 0.02em;
-    }
-    .entry-body ul { padding-left: 16px; display: flex; flex-direction: column; gap: 5px; }
-    .entry-body li { font-size: 13px; color: var(--text); line-height: 1.5; }
-
-    /* ── Footer ── */
-    footer {
-      border-top: 1px solid var(--border);
-      margin-top: 64px;
-      padding: 20px 32px;
-      text-align: center;
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
+    .nav-cta { display: inline-block; background: var(--text); color: var(--bg); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 7px 14px; text-decoration: none; }
+    .wrap { max-width: 680px; margin: 0 auto; padding: 0 32px; }
+    .page-header { padding: 56px 0 40px; }
+    .eyebrow { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+    .page-title { font-size: clamp(24px, 4vw, 36px); font-weight: 700; letter-spacing: -0.02em; }
+    .entry { padding: 36px 0; border-top: 1px solid var(--border); }
+    .entry-date { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+    .entry-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .entry ul { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+    .entry li { font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+    footer { border-top: 1px solid var(--border); margin-top: 32px; padding: 20px 32px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
     footer a { color: var(--text-muted); text-decoration: none; }
     footer a:hover { color: var(--text); }
-
     @media (max-width: 600px) {
       nav { padding: 12px 20px; }
       .wrap { padding: 0 20px; }
-      .entry { grid-template-columns: 1fr; gap: 6px; }
+      .page-header { padding: 36px 0 28px; }
     }
   </style>
 </head>
@@ -183,266 +56,112 @@
   <nav>
     <a href="https://invoiceprepper.com" class="nav-brand">InvoicePrepper</a>
     <div class="nav-right">
-      <button class="nav-toggle" onclick="
-        var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-        if (dark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('dark_mode','0'); }
-        else { document.documentElement.setAttribute('data-theme','dark'); localStorage.setItem('dark_mode','1'); }
-      ">Light / Dark</button>
-      <a href="https://invoiceprepper.com" class="nav-signin">Sign In</a>
+      <a href="https://invoiceprepper.com/?signup=1" class="nav-cta">Try It Free</a>
     </div>
   </nav>
 
   <div class="wrap">
     <div class="page-header">
-      <div class="page-title">Changelog</div>
+      <div class="eyebrow">Changelog</div>
+      <div class="page-title">What's new</div>
     </div>
 
     <div class="entry">
       <div class="entry-date">Apr 15, 2026</div>
-      <div>
-        <div class="entry-tag">Improvement</div>
-        <div class="entry-title">Faster sign-in, keyboard support, and legal updates</div>
-        <div class="entry-summary">Sign-in modal is noticeably faster. Full keyboard support added. Privacy and terms updated with clearer data rights.</div>
-        <div class="entry-body">
-          <div>
-            <div class="section-label">[UI]</div>
-            <ul>
-              <li>Sign-in and sign-up modal opens faster - removed a GPU-heavy blur effect that was slowing it down</li>
-              <li>Text contrast improved across the app - easier to read in all lighting conditions</li>
-            </ul>
-          </div>
-          <div>
-            <div class="section-label">[ACCESS]</div>
-            <ul>
-              <li>Press Escape to close the sign-in modal from the keyboard</li>
-              <li>Focus moves automatically into the email field when the modal opens</li>
-            </ul>
-          </div>
-          <div>
-            <div class="section-label">[LEGAL]</div>
-            <ul>
-              <li>Privacy policy updated - clearer data deletion rights, PIPEDA escalation path added for Canadian users</li>
-              <li>Terms of service updated - added indemnification, force majeure, and severability clauses</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <div class="entry-title">Faster sign-in and accessibility improvements</div>
+      <ul>
+        <li>Sign-in modal opens faster - removed a GPU-heavy blur effect</li>
+        <li>Text contrast improved across the app</li>
+        <li>Press Escape to close the sign-in modal</li>
+        <li>Focus moves automatically into the email field when the modal opens</li>
+      </ul>
     </div>
 
     <div class="entry">
       <div class="entry-date">Apr 13, 2026</div>
-      <div>
-        <div class="entry-tag">Improvement</div>
-        <div class="entry-title">Sign in and account setup</div>
-        <div class="entry-summary">Cleaned up the whole sign-in experience. Simpler signup, a proper forgot password path, and better feedback while you type.</div>
-        <div class="entry-body">
-          <div>
-            <div class="section-label">[AUTH]</div>
-            <ul>
-              <li>Google sign-in now shows a consent step on first login before continuing</li>
-              <li>Signup trimmed down - email, password, and confirm only</li>
-              <li>Forgot password flow added - enter your email, receive a reset link, set a new password</li>
-            </ul>
-          </div>
-          <div>
-            <div class="section-label">[UI]</div>
-            <ul>
-              <li>Password strength now shows inline as you type - weak, good, and strong with colour feedback</li>
-              <li>Fixed accounts not being correctly identified after signing in via redirect</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <div class="entry-title">Sign-in and account setup</div>
+      <ul>
+        <li>Google sign-in now shows a consent step on first login</li>
+        <li>Signup trimmed down - email, password, and confirm only</li>
+        <li>Forgot password flow added - enter your email, get a reset link, set a new password</li>
+        <li>Password strength shows inline as you type</li>
+        <li>Fixed accounts not being correctly identified after signing in via redirect</li>
+      </ul>
     </div>
 
     <div class="entry">
       <div class="entry-date">Apr 7, 2026</div>
-      <div>
-        <div class="entry-tag">New</div>
-        <div class="entry-title">Text AI invoice parsing (Pro)</div>
-        <div class="entry-summary">Type what you did and who to bill. AI reads the description and fills in the invoice for you - no clicking through fields.</div>
-        <div class="entry-body">
-          <div>
-            <div class="section-label">[NEW]</div>
-            <ul>
-              <li>Describe a job in plain text, AI fills in line items, quantities, and amounts automatically</li>
-              <li>Desktop gets text input, mobile gets voice - each device uses the right tool</li>
-            </ul>
-          </div>
-          <div>
-            <div class="section-label">[ACCESS]</div>
-            <ul>
-              <li>Pro: 15 text parses per day</li>
-              <li>Voice AI: unlimited</li>
-              <li>Free: feature not shown</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <div class="entry-title">Text AI invoice parsing (Pro)</div>
+      <ul>
+        <li>Describe a job in plain text, AI fills in line items, quantities, and amounts</li>
+        <li>Desktop gets text input, mobile gets voice</li>
+        <li>Pro: 15 text parses per day. Voice AI: unlimited.</li>
+      </ul>
     </div>
 
     <div class="entry">
       <div class="entry-date">Mar 31, 2026</div>
-      <div>
-        <div class="entry-tag">New</div>
-        <div class="entry-title">Voice AI invoice parsing (Voice AI plan)</div>
-        <div class="entry-summary">Speak your invoice out loud. Tap the mic, describe the job, and the fields fill in automatically.</div>
-        <div class="entry-body">
-          <div>
-            <div class="section-label">[NEW]</div>
-            <ul>
-              <li>Tap the microphone, describe the job, invoice fills automatically</li>
-              <li>Works on mobile and desktop - any device with a mic</li>
-              <li>Unlimited on the Voice AI plan, no daily cap</li>
-            </ul>
-          </div>
-          <div>
-            <div class="section-label">[PRIVACY]</div>
-            <ul>
-              <li>Audio deleted immediately after parsing - nothing is stored or retained</li>
-            </ul>
-          </div>
-          <div>
-            <div class="section-label">[UI]</div>
-            <ul>
-              <li>Recording controls stay pinned at the bottom of the screen while the mic is active</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <div class="entry-title">Voice AI invoice parsing (Voice AI plan)</div>
+      <ul>
+        <li>Tap the mic, describe the job, invoice fills in automatically</li>
+        <li>Works on mobile and desktop</li>
+        <li>Audio deleted immediately after parsing - nothing stored</li>
+        <li>Unlimited on the Voice AI plan</li>
+      </ul>
     </div>
 
     <div class="entry">
       <div class="entry-date">Mar 24, 2026</div>
-      <div>
-        <div class="entry-tag">Improvement</div>
-        <div class="entry-title">Trash, themes, and export</div>
-        <div class="entry-summary">Softer deletes so nothing is gone for good, colour themes to make the dashboard yours, and CSV export to get your data out anytime.</div>
-        <div class="entry-body">
-          <div>
-            <div class="section-label">[QOL]</div>
-            <ul>
-              <li>Deleted invoices go to trash - restore anything within 30 days</li>
-              <li>CSV export - one click downloads all your invoices in a spreadsheet-ready file</li>
-            </ul>
-          </div>
-          <div>
-            <div class="section-label">[UI]</div>
-            <ul>
-              <li>Six dashboard colour themes added with separate light and dark options - saved between sessions</li>
-            </ul>
-          </div>
-          <div>
-            <div class="section-label">[ACCESS]</div>
-            <ul>
-              <li>Trash, themes, and CSV export available on Pro and Voice AI plans</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <div class="entry-title">Trash, themes, and CSV export</div>
+      <ul>
+        <li>Deleted invoices go to trash - restore anything within 30 days</li>
+        <li>Six dashboard colour themes, light and dark, saved between sessions</li>
+        <li>CSV export - one click downloads all invoices in a spreadsheet-ready file</li>
+      </ul>
     </div>
 
     <div class="entry">
       <div class="entry-date">Mar 17, 2026</div>
-      <div>
-        <div class="entry-tag">New</div>
-        <div class="entry-title">Logo, mobile share, and billing portal</div>
-        <div class="entry-summary">Your brand on every PDF, send invoices straight from your phone, and manage your plan without ever leaving the app.</div>
-        <div class="entry-body">
-          <div>
-            <div class="section-label">[NEW]</div>
-            <ul>
-              <li>Upload your business logo - it appears on every PDF you generate</li>
-              <li>Share invoice PDFs directly from mobile using the native share sheet</li>
-              <li>Manage your subscription from inside the app - view plan, renewal date, and billing details</li>
-            </ul>
-          </div>
-          <div>
-            <div class="section-label">[QOL]</div>
-            <ul>
-              <li>Cancelled subscriptions show the exact date access ends - no abrupt cutoff</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <div class="entry-title">Logo, mobile share, and billing portal</div>
+      <ul>
+        <li>Upload your business logo - appears on every PDF</li>
+        <li>Share invoice PDFs from mobile using the native share sheet</li>
+        <li>Manage your subscription from inside the app</li>
+        <li>Cancelled subscriptions show the exact date access ends</li>
+      </ul>
     </div>
 
     <div class="entry">
       <div class="entry-date">Mar 10, 2026</div>
-      <div>
-        <div class="entry-tag">New</div>
-        <div class="entry-title">Pro plan, email to client, and payment reminders</div>
-        <div class="entry-summary">Upgrade inside the app, send invoices straight to your client's inbox, and follow up on unpaid ones in one tap.</div>
-        <div class="entry-body">
-          <div>
-            <div class="section-label">[NEW]</div>
-            <ul>
-              <li>Pro plan available at CAD $9/month - upgrade without leaving the app</li>
-              <li>Email invoices directly to your client - your business name shows as the sender</li>
-              <li>Send a payment reminder on any sent invoice - one tap, professional follow-up</li>
-            </ul>
-          </div>
-          <div>
-            <div class="section-label">[ACCESS]</div>
-            <ul>
-              <li>Email and reminders are Pro features - an upgrade prompt appears inline for free accounts</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <div class="entry-title">Pro plan, email to client, and payment reminders</div>
+      <ul>
+        <li>Pro plan available at CAD $9/month</li>
+        <li>Email invoices directly to your client - your business name shows as the sender</li>
+        <li>Send a payment reminder on any sent invoice in one tap</li>
+      </ul>
     </div>
 
     <div class="entry">
       <div class="entry-date">Mar 3, 2026</div>
-      <div>
-        <div class="entry-tag">Improvement</div>
-        <div class="entry-title">Profile, tax settings, and mobile fixes</div>
-        <div class="entry-summary">Set your business details once and have them show on every invoice. A few mobile layout issues sorted out too.</div>
-        <div class="entry-body">
-          <div>
-            <div class="section-label">[QOL]</div>
-            <ul>
-              <li>Business profile now includes address, phone, email, and bio - all printed on PDFs</li>
-              <li>Tax rate and label configurable per account - set once, applies to every new invoice</li>
-              <li>Currency preference added - CAD or USD, remembered between sessions</li>
-            </ul>
-          </div>
-          <div>
-            <div class="section-label">[UI]</div>
-            <ul>
-              <li>Save button in profile modal now stays pinned at the bottom on all screen sizes</li>
-            </ul>
-          </div>
-          <div>
-            <div class="section-label">[FIX]</div>
-            <ul>
-              <li>Invoice notes field no longer hidden behind the voice input bar on mobile</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <div class="entry-title">Profile, tax settings, and mobile fixes</div>
+      <ul>
+        <li>Business profile includes address, phone, email, and bio - all on PDFs</li>
+        <li>Tax rate and label configurable per account</li>
+        <li>Currency preference - CAD or USD</li>
+        <li>Fixed notes field hidden behind the voice bar on mobile</li>
+      </ul>
     </div>
 
     <div class="entry">
       <div class="entry-date">Feb 24, 2026</div>
-      <div>
-        <div class="entry-tag">Release</div>
-        <div class="entry-title">v1.0 - Invoice creation, PDF, and status tracking</div>
-        <div class="entry-summary">First release. Create invoices, download clean PDFs, and track what is paid and what is still outstanding.</div>
-        <div class="entry-body">
-          <div>
-            <div class="section-label">[NEW]</div>
-            <ul>
-              <li>Create invoices with line items, quantities, prices, tax, due dates, and notes</li>
-              <li>Download as a clean PDF - no watermark, no branding from us</li>
-              <li>Track status across Draft, Sent, Paid, and Voided</li>
-              <li>Filter invoice list by status</li>
-              <li>Invoice numbers auto-increment per account starting from INV-000100</li>
-              <li>All data saved to your account and accessible from any device</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <div class="entry-title">v1.0 - Invoice creation, PDF, and status tracking</div>
+      <ul>
+        <li>Create invoices with line items, quantities, prices, tax, due dates, and notes</li>
+        <li>Download as a clean PDF</li>
+        <li>Track status across Draft, Sent, Paid, and Voided</li>
+        <li>Filter invoice list by status</li>
+        <li>Invoice numbers auto-increment per account from INV-000100</li>
+      </ul>
     </div>
 
   </div>

@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice Generator for Designers: Get Paid for Creative Work | InvoicePrepper</title>
+  <meta name="description" content="Invoice generator built for designers and creative professionals. Sign in with Google, no password needed. Create professional PDF invoices, track project payments, and email clients. Free to start." />
+  <link rel="canonical" href="https://invoiceprepper.com/invoice-for-designers" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
+  <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico" />
+  <meta name="theme-color" content="#1e1c18" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://invoiceprepper.com/invoice-for-designers" />
+  <meta property="og:title" content="Invoice Generator for Designers: Get Paid for Creative Work" />
+  <meta property="og:description" content="Invoice generator built for designers. Create professional PDF invoices, track project payments, and email clients. Free to start." />
+  <meta property="og:image" content="https://invoiceprepper.com/og-image.png" />
+  <meta property="og:site_name" content="InvoicePrepper" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Invoice Generator for Designers",
+    "url": "https://invoiceprepper.com/invoice-for-designers",
+    "description": "Invoice generator built for designers and creative professionals. Create professional PDF invoices, track project payments, and email clients.",
+    "isPartOf": { "@type": "WebSite", "name": "InvoicePrepper", "url": "https://invoiceprepper.com" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Can I invoice for different stages of a project like concepts, revisions, and final delivery?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Add as many line items as the project needs. Each line item has its own description, quantity, and unit price, so you can break out initial concepts, revision rounds, final delivery, and any extras clearly on one invoice." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I add my logo to invoices?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes, on the Pro plan. Upload your logo once and it appears on every PDF automatically. You can place it in any corner of the invoice." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I email invoices directly to clients?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes, on the Pro plan. Invoices are sent from your business name to your client with the PDF attached. The free plan lets you download the PDF and send it yourself." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it work for both project-based and hourly billing?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. For hourly work, set the quantity to hours and unit price to your rate. For project-based work, use a flat line item with a description of what was delivered. You can mix both on the same invoice." }
+      }
+    ]
+  }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f4f0; --surface: #edecea; --text: #1e1c18; --text-dim: #5a5752;
+      --text-muted: #908e8a; --border: #d8d5cf; --accent: #a06830;
+      --mono: "Courier New", Courier, monospace;
+    }
+    body { font-family: helvetica, arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; border-bottom: 1px solid var(--border); }
+    .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; }
+    .nav-cta { display: inline-block; background: var(--text); color: var(--bg); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 7px 14px; text-decoration: none; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 0 32px; }
+    .hero { margin: 64px auto; }
+    .eyebrow { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+    h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 20px; }
+    h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 20px; }
+    h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .lead { font-size: 16px; color: var(--text-dim); max-width: 560px; margin-bottom: 32px; }
+    .cta-btn { display: inline-block; background: var(--text); color: var(--bg); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; padding: 14px 28px; text-decoration: none; margin-bottom: 10px; }
+    .cta-sub { display: block; font-size: 11px; color: var(--text-muted); font-family: var(--mono); letter-spacing: 0.06em; margin-top: 8px; }
+    .section { margin-bottom: 64px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+    .card { padding: 20px; border: 1px solid var(--border); background: var(--surface); }
+    .card p { font-size: 12px; color: var(--text-dim); margin-top: 4px; line-height: 1.5; }
+    hr { border: none; border-top: 1px solid var(--border); margin-bottom: 48px; }
+    .final-cta { background: var(--text); text-align: center; padding: 48px 32px; }
+    .final-cta h2 { color: #f5f4f0; margin-bottom: 12px; }
+    .final-cta p { color: #908e8a; font-size: 13px; margin-bottom: 28px; }
+    .final-cta .cta-btn { background: #f5f4f0; color: var(--text); }
+    .final-cta .cta-sub { color: #6a6864; }
+    footer { border-top: 1px solid #2e2c28; background: var(--text); padding: 20px 32px; text-align: center; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #6a6864; }
+    footer a { color: #6a6864; text-decoration: underline; }
+    @media (max-width: 640px) {
+      nav { padding: 12px 20px; flex-wrap: wrap; gap: 8px; }
+      .nav-cta { font-size: 8px; padding: 6px 10px; }
+      .wrap { padding-left: 20px; padding-right: 20px; }
+      h1 { font-size: 28px !important; }
+      .hero { margin-top: 36px; }
+      .lead { font-size: 14px; }
+      .final-cta { padding: 36px 20px; }
+      .final-cta h2 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="https://invoiceprepper.com" class="nav-brand">InvoicePrepper</a>
+    <a href="https://invoiceprepper.com/?signup=1" class="nav-cta">Try It Free</a>
+  </nav>
+
+  <div class="wrap hero">
+    <p class="eyebrow">For Designers and Creatives</p>
+    <h1>Invoice your creative work without the spreadsheet.</h1>
+    <p class="lead">InvoicePrepper is built for designers who bill by project, by hour, or by milestone. Create a clean PDF invoice in under two minutes. Email it directly to your client on Pro, or download and send it yourself for free.</p>
+    <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
+    <span class="cta-sub">Free forever. No credit card required.</span>
+  </div>
+
+  <div class="wrap section">
+    <h2>Built for how designers actually bill</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Project line items</h3>
+        <p>Break out concepts, revisions, and final delivery as separate line items. Add as many as the project needs.</p>
+      </div>
+      <div class="card">
+        <h3>Your logo on every PDF</h3>
+        <p>Upload your logo once. It appears on every invoice automatically. Place it in any corner. Pro plan.</p>
+      </div>
+      <div class="card">
+        <h3>Email from your name</h3>
+        <p>Send invoices from your studio or business name. Looks professional to agencies and direct clients. Pro plan.</p>
+      </div>
+      <div class="card">
+        <h3>Outstanding balance</h3>
+        <p>See exactly what is unpaid across all projects at a glance. Mark invoices paid when the money arrives.</p>
+      </div>
+      <div class="card">
+        <h3>Payment link</h3>
+        <p>Add your Stripe or PayPal link once. A QR code appears on every unpaid invoice automatically.</p>
+      </div>
+      <div class="card">
+        <h3>Voice AI</h3>
+        <p>Describe the project out loud after wrapping a session. AI fills in the client, line items, and amounts.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap"><hr /></div>
+
+  <div class="wrap section">
+    <h2>Works for any type of creative billing</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
+      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Graphic and brand designers</strong> - Project packages, logo design, brand guidelines. Break out each deliverable clearly.</div>
+      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">UX and product designers</strong> - Hourly consulting, wireframe rounds, and handoff deliverables all on one invoice.</div>
+      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Illustrators and motion designers</strong> - Per-piece, per-second, or hourly. Invoice the moment you deliver.</div>
+      <div style="padding:14px 16px;border:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--text-dim);"><strong style="color:var(--text);">Print and packaging designers</strong> - Production charges, file prep, and revision rounds as separate line items.</div>
+    </div>
+  </div>
+
+  <div class="final-cta">
+    <h2>Send your first invoice in two minutes</h2>
+    <p>Free forever. No accounting knowledge needed.</p>
+    <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
+    <span class="cta-sub">Free forever. Upgrade when you are ready.</span>
+  </div>
+
+  <footer>
+    <a href="https://invoiceprepper.com">invoiceprepper.com</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/?signup=1">Start Free</a>
+    <br /><br />
+    <span style="color:#4a4844">Tools -</span>
+    &nbsp;
+    <a href="https://invoiceprepper.com/free-invoice-generator">Free Invoice Generator</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/voice-invoicing">Voice Invoicing</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/how-to-invoice-clients">How to Invoice Clients</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-simple-alternative">Invoice Simple Alternative</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/canadian-invoice-generator">Canadian Invoice Generator</a>
+    <br /><br />
+    <span style="color:#4a4844">By trade -</span>
+    &nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-contractors">Contractors</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-electricians">Electricians</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-freelancers">Freelancers</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-cleaners">Cleaners</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-landscapers">Landscapers</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-painters">Painters</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-plumbers">Plumbers</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-tutors">Tutors</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-photographers">Photographers</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-personal-trainers">Personal Trainers</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-handymen">Handymen</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-designers">Designers</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-consultants">Consultants</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-web-developers">Web Developers</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-construction">Construction</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-real-estate-agents">Real Estate Agents</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-small-business">Small Business</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/terms">Terms</a>
+    &nbsp;·&nbsp;
+    <a href="https://invoiceprepper.com/privacy">Privacy</a>
+  </footer>
+</body>
+</html>
