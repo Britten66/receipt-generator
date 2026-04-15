@@ -46,6 +46,8 @@
 
 import { describe, it, expect } from "vitest";
 
+describe("Invoice Logic", () => {
+
 // ── Replicated from ReceiptForm.jsx ──────────────────────────────────────────
 
 function calcSubtotal(items) {
@@ -300,4 +302,6 @@ describe("full invoice calculation — end to end", () => {
     expect(tax).toBe(0);
     expect(total).toBe(0);
   });
+});
+
 });

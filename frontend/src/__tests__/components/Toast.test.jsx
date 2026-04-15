@@ -24,6 +24,8 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect } from "vitest";
 
+describe("Dashboard", () => {
+
 // Toast is rendered inline in App.jsx — test it as an isolated component
 function Toast({ toast, onUpgradeClick }) {
   if (!toast) return null;
@@ -78,3 +80,6 @@ describe("Toast — upgrade interaction", () => {
     expect(onUpgradeClick).not.toHaveBeenCalled();
   });
 });
+
+
+}); // Dashboard

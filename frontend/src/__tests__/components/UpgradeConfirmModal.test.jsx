@@ -32,6 +32,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect } from "vitest";
 import UpgradeConfirmModal from "../../features/billing/UpgradeConfirmModal";
 
+describe("Billing", () => {
+
 function renderModal({ tier = "pro", agreed = false } = {}) {
   const props = {
     targetTier: tier,
@@ -129,3 +131,6 @@ describe("UpgradeConfirmModal — callbacks", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
+
+
+}); // Billing

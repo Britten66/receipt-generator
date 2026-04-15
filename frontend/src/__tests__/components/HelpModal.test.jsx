@@ -29,6 +29,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect } from "vitest";
 import HelpModal from "../../features/profile/HelpModal";
 
+describe("Dashboard", () => {
+
 function renderModal(overrides = {}) {
   const props = {
     onClose: vi.fn(),
@@ -101,3 +103,6 @@ describe("HelpModal — legal section", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
+
+
+}); // Dashboard

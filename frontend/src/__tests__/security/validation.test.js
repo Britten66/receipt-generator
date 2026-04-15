@@ -40,6 +40,8 @@
 
 import { describe, it, expect } from "vitest";
 
+describe("Security", () => {
+
 // ── Replicated from supabase/functions/send-invoice/index.ts ─────────────────
 // Keep this in sync with the edge function. If you change it there, change it
 // here and run npm test to confirm the new behaviour is still safe.
@@ -211,3 +213,6 @@ describe("sanitizePaymentUrl — payment link safety", () => {
     expect(sanitizePaymentUrl("HTTPS://stripe.com/pay/abc")).not.toBeNull();
   });
 });
+
+
+}); // Security

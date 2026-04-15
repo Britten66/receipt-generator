@@ -39,6 +39,8 @@ import {
   PALETTE_META,
 } from "../../lib/themes.js";
 
+describe("Security", () => {
+
 // The exact set of CSS vars the system is allowed to touch.
 // If a future change adds a var outside this list, the test catches it.
 const MANAGED_VARS = [
@@ -226,3 +228,5 @@ describe("clearPalette", () => {
     }
   });
 });
+
+}); // Security

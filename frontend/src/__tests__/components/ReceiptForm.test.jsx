@@ -30,6 +30,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import ReceiptForm from "../../features/invoices/ReceiptForm";
 
+describe("Dashboard", () => {
+
 // Mock all external dependencies
 vi.mock("../../api/profile", () => ({ saveProfile: vi.fn() }));
 vi.mock("../../api/uploadLogo", () => ({ uploadLogo: vi.fn() }));
@@ -150,3 +152,6 @@ describe("ReceiptForm — AI tier gate", () => {
     expect(screen.queryByPlaceholderText(/invoice to john/i)).not.toBeInTheDocument();
   });
 });
+
+
+}); // Dashboard

@@ -41,6 +41,8 @@
 
 import { describe, it, expect } from "vitest";
 
+describe("Security", () => {
+
 
 // ── ALLOWED_FIELDS — replicated from supabase/functions/receipts/index.ts ─────
 // receipt_number is intentionally absent: it is set at creation and is immutable.
@@ -311,3 +313,6 @@ describe("Edit flow — line items always sent in PATCH body", () => {
     expect(CURRENCY_RE.test(body.currency)).toBe(true);
   });
 });
+
+
+}); // Security

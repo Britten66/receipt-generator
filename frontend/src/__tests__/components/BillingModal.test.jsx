@@ -31,6 +31,8 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import BillingModal from "../../features/billing/BillingModal";
 import { fetchSubscriptionStatus } from "../../api/billing";
 
+describe("Billing", () => {
+
 // Mock the billing API so no real fetch happens
 vi.mock("../../api/billing", () => ({
   fetchSubscriptionStatus: vi.fn(() => Promise.resolve({ status: "active", current_period_end: "May 14, 2026", cancel_at_period_end: false })),
@@ -122,3 +124,6 @@ describe("BillingModal — close", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
+
+
+}); // Billing

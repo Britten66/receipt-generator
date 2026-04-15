@@ -33,6 +33,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect } from "vitest";
 import AppSidebar from "../../layout/AppSidebar";
 
+describe("Dashboard", () => {
+
 const MOCK_RECEIPTS = [
   { id: "1", status: "draft" },
   { id: "2", status: "sent" },
@@ -151,3 +153,6 @@ describe("AppSidebar — action buttons", () => {
     expect(setShowBilling).toHaveBeenCalledWith(true);
   });
 });
+
+
+}); // Dashboard

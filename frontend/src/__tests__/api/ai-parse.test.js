@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+describe("API", () => {
+
 /*
   Tests for src/api/aiParse.js
 
@@ -329,3 +331,6 @@ describe("mapParsedToForm", () => {
     expect(items[1].total).toBe("300.00");
   });
 });
+
+
+}); // API

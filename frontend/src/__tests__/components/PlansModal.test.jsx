@@ -30,6 +30,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import PlansModal from "../../features/billing/PlansModal";
 
+describe("Billing", () => {
+
 // BorderGlow uses canvas/WebGL — stub it out so jsdom doesn't crash
 vi.mock("../../layout/BorderGlow", () => ({
   default: ({ children }) => <div data-testid="border-glow">{children}</div>,
@@ -134,3 +136,6 @@ describe("PlansModal — callbacks", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
+
+
+}); // Billing

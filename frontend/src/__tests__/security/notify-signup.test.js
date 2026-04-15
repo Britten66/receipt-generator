@@ -47,6 +47,8 @@
 import { describe, it, expect } from "vitest";
 import { createHmac } from "node:crypto";
 
+describe("Security", () => {
+
 // ── Replicated HMAC logic from notify-signup/index.ts ────────────────────────
 // Node equivalent of the Deno crypto.subtle HMAC-SHA256 verification.
 // The signing algorithm and base64 encoding must match exactly.
@@ -269,3 +271,6 @@ describe("Signature constant-time comparison — timing-safe behaviour", () => {
     expect(verifySignatureSync(wrongLength44, SECRET, VALID_BODY)).toBe(false);
   });
 });
+
+
+}); // Security

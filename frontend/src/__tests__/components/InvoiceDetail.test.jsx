@@ -32,6 +32,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import InvoiceDetail from "../../features/invoices/InvoiceDetail";
 
+describe("Invoices", () => {
+
 // Mock posthog so no network calls happen
 vi.mock("posthog-js", () => ({ default: { capture: vi.fn() } }));
 
@@ -185,3 +187,6 @@ describe("InvoiceDetail — invoice content", () => {
     expect(screen.queryByText(/pay within/i)).not.toBeInTheDocument();
   });
 });
+
+
+}); // Invoices

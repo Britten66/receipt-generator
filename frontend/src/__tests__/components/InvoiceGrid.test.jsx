@@ -28,6 +28,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect } from "vitest";
 import InvoiceGrid from "../../features/invoices/InvoiceGrid";
 
+describe("Dashboard", () => {
+
 const MOCK_INVOICES = [
   { id: "1", receipt_number: "INV-000001", customer_name: "Alice", vendor_name: "My Biz", status: "draft", total: 100 },
   { id: "2", receipt_number: "INV-000002", customer_name: "Bob",   vendor_name: "My Biz", status: "sent",  total: 200 },
@@ -101,3 +103,6 @@ describe("InvoiceGrid — interactions", () => {
     expect(handleDelete).toHaveBeenCalledWith("1");
   });
 });
+
+
+}); // Dashboard

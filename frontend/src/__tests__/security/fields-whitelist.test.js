@@ -35,6 +35,8 @@
 
 import { describe, it, expect } from "vitest";
 
+describe("Security", () => {
+
 // ── Replicated from supabase/functions/receipts/index.ts ─────────────────────
 // If you change ALLOWED_FIELDS there, update this mirror and re-run tests.
 
@@ -229,3 +231,6 @@ describe("Body size limits — constants are defined and reasonable", () => {
     }
   });
 });
+
+
+}); // Security

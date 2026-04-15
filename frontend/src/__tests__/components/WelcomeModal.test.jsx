@@ -24,6 +24,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect } from "vitest";
 import WelcomeModal from "../../features/auth/WelcomeModal";
 
+describe("Dashboard", () => {
+
 function renderModal(overrides = {}) {
   const props = { onClose: vi.fn(), ...overrides };
   render(<WelcomeModal {...props} />);
@@ -67,3 +69,6 @@ describe("WelcomeModal — dismiss paths", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
+
+
+}); // Dashboard

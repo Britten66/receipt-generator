@@ -41,6 +41,8 @@
 
 import { describe, it, expect } from "vitest";
 
+describe("Security", () => {
+
 // ── Replicated from supabase/functions/send-invoice/index.ts ─────────────────
 // Keep in sync with the edge function. If the logic changes there, update here.
 
@@ -183,3 +185,6 @@ describe("tier gates — send and share access", () => {
     expect(canShare("PRO")).toBe(false);
   });
 });
+
+
+}); // Security

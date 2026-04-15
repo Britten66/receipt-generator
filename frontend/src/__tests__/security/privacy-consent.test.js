@@ -45,6 +45,8 @@
 
 import { describe, it, expect } from "vitest";
 
+describe("Security", () => {
+
 // ── Consent schema contract ────────────────────────────────────────────────────
 // This mirrors what AuthModal.jsx writes into Supabase user metadata on signup.
 // If AuthModal changes its field names, update this and re-run tests.
@@ -305,3 +307,6 @@ describe("Recurring billing disclosure — pre-checkout contract", () => {
     expect(UPGRADE_MODAL_DISCLOSURE).toMatch(/USD/);
   });
 });
+
+
+}); // Security

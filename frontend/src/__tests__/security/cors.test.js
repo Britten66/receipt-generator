@@ -44,6 +44,8 @@
 
 import { describe, it, expect } from "vitest";
 
+describe("Security", () => {
+
 // ── Replicated from supabase/functions/_shared/cors.ts ───────────────────────
 // If you change the allowlist in cors.ts, update this mirror and re-run tests.
 
@@ -192,3 +194,6 @@ describe("CORS — allowlist size (prevent silent additions)", () => {
     expect(ALLOWED_ORIGINS.has("")).toBe(false);
   });
 });
+
+
+}); // Security

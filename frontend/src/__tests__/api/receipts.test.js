@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+describe("API", () => {
+
 /*
   Tests for src/api/receipts.js — the CRUD wrappers around the /receipts edge function.
 
@@ -104,3 +106,6 @@ describe("deleteReceipt", () => {
     expect(opts.method).toBe("DELETE");
   });
 });
+
+
+}); // API

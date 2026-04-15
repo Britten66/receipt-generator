@@ -28,6 +28,8 @@
 
 import { describe, it, expect } from "vitest";
 
+describe("Invoice Logic", () => {
+
 // ── 1 & 2. Stripe / portal URL safety ────────────────────────────────────────
 // Replicated from billing.js intent: only redirect to safe URLs.
 // body.url from the edge function should always be a Stripe checkout URL.
@@ -369,3 +371,5 @@ describe("Invoice number padding", () => {
     expect(formatInvoiceNumber(1)).toHaveLength(10); // "INV-" (4) + 6 digits
   });
 });
+
+}); // Invoice Logic
