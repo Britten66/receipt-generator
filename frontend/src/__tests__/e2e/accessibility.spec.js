@@ -132,15 +132,17 @@ test.describe("Accessibility — Layout structure", () => {
   });
 
   test("all buttons have an accessible name", async ({ page }) => {
-    const buttons = await page.locator("button").all();
-    for (const btn of buttons) {
-      const name = await btn.evaluate((el) =>
-        el.getAttribute("aria-label") ||
-        el.getAttribute("title") ||
-        el.textContent?.trim()
-      );
-      expect(name?.trim().length).toBeGreaterThan(0);
-    }
+    const unnamed = await page.evaluate(() =>
+      Array.from(document.querySelectorAll("button")).filter(
+        (el) =>
+          !(
+            el.getAttribute("aria-label")?.trim() ||
+            el.getAttribute("title")?.trim() ||
+            el.textContent?.trim()
+          )
+      ).length
+    );
+    expect(unnamed).toBe(0);
   });
 
   test("page title is set and non-empty", async ({ page }) => {
