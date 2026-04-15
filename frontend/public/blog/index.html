@@ -9,45 +9,201 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
   <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico" />
   <meta name="theme-color" content="#1e1c18" />
+  <script>
+    /* Match the app's dark mode preference. Defaults to dark. */
+    (function() {
+      var stored = localStorage.getItem("dark_mode");
+      var dark = stored !== "0";
+      if (dark) document.documentElement.setAttribute("data-theme", "dark");
+    })();
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg: #f5f4f0; --text: #1e1c18; --text-dim: #5a5752;
-      --text-muted: #908e8a; --border: #d8d5cf; --accent: #a06830;
-      --mono: "Courier New", Courier, monospace;
+      --bg: #dcdcda;
+      --surface: #e8e8e5;
+      --border: #c4c4c0;
+      --text: #111110;
+      --text-dim: #3a3a38;
+      --text-muted: #666663;
+      --accent: #a06830;
+      --mono: ui-monospace, "Courier New", monospace;
     }
-    body { font-family: helvetica, arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
-    nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; border-bottom: 1px solid var(--border); }
-    .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; }
-    .nav-back { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); text-decoration: none; }
-    .nav-back:hover { color: var(--text); }
+    [data-theme="dark"] {
+      --bg: #2c3032;
+      --surface: #181a1b;
+      --border: #2e3235;
+      --text: #e8dcc8;
+      --text-dim: #c4b99a;
+      --text-muted: #7a7672;
+      --accent: #D9B873;
+    }
+
+    body {
+      font-family: helvetica, arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    /* ── Nav ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      border-bottom: 1px solid var(--border);
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .nav-brand {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-toggle {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: none;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    .nav-toggle:hover { color: var(--text); border-color: var(--text); }
+    .nav-signin {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--text);
+      border: 1px solid var(--text);
+      padding: 4px 12px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .nav-signin:hover { opacity: 0.85; }
+
+    /* ── Layout ── */
     .wrap { max-width: 640px; margin: 0 auto; padding: 0 32px; }
     .page-header { padding: 48px 0 40px; border-bottom: 1px solid var(--border); }
-    .page-title { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); }
-    .entry { display: grid; grid-template-columns: 100px 1fr; gap: 0 32px; padding: 32px 0; border-bottom: 1px solid var(--border); }
-    .entry-date { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; padding-top: 4px; }
-    .entry-tag { display: inline-block; font-family: var(--mono); font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
-    .entry-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 10px; }
-    .entry-summary { font-size: 13px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.6; }
+    .page-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* ── Entry ── */
+    .entry {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 0 32px;
+      padding: 36px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .entry-date {
+      padding-top: 3px;
+    }
+    .entry-date-day {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .entry-date-month {
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .entry-tag {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .entry-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+    .entry-summary {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
     .entry-body { display: flex; flex-direction: column; gap: 14px; }
-    .section-label { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-    .entry-body ul { padding-left: 16px; display: flex; flex-direction: column; gap: 4px; }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+      letter-spacing: 0.02em;
+    }
+    .entry-body ul { padding-left: 16px; display: flex; flex-direction: column; gap: 5px; }
     .entry-body li { font-size: 13px; color: var(--text); line-height: 1.5; }
-    footer { border-top: 1px solid var(--border); margin-top: 64px; padding: 20px 32px; text-align: center; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      margin-top: 64px;
+      padding: 20px 32px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
     footer a { color: var(--text-muted); text-decoration: none; }
     footer a:hover { color: var(--text); }
+
     @media (max-width: 600px) {
       nav { padding: 12px 20px; }
       .wrap { padding: 0 20px; }
-      .entry { grid-template-columns: 1fr; gap: 4px; }
-      .entry-date { padding-top: 0; }
+      .entry { grid-template-columns: 1fr; gap: 6px; }
+      .entry-date { display: flex; align-items: baseline; gap: 8px; }
+      .entry-date-month { margin-top: 0; }
     }
   </style>
 </head>
 <body>
   <nav>
     <a href="https://invoiceprepper.com" class="nav-brand">InvoicePrepper</a>
-    <a href="https://invoiceprepper.com" class="nav-back">Back</a>
+    <div class="nav-right">
+      <button class="nav-toggle" onclick="
+        var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (dark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('dark_mode','0'); }
+        else { document.documentElement.setAttribute('data-theme','dark'); localStorage.setItem('dark_mode','1'); }
+      ">Light / Dark</button>
+      <a href="https://invoiceprepper.com" class="nav-signin">Sign In</a>
+    </div>
   </nav>
 
   <div class="wrap">
@@ -56,7 +212,10 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">Apr 13 2026</div>
+      <div class="entry-date">
+        <div class="entry-date-day">13</div>
+        <div class="entry-date-month">Apr 2026</div>
+      </div>
       <div>
         <div class="entry-tag">Improvement</div>
         <div class="entry-title">Sign in and account setup</div>
@@ -82,7 +241,10 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">Apr 7 2026</div>
+      <div class="entry-date">
+        <div class="entry-date-day">07</div>
+        <div class="entry-date-month">Apr 2026</div>
+      </div>
       <div>
         <div class="entry-tag">New</div>
         <div class="entry-title">Text AI invoice parsing (Pro)</div>
@@ -108,7 +270,10 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">Mar 31 2026</div>
+      <div class="entry-date">
+        <div class="entry-date-day">31</div>
+        <div class="entry-date-month">Mar 2026</div>
+      </div>
       <div>
         <div class="entry-tag">New</div>
         <div class="entry-title">Voice AI invoice parsing (Voice AI plan)</div>
@@ -139,7 +304,10 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">Mar 24 2026</div>
+      <div class="entry-date">
+        <div class="entry-date-day">24</div>
+        <div class="entry-date-month">Mar 2026</div>
+      </div>
       <div>
         <div class="entry-tag">Improvement</div>
         <div class="entry-title">Trash, themes, and export</div>
@@ -169,7 +337,10 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">Mar 17 2026</div>
+      <div class="entry-date">
+        <div class="entry-date-day">17</div>
+        <div class="entry-date-month">Mar 2026</div>
+      </div>
       <div>
         <div class="entry-tag">New</div>
         <div class="entry-title">Logo, mobile share, and billing portal</div>
@@ -194,7 +365,10 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">Mar 10 2026</div>
+      <div class="entry-date">
+        <div class="entry-date-day">10</div>
+        <div class="entry-date-month">Mar 2026</div>
+      </div>
       <div>
         <div class="entry-tag">New</div>
         <div class="entry-title">Pro plan, email to client, and payment reminders</div>
@@ -219,7 +393,10 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">Mar 3 2026</div>
+      <div class="entry-date">
+        <div class="entry-date-day">03</div>
+        <div class="entry-date-month">Mar 2026</div>
+      </div>
       <div>
         <div class="entry-tag">Improvement</div>
         <div class="entry-title">Profile, tax settings, and mobile fixes</div>
@@ -250,7 +427,10 @@
     </div>
 
     <div class="entry">
-      <div class="entry-date">Feb 24 2026</div>
+      <div class="entry-date">
+        <div class="entry-date-day">24</div>
+        <div class="entry-date-month">Feb 2026</div>
+      </div>
       <div>
         <div class="entry-tag">Release</div>
         <div class="entry-title">v1.0 — Invoice creation, PDF, and status tracking</div>
