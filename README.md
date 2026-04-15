@@ -8,9 +8,7 @@ Live at [invoiceprepper.com](https://invoiceprepper.com)
 
 ## How this was built
 
-
 Built this solo from framework to production. Used an LLM to pressure test architecture decisions and get the structure to industry spec. Every line of implementation written, debugged, and shipped solo. Frontend, backend, edge functions, CI pipeline, DNS, and payments. Feature based structure, row level security on every table, rate limiting on AI endpoints, full test suite.
-
 
 ### Test coverage
 
@@ -65,44 +63,6 @@ Run E2E tests (requires dev server, uses real Chromium):
 ```bash
 cd frontend && npx playwright test --workers=2
 ```
-
-## Tiers
-
-| | Free | Pro | Voice AI |
-|---|---|---|---|
-| Invoices | Unlimited | Unlimited | Unlimited |
-| Clean PDF, no watermark | Yes | Yes | Yes |
-| Download PDF | Yes | Yes | Yes |
-| Email invoice to client | | Yes | Yes |
-| Share invoice PDF from mobile | | Yes | Yes |
-| Business name on outgoing emails | | Yes | Yes |
-| Upload logo to PDF | | Yes | Yes |
-| Send payment reminders | | Yes | Yes |
-| Text AI parsing (15 per day) | | Yes | Yes |
-| Dashboard themes | | Yes | Yes |
-| CSV export | | Yes | Yes |
-| Voice AI (unlimited) | | | Yes |
-| Text AI (unlimited) | | | Yes |
-| First access to new AI features | | | Yes |
-| Price | Free | CAD $9/mo | CAD $12/mo |
-
-## Features
-
-**Invoicing.** Create invoices with line items, tax, due dates, and notes. Download as PDF or email directly to clients. Track status from Draft to Sent to Paid. Outstanding balance updates automatically.
-
-**AI parsing.** Describe a job in plain text or speak it aloud. The AI fills in the invoice fields, detects line items and prices, and infers currency from context. Pro users get 15 text parses per day. Voice AI users get unlimited voice and text parses.
-
-**Email delivery.** Pro and Voice AI users can email invoices directly to clients with their business name in the sender field. Send payment reminders for unpaid invoices.
-
-**PDF sharing.** Every invoice generates a clean PDF. Pro and Voice AI users can share the PDF directly from their phone using the native share sheet.
-
-**Subscriptions.** Stripe handles billing for Pro (CAD/USD $9/mo) and Voice AI (CAD/USD $12/mo). Post-checkout webhook upgrades the user tier in Supabase automatically.
-
-**Analytics and error tracking.** PostHog tracks activation events: signup, invoice created, invoice sent, invoice paid, upgrade, PDF downloaded. Sentry catches frontend errors in production.
-
-**Notifications.** A database webhook fires on every new user registration, sending an admin notification and a welcome email via Resend.
-
-**SEO.** Static HTML pages in `/public` for trade and service verticals. Sitemap at `/sitemap.xml`.
 
 ## Voice Parsing Pipeline
 
