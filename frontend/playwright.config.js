@@ -1,18 +1,5 @@
-/*
-  ══════════════════════════════════════════════════════════════════════════════
-  PLAYWRIGHT E2E CONFIGURATION
-  ══════════════════════════════════════════════════════════════════════════════
-
-  Runs against the local Vite dev server (port 5173).
-  Start the server first: npm run dev
-  Then run tests: npx playwright test
-
-  Or run both together: npx playwright test --ui  (starts server automatically
-  via webServer config below)
-  ══════════════════════════════════════════════════════════════════════════════
-*/
-
 import { defineConfig, devices } from "@playwright/test";
+import { AUTH_FILE } from "./src/__tests__/e2e/global-setup.js";
 
 export default defineConfig({
   testDir: "./src/__tests__/e2e",
@@ -20,12 +7,14 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 4 : 2,
+  timeout: 60000,
+
+  globalSetup: "./src/__tests__/e2e/global-setup.js",
+
   reporter: [
     ["html", { open: "never" }],
     ["allure-playwright"],
   ],
-
-  timeout: 60000,
 
   use: {
     baseURL: "http://localhost:5173",
@@ -34,13 +23,33 @@ export default defineConfig({
   },
 
   projects: [
+    // Public tests — no login needed
     {
-      name: "chromium",
+      name: "public",
+      testMatch: [
+        "**/accessibility.spec.js",
+        "**/landing.spec.js",
+        "**/auth.spec.js",
+      ],
       use: { ...devices["Desktop Chrome"] },
+    },
+
+    // Dashboard tests — reuse saved login session
+    {
+      name: "dashboard",
+      testMatch: [
+        "**/dashboard.spec.js",
+        "**/invoices.spec.js",
+        "**/billing.spec.js",
+        "**/profile.spec.js",
+      ],
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: AUTH_FILE,
+      },
     },
   ],
 
-  // Automatically start the Vite dev server before running tests
   webServer: {
     command: "npm run dev",
     url: "http://localhost:5173",

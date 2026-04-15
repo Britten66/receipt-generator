@@ -30,3 +30,5 @@ playwright-report
 test-results
 allure-results
 allure-report
+src/__tests__/e2e/.auth/user.json
+.env.test
