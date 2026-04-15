@@ -12,6 +12,10 @@ export default defineConfig({
     environment: "jsdom",  // needed to test document.documentElement.style
     globals: true,          // describe/it/expect without imports
     include: ["src/__tests__/**/*.test.{js,ts}"],
-    reporter: "verbose",    // show each test name in CI output
+    setupFiles: ["allure-vitest/setup"],
+    reporters: [
+      "verbose",
+      ["allure-vitest/reporter", { resultsDir: "./allure-results" }],
+    ],
   },
 });
