@@ -41,7 +41,7 @@ test.describe("Invoices", () => {
   });
 
   test("invoice list shows status filters", async ({ page }) => {
-    const sidebar = page.locator(".app-sidebar");
+    const sidebar = page.locator(".sidebar");
     await expect(sidebar).toBeVisible();
     // Status filters exist somewhere on page
     const filters = page.locator("button, [role='tab']").filter({ hasText: /paid|sent|draft/i });

@@ -31,13 +31,31 @@ export default async function globalSetup() {
   await page.getByRole("button", { name: /^sign in$/i }).click();
   await page.getByText("Welcome back").waitFor();
 
-  // Fill credentials
+  // Fill credentials and submit
   await page.fill("#auth-email",    email);
   await page.fill("#auth-password", password);
   await page.getByRole("button", { name: /^sign in$/i }).last().click();
 
-  // Wait for dashboard to load — sidebar is the signal
-  await page.locator(".app-sidebar").waitFor({ timeout: 15000 });
+  // Dismiss welcome modal if it appears (shows on first login)
+  try {
+    const welcome = page.locator(".welcome-modal, [class*='welcome']").first();
+    await welcome.waitFor({ timeout: 5000 });
+    await page.keyboard.press("Escape");
+  } catch {
+    // No welcome modal — continue
+  }
+
+  // Dismiss consent modal if it appears
+  try {
+    const consent = page.locator(".consent-modal, [class*='consent']").first();
+    await consent.waitFor({ timeout: 3000 });
+    await page.keyboard.press("Escape");
+  } catch {
+    // No consent modal — continue
+  }
+
+  // Wait for dashboard shell
+  await page.locator(".app-shell, .sidebar").first().waitFor({ timeout: 20000 });
 
   // Save session
   await page.context().storageState({ path: AUTH_FILE });

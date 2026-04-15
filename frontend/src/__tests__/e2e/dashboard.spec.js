@@ -16,7 +16,7 @@ test.describe("Dashboard", () => {
   });
 
   test("sidebar is visible after login", async ({ page }) => {
-    await expect(page.locator(".app-sidebar")).toBeVisible();
+    await expect(page.locator(".sidebar")).toBeVisible();
   });
 
   test("invoice list loads", async ({ page }) => {
@@ -34,7 +34,7 @@ test.describe("Dashboard", () => {
   });
 
   test("sidebar shows invoices nav link", async ({ page }) => {
-    await expect(page.locator(".app-sidebar")).toContainText(/invoice/i);
+    await expect(page.locator(".sidebar")).toContainText(/invoice/i);
   });
 
   test("page title is set", async ({ page }) => {
