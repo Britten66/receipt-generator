@@ -145,6 +145,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         </div>
       </nav>
 
+      <main>
       {/* 2 — Hero: hook + invoice preview */}
       <section className="lv2-hero">
         <div className="lv2-hero-text">
@@ -367,6 +368,8 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         <p className="lv2-final-cta-sub">Free forever. No credit card. Takes two minutes.</p>
         <button className="lv2-cta" onClick={onEnter}>Start Invoicing Free</button>
       </section>
+
+      </main>
 
       {/* Footer */}
       <footer className="lv2-footer">

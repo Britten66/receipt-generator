@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 import LegalModal from "../profile/LegalModal";
 import "./AuthPage.css";
@@ -32,6 +32,17 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
   const [honeypot, setHoneypot] = useState("");
 
   const [legal, setLegal] = useState(null); // "terms" | "privacy" | null
+  const emailRef = useRef(null);
+
+  // Close on Escape
+  useEffect(() => {
+    function onKey(e) { if (e.key === "Escape" && onClose) onClose(); }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  // Move focus into the modal on open
+  useEffect(() => { emailRef.current?.focus(); }, []);
 
   function switchMode(newMode) {
     setMode(newMode);
@@ -108,14 +119,14 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
   return (
     <>
       <div className="modal-backdrop auth-backdrop">
-        <div className="auth-card">
+        <div className="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-heading">
 
           {onBack && (
             <button className="auth-back-btn" onClick={onBack}>← Back</button>
           )}
 
           <div className="auth-brand">InvoicePrepper</div>
-          <div className="auth-heading">
+          <div id="auth-heading" className="auth-heading">
             {mode === "forgot" ? "Reset your password" : mode === "signup" ? "Create your account" : "Welcome back"}
           </div>
 
@@ -146,6 +157,7 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
             {/* Honeypot — visually hidden, bots fill it, real users never see it */}
             <div style={{ position: "absolute", left: "-9999px", top: "-9999px", opacity: 0, pointerEvents: "none" }} aria-hidden="true">
               <input
+                aria-hidden="true"
                 type="text"
                 name="website"
                 value={honeypot}
@@ -156,14 +168,14 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
             </div>
 
             <div className="field-group">
-              <label className="field-label">Email</label>
-              <input className="auth-field" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
+              <label className="field-label" htmlFor="auth-email">Email</label>
+              <input id="auth-email" className="auth-field" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required ref={emailRef} />
             </div>
 
             {mode !== "forgot" && (
               <div className="field-group">
-                <label className="field-label">Password</label>
-                <input className="auth-field" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <label className="field-label" htmlFor="auth-password">Password</label>
+                <input id="auth-password" className="auth-field" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 {mode === "signup" && password && (() => {
                   const s = checkPassword(password);
                   const color = s.level === "strong" ? "var(--paid)" : s.level === "good" ? "#7aab5a" : "var(--voided)";
@@ -187,8 +199,8 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
 
             {mode === "signup" && (
               <div className="field-group">
-                <label className="field-label">Confirm Password</label>
-                <input className="auth-field" type="password" placeholder="••••••••" value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
+                <label className="field-label" htmlFor="auth-confirm">Confirm Password</label>
+                <input id="auth-confirm" className="auth-field" type="password" placeholder="••••••••" value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
               </div>
             )}
 
