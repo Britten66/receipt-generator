@@ -14,7 +14,7 @@ Last updated: April 2026
 - [x] PostHog activation events: signup, invoice created, sent, paid, upgraded, PDF downloaded
 - [x] Consent modal: fires once for Google OAuth users, saves terms_agreed_at to profile, covers CASL
 - [x] Email signup form simplified: terms checkbox removed, handled by consent modal for all users
-- [x] PostHog identify now includes email so users are visible by name in PostHog
+- [x] PostHog identify sends user ID only — no PII (email removed Apr 2026)
 - [x] Changelog page rewritten as a plain developer changelog, not a marketing page
 - [ ] PostHog notifications: alert founder on first invoice created, pro wall hit, upgrade
 - [ ] Payment link field wired up: profile field, saved to Supabase, rendered in PDF and invoice detail
