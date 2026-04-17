@@ -85,6 +85,21 @@ Deno.serve(async (req) => {
       console.error("stripe-webhook: DB upsert failed (checkout)", error);
     } else {
       console.log(`stripe-webhook: tier set to '${tier}' for userId=${userId}`);
+
+      // Push notification — paying customer alarm
+      const ntfyTopic = Deno.env.get("NTFY_TOPIC");
+      if (ntfyTopic) {
+        fetch(`https://ntfy.sh/${ntfyTopic}`, {
+          method: "POST",
+          headers: {
+            "Title": "💰 Paying customer!",
+            "Priority": "urgent",
+            "Tags": "money_with_wings",
+          },
+          body: `${tier.toUpperCase()} plan activated`,
+        }).catch((e) => console.error("stripe-webhook: ntfy error", e));
+      }
+
       const ph = createPostHogClient();
       ph.identify({
         distinctId: userId,

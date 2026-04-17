@@ -135,6 +135,20 @@ Deno.serve(async (req) => {
       </div>
     </div>`;
 
+  // Push notification for new signup
+  const ntfyTopic = Deno.env.get("NTFY_TOPIC");
+  if (ntfyTopic) {
+    fetch(`https://ntfy.sh/${ntfyTopic}`, {
+      method: "POST",
+      headers: {
+        "Title": "New signup",
+        "Priority": "default",
+        "Tags": "wave",
+      },
+      body: email,
+    }).catch((e) => console.error("notify-signup: ntfy error", e));
+  }
+
   // Send both emails concurrently
   const sends: Promise<Response>[] = [
     fetch("https://api.resend.com/emails", {
