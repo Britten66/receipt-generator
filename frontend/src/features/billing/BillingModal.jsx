@@ -69,12 +69,7 @@ export default function BillingModal({ profile, onClose, onUpgrade }) {
 
         <div className="modal-header">
           <span className="modal-title">Billing</span>
-          <button
-            onClick={onClose}
-            style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 14, padding: 0, lineHeight: 1 }}
-          >
-            ✕
-          </button>
+          <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={onClose}>✕</button>
         </div>
 
         <div className="modal-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
