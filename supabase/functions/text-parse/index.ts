@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { createPostHogClient } from "../_shared/posthog.ts";
+import { createPostHogClient, isPostHogConfigured, safeShutdown } from "../_shared/posthog.ts";
 const DAILY_LIMIT = 20; // shared with voice-parse
 Deno.serve(async (req)=>{
   const origin = req.headers.get("Origin");
@@ -238,7 +238,7 @@ Examples:
       has_rag_context: ragContext.length > 0,
     },
   });
-  await ph.shutdown();
+  await safeShutdown(ph);
 
   return new Response(JSON.stringify({
     parsed

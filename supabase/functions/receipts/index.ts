@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { createPostHogClient } from "../_shared/posthog.ts";
+import { createPostHogClient, isPostHogConfigured, safeShutdown } from "../_shared/posthog.ts";
 
 const ALLOWED_FIELDS  = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency", "logo_url", "logo_corner"];
 const VALID_STATUSES  = new Set(["draft", "sent", "paid", "voided"]);
@@ -144,7 +144,7 @@ Deno.serve(async (req) => {
         line_item_count: raw_items.length,
       },
     });
-    await phCreate.shutdown();
+    await safeShutdown(phCreate);
 
     return new Response(JSON.stringify(receipt), { status: 201, headers: corsHeaders });
   }
@@ -217,7 +217,7 @@ Deno.serve(async (req) => {
         line_items_replaced: Array.isArray(body.line_items),
       },
     });
-    await phUpdate.shutdown();
+    await safeShutdown(phUpdate);
 
     return new Response(JSON.stringify(data), { headers: corsHeaders });
   }
@@ -243,7 +243,7 @@ Deno.serve(async (req) => {
       event: purge ? "invoice purged" : "invoice deleted",
       properties: { invoice_id: id },
     });
-    await phDelete.shutdown();
+    await safeShutdown(phDelete);
 
     return new Response(JSON.stringify({ message: purge ? "Purged" : "Deleted" }), { headers: corsHeaders });
   }

@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { createPostHogClient } from "../_shared/posthog.ts";
+import { createPostHogClient, isPostHogConfigured, safeShutdown } from "../_shared/posthog.ts";
 const MAX_AUDIO_BYTES = 10 * 1024 * 1024; // 10 MB cap
 const DAILY_LIMIT = 20; // max voice parses per user per day
 Deno.serve(async (req) => {
@@ -286,7 +286,7 @@ Examples:
       has_rag_context: ragContext.length > 0,
     },
   });
-  await ph.shutdown();
+  await safeShutdown(ph);
 
   return new Response(JSON.stringify({ transcript, parsed }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },

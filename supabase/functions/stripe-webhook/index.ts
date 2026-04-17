@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@14?target=deno";
-import { createPostHogClient } from "../_shared/posthog.ts";
+import { createPostHogClient, isPostHogConfigured, safeShutdown } from "../_shared/posthog.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2023-10-16",
@@ -99,7 +99,7 @@ Deno.serve(async (req) => {
           stripe_subscription_id: session.subscription as string,
         },
       });
-      await ph.shutdown();
+      await safeShutdown(ph);
     }
   }
 
@@ -170,7 +170,7 @@ Deno.serve(async (req) => {
           event: "subscription downgraded",
           properties: { stripe_subscription_id: sub.id },
         });
-        await ph.shutdown();
+        await safeShutdown(ph);
       }
     }
   }

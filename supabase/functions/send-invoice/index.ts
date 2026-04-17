@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { createPostHogClient } from "../_shared/posthog.ts";
+import { createPostHogClient, isPostHogConfigured, safeShutdown } from "../_shared/posthog.ts";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_BODY_BYTES  = 3 * 1024 * 1024; // 3 MB (covers PDF attachment)
 const MAX_PDF_BYTES   = 2 * 1024 * 1024; // 2 MB base64 ≈ ~1.5 MB PDF
@@ -169,7 +169,7 @@ Deno.serve(async (req) => {
       tier: profile?.tier ?? "free",
     },
   });
-  await ph.shutdown();
+  await safeShutdown(ph);
 
   return new Response(JSON.stringify({ ok: true }), { headers: corsHeaders });
 });
