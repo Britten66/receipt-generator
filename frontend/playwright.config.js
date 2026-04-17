@@ -30,6 +30,7 @@ export default defineConfig({
         "**/accessibility.spec.js",
         "**/landing.spec.js",
         "**/auth.spec.js",
+        "**/seo-pages.spec.js",
       ],
       use: { ...devices["Desktop Chrome"] },
     },

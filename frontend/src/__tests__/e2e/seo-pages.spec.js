@@ -22,30 +22,22 @@
 import { test, expect } from "@playwright/test";
 
 const SEO_PAGES = [
-  {
-    path: "/invoice-for-cleaners.html",
-    title: /invoice app for cleaning businesses/i,
-  },
-  {
-    path: "/invoice-for-electricians.html",
-    title: /invoice app for electricians/i,
-  },
-  {
-    path: "/invoice-for-landscapers.html",
-    title: /invoice app for landscapers/i,
-  },
-  {
-    path: "/invoice-for-painters.html",
-    title: /invoice app for painters/i,
-  },
-  {
-    path: "/invoice-for-plumbers.html",
-    title: /invoice app for plumbers/i,
-  },
-  {
-    path: "/invoice-for-tutors.html",
-    title: /invoice app for tutors/i,
-  },
+  { path: "/invoice-for-cleaners.html",         title: /invoice app for cleaning businesses/i },
+  { path: "/invoice-for-electricians.html",      title: /invoice app for electricians/i },
+  { path: "/invoice-for-landscapers.html",       title: /invoice app for landscapers/i },
+  { path: "/invoice-for-painters.html",          title: /invoice app for painters/i },
+  { path: "/invoice-for-plumbers.html",          title: /invoice app for plumbers/i },
+  { path: "/invoice-for-tutors.html",            title: /invoice app for tutors/i },
+  { path: "/invoice-for-contractors.html",       title: /invoice app for contractors/i },
+  { path: "/invoice-for-designers.html",         title: /invoice generator for designers/i },
+  { path: "/invoice-for-freelancers.html",       title: /invoice generator for freelancers/i },
+  { path: "/invoice-for-handymen.html",          title: /invoice app for handymen/i },
+  { path: "/invoice-for-personal-trainers.html", title: /invoice app for personal trainers/i },
+  { path: "/invoice-for-photographers.html",     title: /invoice app for photographers/i },
+  { path: "/free-invoice-generator.html",        title: /free invoice generator/i },
+  { path: "/how-to-invoice-clients.html",        title: /how to invoice clients/i },
+  { path: "/invoice-simple-alternative.html",    title: /invoice simple alternative/i },
+  { path: "/voice-invoicing.html",               title: /voice invoice generator/i },
 ];
 
 for (const { path, title } of SEO_PAGES) {
