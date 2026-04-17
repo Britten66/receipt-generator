@@ -135,50 +135,55 @@ Deno.serve(async (req) => {
       </div>
     </div>`;
 
-  // Send admin notification
-  const adminRes = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${resendKey}` },
-    body: JSON.stringify({ from: RESEND_FROM, to: notifyEmail, subject: `New signup: ${email}`, html: adminHtml }),
-  });
-  if (!adminRes.ok) {
-    const err = await adminRes.json().catch(() => ({}));
-    console.error("notify-signup: admin email error", JSON.stringify(err));
-  }
-
-  // Send welcome email to the new user (only if they have a real email)
-  if (email && email !== "unknown" && email.includes("@")) {
-    const welcomeRes = await fetch("https://api.resend.com/emails", {
+  // Send both emails concurrently
+  const sends: Promise<Response>[] = [
+    fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${resendKey}` },
-      body: JSON.stringify({
-        from: "InvoicePrepper <noreply@invoiceprepper.com>",
-        to: email,
-        subject: "Your InvoicePrepper account is ready",
-        html: welcomeHtml,
-      }),
-    });
-    if (!welcomeRes.ok) {
-      const err = await welcomeRes.json().catch(() => ({}));
-      console.error("notify-signup: welcome email error", JSON.stringify(err));
+      body: JSON.stringify({ from: RESEND_FROM, to: notifyEmail, subject: `New signup: ${email}`, html: adminHtml }),
+    }),
+  ];
+
+  if (email && email !== "unknown" && email.includes("@")) {
+    sends.push(
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${resendKey}` },
+        body: JSON.stringify({
+          from: "InvoicePrepper <noreply@invoiceprepper.com>",
+          to: email,
+          subject: "Your InvoicePrepper account is ready",
+          html: welcomeHtml,
+        }),
+      })
+    );
+  }
+
+  const results = await Promise.all(sends);
+  for (const res of results) {
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.error("notify-signup: email send error", JSON.stringify(err));
     }
   }
 
-  if (userId && userId !== "unknown") {
-    const ph = createPostHogClient();
-    ph.identify({
-      distinctId: userId,
-      properties: {
-        $set: { email, tier: "free" },
-        $set_once: { created_at: createdAt },
-      },
-    });
-    ph.capture({
-      distinctId: userId,
-      event: "user signed up",
-      properties: { email },
-    });
-    await ph.shutdown();
+  // PostHog — only if configured, never blocks the response
+  const phKey = Deno.env.get("POSTHOG_API_KEY");
+  if (phKey && userId && userId !== "unknown") {
+    try {
+      const ph = createPostHogClient();
+      ph.identify({
+        distinctId: userId,
+        properties: {
+          $set: { email, tier: "free" },
+          $set_once: { created_at: createdAt },
+        },
+      });
+      ph.capture({ distinctId: userId, event: "user signed up", properties: { email } });
+      await Promise.race([ph.shutdown(), new Promise((r) => setTimeout(r, 2000))]);
+    } catch (e) {
+      console.error("notify-signup: posthog error", e);
+    }
   }
 
   return new Response(JSON.stringify({ ok: true }), { status: 200 });
