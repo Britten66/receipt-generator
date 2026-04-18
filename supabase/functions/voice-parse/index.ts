@@ -32,14 +32,22 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Voice parsing requires the Voice tier." }), { status: 403, headers: corsHeaders });
   }
 
-  // Daily rate limit — skip for admin users listed in ADMIN_USER_IDS (comma-separated)
+  // Daily rate limit. Insert-then-count to bound concurrent abuse on the Groq bill.
+  // The prior check-then-insert pattern lets N parallel requests all read the same
+  // pre-increment count and pass. Insert first, then count; if the post-insert total
+  // exceeds DAILY_LIMIT, abort before calling Groq.
   const adminIds = (Deno.env.get("ADMIN_USER_IDS") ?? "").split(",").map(s => s.trim()).filter(Boolean);
   const isAdmin = adminIds.includes(user.id);
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   if (!isAdmin) {
+    const { error: insertError } = await supabase.from("voice_usage").insert({ user_id: user.id, date: today });
+    if (insertError) {
+      console.error("voice_usage insert failed:", insertError);
+      return new Response(JSON.stringify({ error: "Rate limit check failed" }), { status: 500, headers: corsHeaders });
+    }
     const { count } = await supabase.from("voice_usage").select("*", { count: "exact", head: true })
       .eq("user_id", user.id).eq("date", today);
-    if ((count ?? 0) >= DAILY_LIMIT) {
+    if ((count ?? 0) > DAILY_LIMIT) {
       return new Response(JSON.stringify({ error: "Daily voice parsing limit reached. Try again tomorrow." }), {
         status: 429,
         headers: corsHeaders,
@@ -273,9 +281,6 @@ Examples:
       headers: corsHeaders,
     });
   }
-
-  // Log usage for rate limiting (fire and forget)
-  supabase.from("voice_usage").insert({ user_id: user.id, date: today }).then(() => {});
 
   const ph = createPostHogClient();
   ph.capture({

@@ -3,6 +3,9 @@
 .claudeignore
 CLAUDE.md
 
+# Local security tooling (scan scripts, reports, hook installers). Never push.
+/security/
+
 # Editor
 .vscode/
 
@@ -20,6 +23,11 @@ docs/april-2-changes.md
 docs/api-queries.txt
 docs/landing-ai-section.jsx
 docs/*.png
+docs/legacy-backend/
+
+# macOS
+.DS_Store
+**/.DS_Store
 
 # Logs
 logs

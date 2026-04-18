@@ -44,16 +44,23 @@ Deno.serve(async (req)=>{
 
   if (!isAdmin) {
     if (tier === "pro") {
-      // Pro tier: 15 text parses per day, resets at midnight UTC
+      // Pro tier: 15 text parses per day, resets at midnight UTC.
+      // Insert-then-count to bound concurrent overshoot on the Groq bill.
+      // See send-invoice for the full rationale.
+      const { error: insertError } = await supabase.from("voice_usage").insert({ user_id: user.id, date: today });
+      if (insertError) {
+        console.error("voice_usage insert failed:", insertError);
+        return new Response(JSON.stringify({ error: "Rate limit check failed" }), { status: 500, headers: corsHeaders });
+      }
       const { count } = await supabase.from("voice_usage").select("*", { count: "exact", head: true })
         .eq("user_id", user.id).eq("date", today);
-      if ((count ?? 0) >= 15) {
+      if ((count ?? 0) > 15) {
         return new Response(JSON.stringify({
           error: "Daily AI limit reached. Try again tomorrow."
         }), { status: 429, headers: corsHeaders });
       }
     }
-    // Voice AI tier: unlimited text parsing
+    // Voice AI tier: unlimited text parsing, logged at the bottom for analytics
   }
   const groqKey = Deno.env.get("GROQ_API_KEY");
   if (!groqKey) return new Response(JSON.stringify({
@@ -223,11 +230,14 @@ Examples:
       headers: corsHeaders
     });
   }
-  // Log usage (fire and forget)
-  supabase.from("voice_usage").insert({
-    user_id: user.id,
-    date: today
-  }).then(()=>{});
+  // Log usage for Voice tier (Pro already inserted up front for the rate-limit check).
+  // Admins are never logged.
+  if (!isAdmin && tier !== "pro") {
+    supabase.from("voice_usage").insert({
+      user_id: user.id,
+      date: today
+    }).then(()=>{});
+  }
 
   const ph = createPostHogClient();
   ph.capture({

@@ -5,6 +5,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_BODY_BYTES  = 3 * 1024 * 1024; // 3 MB (covers PDF attachment)
 const MAX_PDF_BYTES   = 2 * 1024 * 1024; // 2 MB base64 ≈ ~1.5 MB PDF
 const MAX_FIELD_LEN   = 500;
+const DAILY_EMAIL_LIMIT = 50; // per-user daily cap; protects Resend bill + domain reputation
 
 function escapeHtml(str: unknown): string {
   if (str == null) return "";
@@ -37,6 +38,30 @@ Deno.serve(async (req) => {
   // Fetch tier + custom sender name — both used server-side, never trusted from client
   const { data: profile } = await supabase.from("profiles").select("tier, business_name").eq("user_id", user.id).single();
   const isPro = profile?.tier === "pro" || profile?.tier === "voice";
+
+  // Daily rate limit. Insert-then-count to bound concurrent abuse.
+  // The prior check-then-insert pattern lets N parallel requests all read the
+  // same pre-increment count and pass the check. Insert first, then count;
+  // if the post-insert total exceeds the limit, abort before Resend. Bounds
+  // the overshoot to roughly (limit + concurrency_window) instead of unlimited.
+  const adminIds = (Deno.env.get("ADMIN_USER_IDS") ?? "").split(",").map(s => s.trim()).filter(Boolean);
+  const isAdmin = adminIds.includes(user.id);
+  const today = new Date().toISOString().slice(0, 10);
+  if (!isAdmin) {
+    const { error: insertError } = await supabase.from("email_usage").insert({ user_id: user.id, date: today });
+    if (insertError) {
+      console.error("email_usage insert failed:", insertError);
+      return new Response(JSON.stringify({ error: "Rate limit check failed" }), { status: 500, headers: corsHeaders });
+    }
+    const { count } = await supabase.from("email_usage").select("*", { count: "exact", head: true })
+      .eq("user_id", user.id).eq("date", today);
+    if ((count ?? 0) > DAILY_EMAIL_LIMIT) {
+      return new Response(
+        JSON.stringify({ error: "Daily email limit reached. Resets at midnight UTC." }),
+        { status: 429, headers: corsHeaders }
+      );
+    }
+  }
 
   const {
     to, vendor_name, vendor_email, vendor_address,

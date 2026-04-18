@@ -75,7 +75,27 @@ This is the core technical piece of the Voice AI tier. No third-party voice-to-i
 5. The JSON maps directly onto the invoice form fields client-side
 6. The audio file is deleted from storage immediately after the parse response is returned — nothing is retained
 
-The same extraction logic runs for text input on desktop, minus the audio step. Rate limiting is enforced server-side per user per month using a counter in the profiles table.
+The same extraction logic runs for text input on desktop, minus the audio step. Rate limiting is enforced server-side per user per day, tracked in the voice_usage table. Voice parses cap at 20/day, text parses at 15/day for Pro tier (Voice tier is uncapped).
+
+## Security
+
+Defense in depth across the stack.
+
+**RLS on every public table.** Receipts, profiles, line_items, voice_usage, and email_usage are scoped to the authenticated user via `auth.uid()`. The anon role has no access to any public table.
+
+**Rate limits on every cost-bearing endpoint.** Send-invoice caps at 50 emails per user per day, voice-parse at 20, text-parse at 15 (Pro tier). All three use an insert-then-count pattern so concurrent requests cannot all pass the same pre-increment check. Admin user IDs bypass every limit via the `ADMIN_USER_IDS` env.
+
+**Supabase Storage hardened.** Logo paths in the public bucket are no longer enumerable by anon. Direct `getPublicUrl()` access still works for legitimate display.
+
+**Pinned search_path** on every function to block schema-injection privilege escalation in SECURITY DEFINER contexts.
+
+**Secret scanning.** Gitleaks runs as a pre-push git hook locally and as a CI job on every push and PR. Blocks accidental commits of API keys, tokens, and credentials.
+
+**Static analysis.** Semgrep runs in CI with the OWASP Top 10, JavaScript, React, and TypeScript rulesets. Findings fail the build.
+
+**Dependency audit.** `npm audit --audit-level=high` runs in CI and blocks on any high or critical CVE.
+
+Local scan tooling lives in `security/` (gitignored) and runs the full suite with `./security/scan-all.sh`. Reports are written to `security/reports/` and never leave the machine.
 
 ## CI Status
 
