@@ -25,6 +25,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://invoiceprepper.com/invoice-for-designers</loc>
+    <lastmod>2026-04-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://invoiceprepper.com/invoice-for-freelancers</loc>
     <lastmod>2026-04-09</lastmod>
     <changefreq>monthly</changefreq>

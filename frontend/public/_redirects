@@ -1,1 +1,6 @@
 https://www.invoiceprepper.com/* https://invoiceprepper.com/:splat 301!
+
+# SPA fallback. Anything not a static file falls through to the React app
+# at the root, which renders the landing page rather than returning a hard 404.
+# Cuts the Googlebot 4XX rate by handling typo URLs and stale-index URLs.
+/*  /index.html  200
