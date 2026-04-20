@@ -83,7 +83,3 @@ User invoice history (use for name/service recognition only):
 ---
 
 ## Notes / Future Prompt Ideas
-
-<!-- Add your own notes here -->
-<!-- e.g. "tested adding 'always capitalise proper nouns' — improved client name quality" -->
-<!-- e.g. "tried asking for due_date extraction — too unreliable, removed" -->
