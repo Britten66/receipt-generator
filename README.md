@@ -10,13 +10,14 @@ Live at [invoiceprepper.com](https://invoiceprepper.com)
 Built this solo from blank repo to production. Used Claude Code throughout for architecture decisions, test scaffolding, and debugging, but every line that ships I understood, reviewed, and owned. Frontend, backend, edge functions, CI pipeline, DNS, payments. Nothing copy-pasted and forgotten. LLM has been used for high level complex calls that otherwise could break live code, this is being learned from and adjusted as the project grows.
 
 
-### Test coverage
+## Test coverage
 
 Test coverage was treated as a primary deliverable. 
 Claude was used to generate test scaffolding at speed. This required active oversight. During this build, a ghost test was caught that was testing a locally defined copy of a component rather than the real code, passing silently while covering nothing. That's the real dynamic: AI-assisted test generation accelerates coverage but introduces its own class of errors.
 Every test was reviewed and the suite audited for exactly this problem.
 
 372 automated tests across business logic, API security, AI parsing, component behavior, and Playwright end-to-end flows.
+
 ---
 
 ## Stack
