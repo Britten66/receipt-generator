@@ -95,13 +95,10 @@ Deno.serve(async (req) => {
 
     const raw_items = Array.isArray(body.line_items) ? body.line_items.slice(0, MAX_LINE_ITEMS) : [];
 
-    // Global sequential receipt number — counts ALL receipts across all users
-    // so new users start at a high number, never revealing they're just starting out.
-    const { count: globalCount } = await supabase
-      .from("receipts")
-      .select("*", { count: "exact", head: true });
-    const nextNum = (globalCount ?? 0) + 1001; // floor at 1001 so no invoice ever reads INV-000001
-    const receipt_number = `INV-${String(nextNum).padStart(6, "0")}`;
+    // Per-user atomic invoice sequence — each user's invoices count independently.
+    // Floor of 1000 means first invoice = INV-001001, never revealing account age.
+    const { data: seqData } = await supabase.rpc("increment_invoice_seq", { uid: user.id });
+    const receipt_number = `INV-${String((seqData ?? 1) + 1000).padStart(6, "0")}`;
 
     const { data: receipt, error } = await supabase.from("receipts").insert({
       vendor_name, customer_name,
