@@ -1,65 +1,103 @@
 # Architecture Decisions
 
-Why things were built the way they were. Useful for interviews, onboarding, and revisiting choices later.
+---
+
+## Hosting: Cloudflare Pages
+
+**Tool:** Cloudflare Pages | **Features used:** `_headers`, `_redirects`, CDN, Pages deployment
+
+--
+
+Originally went with Vercel before the AI tier, this was the free plan and wanted to see how far scaling was possible, it turns out scaling never stops and just opens more holes for things to fall into, including myself
+
+this turned into the best turn around using Cloudflare Pages, getting the domain and email through Cloudflare was the best move for me at the time all within the same ballpark as any other front end hosting service out there.
 
 ---
 
-## Hosting — Cloudflare Pages over Vercel
+## Backend: Supabase
 
-Cloudflare Pages has zero cold starts on the CDN layer, a generous free tier, and native support for `_headers` and `_redirects` files which handle CSP and routing without a config file. Vercel is excellent but adds Next.js pressure and has a more complex pricing model at scale. Since the frontend is pure React with no SSR needs, Cloudflare was the simpler and faster choice.
+**Tool:** Supabase | **Features used:** Postgres, Row Level Security, Auth, Storage, Edge Functions (Deno), Webhooks
 
----
+--
 
-## Backend — Supabase Edge Functions over Firebase / AWS Lambda
-
-Supabase gives Postgres with row-level security, Auth, Storage, and Edge Functions in one platform with one dashboard. Firebase has no native Postgres and its security rules are harder to audit. AWS Lambda is more powerful but adds IAM complexity, cold starts, and billing unpredictability for a solo project. Supabase's Deno-based Edge Functions run close to the user and have no cold start penalty.
-
----
-
-## AI — Groq over OpenAI
-
-Groq inference is significantly faster than OpenAI for the same model family. For voice parsing, speed matters — the user is waiting with a microphone in hand. Groq's LLaMA 3.3 70B produces output quality comparable to GPT-4o-mini for structured extraction tasks at lower cost. OpenAI remains the fallback option if Groq has reliability issues.
+Supabase was a really cool move for this, other options have come across my desk over the months, I've been using JWT and Express for auth, when I saw Supabase handled the auth internally it was an extra bonus.
+Secure auth for users is the main play of this project. Using Google auth through Supabase helps users gain easy entry to our app.
 
 ---
 
-## PDF — jsPDF (client-side) over server-side generation
+## AI: Groq
 
-Generating PDFs in the browser eliminates a round-trip to the server, removes the need to transmit invoice data over the network for rendering, and keeps the invoice generation free regardless of volume. The tradeoff is limited layout control compared to HTML-to-PDF tools like Puppeteer. A migration to `@react-pdf/renderer` is planned to improve template flexibility.
+**Tool:** Groq | **Features used:** Whisper large-v3-turbo (transcription), LLaMA 3.3 70B (structured extraction)
 
----
+--
 
-## Auth — Supabase Auth over Auth0 / Clerk
-
-Auth0 and Clerk are excellent but add a third-party dependency for something Supabase handles natively and free. Since the entire backend already lives in Supabase, keeping auth there means one JWT, one dashboard, and no cross-service token exchange.
-
----
-
-## Email — Resend over SendGrid / Mailgun
-
-Resend has a clean API, excellent deliverability, and a developer-friendly free tier. SendGrid has a long history of spam reputation issues. Mailgun is strong but more complex to configure. Resend's React email templates are a future option for improving invoice email design.
+Groq is being used for voice and text parsing in this project
+new in this project, we are offering beta access and asking for feedback on the regular!
+Anything that could help out please don't hesitate to reach out, I'm constantly looking to explore options and RAG or continuous learning patterns would be great to explore.
 
 ---
 
-## Payments — Stripe over Paddle / LemonSqueezy
+## PDF: jsPDF (client-side)
 
-Stripe is the industry standard with the best documentation, widest payment method support, and most predictable behaviour. Paddle and LemonSqueezy handle tax compliance automatically (Merchant of Record model) which is appealing, but Stripe's ecosystem, webhook reliability, and Customer Portal are more mature. Tax compliance is handled manually for now.
+**Tool:** jsPDF | **Features used:** Client-side PDF generation, blob URLs, download
 
----
+--
 
-## Analytics — PostHog over Mixpanel / Amplitude
-
-PostHog is open source, self-hostable, privacy-first by default, and has a generous free tier. Mixpanel and Amplitude are strong but expensive at scale and require more careful PII handling. PostHog's feature flag system also handles the A/B test on the hero CTA without a separate tool.
-
----
-
-## Testing — Vitest over Jest
-
-Vitest is native to the Vite ecosystem, runs faster than Jest on Vite projects, and uses the same config file. No transform config needed for ESM. The switch would be painful if the project ever moved off Vite, but that's not planned.
+This was the base of the project, using inspirations from multiple softwares that incorporate PDF conversions.
+Some of the best over the line charging high end fees use this exact set up.
+Nothing fancy, just libraries.
 
 ---
 
-## Notes / Decisions to Revisit
+## Auth: Supabase Auth
 
-<!-- Add your own notes here -->
-<!-- e.g. "reconsidering jsPDF — react-pdf would make template changes much easier" -->
-<!-- e.g. "Groq rate limits hit during load test — may need OpenAI fallback" -->
+**Tool:** Supabase Auth | **Features used:** Email/password, Google OAuth, JWT, session management
+
+--
+
+This was explained earlier but I feel like I will expand on this as I get more familiar with auth and using Supabase.
+
+tbc
+
+---
+
+## Email: Resend
+
+**Tool:** Resend | **Features used:** Transactional email, REST API, domain verification
+
+--
+
+Resend is awesome and free, included a lot of options and custom themes for your email to user.
+Through Cloudflare Pages it makes it really easy to hook up the two and incorporate sending options to clients of the user.
+
+---
+
+## Payments: Stripe
+
+**Tool:** Stripe | **Features used:** Checkout Sessions, Customer Portal, Webhooks, subscription management
+
+--
+
+Safe net payment used by the majority of SaaS from what I can see. This was a no brainer.
+
+---
+
+## Analytics: PostHog
+
+**Tool:** PostHog | **Features used:** Event capture, user identify, feature flags
+
+--
+
+PostHog is also new to me but I'm enjoying the feedback, non-invasive and clear state.
+Biggest con is anyone with an adblocker bypasses so it is not 100% accurate.
+
+---
+
+## Testing: Vitest
+
+**Tool:** Vitest | **Features used:** jsdom, globals, Allure reporter, coverage
+
+--
+
+Easy state testing.
+E2E got moved to Playwright and uses automation testing through GitHub Actions and Allure!

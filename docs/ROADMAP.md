@@ -8,7 +8,7 @@ Last updated: April 2026
 ## NOW
 > Closing out current build. These are either live or shippable this week.
 
-- [x] 391 automated tests: unit, component, E2E
+- [x] 372 automated tests: unit, component, E2E
 - [x] CI pipeline blocks bad deploys
 - [x] Notify-signup email on new user registration
 - [x] PostHog activation events: signup, invoice created, sent, paid, upgraded, PDF downloaded
