@@ -7,25 +7,16 @@ Live at [invoiceprepper.com](https://invoiceprepper.com)
 ---
 
 ## How this was built
+Built this solo from blank repo to production. Used Claude Code throughout for architecture decisions, test scaffolding, and debugging, but every line that ships I understood, reviewed, and owned. Frontend, backend, edge functions, CI pipeline, DNS, payments. Nothing copy-pasted and forgotten. LLM has been used for high level complex calls that otherwise could break live code, this is being learned from and adjusted as the project grows.
 
-Built this solo from framework to production. Used an LLM to pressure test architecture decisions and get the structure to industry spec. Every line of implementation written, debugged, and shipped solo. Frontend, backend, edge functions, CI pipeline, DNS, and payments. Feature based structure, row level security on every table, rate limiting on AI endpoints, full test suite.
 
 ### Test coverage
 
-QA and test coverage were treated as a primary deliverable, not a post-launch afterthought. By leveraging AI to rapidly scale boilerplate test generation during feature builds, a robust, production-grade testing suite was implemented across 391 automated tests.
+Test coverage was treated as a primary deliverable. 
+Claude was used to generate test scaffolding at speed. This required active oversight. During this build, a ghost test was caught that was testing a locally defined copy of a component rather than the real code, passing silently while covering nothing. That's the real dynamic: AI-assisted test generation accelerates coverage but introduces its own class of errors.
+Every test was reviewed and the suite audited for exactly this problem.
 
-**Business logic.** Pure function coverage for all invoice math, tax calculations, currency formatting, and edge cases including zero quantities, floating point rounding, and large totals.
-
-**API and security.** Comprehensive coverage enforcing strict API behaviors, security boundaries, and complex authentication edge cases including JWT handling, rate limiting, webhook signature verification, and input sanitization.
-
-**AI parsing validation.** Dedicated test paths securing all AI data parsing logic against unpredictable outputs, malformed responses, and missing fields.
-
-**Component tests.** Full coverage of every modal, form, and key UI surface: tier gates, consent flows, billing states, status transitions, and callback wiring.
-
-**End-to-end tests.** Playwright tests running against real Chromium covering the full landing page funnel, auth modal flows, consent gate enforcement, and all SEO pages.
-
-**Continuous regression.** Every edge case discovered during debugging was immediately codified into an automated regression test, ensuring the same bug cannot reappear silently.
-
+372 automated tests across business logic, API security, AI parsing, component behavior, and Playwright end-to-end flows.
 ---
 
 ## Stack
@@ -33,7 +24,6 @@ QA and test coverage were treated as a primary deliverable, not a post-launch af
 React 19 + Vite on Cloudflare Pages. Supabase Edge Functions (Deno) for the API layer. PostgreSQL via Supabase with row-level security. Stripe for subscription billing. Resend for transactional email. Groq for voice and text AI parsing. jsPDF for client-side PDF generation. PostHog for product analytics. Sentry for error tracking.
 
 ## Structure
-
 ```
 frontend/
   src/
@@ -41,13 +31,12 @@ frontend/
     layout/         app shell, landing page, sidebar, topbar
     api/            fetch wrappers (receipts, profile, billing, AI)
     lib/            supabase client, themes, constants
-    __tests__/      391 tests: logic, API, security, components, E2E
+    __tests__/      372 tests: logic, API, security, components, E2E
 supabase/
   functions/        Edge functions: receipts, send-invoice, stripe-checkout,
                     voice-parse, text-parse, notify-signup, stripe-webhook
 docs/               System overview and architecture
 ```
-
 ## Setup
 
 Copy `frontend/.env.example` to `frontend/.env` and fill in your Supabase project URL and anon key. Set the remaining secrets in Supabase via `npx supabase secrets set`. Full list in `frontend/.env.example` and `docs/system-overview.md`.
