@@ -36,11 +36,11 @@ frontend/
 supabase/
   functions/        Edge functions: receipts, send-invoice, stripe-checkout,
                     voice-parse, text-parse, notify-signup, stripe-webhook
-docs/               System overview and architecture
+docs/               AI prompts
 ```
 ## Setup
 
-Copy `frontend/.env.example` to `frontend/.env` and fill in your Supabase project URL and anon key. Set the remaining secrets in Supabase via `npx supabase secrets set`. Full list in `frontend/.env.example` and `docs/system-overview.md`.
+Copy `frontend/.env` and fill in your Supabase project URL and anon key. Set the remaining secrets in Supabase via `npx supabase secrets set`.
 
 Run unit and component tests:
 
