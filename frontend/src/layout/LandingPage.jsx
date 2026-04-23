@@ -322,22 +322,22 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       {/* 8 — FAQ */}
       <section className="lv2-faq-editorial">
         <div className="lv2-faq-left">
-          <span className="lv2-faq-eyebrow">Common Questions</span>
+          <span className="lv2-steps-eyebrow">Common Questions</span>
           <h2 className="lv2-faq-headline">Simple answers.</h2>
           <p className="lv2-faq-tagline">Everything you need to know before you send your first invoice.</p>
         </div>
         <div className="lv2-faq-right">
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Is the free plan really free?</h3>
-            <p className="lv2-faq-a2">Yes, forever. No trial period, no credit card required. Create unlimited invoices, download PDFs, and track payment status at no cost.</p>
+            <p className="lv2-faq-a2">Yes, forever. No ads, no watermark, no credit card. Built to solve the pain points other tools create. Just invoices.</p>
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Can I download my invoices as PDFs?</h3>
-            <p className="lv2-faq-a2">Yes. Every invoice generates a clean PDF instantly, no watermark on any plan. Pro lets you add your business logo and email directly to clients.</p>
+            <p className="lv2-faq-a2">Yes, the second you hit generate. Built for convenience. And if something feels off, let us know at support@invoiceprepper.com, feedback helps us build better and smarter.</p>
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Can I email invoices directly to clients?</h3>
-            <p className="lv2-faq-a2">Yes, on the Pro plan. InvoicePrepper sends a professional email with the PDF attached. Free users can download and send manually.</p>
+            <p className="lv2-faq-a2">Pro users can send directly from the dashboard with their business name shown in the email. Free users can use the mobile share button to send via any app on their phone, same result, no cost.</p>
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">How do I track which invoices are paid?</h3>
@@ -349,7 +349,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Can I export my invoices?</h3>
-            <p className="lv2-faq-a2">Yes. Download all your invoices as a CSV from account settings. The file opens directly in Excel and Google Sheets with all line items included.</p>
+            <p className="lv2-faq-a2">Yes, on Pro and above. Download all your invoices as a CSV directly from your account settings. Opens in Excel and Google Sheets with all line items included.</p>
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Can I cancel anytime?</h3>
