@@ -322,7 +322,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       {/* 8 — FAQ */}
       <section className="lv2-faq-editorial">
         <div className="lv2-faq-left">
-          <span className="lv2-steps-eyebrow">Common Questions</span>
+          <span className="lv2-faq-eyebrow">Common Questions</span>
           <h2 className="lv2-faq-headline">Simple answers.</h2>
           <p className="lv2-faq-tagline">Everything you need to know before you send your first invoice.</p>
         </div>
