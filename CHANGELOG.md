@@ -71,7 +71,3 @@ Developer-facing log of significant changes. For the user-facing changelog see [
 - Cloudflare Pages deployment
 
 ---
-
-<!-- Add new entries at the top, not the bottom -->
-<!-- Format: ## MMM DD YYYY followed by bullet points -->
-<!-- Keep it developer-facing — what changed in the code, not marketing copy -->
