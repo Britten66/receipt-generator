@@ -26,10 +26,10 @@ test.describe("Billing", () => {
     await expect(page.locator(".modal")).toContainText(/free|pro|voice/i);
   });
 
-  test("billing modal closes with X button", async ({ page }) => {
+  test("billing modal closes on Escape", async ({ page }) => {
     await page.locator(".sidebar").getByText(/billing/i).click();
     await page.locator(".modal").waitFor();
-    await page.locator(".modal button.btn-ghost").first().click();
+    await page.keyboard.press("Escape");
     await expect(page.locator(".modal")).not.toBeVisible();
   });
 

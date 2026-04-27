@@ -21,8 +21,10 @@ import { uploadLogo } from "../../api/uploadLogo";
 import { deleteAccount } from "../../api/account";
 import { supabase } from "../../lib/supabase";
 import LegalModal from "./LegalModal";
+import { useModalEscape } from "../../lib/useModalEscape";
 
 export default function ProfileModal({ profile, userEmail, onSave, onClose, onUpgradeClick, onExport }) {
+  useModalEscape(onClose);
 
   /*
     form — the editable fields.
