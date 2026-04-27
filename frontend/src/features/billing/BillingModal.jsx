@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { cancelSubscription, openBillingPortal, fetchSubscriptionStatus } from "../../api/billing";
 import { FileText, Mail, Image, Mic, BarChart2, Link } from "lucide-react";
+import { useModalEscape } from "../../lib/useModalEscape";
 
 export default function BillingModal({ profile, onClose, onUpgrade }) {
+  useModalEscape(onClose);
   const [status,        setStatus]        = useState(null);  // null = loading
   const [statusErr,     setStatusErr]     = useState(null);
   const [cancelling,    setCancelling]    = useState(false);

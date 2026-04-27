@@ -27,10 +27,10 @@ test.describe("Profile", () => {
     await expect(page.locator(".modal .field").first()).toBeVisible();
   });
 
-  test("profile modal closes with X button", async ({ page }) => {
+  test("profile modal closes on Escape", async ({ page }) => {
     await page.locator(".sidebar .btn-ghost").first().click();
     await page.locator(".modal").waitFor();
-    await page.locator(".modal button.btn-ghost").first().click();
+    await page.keyboard.press("Escape");
     await expect(page.locator(".modal")).not.toBeVisible();
   });
 
