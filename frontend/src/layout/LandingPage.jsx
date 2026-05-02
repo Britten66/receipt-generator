@@ -380,7 +380,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           </div>
           <div className="lv2-footer-cols">
             <div className="lv2-footer-col">
-              <h4 className="lv2-footer-h">For</h4>
+              <h3 className="lv2-footer-h">For</h3>
               <a href="/invoice-for-freelancers" className="lv2-footer-link">Freelancers</a>
               <a href="/invoice-for-contractors" className="lv2-footer-link">Contractors</a>
               <a href="/invoice-for-designers" className="lv2-footer-link">Designers</a>
@@ -389,7 +389,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <a href="/invoice-for-personal-trainers" className="lv2-footer-link">Personal trainers</a>
             </div>
             <div className="lv2-footer-col">
-              <h4 className="lv2-footer-h">Trades</h4>
+              <h3 className="lv2-footer-h">Trades</h3>
               <a href="/invoice-for-cleaners" className="lv2-footer-link">Cleaners</a>
               <a href="/invoice-for-electricians" className="lv2-footer-link">Electricians</a>
               <a href="/invoice-for-plumbers" className="lv2-footer-link">Plumbers</a>
@@ -398,7 +398,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <a href="/invoice-for-handymen" className="lv2-footer-link">Handymen</a>
             </div>
             <div className="lv2-footer-col">
-              <h4 className="lv2-footer-h">Resources</h4>
+              <h3 className="lv2-footer-h">Resources</h3>
               <a href="/free-invoice-generator" className="lv2-footer-link">Free invoice generator</a>
               <a href="/voice-invoicing" className="lv2-footer-link">Voice invoicing</a>
               <a href="/how-to-invoice-clients" className="lv2-footer-link">How to invoice clients</a>
@@ -406,7 +406,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <a href="/blog" className="lv2-footer-link">Blog</a>
             </div>
             <div className="lv2-footer-col">
-              <h4 className="lv2-footer-h">Company</h4>
+              <h3 className="lv2-footer-h">Company</h3>
               <a href="/terms" className="lv2-footer-link">Terms</a>
               <a href="/privacy" className="lv2-footer-link">Privacy</a>
             </div>
