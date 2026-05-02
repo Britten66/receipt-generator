@@ -6,6 +6,9 @@ import './index.css'
 import App from './App.jsx'
 import AdminPage from './features/admin/AdminPage.jsx'
 import { AuthProvider } from './features/auth/AuthContext.jsx'
+import { captureRefFromUrl } from './api/referrals.js'
+
+captureRefFromUrl();
 
 // Sentry: only initialises when VITE_SENTRY_DSN is set (production).
 // In dev the DSN env var is absent so Sentry stays silent.

@@ -73,6 +73,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       customer_name: "",
       receipt_number: "",
       date: new Date().toISOString().split("T")[0], // today in YYYY-MM-DD format
+      due_by: "",                                   // optional, blank means no due date
       isTaxExempt: false,
       taxRate: String(DEFAULT_TAX_RATE * 100), // stored as percent string, e.g. "13" = 13%
       taxLabel: "Tax",                          // e.g. "GST", "VAT", "HST": user sets per invoice
@@ -335,6 +336,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       customer_name: initialData.customer_name || "",
       receipt_number: initialData.receipt_number || "",
       date: formattedDate,
+      due_by: initialData.due_by || "",
       isTaxExempt: wasTaxExempt,
       taxRate:  inferredRate,
       taxLabel: "Tax",
@@ -677,6 +679,36 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 type="date"
                 value={form.date}
                 onChange={(e) => setField("date", e.target.value)}
+              />
+            </div>
+            <div className="field-group">
+              <label className="field-label" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                <span>Due Date</span>
+                <label style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 400, textTransform: "none", letterSpacing: 0, color: "var(--text-muted)", cursor: "pointer" }}>
+                  <input
+                    type="checkbox"
+                    checked={!!form.due_by}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        // Default: 14 days from issue date
+                        const base = form.date ? new Date(form.date) : new Date();
+                        base.setDate(base.getDate() + 14);
+                        setField("due_by", base.toISOString().split("T")[0]);
+                      } else {
+                        setField("due_by", "");
+                      }
+                    }}
+                  />
+                  Set
+                </label>
+              </label>
+              <input
+                className="field"
+                type="date"
+                value={form.due_by}
+                onChange={(e) => setField("due_by", e.target.value)}
+                disabled={!form.due_by && !document.activeElement?.matches?.("input[type=checkbox]")}
+                style={!form.due_by ? { opacity: 0.5 } : undefined}
               />
             </div>
             <div className="field-group">

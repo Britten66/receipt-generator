@@ -106,6 +106,157 @@
 }
 .lv2-signin:hover { opacity: 0.8; }
 
+/* Referral promo: friendly modal shown once per session when ?ref= is detected */
+.lv2-ref-promo-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: lv2-ref-fade 0.18s ease-out;
+}
+@keyframes lv2-ref-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.lv2-ref-promo {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 36px 32px 28px;
+  font-family: var(--sans);
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  animation: lv2-ref-rise 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes lv2-ref-rise {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.lv2-ref-promo-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.lv2-ref-promo-close:hover {
+  color: var(--text);
+  border-color: var(--text);
+  background: var(--bg);
+}
+.lv2-ref-promo-eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.lv2-ref-promo-title {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 10px;
+  line-height: 1.25;
+}
+.lv2-ref-promo-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.lv2-ref-promo-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+.lv2-ref-promo-code-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.lv2-ref-promo-code-val {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text);
+}
+.lv2-ref-promo-cta {
+  display: block;
+  width: 100%;
+  background: var(--text);
+  color: var(--bg);
+  border: 1px solid var(--text);
+  padding: 14px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: opacity 0.12s;
+}
+.lv2-ref-promo-cta:hover { opacity: 0.85; }
+.lv2-ref-promo-skip {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 8px;
+}
+.lv2-ref-promo-skip:hover { color: var(--text-dim); }
+
+/* Referral banner: shown only when ?ref= captured a code into localStorage */
+.lv2-ref-banner {
+  background: var(--accent);
+  color: #ffffff;
+  text-align: center;
+  font-size: 13px;
+  padding: 10px 16px;
+  letter-spacing: 0.01em;
+}
+.lv2-ref-banner code {
+  font-family: var(--mono);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: rgba(0,0,0,0.18);
+  padding: 1px 6px;
+  margin: 0 4px;
+}
+[data-theme="dark"] .lv2-ref-banner {
+  background: var(--accent);
+  color: #1a1816;
+}
+
 /* ── HERO ── */
 .lv2-hero {
   display: grid;
@@ -1113,6 +1264,31 @@
 @media (max-width: 768px) {
   .landing-v2 {
     padding-top: 48px;
+  }
+
+  /* Outreach promo: shrink padding, tighten title on small screens. */
+  .lv2-ref-promo-backdrop {
+    padding: 16px;
+  }
+  .lv2-ref-promo {
+    padding: 28px 20px 22px;
+  }
+  .lv2-ref-promo-title {
+    font-size: 19px;
+  }
+  .lv2-ref-promo-sub {
+    font-size: 12px;
+  }
+  .lv2-ref-promo-code-val {
+    font-size: 15px;
+    letter-spacing: 0.08em;
+  }
+
+  /* Referral banner wraps cleanly on narrow screens */
+  .lv2-ref-banner {
+    font-size: 12px;
+    padding: 8px 14px;
+    line-height: 1.4;
   }
 
   .lv2-hero {

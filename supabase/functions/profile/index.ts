@@ -16,6 +16,21 @@ function safeUrl(val: unknown, maxLen = 500): string | null {
   return /^https?:\/\//i.test(s) ? s : null;
 }
 
+// If the user has an active referral grant and is on free, surface them as pro to the
+// frontend so feature gates work without a refactor. The real `tier` (Stripe-driven) is
+// returned as `stripe_tier` so the billing UI can still distinguish granted vs paid Pro.
+function applyGrantToTier(profile: Record<string, unknown>): Record<string, unknown> {
+  if (!profile || Object.keys(profile).length === 0) return profile;
+  const grantUntil = profile.pro_grant_until as string | null;
+  const grantActive = !!grantUntil && new Date(grantUntil).getTime() > Date.now();
+  const realTier = (profile.tier as string) ?? "free";
+  return {
+    ...profile,
+    stripe_tier: realTier,
+    tier: realTier === "free" && grantActive ? "pro" : realTier,
+  };
+}
+
 Deno.serve(async (req) => {
   const origin = req.headers.get("Origin");
   const corsHeaders = getCorsHeaders(origin);
@@ -40,14 +55,18 @@ Deno.serve(async (req) => {
 
   if (req.method === "GET") {
     const { data } = await supabase.from("profiles").select("*").eq("user_id", user.id).single();
-    if (data) return new Response(JSON.stringify(data), { headers: corsHeaders });
+    if (data) return new Response(JSON.stringify(applyGrantToTier(data)), { headers: corsHeaders });
 
-    // No profile yet: create a blank one on first login
+    // No profile yet: create a blank one on first login. Capture ?ref= from query string.
+    const url = new URL(req.url);
+    const refCode = url.searchParams.get("ref")?.trim().toUpperCase().slice(0, 8) || null;
+
     const { data: created } = await supabase.from("profiles").insert({
       user_id: user.id,
       tier: "free",
+      ...(refCode ? { referred_by_code: refCode } : {}),
     }).select().single();
-    return new Response(JSON.stringify(created ?? {}), { headers: corsHeaders });
+    return new Response(JSON.stringify(applyGrantToTier(created ?? {})), { headers: corsHeaders });
   }
 
   if (req.method === "PUT") {
@@ -76,7 +95,7 @@ Deno.serve(async (req) => {
     }, { onConflict: "user_id" }).select().single();
 
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
-    return new Response(JSON.stringify(data), { headers: corsHeaders });
+    return new Response(JSON.stringify(applyGrantToTier(data)), { headers: corsHeaders });
   }
 
   return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: corsHeaders });

@@ -1,11 +1,13 @@
 import { supabase } from "../lib/supabase";
 import { PALETTE_ENTRIES, PALETTE_KEYS } from "../lib/themes";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import NotificationsBell from "../features/notifications/NotificationsBell";
 
 export default function AppTopbar({
   darkMode, setDarkMode,
   profile, profileLoading,
   userEmail, avatarUrl,
+  receipts,
   currentPalette, paletteExpanded, setPaletteExpanded,
   setPalette,
   setShowPlansModal, setShowProfileModal,
@@ -81,8 +83,9 @@ export default function AppTopbar({
         {new Date().toLocaleDateString("en-CA", { weekday: "long", month: "short", day: "numeric" })}
       </div>
 
-      {/* Column 3: avatar dropdown */}
+      {/* Column 3: notifications + avatar dropdown */}
       <div className="topbar-right">
+        <NotificationsBell receipts={receipts} profile={profile} />
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <button

@@ -15,8 +15,9 @@
   After uploading, we store the public URL in form.logo_url, which gets saved to the database.
 */
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { saveProfile } from "../../api/profile";
+import { fetchReferralInfo, trackReferralCopied, trackReferralGrantSeen } from "../../api/referrals";
 import { uploadLogo } from "../../api/uploadLogo";
 import { deleteAccount } from "../../api/account";
 import { supabase } from "../../lib/supabase";
@@ -441,6 +442,9 @@ const [logoUploading,   setLogoUploading]   = useState(false);
             </div>
             {resetPasswordElement}
           </div>
+          {/* ---- Referral ---- */}
+          <ReferralBlock />
+
           {/* ---- Data (Pro+) ---- */}
           {(profile?.tier === "pro" || profile?.tier === "voice") && (
             <div style={{ marginTop: 20, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
@@ -496,6 +500,85 @@ const [logoUploading,   setLogoUploading]   = useState(false);
 
       {/* Show the legal modal (Terms or Privacy) when the user clicks one of the links above */}
       {legal && <LegalModal type={legal} onClose={() => setLegal(null)} />}
+    </div>
+  );
+}
+
+function ReferralBlock() {
+  const [info, setInfo] = useState(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    fetchReferralInfo().then((data) => {
+      if (data?.error) return;
+      setInfo(data);
+      const days = data.pro_grant_until
+        ? Math.max(0, Math.ceil((new Date(data.pro_grant_until) - new Date()) / (1000 * 60 * 60 * 24)))
+        : 0;
+      if (data.grant_active || data.friends_referred > 0) {
+        trackReferralGrantSeen(days, data.friends_referred);
+      }
+    });
+  }, []);
+
+  if (!info?.code) return null;
+
+  const monthsActive = info.pro_grant_until
+    ? Math.max(0, Math.ceil((new Date(info.pro_grant_until) - new Date()) / (1000 * 60 * 60 * 24)))
+    : 0;
+
+  const shareText = `Try InvoicePrepper. Use my code ${info.code} and you get 1 month of Pro free. ${info.share_url}`;
+
+  async function handleShare() {
+    // Use the OS share sheet when supported (mobile + some desktop browsers).
+    // Falls back to clipboard copy with toast feedback otherwise.
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: "InvoicePrepper",
+          text: shareText,
+          url: info.share_url,
+        });
+        trackReferralCopied(info.code);
+        return;
+      } catch {
+        // User cancelled the share sheet. Fall through to copy as a backup.
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(info.share_url);
+      setCopied(true);
+      trackReferralCopied(info.code);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard blocked (e.g. insecure context). Last resort: select the input.
+    }
+  }
+
+  return (
+    <div style={{ marginTop: 24, padding: "14px 16px", border: "1px solid var(--border)", background: "var(--surface-2)" }}>
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-dim)", marginBottom: 10 }}>
+        Refer a friend
+      </div>
+      <div style={{ fontSize: 12, color: "var(--text-dim)", lineHeight: 1.5, marginBottom: 14 }}>
+        Send your code to a friend. They sign up, make their first invoice, and you both get 1 month of Pro free.
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <code style={{ flex: 1, fontFamily: "var(--mono)", fontSize: 13, fontWeight: 600, padding: "10px 14px", background: "var(--bg)", border: "1px solid var(--border)", color: "var(--text)", letterSpacing: "0.1em", textAlign: "center" }}>
+          {info.code}
+        </code>
+        <button
+          className="btn btn-primary"
+          style={{ flexShrink: 0, fontSize: 11, padding: "10px 16px", letterSpacing: "0.04em" }}
+          onClick={handleShare}
+        >
+          {copied ? "Copied!" : "Share"}
+        </button>
+      </div>
+      <div style={{ fontSize: 10, color: "var(--text-muted)", lineHeight: 1.5 }}>
+        {info.friends_referred} friend{info.friends_referred === 1 ? "" : "s"} referred
+        {monthsActive > 0 ? ` · ${monthsActive} day${monthsActive === 1 ? "" : "s"} of Pro remaining` : ""}
+      </div>
     </div>
   );
 }

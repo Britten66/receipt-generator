@@ -21,7 +21,7 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
 
   return (
     <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" style={{ maxWidth: 600 }}>
+      <div className="modal plans-modal" style={{ maxWidth: 600 }}>
 
         <div className="modal-header">
           <span className="modal-title">{isProUser ? "Upgrade to Voice AI" : "Choose your plan"}</span>
@@ -29,7 +29,7 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
         </div>
 
         <div
-          className="modal-body"
+          className="modal-body plans-modal-body"
           style={{ display: "grid", gridTemplateColumns: isProUser ? "1fr" : "1fr 1fr", gap: 16, padding: 20 }}
         >
 
@@ -51,15 +51,13 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
                 <div className="plans-modal-name">Pro</div>
                 <div className="plans-modal-price">{currencyLabel} $9<span>/mo</span></div>
                 <ul className="plans-modal-features">
-                  <li className="plans-modal-includes">Includes Free Plan</li>
-                  <li>Email invoices directly to clients</li>
-                  <li>Share invoice PDF directly from your phone</li>
-                  <li>Your business name on every email</li>
-                  <li>Upload your logo to every PDF</li>
-                  <li>Send payment reminders for unpaid invoices</li>
-                  <li>Text AI parsing (15 per day)</li>
-                  <li>Dashboard themes</li>
-                  <li>CSV export of all invoices</li>
+                  <li className="plans-modal-includes">Everything in Free</li>
+                  <li>Email invoices straight to clients with your logo</li>
+                  <li>Text AI parsing: describe an invoice, the form fills itself (15 per day)</li>
+                  <li>Send payment reminders to clients who haven't paid</li>
+                  <li>No watermark on any PDF</li>
+                  <li>CSV export ready for your accountant</li>
+                  <li>Custom dashboard themes</li>
                 </ul>
                 <button className="plans-modal-btn plans-modal-btn-pro" onClick={onSelectPro}>
                   Get Pro
