@@ -176,6 +176,9 @@ body,
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--text-muted);
+  align-self: center;
+  text-align: center;
+  padding-top: env(safe-area-inset-top);
 }
 
 /* Dark mode toggle button: far left of the topbar */
@@ -377,6 +380,10 @@ body,
 
 /* Plans modal cards */
 /* Light mode: multiply so glow is visible on light surface (same fix as landing) */
+/* Plans modal: content fits, no scrollbars */
+.plans-modal { max-height: none; }
+.plans-modal-body { overflow: visible; }
+
 .plans-modal-glow > .edge-light { mix-blend-mode: multiply; }
 [data-theme="dark"] .plans-modal-glow > .edge-light { mix-blend-mode: plus-lighter; }
 

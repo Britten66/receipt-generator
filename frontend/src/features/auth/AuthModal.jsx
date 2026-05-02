@@ -30,6 +30,8 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
   const [loading, setLoading]   = useState(false);
   // Honeypot: bots autofill hidden fields, humans never see or touch this
   const [honeypot, setHoneypot] = useState("");
+  // Referral code: prefilled from localStorage if a ?ref=CODE link was used.
+  const [refCode, setRefCode]   = useState(() => (typeof localStorage !== "undefined" ? localStorage.getItem("pending_ref_code") || "" : ""));
 
   const [legal, setLegal] = useState(null); // "terms" | "privacy" | null
   const emailRef = useRef(null);
@@ -81,6 +83,10 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
     setLoading(true);
 
     if (mode === "signup") {
+      // Persist any typed referral code so fetchProfile can attach it on first call.
+      const cleanRef = refCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+      if (cleanRef) localStorage.setItem("pending_ref_code", cleanRef);
+
       const { error: err } = await supabase.auth.signUp({
         email,
         password,
@@ -201,6 +207,24 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
               <div className="field-group">
                 <label className="field-label" htmlFor="auth-confirm">Confirm Password</label>
                 <input id="auth-confirm" className="auth-field" type="password" placeholder="••••••••" value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
+              </div>
+            )}
+
+            {mode === "signup" && (
+              <div className="field-group">
+                <label className="field-label" htmlFor="auth-ref">Referral code <span style={{ fontWeight: 400, color: "var(--text-muted)" }}>(optional)</span></label>
+                <input
+                  id="auth-ref"
+                  className="auth-field"
+                  type="text"
+                  placeholder="ABC23XYZ"
+                  value={refCode}
+                  onChange={(e) => setRefCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8))}
+                  maxLength={8}
+                  autoCapitalize="characters"
+                  spellCheck={false}
+                />
+                {refCode && <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 6 }}>You and your friend each get 1 month of Pro free.</div>}
               </div>
             )}
 

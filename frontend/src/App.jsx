@@ -276,6 +276,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
         darkMode={darkMode} setDarkMode={setDarkMode}
         profile={profile} profileLoading={profileLoading}
         userEmail={userEmail} avatarUrl={avatarUrl}
+        receipts={receipts}
         currentPalette={currentPalette}
         paletteExpanded={paletteExpanded} setPaletteExpanded={setPaletteExpanded}
         setPalette={setPalette}

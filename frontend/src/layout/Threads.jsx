@@ -183,7 +183,23 @@ const Threads = ({ color = [1, 1, 1], amplitude = 1, distance = 0, enableMouseIn
       container.addEventListener('mouseleave', handleMouseLeave);
     }
 
+    // Visibility gate: only render when the canvas is on-screen and the tab is foreground.
+    // Major perf win on the landing where multiple animated panels exist.
+    let isVisible = true;
+    let isFocused = typeof document === 'undefined' || !document.hidden;
+    const io = new IntersectionObserver(
+      (entries) => { isVisible = entries[0]?.isIntersecting ?? true; },
+      { threshold: 0.01 },
+    );
+    io.observe(container);
+    function onVisibility() { isFocused = !document.hidden; }
+    document.addEventListener('visibilitychange', onVisibility);
+
     function update(t) {
+      if (!isVisible || !isFocused) {
+        animationFrameId.current = requestAnimationFrame(update);
+        return;
+      }
       if (enableMouseInteraction) {
         const smoothing = 0.05;
         currentMouse[0] += smoothing * (targetMouse[0] - currentMouse[0]);
@@ -205,6 +221,8 @@ const Threads = ({ color = [1, 1, 1], amplitude = 1, distance = 0, enableMouseIn
       programRef.current = null;
       if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
       window.removeEventListener('resize', resize);
+      io.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
 
       if (enableMouseInteraction) {
         container.removeEventListener('mousemove', handleMouseMove);

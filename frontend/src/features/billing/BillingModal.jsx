@@ -12,10 +12,13 @@ export default function BillingModal({ profile, onClose, onUpgrade }) {
   const [portalLoading, setPortalLoading] = useState(false);
   const [actionErr,     setActionErr]     = useState(null);
 
-  const isPaid = profile?.tier === "pro" || profile?.tier === "voice";
-  const tierLabel = profile?.tier === "voice" ? "Voice AI" : profile?.tier === "pro" ? "Pro" : "Free";
-  const tierPrice = profile?.tier === "voice" ? "CAD $12 / mo" : "CAD $9 / mo";
-  const tierColor = profile?.tier === "voice" ? "#4dd8e0" : "#6abf7b";
+  // Use stripe_tier here (not tier) because tier is now overlaid with referral grants.
+  // Billing UI must reflect the actual paying state, not the granted state.
+  const stripeTier = profile?.stripe_tier ?? profile?.tier ?? "free";
+  const isPaid = stripeTier === "pro" || stripeTier === "voice";
+  const tierLabel = stripeTier === "voice" ? "Voice AI" : stripeTier === "pro" ? "Pro" : "Free";
+  const tierPrice = stripeTier === "voice" ? "CAD $12 / mo" : "CAD $9 / mo";
+  const tierColor = stripeTier === "voice" ? "#4dd8e0" : "#6abf7b";
 
   // Fetch live subscription state from Stripe on open
   useEffect(() => {

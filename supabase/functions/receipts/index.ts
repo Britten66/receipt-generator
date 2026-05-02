@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { createPostHogClient, isPostHogConfigured, safeShutdown } from "../_shared/posthog.ts";
 
-const ALLOWED_FIELDS  = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency", "logo_url", "logo_corner"];
+const ALLOWED_FIELDS  = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency", "logo_url", "logo_corner", "reminder_at", "due_by"];
 const VALID_STATUSES  = new Set(["draft", "sent", "paid", "voided"]);
 const VALID_CORNERS   = new Set(["top-left", "top-right", "bottom-left", "bottom-right"]);
 const VALID_CURRENCIES = new Set(["CAD", "USD", "EUR", "GBP", "AUD", "NZD", "CHF", "JPY", "MXN", "SGD", "HKD", "INR"]);
@@ -88,6 +88,7 @@ Deno.serve(async (req) => {
     const logo_corner   = VALID_CORNERS.has(body.logo_corner) ? body.logo_corner : null;
     const logo_url      = str(body.logo_url, 500);
     const date          = typeof body.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.date) ? body.date : new Date().toISOString().split("T")[0];
+    const due_by        = typeof body.due_by === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.due_by) ? body.due_by : null;
 
     if (!vendor_name || !customer_name) {
       return new Response(JSON.stringify({ error: "Vendor name and customer name are required" }), { status: 400, headers: corsHeaders });
@@ -105,6 +106,7 @@ Deno.serve(async (req) => {
       receipt_number,
       status,
       date,
+      due_by,
       subtotal: num(body.subtotal),
       tax:      num(body.tax),
       total:    num(body.total),
@@ -171,6 +173,17 @@ Deno.serve(async (req) => {
       else if (key === "currency")    updates[key] = VALID_CURRENCIES.has(body[key])  ? body[key] : undefined;
       else if (key === "logo_corner") updates[key] = VALID_CORNERS.has(body[key])     ? body[key] : null;
       else if (key === "date")        updates[key] = /^\d{4}-\d{2}-\d{2}$/.test(body[key] ?? "") ? body[key] : undefined;
+      else if (key === "due_by") {
+        if (body[key] === null || body[key] === "") updates[key] = null;
+        else if (typeof body[key] === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body[key])) updates[key] = body[key];
+        else updates[key] = undefined;
+      }
+      else if (key === "reminder_at") {
+        // null clears the reminder; otherwise must parse to a valid future-tolerant timestamp
+        if (body[key] === null) updates[key] = null;
+        else if (typeof body[key] === "string" && !isNaN(Date.parse(body[key]))) updates[key] = body[key];
+        else updates[key] = undefined;
+      }
       else if (["subtotal","tax","total"].includes(key)) updates[key] = num(body[key]);
       else updates[key] = body[key];
       // Drop undefined values (invalid enum entries above)

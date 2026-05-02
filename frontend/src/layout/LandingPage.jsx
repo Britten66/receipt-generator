@@ -87,6 +87,23 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
   const [legal, setLegal] = useState(null);
   const [ctaVariant, setCtaVariant] = useState("control");
   const navRef = useRef(null);
+  const refCode = typeof localStorage !== "undefined" ? localStorage.getItem("pending_ref_code") : null;
+  const [showRefPromo, setShowRefPromo] = useState(false);
+
+  // Show the referral promo once per session when a code is pending.
+  // sessionStorage means it reappears on a new browser session but does not nag.
+  useEffect(() => {
+    if (!refCode) return;
+    if (typeof sessionStorage === "undefined") return;
+    if (sessionStorage.getItem("ref_promo_seen") === "1") return;
+    const t = setTimeout(() => setShowRefPromo(true), 600);
+    return () => clearTimeout(t);
+  }, [refCode]);
+
+  function dismissRefPromo() {
+    setShowRefPromo(false);
+    try { sessionStorage.setItem("ref_promo_seen", "1"); } catch { /* private mode */ }
+  }
 
   // A/B test: hero CTA copy. Flag key: landing-cta-copy
   // Variants: control ("Start Invoicing Free") vs first-invoice ("Create Your First Invoice")
@@ -146,6 +163,12 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       </nav>
 
       <main>
+      {refCode && (
+        <div className="lv2-ref-banner" role="status">
+          <span><strong>You've been invited.</strong> Sign up with code <code>{refCode}</code> to claim 1 month of Pro free.</span>
+        </div>
+      )}
+
       {/* 2: Hero: hook + invoice preview */}
       <section className="lv2-hero">
         <div className="lv2-hero-text">
@@ -269,15 +292,13 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <div className="lv2-plan-price">{currency || "CAD"} $9<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
               <ul className="lv2-plan-features">
-                <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Includes Free Plan</li>
-                <li>Email invoices directly to clients</li>
-                <li>Share invoice PDF directly from your phone</li>
-                <li>Your business name on every email</li>
-                <li>Upload your logo to every PDF</li>
-                <li>Send payment reminders for unpaid invoices</li>
-                <li>Text AI parsing (15 per day)</li>
-                <li>Customizable dashboard themes</li>
-                <li>CSV export of all invoices</li>
+                <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Everything in Free</li>
+                <li>Email invoices straight to clients with your logo</li>
+                <li>Text AI parsing: describe an invoice, the form fills itself (15 per day)</li>
+                <li>Send payment reminders to clients who haven't paid</li>
+                <li>No watermark on any PDF</li>
+                <li>CSV export ready for your accountant</li>
+                <li>Custom dashboard themes</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro}>Get Pro</button>
             </div>
@@ -419,6 +440,25 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       </footer>
 
       {legal && <LegalModal type={legal} onClose={() => setLegal(null)} />}
+
+      {showRefPromo && (
+        <div className="lv2-ref-promo-backdrop" onClick={dismissRefPromo} role="dialog" aria-modal="true" aria-labelledby="ref-promo-title">
+          <div className="lv2-ref-promo" onClick={(e) => e.stopPropagation()}>
+            <button className="lv2-ref-promo-close" onClick={dismissRefPromo} aria-label="Close promo">✕</button>
+            <div className="lv2-ref-promo-eyebrow">Outreach Promo</div>
+            <h2 id="ref-promo-title" className="lv2-ref-promo-title">Give the gift of Pro.</h2>
+            <p className="lv2-ref-promo-sub">A friend signs up, makes an invoice, and you both get a month of Pro free.</p>
+            <div className="lv2-ref-promo-code">
+              <span className="lv2-ref-promo-code-label">Your friend's code</span>
+              <span className="lv2-ref-promo-code-val">{refCode}</span>
+            </div>
+            <button className="lv2-ref-promo-cta" onClick={() => { dismissRefPromo(); onSignUp(); }}>
+              Claim my month
+            </button>
+            <button className="lv2-ref-promo-skip" onClick={dismissRefPromo}>Maybe later</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
