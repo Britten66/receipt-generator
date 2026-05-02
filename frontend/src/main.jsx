@@ -4,6 +4,7 @@ import posthog from 'posthog-js'
 import * as Sentry from '@sentry/react'
 import './index.css'
 import App from './App.jsx'
+import AdminPage from './features/admin/AdminPage.jsx'
 import { AuthProvider } from './features/auth/AuthContext.jsx'
 
 // Sentry: only initialises when VITE_SENTRY_DSN is set (production).
@@ -41,11 +42,13 @@ function ErrorFallback() {
   );
 }
 
+const isAdminRoute = window.location.pathname === '/admin';
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Sentry.ErrorBoundary fallback={<ErrorFallback />}>
       <AuthProvider>
-        <App />
+        {isAdminRoute ? <AdminPage /> : <App />}
       </AuthProvider>
     </Sentry.ErrorBoundary>
   </StrictMode>,
