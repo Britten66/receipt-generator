@@ -1,18 +1,18 @@
 /*
-  themes.js — palette system for InvoicePrepper
+  themes.js: palette system for InvoicePrepper
 
   Security: applyPalette() only accepts a key from PALETTE_KEYS.
-  Values are never taken from user input — everything comes from PALETTES below.
+  Values are never taken from user input: everything comes from PALETTES below.
   CSS vars are written via setProperty(); calling clearPalette() removes them so
   App.css :root / [data-theme="dark"] defaults take over.
 
-  Declaration order matters for Rollup's production build — it converts function
+  Declaration order matters for Rollup's production build: it converts function
   declarations to const assignments, so callee must come before caller.
   Order: PALETTE_KEYS → MANAGED_VARS → PALETTES → PALETTE_META → PALETTE_ENTRIES
        → clearPalette → applyPalette → readPaletteFromStorage
 */
 
-// Hardcoded allowlist — never computed from PALETTES to avoid init-order issues
+// Hardcoded allowlist: never computed from PALETTES to avoid init-order issues
 export const PALETTE_KEYS = new Set(["earth", "water", "fire", "forest", "dusk", "stone"]);
 
 // The CSS vars we manage. Any others are left alone (status colors, fonts, etc.)
@@ -24,7 +24,7 @@ const MANAGED_VARS = [
 ];
 
 const PALETTES = {
-  // Warm parchment — aged paper, ink, cognac accent
+  // Warm parchment: aged paper, ink, cognac accent
   earth: {
     light: {
       "--bg":           "#f0e8d8",
@@ -52,7 +52,7 @@ const PALETTES = {
     },
   },
 
-  // Deep navy — executive, legal, finance
+  // Deep navy: executive, legal, finance
   water: {
     light: {
       "--bg":           "#eef2f8",
@@ -80,7 +80,7 @@ const PALETTES = {
     },
   },
 
-  // Ember — warm charcoal, ember orange, not garish
+  // Ember: warm charcoal, ember orange, not garish
   fire: {
     light: {
       "--bg":           "#f2ece4",
@@ -108,7 +108,7 @@ const PALETTES = {
     },
   },
 
-  // Sage — muted botanical, linen white, dark green accent
+  // Sage: muted botanical, linen white, dark green accent
   forest: {
     light: {
       "--bg":           "#e8ede4",
@@ -136,7 +136,7 @@ const PALETTES = {
     },
   },
 
-  // Noir violet — luxury, deep plum, electric lavender
+  // Noir violet: luxury, deep plum, electric lavender
   dusk: {
     light: {
       "--bg":           "#ede8f6",
@@ -164,7 +164,7 @@ const PALETTES = {
     },
   },
 
-  // Graphite — cool slate, near-white, cobalt accent. Clean and modern.
+  // Graphite: cool slate, near-white, cobalt accent. Clean and modern.
   stone: {
     light: {
       "--bg":           "#eceef2",
@@ -193,7 +193,7 @@ const PALETTES = {
   },
 };
 
-// Derived from PALETTES — single source of truth for swatch display colors.
+// Derived from PALETTES: single source of truth for swatch display colors.
 // label is titleCase of the key; accent/bg come directly from the palette data.
 export const PALETTE_META = Object.fromEntries(
   Object.entries(PALETTES).map(([key, modes]) => [
@@ -208,7 +208,7 @@ export const PALETTE_META = Object.fromEntries(
   ])
 );
 
-// Precomputed — avoids creating a new array on every render that maps over palettes.
+// Precomputed: avoids creating a new array on every render that maps over palettes.
 export const PALETTE_ENTRIES = Object.entries(PALETTE_META);
 
 export function clearPalette() {

@@ -8,7 +8,7 @@
   ─────────────────
   This modal gates every Stripe checkout. If the Continue button fires without
   the checkbox checked, users could be sent to checkout without agreeing to
-  recurring billing terms — a legal and UX problem. These tests lock the
+  recurring billing terms: a legal and UX problem. These tests lock the
   consent gate and all callback wiring.
 
   WHAT WE VERIFY:
@@ -47,7 +47,7 @@ function renderModal({ tier = "pro", agreed = false } = {}) {
   return props;
 }
 
-describe("UpgradeConfirmModal — Pro tier copy", () => {
+describe("UpgradeConfirmModal: Pro tier copy", () => {
   it("shows 'Upgrade to Pro' in header", () => {
     renderModal({ tier: "pro" });
     expect(screen.getByText(/Upgrade to Pro/i)).toBeInTheDocument();
@@ -59,7 +59,7 @@ describe("UpgradeConfirmModal — Pro tier copy", () => {
   });
 });
 
-describe("UpgradeConfirmModal — Voice AI tier copy", () => {
+describe("UpgradeConfirmModal: Voice AI tier copy", () => {
   it("shows 'Upgrade to Voice AI' in header", () => {
     renderModal({ tier: "voice" });
     expect(screen.getByText(/Upgrade to Voice AI/i)).toBeInTheDocument();
@@ -71,7 +71,7 @@ describe("UpgradeConfirmModal — Voice AI tier copy", () => {
   });
 });
 
-describe("UpgradeConfirmModal — consent gate", () => {
+describe("UpgradeConfirmModal: consent gate", () => {
   it("Continue button is disabled when not agreed", () => {
     renderModal({ agreed: false });
     expect(screen.getByRole("button", { name: /continue to payment/i })).toBeDisabled();
@@ -93,7 +93,7 @@ describe("UpgradeConfirmModal — consent gate", () => {
   });
 });
 
-describe("UpgradeConfirmModal — callbacks", () => {
+describe("UpgradeConfirmModal: callbacks", () => {
   it("checkbox change calls onAgreeChange", () => {
     const { onAgreeChange } = renderModal({ agreed: false });
     fireEvent.click(screen.getByRole("checkbox"));

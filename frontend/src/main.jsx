@@ -21,7 +21,7 @@ posthog.init('phc_ymHXC8Q7wirEnDPba3k68eoLuipzCGYn6Q8UizA4uLFz', {
   api_host: 'https://us.i.posthog.com',
   capture_pageview: true,
   capture_pageleave: true,
-  // autocapture is off — invoice forms contain sensitive client/financial data
+  // autocapture is off: invoice forms contain sensitive client/financial data
   // that should never be sent to a third-party analytics service.
   autocapture: false,
   disable_session_recording: true,

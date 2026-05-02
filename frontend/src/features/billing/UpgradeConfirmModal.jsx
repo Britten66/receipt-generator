@@ -1,17 +1,17 @@
 /*
-  UpgradeConfirmModal.jsx — pre-checkout consent modal.
+  UpgradeConfirmModal.jsx: pre-checkout consent modal.
 
   Shown before redirecting to Stripe. The user must check a box
   acknowledging recurring billing before the "Continue to Payment" button
   is enabled. This satisfies legal/compliance expectations for subscription UX.
 
   Props:
-    targetTier    — "pro" | "voice" — drives the price copy and modal title
-    agreed        — boolean — whether the checkbox is checked
-    onAgreeChange — called with the checkbox event when user toggles the checkbox
-    onClose       — called when user dismisses without confirming
-    onConfirm     — called when user clicks "Continue to Payment" (checkbox must be checked)
-    onOpenLegal   — called with "terms" | "privacy" when user clicks those inline links
+    targetTier   : "pro" | "voice": drives the price copy and modal title
+    agreed       : boolean: whether the checkbox is checked
+    onAgreeChange: called with the checkbox event when user toggles the checkbox
+    onClose      : called when user dismisses without confirming
+    onConfirm    : called when user clicks "Continue to Payment" (checkbox must be checked)
+    onOpenLegal  : called with "terms" | "privacy" when user clicks those inline links
 */
 
 export default function UpgradeConfirmModal({ targetTier, agreed, onAgreeChange, onClose, onConfirm, onOpenLegal }) {

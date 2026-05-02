@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Payload too large" }), { status: 413, headers: corsHeaders });
   }
 
-  // Auth client — anon key + user JWT so auth.getUser() works correctly
+  // Auth client: anon key + user JWT so auth.getUser() works correctly
   const authClient = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
   }
 
-  // DB client — service role key bypasses RLS; ownership enforced by explicit .eq("user_id", user.id) on every query
+  // DB client: service role key bypasses RLS; ownership enforced by explicit .eq("user_id", user.id) on every query
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const queryId = url.searchParams.get("id");
 
-  // GET — list all or fetch one by id
+  // GET: list all or fetch one by id
   if (req.method === "GET") {
     if (queryId) {
       const { data: receipt, error } = await supabase
@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify(data), { headers: corsHeaders });
   }
 
-  // POST — create receipt + line items
+  // POST: create receipt + line items
   if (req.method === "POST") {
     const body = await req.json();
     const vendor_name   = str(body.vendor_name,   200);
@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
 
     const raw_items = Array.isArray(body.line_items) ? body.line_items.slice(0, MAX_LINE_ITEMS) : [];
 
-    // Per-user atomic invoice sequence — each user's invoices count independently.
+    // Per-user atomic invoice sequence: each user's invoices count independently.
     // Floor of 1000 means first invoice = INV-001001, never revealing account age.
     const { data: seqData } = await supabase.rpc("increment_invoice_seq", { uid: user.id });
     const receipt_number = `INV-${String((seqData ?? 1) + 1000).padStart(6, "0")}`;
@@ -146,7 +146,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify(receipt), { status: 201, headers: corsHeaders });
   }
 
-  // PATCH ?restore=1 — move invoice out of trash
+  // PATCH ?restore=1: move invoice out of trash
   if (req.method === "PATCH" && queryId && url.searchParams.get("restore") === "1") {
     const { error } = await supabase.from("receipts")
       .update({ deleted_at: null })
@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ message: "Restored" }), { headers: corsHeaders });
   }
 
-  // PATCH — update fields (whitelist enforced) + replace line items
+  // PATCH: update fields (whitelist enforced) + replace line items
   if (req.method === "PATCH" && queryId) {
     const body = await req.json();
     const id = queryId;
@@ -187,7 +187,7 @@ Deno.serve(async (req) => {
       .select().single();
     if (error || !data) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
 
-    // Replace line items if provided — delete old rows then insert fresh ones
+    // Replace line items if provided: delete old rows then insert fresh ones
     if (Array.isArray(body.line_items)) {
       await supabase.from("line_items").delete().eq("receipt_id", id);
       const raw_patch_items = body.line_items.slice(0, MAX_LINE_ITEMS);
@@ -219,7 +219,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify(data), { headers: corsHeaders });
   }
 
-  // DELETE — soft delete by default; ?purge=1 for permanent hard delete
+  // DELETE: soft delete by default; ?purge=1 for permanent hard delete
   if (req.method === "DELETE" && queryId) {
     const id = queryId;
     const purge = url.searchParams.get("purge") === "1";

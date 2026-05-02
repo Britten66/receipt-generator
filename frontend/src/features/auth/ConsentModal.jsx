@@ -8,8 +8,8 @@
   to the profile and the modal never appears again.
 
   Props:
-    onAccept — called after saving consent, closes the modal
-    onOpenLegal — called with "terms" or "privacy" to open the legal modal
+    onAccept: called after saving consent, closes the modal
+    onOpenLegal: called with "terms" or "privacy" to open the legal modal
 */
 
 import { useState } from "react";

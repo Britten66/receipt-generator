@@ -57,7 +57,7 @@ export default function InvoiceDetail({
             <div className="inv-doc-party" style={{ textAlign: "right" }}>
               <div className="inv-party-label">DATE</div>
               <div className="inv-party-name" style={{ fontFamily: "var(--mono)", fontSize: 11 }}>
-                {selectedReceipt.date ? new Date(selectedReceipt.date).toLocaleDateString("en-CA") : "—"}
+                {selectedReceipt.date ? new Date(selectedReceipt.date).toLocaleDateString("en-CA") : "-"}
               </div>
               <span className={`stamp ${selectedReceipt.status}`} style={{ marginTop: 6 }}>
                 {selectedReceipt.status}

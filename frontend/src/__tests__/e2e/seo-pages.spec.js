@@ -1,12 +1,12 @@
 /*
   ══════════════════════════════════════════════════════════════════════════════
-  E2E: SEO Static Pages — smoke tests
+  E2E: SEO Static Pages: smoke tests
   File: e2e/seo-pages.spec.js
   ══════════════════════════════════════════════════════════════════════════════
 
   WHY THIS MATTERS:
   ─────────────────
-  SEO pages are static HTML in /public — they're not part of the React build.
+  SEO pages are static HTML in /public: they're not part of the React build.
   If they 404, Google de-indexes them and we lose organic traffic for those
   keywords. These smoke tests verify each page loads with its expected
   h1 headline. A single broken page can silently kill keyword rankings.
@@ -49,7 +49,7 @@ for (const { path, title } of SEO_PAGES) {
 }
 
 test("Changelog page loads", async ({ page }) => {
-  // Use explicit path — /blog/ hits the React SPA in Vite dev server
+  // Use explicit path: /blog/ hits the React SPA in Vite dev server
   const response = await page.goto("/blog/index.html");
   expect(response.status()).toBe(200);
   await expect(page).toHaveTitle(/changelog/i);

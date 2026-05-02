@@ -1,6 +1,6 @@
 /*
   ══════════════════════════════════════════════════════════════════════════════
-  E2E: Accessibility — WCAG 2.1 AA + structural layout compliance
+  E2E: Accessibility: WCAG 2.1 AA + structural layout compliance
   File: e2e/accessibility.spec.js
   ══════════════════════════════════════════════════════════════════════════════
 
@@ -13,9 +13,9 @@
   WHAT WE VERIFY:
   ───────────────
   WCAG + BEST PRACTICE (axe-core):
-    1.  Landing page — no WCAG 2.1 AA or best-practice violations
-    2.  Sign in modal — no WCAG 2.1 AA or best-practice violations
-    3.  Sign up modal — no WCAG 2.1 AA or best-practice violations
+    1.  Landing page: no WCAG 2.1 AA or best-practice violations
+    2.  Sign in modal: no WCAG 2.1 AA or best-practice violations
+    3.  Sign up modal: no WCAG 2.1 AA or best-practice violations
 
   LAYOUT STRUCTURE (Playwright):
     4.  Page has exactly one <h1>
@@ -34,8 +34,8 @@
 
   WCAG LEVELS CHECKED:
   ────────────────────
-  wcag2a, wcag2aa — legal standard (AODA, ADA, EAA)
-  best-practice   — structural and semantic correctness
+  wcag2a, wcag2aa: legal standard (AODA, ADA, EAA)
+  best-practice  : structural and semantic correctness
   ══════════════════════════════════════════════════════════════════════════════
 */
 
@@ -54,7 +54,7 @@ async function finishAnimations(page) {
 
 // ─── WCAG + BEST PRACTICE ────────────────────────────────────────────────────
 
-test.describe("Accessibility — WCAG + best practice", () => {
+test.describe("Accessibility: WCAG + best practice", () => {
   test("landing page has no violations", async ({ page }) => {
     await page.goto("/");
     const results = await new AxeBuilder({ page })
@@ -90,10 +90,10 @@ test.describe("Accessibility — WCAG + best practice", () => {
 
 // ─── LAYOUT STRUCTURE ────────────────────────────────────────────────────────
 
-test.describe("Accessibility — Layout structure", () => {
+test.describe("Accessibility: Layout structure", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    // Wait for React to render — nav is the first landmark React produces
+    // Wait for React to render: nav is the first landmark React produces
     await page.locator("nav").first().waitFor({ timeout: 15000 });
   });
 
@@ -154,7 +154,7 @@ test.describe("Accessibility — Layout structure", () => {
   });
 });
 
-test.describe("Accessibility — Form labels", () => {
+test.describe("Accessibility: Form labels", () => {
   test("sign in form inputs all have labels", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
@@ -178,7 +178,7 @@ test.describe("Accessibility — Form labels", () => {
 
 // ─── KEYBOARD + INTERACTION ───────────────────────────────────────────────────
 
-test.describe("Accessibility — Keyboard interaction", () => {
+test.describe("Accessibility: Keyboard interaction", () => {
   test("Escape closes the sign in modal", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");

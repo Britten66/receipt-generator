@@ -23,7 +23,7 @@
   get their origin echoed back. Everything else gets the production URL,
   which the browser will reject for cross-origin requests.
 
-  Localhost entries are safe to include because CORS is browser-enforced —
+  Localhost entries are safe to include because CORS is browser-enforced -
   server-to-server requests (Stripe webhooks, Supabase internals) don't
   send an Origin header at all.
 
@@ -36,7 +36,7 @@
   2. Unknown / attacker origins receive the safe fallback (NOT the attacker origin)
   3. null origin (server-to-server, no browser) falls back safely
   4. The wildcard "*" is never returned under any input
-  5. The allowlist contains exactly the expected domains — no extras
+  5. The allowlist contains exactly the expected domains: no extras
   6. Required security headers are present on every response
   7. The Vary: Origin header is set (prevents CDN caching of wrong origin)
   ══════════════════════════════════════════════════════════════════════════════
@@ -69,7 +69,7 @@ function getCorsHeaders(origin) {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("CORS allowlist — production origins", () => {
+describe("CORS allowlist: production origins", () => {
   it("echoes back invoiceprepper.com", () => {
     const h = getCorsHeaders("https://invoiceprepper.com");
     expect(h["Access-Control-Allow-Origin"]).toBe("https://invoiceprepper.com");
@@ -81,7 +81,7 @@ describe("CORS allowlist — production origins", () => {
   });
 });
 
-describe("CORS allowlist — local dev origins", () => {
+describe("CORS allowlist: local dev origins", () => {
   it("echoes back localhost:5173 (Vite dev server)", () => {
     const h = getCorsHeaders("http://localhost:5173");
     expect(h["Access-Control-Allow-Origin"]).toBe("http://localhost:5173");
@@ -93,7 +93,7 @@ describe("CORS allowlist — local dev origins", () => {
   });
 });
 
-describe("CORS allowlist — rejected / attacker origins", () => {
+describe("CORS allowlist: rejected / attacker origins", () => {
   const ATTACKER_ORIGINS = [
     "https://evil.com",
     "https://invoiceprepper.com.evil.com",  // subdomain spoofing
@@ -124,7 +124,7 @@ describe("CORS allowlist — rejected / attacker origins", () => {
   );
 });
 
-describe("CORS — wildcard must never appear", () => {
+describe("CORS: wildcard must never appear", () => {
   const ALL_INPUTS = [
     "https://invoiceprepper.com",
     "https://evil.com",
@@ -143,7 +143,7 @@ describe("CORS — wildcard must never appear", () => {
   );
 });
 
-describe("CORS — null origin (server-to-server)", () => {
+describe("CORS: null origin (server-to-server)", () => {
   it("falls back safely when origin is null", () => {
     const h = getCorsHeaders(null);
     expect(h["Access-Control-Allow-Origin"]).toBe(SAFE_FALLBACK);
@@ -155,7 +155,7 @@ describe("CORS — null origin (server-to-server)", () => {
   });
 });
 
-describe("CORS — required security headers", () => {
+describe("CORS: required security headers", () => {
   it("always includes Vary: Origin to prevent CDN cache poisoning", () => {
     /*
       Without Vary: Origin, a CDN edge node might cache a response for
@@ -180,11 +180,11 @@ describe("CORS — required security headers", () => {
   });
 });
 
-describe("CORS — allowlist size (prevent silent additions)", () => {
+describe("CORS: allowlist size (prevent silent additions)", () => {
   it("contains exactly 4 allowed origins", () => {
     /*
       If someone adds a new origin to cors.ts, this test fails until
-      they also update this count — forcing a deliberate review.
+      they also update this count: forcing a deliberate review.
     */
     expect(ALLOWED_ORIGINS.size).toBe(4);
   });

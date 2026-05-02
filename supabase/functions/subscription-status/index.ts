@@ -1,5 +1,5 @@
 /*
-  subscription-status — returns current Stripe subscription state for the
+  subscription-status: returns current Stripe subscription state for the
   authenticated user, used by BillingModal to show next charge date.
 
   Returns: { current_period_end: "April 30, 2026", cancel_at_period_end: false, status: "active" }

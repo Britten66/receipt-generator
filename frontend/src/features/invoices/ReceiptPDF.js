@@ -1,13 +1,13 @@
 /*
-  ReceiptPDF.js — generates the PDF file for a receipt.
+  ReceiptPDF.js: generates the PDF file for a receipt.
 
   Uses two libraries:
-    jsPDF        — creates PDF documents in the browser (no server needed)
-    autoTable    — jsPDF plugin that draws formatted tables
+    jsPDF       : creates PDF documents in the browser (no server needed)
+    autoTable   : jsPDF plugin that draws formatted tables
 
   Two exported functions:
-    downloadReceiptPDF(receipt) — generates and immediately downloads the PDF
-    shareReceiptPDF(receipt)    — generates and opens the native share sheet (iOS/Android)
+    downloadReceiptPDF(receipt): generates and immediately downloads the PDF
+    shareReceiptPDF(receipt)   : generates and opens the native share sheet (iOS/Android)
                                   falls back to download if sharing is not supported
 
   The receipt object should have these fields:
@@ -36,14 +36,14 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 /*
-  loadImageAsDataUrl(url) — fetches an image from a URL and converts it to a base64 data URL.
+  loadImageAsDataUrl(url): fetches an image from a URL and converts it to a base64 data URL.
 
   jsPDF's addImage() function works best with base64 strings rather than URLs.
   We draw the image onto a hidden canvas element and then read the base64 data from it.
 
   Returns the base64 string on success, or null if the image fails to load.
   The crossOrigin = "anonymous" setting is required for images hosted on other domains
-  (like Supabase Storage) — without it, the canvas would be "tainted" and we couldn't
+  (like Supabase Storage): without it, the canvas would be "tainted" and we couldn't
   read the pixel data from it.
 */
 async function loadImageAsDataUrl(url) {
@@ -63,9 +63,9 @@ async function loadImageAsDataUrl(url) {
 }
 
 /*
-  buildDoc(receipt) — builds and returns a jsPDF document object.
+  buildDoc(receipt): builds and returns a jsPDF document object.
 
-  This is a private function — it is not exported.
+  This is a private function: it is not exported.
   downloadReceiptPDF and shareReceiptPDF both call this and then do
   different things with the result.
 
@@ -79,8 +79,8 @@ async function loadImageAsDataUrl(url) {
     after totals: notes (if any)
     284:   footer text at page bottom
 */
-// Format a number as currency with thousand separators — e.g. 43252345 → "$43,252,345.00"
-// currency param is the ISO code from profile (CAD, USD, etc.) — all use $ symbol
+// Format a number as currency with thousand separators: e.g. 43252345 → "$43,252,345.00"
+// currency param is the ISO code from profile (CAD, USD, etc.): all use $ symbol
 function fmtMoney(n, currency) {
   const symbol = (currency && currency !== "CAD" && currency !== "USD") ? (currency + " ") : "$";
   return symbol + parseFloat(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -132,14 +132,14 @@ async function buildDoc(receipt) {
     const logoX = corner === "top-right" ? pageW - m - logoW : m;
     doc.addImage(logoDataUrl, "PNG", logoX, 2, logoW, logoH);
   } else {
-    // No top logo — show "INVOICE" text in the header
+    // No top logo: show "INVOICE" text in the header
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(255, 255, 255);
     doc.text("INVOICE", m, 11);
   }
 
-  // Receipt number — swap to left side when logo occupies the top-right corner
+  // Receipt number: swap to left side when logo occupies the top-right corner
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(180, 175, 165);
@@ -149,7 +149,7 @@ async function buildDoc(receipt) {
     doc.text(`#${receipt.receipt_number}`, pageW - m, 11, { align: "right" });
   }
 
-  // Vendor name (the business issuing the receipt) — shown below the header on the left
+  // Vendor name (the business issuing the receipt): shown below the header on the left
   if (receipt.vendor_name) {
     doc.setFontSize(13);
     doc.setFont("helvetica", "bold");
@@ -157,7 +157,7 @@ async function buildDoc(receipt) {
     doc.text(receipt.vendor_name, m, 32);
   }
 
-  // Customer name (the client being billed) — shown on the right side
+  // Customer name (the client being billed): shown on the right side
   if (receipt.customer_name) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
@@ -168,7 +168,7 @@ async function buildDoc(receipt) {
     doc.text(receipt.customer_name, pageW - m - 60, 32);
   }
 
-  // Date and status line — shown below the names
+  // Date and status line: shown below the names
   const metaY = 40; // Y position in mm from top of page
   doc.setFontSize(8);
   doc.setTextColor(100, 96, 90);
@@ -179,7 +179,7 @@ async function buildDoc(receipt) {
     doc.text(`Date: ${formattedDate}`, m, metaY);
     doc.text(`Status: ${receipt.status.toUpperCase()}`, m + 50, metaY);
   } else {
-    // No date — just show the status
+    // No date: just show the status
     doc.text(`Status: ${receipt.status.toUpperCase()}`, m, metaY);
   }
 
@@ -193,13 +193,13 @@ async function buildDoc(receipt) {
   let tableRows;
   if (receipt.line_items && receipt.line_items.length > 0) {
     tableRows = receipt.line_items.map((item) => [
-      item.description || "—",
+      item.description || "-",
       String(item.quantity),
       fmtMoney(item.unit_price, receipt.currency),
       fmtMoney(item.total, receipt.currency),
     ]);
   } else {
-    // No line items — show a placeholder row so the table isn't empty
+    // No line items: show a placeholder row so the table isn't empty
     tableRows = [["No line items", "", "", ""]];
   }
 
@@ -222,10 +222,10 @@ async function buildDoc(receipt) {
       cellPadding: { top: 3, bottom: 3, left: 2, right: 3 },
     },
     columnStyles: {
-      0: { cellWidth: "auto", halign: "left" },  // description — takes remaining space
-      1: { halign: "right", cellWidth: 16 },      // qty — small, just needs 1–999
-      2: { halign: "right", cellWidth: 38 },      // unit price — fits $231,876.00
-      3: { halign: "right", cellWidth: 38 },      // total — same width as unit price
+      0: { cellWidth: "auto", halign: "left" },  // description: takes remaining space
+      1: { halign: "right", cellWidth: 16 },      // qty: small, just needs 1–999
+      2: { halign: "right", cellWidth: 38 },      // unit price: fits $231,876.00
+      3: { halign: "right", cellWidth: 38 },      // total: same width as unit price
     },
     // Right-align the header labels for numeric columns to match body alignment
     didParseCell(data) {
@@ -238,7 +238,7 @@ async function buildDoc(receipt) {
     tableLineWidth: 0.2,
   });
 
-  // Y position to start drawing the totals block — just below where the table ended
+  // Y position to start drawing the totals block: just below where the table ended
   const afterTableY = doc.lastAutoTable.finalY + 6;
 
   // Parse the totals from the receipt (they may come as strings from the database)
@@ -292,7 +292,7 @@ async function buildDoc(receipt) {
     doc.text(value, valueCol, rowY, { align: "right" });
   });
 
-  // Notes section — only rendered if the receipt has notes
+  // Notes section: only rendered if the receipt has notes
   if (receipt.notes && receipt.notes.trim()) {
     const notesY = afterTableY + 8 + totalRows.length * 8 + 10;
     doc.setFont("helvetica", "normal");
@@ -318,7 +318,7 @@ async function buildDoc(receipt) {
 }
 
 /*
-  buildPDFBase64(receipt) — generates the PDF and returns it as a base64 string.
+  buildPDFBase64(receipt): generates the PDF and returns it as a base64 string.
   Used when attaching the PDF to an outgoing email via Resend.
 */
 export async function buildPDFBase64(receipt) {
@@ -330,7 +330,7 @@ export async function buildPDFBase64(receipt) {
 }
 
 /*
-  downloadReceiptPDF(receipt) — generates the PDF and triggers a file download.
+  downloadReceiptPDF(receipt): generates the PDF and triggers a file download.
   The file is named "receipt-REC-000001.pdf" using the receipt number.
 */
 export async function downloadReceiptPDF(receipt) {
@@ -339,7 +339,7 @@ export async function downloadReceiptPDF(receipt) {
 }
 
 /*
-  getPDFBlobUrl(receipt) — builds the PDF and returns a blob: URL.
+  getPDFBlobUrl(receipt): builds the PDF and returns a blob: URL.
   Caller is responsible for revoking via URL.revokeObjectURL when done.
 */
 export async function getPDFBlobUrl(receipt) {
@@ -348,8 +348,8 @@ export async function getPDFBlobUrl(receipt) {
 }
 
 /*
-  previewReceiptPDF(receipt) — opens the PDF in a new browser tab.
-  Uses the browser's built-in PDF viewer — no download triggered.
+  previewReceiptPDF(receipt): opens the PDF in a new browser tab.
+  Uses the browser's built-in PDF viewer: no download triggered.
   Only use on desktop; on mobile/PWA use getPDFBlobUrl + in-app overlay.
 */
 export async function previewReceiptPDF(receipt) {
@@ -358,7 +358,7 @@ export async function previewReceiptPDF(receipt) {
 }
 
 /*
-  shareReceiptPDF(receipt) — generates the PDF and opens the native share sheet.
+  shareReceiptPDF(receipt): generates the PDF and opens the native share sheet.
 
   The Web Share API (navigator.share) is available on iOS Safari and Android Chrome.
   It opens the system share sheet so the user can share the PDF via Messages, email,
@@ -372,7 +372,7 @@ export async function shareReceiptPDF(receipt) {
   const doc = await buildDoc(receipt);
 
   // Convert the PDF to a binary Blob, then wrap it in a File object
-  // File is like Blob but with a name and MIME type — required for navigator.share
+  // File is like Blob but with a name and MIME type: required for navigator.share
   const blob = doc.output("blob");
   const file = new File(
     [blob],

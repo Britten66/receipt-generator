@@ -4,9 +4,9 @@ import LegalModal from "../profile/LegalModal";
 import "./AuthPage.css";
 
 /*
-  checkPassword — validates password strength.
+  checkPassword: validates password strength.
   Rules: 8+ characters AND at least one number or special character.
-  Returns { ok, level, msg } — ok=false blocks form submission.
+  Returns { ok, level, msg }: ok=false blocks form submission.
 */
 function checkPassword(pw) {
   if (!pw) return null;
@@ -64,7 +64,7 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
     setMessage("");
 
     if (mode === "signup") {
-      // Bot check: honeypot field must be empty — bots fill it, humans never see it
+      // Bot check: honeypot field must be empty: bots fill it, humans never see it
       if (honeypot) return;
 
       const pwCheck = checkPassword(password);
@@ -154,7 +154,7 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
           )}
 
           <form className="auth-form" onSubmit={handleSubmit}>
-            {/* Honeypot — visually hidden, bots fill it, real users never see it */}
+            {/* Honeypot: visually hidden, bots fill it, real users never see it */}
             <div style={{ position: "absolute", left: "-9999px", top: "-9999px", opacity: 0, pointerEvents: "none" }} aria-hidden="true">
               <input
                 aria-hidden="true"

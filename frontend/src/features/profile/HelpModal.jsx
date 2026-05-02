@@ -5,7 +5,7 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
   /*
     pos starts as null so the window renders centred via CSS transform.
     The moment the user drags it, we switch to explicit pixel coords and
-    drop the transform — otherwise the transform origin fights the drag math.
+    drop the transform: otherwise the transform origin fights the drag math.
   */
   const [pos, setPos]             = useState(null);
   const [minimized, setMinimized] = useState(false);
@@ -14,7 +14,7 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
 
   /*
     dragging is a ref, not state, intentionally.
-    We don't want a re-render every time the flag flips — we just need
+    We don't want a re-render every time the flag flips: we just need
     the mousemove handler to be able to read it synchronously without
     going stale inside the event listener closure.
   */
@@ -24,7 +24,7 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
     dragStart captures the window's top-left corner at the moment the
     user pressed down, plus where the mouse was at that same moment.
     We compute the delta on every mousemove and add it to the original
-    corner position — this way the window doesn't "jump" to the cursor.
+    corner position: this way the window doesn't "jump" to the cursor.
   */
   const dragStart = useRef({ mouseX: 0, mouseY: 0, winX: 0, winY: 0 });
 
@@ -52,7 +52,7 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
 
     /*
       mouseup on the window (not just the modal) so releasing the mouse
-      anywhere on screen always stops the drag — not just if you release
+      anywhere on screen always stops the drag: not just if you release
       while hovering over the window itself.
     */
     function onMouseUp() { dragging.current = false; }
@@ -63,7 +63,7 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup",   onMouseUp);
     };
-  }, []); // empty — dragStart and setPos are both stable references
+  }, []); // empty: dragStart and setPos are both stable references
 
   /*
     When pos is null we rely on CSS (left: 50%, transform: translate(-50%,-50%))
@@ -85,7 +85,7 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
 
       {/*
         resize: both (set in CSS on .win-modal) gives us the native browser
-        resize handle in the bottom-right corner for free — no JS needed.
+        resize handle in the bottom-right corner for free: no JS needed.
         The window needs overflow: hidden so the content clips during resize
         and the body's overflow: auto handles internal scrolling.
       */}
@@ -171,7 +171,7 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
           </div>
         )}
 
-        {/* Decorative grip dots — the actual resize is handled by CSS, this just signals to the user that the corner is draggable */}
+        {/* Decorative grip dots: the actual resize is handled by CSS, this just signals to the user that the corner is draggable */}
         {!minimized && <div className="win-resize-grip" />}
 
       </div>

@@ -38,7 +38,7 @@
   7.  Empty / missing items treated as 0, not NaN
   8.  Tax rounding edge cases (fractional cents)
   9.  fmtMoney formats correctly for standard and edge case values
-  10. Tax back-calculation on edit — infers rate from saved tax/subtotal
+  10. Tax back-calculation on edit: infers rate from saved tax/subtotal
   11. Tax back-calculation with zero subtotal (division by zero guard)
   12. Multiple line items accumulate correctly
   ══════════════════════════════════════════════════════════════════════════════
@@ -87,7 +87,7 @@ function fmtMoney(n) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("calcSubtotal — line item sum", () => {
+describe("calcSubtotal: line item sum", () => {
   it("sums a single line item", () => {
     expect(calcSubtotal([{ total: "100.00" }])).toBe(100);
   });
@@ -119,7 +119,7 @@ describe("calcSubtotal — line item sum", () => {
   });
 });
 
-describe("calcTax — tax calculation", () => {
+describe("calcTax: tax calculation", () => {
   it("calculates 13% HST correctly", () => {
     expect(calcTax(100, "13", false)).toBeCloseTo(13, 2);
   });
@@ -149,7 +149,7 @@ describe("calcTax — tax calculation", () => {
   });
 });
 
-describe("calcTotal — grand total", () => {
+describe("calcTotal: grand total", () => {
   it("total = subtotal + tax", () => {
     expect(calcTotal(100, 13)).toBe(113);
   });
@@ -166,7 +166,7 @@ describe("calcTotal — grand total", () => {
   });
 });
 
-describe("calcRowTotal — qty × unit price", () => {
+describe("calcRowTotal: qty × unit price", () => {
   it("1 × $100 = $100.00", () => {
     expect(calcRowTotal("1", "100")).toBe("100.00");
   });
@@ -201,7 +201,7 @@ describe("calcRowTotal — qty × unit price", () => {
   });
 });
 
-describe("inferTaxRate — back-calculate rate on edit", () => {
+describe("inferTaxRate: back-calculate rate on edit", () => {
   it("infers 13% from $13 tax on $100 subtotal", () => {
     expect(inferTaxRate(13, 100)).toBe("13");
   });
@@ -218,7 +218,7 @@ describe("inferTaxRate — back-calculate rate on edit", () => {
     expect(inferTaxRate(0, 100)).toBe("0");
   });
 
-  it("returns '0' when subtotal is 0 — no division by zero", () => {
+  it("returns '0' when subtotal is 0: no division by zero", () => {
     expect(inferTaxRate(0, 0)).toBe("0");
   });
 
@@ -233,7 +233,7 @@ describe("inferTaxRate — back-calculate rate on edit", () => {
   });
 });
 
-describe("fmtMoney — currency formatting", () => {
+describe("fmtMoney: currency formatting", () => {
   it("formats a whole number", () => {
     expect(fmtMoney(100)).toBe("$100.00");
   });
@@ -267,7 +267,7 @@ describe("fmtMoney — currency formatting", () => {
   });
 });
 
-describe("full invoice calculation — end to end", () => {
+describe("full invoice calculation: end to end", () => {
   it("two line items + 13% HST = correct totals", () => {
     const items = [
       { total: "1200.00" },
@@ -282,7 +282,7 @@ describe("full invoice calculation — end to end", () => {
     expect(total).toBeCloseTo(1966.2, 2);
   });
 
-  it("tax exempt invoice — tax is always 0 regardless of rate", () => {
+  it("tax exempt invoice: tax is always 0 regardless of rate", () => {
     const items = [{ total: "500.00" }, { total: "250.00" }];
     const subtotal = calcSubtotal(items);
     const tax      = calcTax(subtotal, "15", true);

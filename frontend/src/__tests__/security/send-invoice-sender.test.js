@@ -1,6 +1,6 @@
 /*
   ══════════════════════════════════════════════════════════════════════════════
-  SECURITY TEST: Send Invoice — Sender Name, Tier Gate, Currency Fallback
+  SECURITY TEST: Send Invoice: Sender Name, Tier Gate, Currency Fallback
   File: security/send-invoice-sender.test.js
   ══════════════════════════════════════════════════════════════════════════════
 
@@ -11,7 +11,7 @@
   1. SENDER NAME: Pro users get their profile.business_name in the From field
      so their invoices arrive as "Jane Smith <invoices@invoiceprepper.com>".
      The name comes from the SERVER-SIDE profile fetch, never from the client
-     request body — a client cannot spoof another user's sender name.
+     request body: a client cannot spoof another user's sender name.
 
   2. TIER GATES (restructured):
      Before: send = Pro only, share = anyone
@@ -59,7 +59,7 @@ function sanitizeCurrency(currency) {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── Share tier gate — mirrors App.jsx logic ───────────────────────────────────
+// ── Share tier gate: mirrors App.jsx logic ───────────────────────────────────
 function canShare(tier) {
   return tier === "pro";
 }
@@ -70,7 +70,7 @@ function canSend(_tier) {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("buildFromField — sender name logic", () => {
+describe("buildFromField: sender name logic", () => {
   it("Pro with business_name uses business_name in From", () => {
     expect(buildFromField(true, "Jane Smith")).toBe(
       "Jane Smith <invoices@invoiceprepper.com>"
@@ -89,7 +89,7 @@ describe("buildFromField — sender name logic", () => {
     );
   });
 
-  it("Free with business_name ignores business_name — InvoicePrepper only", () => {
+  it("Free with business_name ignores business_name: InvoicePrepper only", () => {
     expect(buildFromField(false, "Jane Smith")).toBe(
       "InvoicePrepper <invoices@invoiceprepper.com>"
     );
@@ -106,7 +106,7 @@ describe("buildFromField — sender name logic", () => {
     expect(buildFromField(false, null)).toContain("invoices@invoiceprepper.com");
   });
 
-  it("business_name with HTML characters is passed through — escaping is the caller's responsibility", () => {
+  it("business_name with HTML characters is passed through: escaping is the caller's responsibility", () => {
     // The From header is set directly in the Resend API call, not rendered as HTML.
     // Resend handles header encoding. We just verify the value is used as-is.
     const name = "Jane & Co";
@@ -124,7 +124,7 @@ describe("buildFromField — sender name logic", () => {
   });
 });
 
-describe("sanitizeCurrency — CAD fallback", () => {
+describe("sanitizeCurrency: CAD fallback", () => {
   it("valid 3-letter code passes through unchanged", () => {
     expect(sanitizeCurrency("CAD")).toBe("CAD");
     expect(sanitizeCurrency("USD")).toBe("USD");
@@ -146,7 +146,7 @@ describe("sanitizeCurrency — CAD fallback", () => {
     expect(sanitizeCurrency(undefined)).toBe("CAD");
   });
 
-  it("lowercase code is rejected — ISO 4217 requires uppercase", () => {
+  it("lowercase code is rejected: ISO 4217 requires uppercase", () => {
     expect(sanitizeCurrency("cad")).toBe("CAD");
     expect(sanitizeCurrency("usd")).toBe("CAD");
   });
@@ -157,7 +157,7 @@ describe("sanitizeCurrency — CAD fallback", () => {
   });
 });
 
-describe("tier gates — send and share access", () => {
+describe("tier gates: send and share access", () => {
   it("Free tier can send invoices by email", () => {
     expect(canSend("free")).toBe(true);
   });
@@ -179,7 +179,7 @@ describe("tier gates — send and share access", () => {
     expect(canShare(undefined)).toBe(false);
   });
 
-  it("share gate is strictly pro — no other value unlocks it", () => {
+  it("share gate is strictly pro: no other value unlocks it", () => {
     expect(canShare("admin")).toBe(false);
     expect(canShare("Pro")).toBe(false);  // case sensitive
     expect(canShare("PRO")).toBe(false);

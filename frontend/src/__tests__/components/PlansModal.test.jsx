@@ -32,7 +32,7 @@ import PlansModal from "../../features/billing/PlansModal";
 
 describe("Billing", () => {
 
-// BorderGlow uses canvas/WebGL — stub it out so jsdom doesn't crash
+// BorderGlow uses canvas/WebGL: stub it out so jsdom doesn't crash
 vi.mock("../../layout/BorderGlow", () => ({
   default: ({ children }) => <div data-testid="border-glow">{children}</div>,
 }));
@@ -58,7 +58,7 @@ function renderModal(profileTier = "free", currencyOverride = "CAD") {
   return props;
 }
 
-describe("PlansModal — free user view", () => {
+describe("PlansModal: free user view", () => {
   it("shows both Pro and Voice AI cards", () => {
     renderModal("free");
     expect(screen.getByText("Pro")).toBeInTheDocument();
@@ -81,7 +81,7 @@ describe("PlansModal — free user view", () => {
   });
 });
 
-describe("PlansModal — pro user view", () => {
+describe("PlansModal: pro user view", () => {
   it("hides the Pro card for pro users", () => {
     renderModal("pro");
     expect(screen.queryByRole("button", { name: /get pro/i })).not.toBeInTheDocument();
@@ -98,7 +98,7 @@ describe("PlansModal — pro user view", () => {
   });
 });
 
-describe("PlansModal — pricing", () => {
+describe("PlansModal: pricing", () => {
   it("shows CAD label by default", () => {
     renderModal("free", "CAD");
     expect(screen.getAllByText(/CAD/).length).toBeGreaterThan(0);
@@ -110,7 +110,7 @@ describe("PlansModal — pricing", () => {
   });
 });
 
-describe("PlansModal — callbacks", () => {
+describe("PlansModal: callbacks", () => {
   it("Get Pro button calls onSelectPro", () => {
     const { onSelectPro } = renderModal("free");
     fireEvent.click(screen.getByRole("button", { name: /get pro/i }));

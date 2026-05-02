@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 /*
-  Tests for src/api/receipts.js — the CRUD wrappers around the /receipts edge function.
+  Tests for src/api/receipts.js: the CRUD wrappers around the /receipts edge function.
 
   Strategy: mock globalThis.fetch and assert the correct URL, method, and body
-  are passed. We don't test the edge function itself here — just that the client
+  are passed. We don't test the edge function itself here: just that the client
   builds the right requests.
 */
 

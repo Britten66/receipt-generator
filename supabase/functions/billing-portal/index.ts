@@ -1,5 +1,5 @@
 /*
-  billing-portal — creates a Stripe Customer Portal session.
+  billing-portal: creates a Stripe Customer Portal session.
 
   Returns a short-lived URL that the user can visit to:
     - View their billing history and past receipts

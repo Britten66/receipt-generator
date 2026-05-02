@@ -7,7 +7,7 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   httpClient: Stripe.createFetchHttpClient(),
 });
 
-// Uses service role key — bypasses RLS to update any user's tier
+// Uses service role key: bypasses RLS to update any user's tier
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
     const userId  = session.client_reference_id;
 
     if (!userId) {
-      console.error("stripe-webhook: checkout.session.completed — no client_reference_id");
+      console.error("stripe-webhook: checkout.session.completed: no client_reference_id");
       return new Response(JSON.stringify({ received: true }), { status: 200 });
     }
 
@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
         const priceId = sub.items.data[0]?.price?.id;
         const resolved = tierFromPriceId(priceId);
         if (resolved) tier = resolved;
-        console.log(`stripe-webhook: checkout — userId=${userId} priceId=${priceId} tier=${tier}`);
+        console.log(`stripe-webhook: checkout: userId=${userId} priceId=${priceId} tier=${tier}`);
       } catch (err) {
         console.error("stripe-webhook: could not retrieve subscription for checkout", err);
       }
@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
     } else {
       console.log(`stripe-webhook: tier set to '${tier}' for userId=${userId}`);
 
-      // Push notification — paying customer alarm
+      // Push notification: paying customer alarm
       const ntfyTopic = Deno.env.get("NTFY_TOPIC");
       if (ntfyTopic) {
         fetch(`https://ntfy.sh/${ntfyTopic}`, {
@@ -121,7 +121,7 @@ Deno.serve(async (req) => {
   // ─── customer.subscription.updated ─────────────────────────────────────────
   // Fires when a subscription changes: plan switch (pro <-> voice), renewal,
   // trial end, payment failure downgrade, etc.
-  // We only act when the subscription is active/trialing — not on cancelled subs
+  // We only act when the subscription is active/trialing: not on cancelled subs
   // (those are handled by .deleted below).
   if (event.type === "customer.subscription.updated") {
     const sub    = event.data.object as Stripe.Subscription;
@@ -132,7 +132,7 @@ Deno.serve(async (req) => {
       const tier     = tierFromPriceId(priceId);
 
       if (!tier) {
-        console.warn(`stripe-webhook: subscription.updated — unrecognised priceId=${priceId}, skipping tier update`);
+        console.warn(`stripe-webhook: subscription.updated: unrecognised priceId=${priceId}, skipping tier update`);
       } else {
         const { error } = await supabase.from("profiles")
           .update({ tier })
@@ -142,7 +142,7 @@ Deno.serve(async (req) => {
         else console.log(`stripe-webhook: tier updated to '${tier}' for subscriptionId=${sub.id} (status=${status})`);
       }
     } else if (status === "past_due" || status === "unpaid") {
-      // Payment failed — downgrade to free immediately so access is revoked.
+      // Payment failed: downgrade to free immediately so access is revoked.
       // Stripe will also fire .deleted once the retry period ends; this is an
       // early safety net so a failed payment doesn't grant indefinite access.
       const { error } = await supabase.from("profiles")

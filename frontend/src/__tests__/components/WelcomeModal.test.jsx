@@ -32,7 +32,7 @@ function renderModal(overrides = {}) {
   return props;
 }
 
-describe("WelcomeModal — content", () => {
+describe("WelcomeModal: content", () => {
   it("renders the welcome heading", () => {
     renderModal();
     expect(screen.getByText(/Welcome to InvoicePrepper/i)).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe("WelcomeModal — content", () => {
   });
 });
 
-describe("WelcomeModal — dismiss paths", () => {
+describe("WelcomeModal: dismiss paths", () => {
   it("close button (✕) calls onClose", () => {
     const { onClose } = renderModal();
     fireEvent.click(screen.getByRole("button", { name: /✕/ }));

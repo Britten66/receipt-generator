@@ -23,19 +23,19 @@
   items scoped to the right receipt.
 
   We also verify the currency field contract introduced when NS HST was
-  removed — every receipt must carry its currency code, not inherit a
+  removed: every receipt must carry its currency code, not inherit a
   server-side default.
 
   WHAT WE VERIFY:
   ───────────────
-  1.  Ownership filter contract — user_id must be present in all mutating queries
-  2.  Line item replacement — delete-then-insert is scoped to receipt_id only
+  1.  Ownership filter contract: user_id must be present in all mutating queries
+  2.  Line item replacement: delete-then-insert is scoped to receipt_id only
   3.  PATCH cannot update receipt_number (immutable after creation)
-  4.  Currency code validation — only ISO 4217 3-letter codes accepted
-  5.  Supported currencies list — contains CAD as primary, USD as fallback
-  6.  fmtStat — compact number formatting never overflows a narrow sidebar cell
-  7.  fmtStat — always prefixes with $ and never returns an empty string
-  8.  Edit flow — line_items are always sent with a PATCH (prevents zero-out bug)
+  4.  Currency code validation: only ISO 4217 3-letter codes accepted
+  5.  Supported currencies list: contains CAD as primary, USD as fallback
+  6.  fmtStat: compact number formatting never overflows a narrow sidebar cell
+  7.  fmtStat: always prefixes with $ and never returns an empty string
+  8.  Edit flow: line_items are always sent with a PATCH (prevents zero-out bug)
   ══════════════════════════════════════════════════════════════════════════════
 */
 
@@ -44,7 +44,7 @@ import { describe, it, expect } from "vitest";
 describe("Security", () => {
 
 
-// ── ALLOWED_FIELDS — replicated from supabase/functions/receipts/index.ts ─────
+// ── ALLOWED_FIELDS: replicated from supabase/functions/receipts/index.ts ─────
 // receipt_number is intentionally absent: it is set at creation and is immutable.
 const ALLOWED_FIELDS = [
   "vendor_name", "customer_name", "status", "date",
@@ -52,16 +52,16 @@ const ALLOWED_FIELDS = [
   "logo_url", "logo_corner",
 ];
 
-// ── Currency validation — replicated from send-invoice/index.ts ───────────────
+// ── Currency validation: replicated from send-invoice/index.ts ───────────────
 const CURRENCY_RE = /^[A-Z]{3}$/;
 
-// ── Supported currency list — replicated from ReceiptForm.jsx ─────────────────
+// ── Supported currency list: replicated from ReceiptForm.jsx ─────────────────
 const SUPPORTED_CURRENCIES = [
   "USD","CAD","EUR","GBP","AUD","NZD","CHF","JPY",
   "MXN","BRL","INR","SEK","NOK","SGD",
 ];
 
-// ── fmtStat — replicated from App.jsx ─────────────────────────────────────────
+// ── fmtStat: replicated from App.jsx ─────────────────────────────────────────
 // Compact sidebar number formatter. Prevents long dollar amounts from overflowing
 // the narrow three-column stats grid (Revenue / Outstanding / Invoices).
 function fmtStat(n) {
@@ -70,7 +70,7 @@ function fmtStat(n) {
   return `$${n.toFixed(2)}`;
 }
 
-// ── buildPatchBody — models what handleSaveReceipt sends on edit ──────────────
+// ── buildPatchBody: models what handleSaveReceipt sends on edit ──────────────
 // The edit flow must always include line_items so the server can replace them.
 // Omitting line_items from a PATCH body caused the "edit sets to 0" bug.
 function buildPatchBody(formData, lineItems) {
@@ -86,13 +86,13 @@ function buildPatchBody(formData, lineItems) {
     currency:       formData.currency,
     logo_url:       formData.logo_url ?? null,
     logo_corner:    formData.logo_corner ?? null,
-    line_items:     lineItems,  // always included — absence caused the zero-out bug
+    line_items:     lineItems,  // always included: absence caused the zero-out bug
   };
 }
 // ──────────────────────────────────────────────────────────────────────────────
 
 
-describe("Ownership enforcement — ALLOWED_FIELDS contract", () => {
+describe("Ownership enforcement: ALLOWED_FIELDS contract", () => {
 
   it("receipt_number is NOT in ALLOWED_FIELDS (immutable after creation)", () => {
     /*
@@ -128,7 +128,7 @@ describe("Ownership enforcement — ALLOWED_FIELDS contract", () => {
   it("currency IS in ALLOWED_FIELDS (user must be able to set per-invoice currency)", () => {
     /*
       Currency was added when the hardcoded NS HST 15% was removed. This test
-      confirms that the field survived that migration and is still writable —
+      confirms that the field survived that migration and is still writable -
       global users need to set CAD, EUR, GBP, etc. per invoice.
     */
     expect(ALLOWED_FIELDS).toContain("currency");
@@ -136,7 +136,7 @@ describe("Ownership enforcement — ALLOWED_FIELDS contract", () => {
 });
 
 
-describe("Currency validation — ISO 4217 three-letter code enforcement", () => {
+describe("Currency validation: ISO 4217 three-letter code enforcement", () => {
 
   const VALID_CODES = ["USD", "CAD", "EUR", "GBP", "AUD", "JPY", "CHF", "INR"];
   const INVALID_CODES = [
@@ -147,7 +147,7 @@ describe("Currency validation — ISO 4217 three-letter code enforcement", () =>
     "123",        // numeric
     "U S",        // space
     "C$",         // symbol
-    null,         // null (edge function defaults to "USD" — a safe fallback)
+    null,         // null (edge function defaults to "USD": a safe fallback)
   ];
 
   it.each(VALID_CODES)("accepts valid ISO 4217 code: %s", (code) => {
@@ -184,7 +184,7 @@ describe("Currency validation — ISO 4217 three-letter code enforcement", () =>
 });
 
 
-describe("fmtStat — sidebar overflow prevention", () => {
+describe("fmtStat: sidebar overflow prevention", () => {
   /*
     The sidebar shows Revenue and Outstanding in a three-column grid.
     Each column is roughly 60–70 px wide. An unformatted number like
@@ -224,18 +224,18 @@ describe("fmtStat — sidebar overflow prevention", () => {
     /*
       8 characters at ~8px/char = 64px. Anything longer overflows the stats
       column on desktop and the mobile strip grid.
-      We test up to $999M — amounts above that are not realistic for a
+      We test up to $999M: amounts above that are not realistic for a
       freelance invoicing SaaS and don't need to be compact.
     */
     const testValues = [0, 1, 9999.99, 10000, 999999, 1_000_000, 999_999_999];
     for (const n of testValues) {
-      expect(fmtStat(n).length, `fmtStat(${n}) = "${fmtStat(n)}" — too long`).toBeLessThanOrEqual(8);
+      expect(fmtStat(n).length, `fmtStat(${n}) = "${fmtStat(n)}": too long`).toBeLessThanOrEqual(8);
     }
   });
 });
 
 
-describe("Edit flow — line items always sent in PATCH body", () => {
+describe("Edit flow: line items always sent in PATCH body", () => {
   /*
     Bug context: before the fix, ReceiptForm called onSubmit() without including
     line_items in the payload. The edge function's PATCH handler saw no
@@ -300,7 +300,7 @@ describe("Edit flow — line items always sent in PATCH body", () => {
 
   it("patch body does not contain user_id or receipt_number", () => {
     /*
-      These fields must not be sent from the client — the server enforces
+      These fields must not be sent from the client: the server enforces
       ownership via its own user.id from the validated JWT, not the request body.
     */
     const body = buildPatchBody(sampleForm, sampleItems);

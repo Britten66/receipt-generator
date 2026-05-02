@@ -56,14 +56,14 @@ cd frontend && npx playwright test --workers=2
 
 ## Voice Parsing Pipeline
 
-This is the core technical piece of the Voice AI tier. No third-party voice-to-invoice service — the entire pipeline is custom built.
+This is the core technical piece of the Voice AI tier. No third-party voice-to-invoice service: the entire pipeline is custom built.
 
 1. Browser captures audio via the MediaRecorder API, encoded as webm (mp4 fallback for iOS Safari)
 2. Audio blob is uploaded directly to a Supabase Storage bucket scoped to the authenticated user
 3. A Supabase Edge Function (Deno) picks up the file, downloads it, and streams it to Groq for transcription
-4. The raw transcript is passed to a second Groq LLM call with a structured extraction prompt — the model returns JSON with client name, line items, quantities, unit prices, currency, and notes
+4. The raw transcript is passed to a second Groq LLM call with a structured extraction prompt. The model returns JSON with client name, line items, quantities, unit prices, currency, and notes
 5. The JSON maps directly onto the invoice form fields client-side
-6. The audio file is deleted from storage immediately after the parse response is returned — nothing is retained
+6. The audio file is deleted from storage immediately after the parse response is returned. Nothing is retained
 
 The same extraction logic runs for text input on desktop, minus the audio step. Rate limiting is enforced server-side per user per day, tracked in the voice_usage table. Voice parses cap at 20/day, text parses at 15/day for Pro tier (Voice tier is uncapped).
 

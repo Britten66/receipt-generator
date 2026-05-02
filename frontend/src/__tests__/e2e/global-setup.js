@@ -1,7 +1,7 @@
 /*
-  global-setup.js — Runs once before all Playwright tests.
+  global-setup.js: Runs once before all Playwright tests.
   Logs in with the test account and saves the session to disk.
-  All dashboard tests reuse this session — no login in every test.
+  All dashboard tests reuse this session: no login in every test.
 */
 
 import { chromium } from "@playwright/test";
@@ -42,7 +42,7 @@ export default async function globalSetup() {
     await welcome.waitFor({ timeout: 5000 });
     await page.keyboard.press("Escape");
   } catch {
-    // No welcome modal — continue
+    // No welcome modal: continue
   }
 
   // Dismiss consent modal if it appears
@@ -51,7 +51,7 @@ export default async function globalSetup() {
     await consent.waitFor({ timeout: 3000 });
     await page.keyboard.press("Escape");
   } catch {
-    // No consent modal — continue
+    // No consent modal: continue
   }
 
   // Wait for dashboard shell

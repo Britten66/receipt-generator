@@ -1,9 +1,9 @@
 /*
-  aiParse.js — helpers for AI-powered invoice parsing.
+  aiParse.js: helpers for AI-powered invoice parsing.
 
-  parseText(text) — calls text-parse edge function with a typed description.
-  parseAudio(blob, mimeType) — calls voice-parse edge function with an audio blob.
-  mapParsedToForm(parsed) — converts AI output into { fields, items } ready to set in form state.
+  parseText(text): calls text-parse edge function with a typed description.
+  parseAudio(blob, mimeType): calls voice-parse edge function with an audio blob.
+  mapParsedToForm(parsed): converts AI output into { fields, items } ready to set in form state.
 */
 
 import { supabase } from "../lib/supabase";
@@ -38,7 +38,7 @@ export async function parseText(text) {
 }
 
 export async function parseAudio(blob, mimeType) {
-  // Upload audio to temporary storage — Supabase edge functions have a 1 MB body limit
+  // Upload audio to temporary storage: Supabase edge functions have a 1 MB body limit
   // that the gateway enforces before Deno code runs. Sending the path as JSON instead
   // keeps the request tiny; the edge function fetches the audio server-side.
   const { data: { user } } = await supabase.auth.getUser();
@@ -68,8 +68,8 @@ export async function parseAudio(blob, mimeType) {
 
 /*
   Maps the AI-parsed object into two pieces of form state:
-    fields — top-level form fields to set (vendor_name, customer_name, notes)
-    items  — array of line items in the shape ReceiptForm expects, or null if none
+    fields: top-level form fields to set (vendor_name, customer_name, notes)
+    items : array of line items in the shape ReceiptForm expects, or null if none
 */
 // Strip em dashes, en dashes, and other junk characters AI models sometimes insert
 export function clean(str) {

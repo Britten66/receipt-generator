@@ -1,5 +1,5 @@
 /*
-  E2E: Dashboard — core layout and navigation
+  E2E: Dashboard: core layout and navigation
   Suite: Dashboard
 */
 

@@ -19,11 +19,11 @@ export function isPostHogConfigured(): boolean {
   return !!Deno.env.get("POSTHOG_API_KEY");
 }
 
-// Never blocks more than 2s — prevents EarlyDrop when PostHog is unconfigured or slow.
+// Never blocks more than 2s: prevents EarlyDrop when PostHog is unconfigured or slow.
 export async function safeShutdown(ph: PostHog): Promise<void> {
   try {
     await Promise.race([ph.shutdown(), new Promise((r) => setTimeout(r, 2000))]);
   } catch {
-    // swallow — analytics must never break core operations
+    // swallow: analytics must never break core operations
   }
 }

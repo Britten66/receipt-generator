@@ -20,12 +20,12 @@ export const STATUS_LABELS = {
   voided: "Invoice voided",
 };
 
-// "$1,234.56" — used on cards and in the detail panel totals block
+// "$1,234.56": used on cards and in the detail panel totals block
 export function fmt(n) {
   return "$" + parseFloat(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// Compact format for sidebar stat values — avoids overflow in narrow columns
+// Compact format for sidebar stat values: avoids overflow in narrow columns
 export function fmtStat(n) {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 10_000)    return `$${(n / 1_000).toFixed(1)}K`;

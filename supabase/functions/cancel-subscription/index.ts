@@ -1,11 +1,11 @@
 /*
-  cancel-subscription — lets a Pro user cancel their monthly subscription.
+  cancel-subscription: lets a Pro user cancel their monthly subscription.
 
-  Sets cancel_at_period_end: true on Stripe — the user keeps Pro access until
+  Sets cancel_at_period_end: true on Stripe: the user keeps Pro access until
   the current billing period ends, then the customer.subscription.deleted webhook
   fires and the stripe-webhook function resets their tier to "free".
 
-  This is required by FTC rules and Canadian consumer protection law —
+  This is required by FTC rules and Canadian consumer protection law -
   users must be able to cancel without contacting support.
 */
 
@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // cancel_at_period_end keeps access until billing period ends — does NOT immediately revoke.
+    // cancel_at_period_end keeps access until billing period ends: does NOT immediately revoke.
     const sub = await stripe.subscriptions.update(profile.stripe_subscription_id, {
       cancel_at_period_end: true,
     });

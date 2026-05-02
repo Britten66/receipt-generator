@@ -1,20 +1,20 @@
 /*
-  PasswordUpdateModal.jsx — the modal for setting a new password.
+  PasswordUpdateModal.jsx: the modal for setting a new password.
 
   This modal appears when the user arrives at the site after clicking a password reset
   link from their email. Supabase handles the token in the URL automatically.
   All we need to do here is call supabase.auth.updateUser({ password }) with the new value.
 
   Props:
-    onClose() — called after the password is updated (with a 2-second delay so the user
+    onClose(): called after the password is updated (with a 2-second delay so the user
                 can see the success message before the modal disappears)
 
   State:
-    password — what the user types in the "New Password" field
-    confirm  — what the user types in the "Confirm Password" field
-    error    — an error message to show in red if validation or the API call fails
-    loading  — true while the API call is in progress (disables the submit button)
-    done     — true after a successful password update (switches to a success message)
+    password: what the user types in the "New Password" field
+    confirm : what the user types in the "Confirm Password" field
+    error   : an error message to show in red if validation or the API call fails
+    loading : true while the API call is in progress (disables the submit button)
+    done    : true after a successful password update (switches to a success message)
 */
 
 import { useState } from "react";
@@ -40,10 +40,10 @@ export default function PasswordUpdateModal({ onClose }) {
   const [done,     setDone]     = useState(false);
 
   /*
-    handleSubmit(event) — called when the user clicks "Update Password".
+    handleSubmit(event): called when the user clicks "Update Password".
 
     event.preventDefault() stops the browser's default form submission behaviour
-    (which would reload the page — we don't want that).
+    (which would reload the page: we don't want that).
 
     Validates:
       1. The two password fields must match
@@ -79,7 +79,7 @@ export default function PasswordUpdateModal({ onClose }) {
       return;
     }
 
-    // Success — show the confirmation message for 2 seconds, then close
+    // Success: show the confirmation message for 2 seconds, then close
     setDone(true);
     setTimeout(onClose, 2000);
   }
@@ -105,7 +105,7 @@ export default function PasswordUpdateModal({ onClose }) {
   */
   let bodyContent;
   if (done) {
-    // Show a success message — the modal will close automatically after 2 seconds
+    // Show a success message: the modal will close automatically after 2 seconds
     bodyContent = (
       <p style={{ fontSize: 12, color: "var(--paid)", textAlign: "center", padding: "12px 0" }}>
         Password updated ✓

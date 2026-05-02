@@ -1,11 +1,11 @@
 /*
-  ProfileModal.jsx — the modal where the user edits their business profile.
+  ProfileModal.jsx: the modal where the user edits their business profile.
 
   Props:
-    profile     — the current profile object loaded from the database (or {} if none yet)
-    userEmail   — the user's login email address, used in the Security section
-    onSave(result) — called after the profile is saved, passing back the updated profile
-    onClose()      — called when the user clicks Cancel or clicks outside the modal
+    profile    : the current profile object loaded from the database (or {} if none yet)
+    userEmail  : the user's login email address, used in the Security section
+    onSave(result): called after the profile is saved, passing back the updated profile
+    onClose()     : called when the user clicks Cancel or clicks outside the modal
 
   The profile stores:
     business_name, bio, website, payment_url, address, email, phone, logo_url,
@@ -27,7 +27,7 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose, onUp
   useModalEscape(onClose);
 
   /*
-    form — the editable fields.
+    form: the editable fields.
 
     We use profile?.field ?? "" to safely read from the profile object.
     If profile is null or doesn't have the field, we fall back to an empty string.
@@ -70,7 +70,7 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose, onUp
 
   const [form, setForm] = useState(getInitialForm());
 
-  // voiceReadback — persisted in localStorage. Default on. Toggled instantly (no Save needed).
+  // voiceReadback: persisted in localStorage. Default on. Toggled instantly (no Save needed).
   const [voiceReadback, setVoiceReadback] = useState(
     () => localStorage.getItem("voice_readback") !== "0"
   );
@@ -81,19 +81,19 @@ export default function ProfileModal({ profile, userEmail, onSave, onClose, onUp
     localStorage.setItem("voice_readback", next ? "1" : "0");
   }
 
-  // saving — true while the API call is in progress (disables the Save button)
+  // saving: true while the API call is in progress (disables the Save button)
   const [saving, setSaving] = useState(false);
 
-  // resetSent — true after the user clicks "Reset Password" (shows a confirmation message)
+  // resetSent: true after the user clicks "Reset Password" (shows a confirmation message)
   const [resetSent, setResetSent] = useState(false);
 
-  // resetLoading — true while the password reset email is being sent (disables the button)
+  // resetLoading: true while the password reset email is being sent (disables the button)
   const [resetLoading, setResetLoading] = useState(false);
 
-  // deleting — true while the delete-account request is in flight
+  // deleting: true while the delete-account request is in flight
   const [deleting, setDeleting] = useState(false);
 
-  // legal — either "terms" or "privacy" when a legal modal is open, or null when closed
+  // legal: either "terms" or "privacy" when a legal modal is open, or null when closed
   const [legal, setLegal] = useState(null);
 
 const [logoUploading,   setLogoUploading]   = useState(false);
@@ -102,11 +102,11 @@ const [logoUploading,   setLogoUploading]   = useState(false);
   const avatarInputRef = useRef(null);
 
   /*
-    setField(fieldName, value) — update one field in the form state.
+    setField(fieldName, value): update one field in the form state.
 
     Arguments:
-      fieldName — the name of the field to change (e.g. "business_name", "phone")
-      value     — the new value typed by the user
+      fieldName: the name of the field to change (e.g. "business_name", "phone")
+      value    : the new value typed by the user
 
     The spread ...currentForm copies all the existing fields,
     then [fieldName]: value overwrites just the one that changed.
@@ -149,7 +149,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
   }
 
   /*
-    handleSave() — called when the user clicks "Save Profile".
+    handleSave(): called when the user clicks "Save Profile".
 
     tax_rate is stored in the form as a percentage string e.g. "15" for 15%.
     We convert it back to a decimal (0.15) before saving to the database.
@@ -168,7 +168,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
   }
 
   /*
-    handleResetPassword() — sends a password reset email to the user's email address.
+    handleResetPassword(): sends a password reset email to the user's email address.
     Uses Supabase Auth's built-in reset flow.
     After the email is sent, we set resetSent = true to show a confirmation message.
   */
@@ -186,13 +186,13 @@ const [logoUploading,   setLogoUploading]   = useState(false);
   }
 
   /*
-    handleBackdropClick(event) — closes the modal when the user clicks outside it.
+    handleBackdropClick(event): closes the modal when the user clicks outside it.
 
-    event.target      — the element that was actually clicked
-    event.currentTarget — the element the handler is attached to (the backdrop)
+    event.target     : the element that was actually clicked
+    event.currentTarget: the element the handler is attached to (the backdrop)
 
     If the user clicked on the backdrop itself (not the modal box inside it),
-    both target and currentTarget are the same element — that means "clicked outside".
+    both target and currentTarget are the same element: that means "clicked outside".
   */
   function handleBackdropClick(event) {
     if (event.target === event.currentTarget) {
@@ -201,7 +201,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
   }
 
   /*
-    handleDeleteAccount() — permanently deletes all user data and the account.
+    handleDeleteAccount(): permanently deletes all user data and the account.
     Requires the user to type "DELETE" to confirm. Irreversible.
     After deletion the auth session is cleared and the user lands on the sign-in screen.
   */
@@ -213,7 +213,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
     setDeleting(true);
     try {
       await deleteAccount();
-      // Session is now invalid — sign out locally so the app resets cleanly
+      // Session is now invalid: sign out locally so the app resets cleanly
       await supabase.auth.signOut();
     } catch (err) {
       alert(err.message || "Could not delete account. Please try again.");
@@ -225,9 +225,9 @@ const [logoUploading,   setLogoUploading]   = useState(false);
     Determine the label for the logo button.
 
     Three possible states:
-      1. "Uploading..."  — currently in the middle of an upload
-      2. "Change Logo"   — upload is done and there's already a logo
-      3. "Upload Logo"   — no logo has been set yet
+      1. "Uploading..." : currently in the middle of an upload
+      2. "Change Logo"  : upload is done and there's already a logo
+      3. "Upload Logo"  : no logo has been set yet
   */
   const logoButtonLabel   = logoUploading   ? "Uploading..." : form.logo_url   ? "Change Logo"   : "Upload Logo";
   const avatarButtonLabel = avatarUploading ? "Uploading..." : form.avatar_url ? "Change Avatar" : "Upload Avatar";
@@ -296,7 +296,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
             />
           </div>
 
-          {/* Avatar upload — profile picture shown in the app topbar */}
+          {/* Avatar upload: profile picture shown in the app topbar */}
           <div className="field-group">
             <label className="field-label">Avatar</label>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -314,7 +314,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
             </div>
           </div>
 
-          {/* Logo upload — Pro only */}
+          {/* Logo upload: Pro only */}
           <div className="field-group">
             <label className="field-label">Business Logo (appears on PDF)</label>
             {(profile?.tier === "pro" || profile?.tier === "voice") ? (
@@ -356,7 +356,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
             <label className="field-label">Payment Link</label>
             <input className="field" placeholder="https://buy.stripe.com/... or paypal.me/..." value={form.payment_url} onChange={(e) => setField("payment_url", e.target.value)} />
             <span style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4, display: "block" }}>
-              Paste your Stripe Payment Link or PayPal.me — a QR code will appear on unpaid invoices
+              Paste your Stripe Payment Link or PayPal.me: a QR code will appear on unpaid invoices
             </span>
           </div>
 
@@ -432,7 +432,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
 
           {/*
             Row showing the account email on the left and the reset button (or confirmation) on the right.
-            resetPasswordElement was determined above — either a button or a confirmation message.
+            resetPasswordElement was determined above: either a button or a confirmation message.
           */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0" }}>
             <div>
@@ -474,7 +474,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
           </div>
         </div>
 
-        {/* Footer — Save/Cancel buttons and legal links */}
+        {/* Footer: Save/Cancel buttons and legal links */}
         <div className="modal-footer" style={{ flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", gap: 8, width: "100%" }}>
             <button className="btn btn-ghost" onClick={onClose}>Cancel</button>

@@ -50,7 +50,7 @@ function renderGrid(overrides = {}) {
   return props;
 }
 
-describe("InvoiceGrid — states", () => {
+describe("InvoiceGrid: states", () => {
   it("shows Loading... when loading=true", () => {
     renderGrid({ loading: true });
     expect(screen.getByText("Loading...")).toBeInTheDocument();
@@ -74,7 +74,7 @@ describe("InvoiceGrid — states", () => {
   });
 });
 
-describe("InvoiceGrid — selection", () => {
+describe("InvoiceGrid: selection", () => {
   it("selected card has 'selected' class", () => {
     renderGrid({ selectedReceipt: MOCK_INVOICES[0] });
     const cards = document.querySelectorAll(".receipt-card");
@@ -88,7 +88,7 @@ describe("InvoiceGrid — selection", () => {
   });
 });
 
-describe("InvoiceGrid — interactions", () => {
+describe("InvoiceGrid: interactions", () => {
   it("card click calls selectFull with correct id", () => {
     const { selectFull } = renderGrid();
     const cards = document.querySelectorAll(".receipt-card");

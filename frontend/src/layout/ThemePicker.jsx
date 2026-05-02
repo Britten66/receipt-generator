@@ -1,5 +1,5 @@
 /*
-  ThemePicker.jsx — Pro-only site theme picker in the sidebar.
+  ThemePicker.jsx: Pro-only site theme picker in the sidebar.
 
   Collapsed by default behind a "Theme ▾" toggle button.
   When open, shows 8 zone dots in a single horizontal row.
@@ -7,7 +7,7 @@
   The active dot for a zone gets a highlight ring.
   Picking a variation collapses everything.
 
-  applyZoneVars writes to .app-shell CSS vars only — landing page is unaffected.
+  applyZoneVars writes to .app-shell CSS vars only: landing page is unaffected.
 */
 
 import { useState } from "react";
@@ -375,7 +375,7 @@ const ZONES = [
   },
 ];
 
-// Write vars to .app-shell only — never touches :root so landing page is safe
+// Write vars to .app-shell only: never touches :root so landing page is safe
 function applyZoneVars(vars) {
   const shell = document.querySelector(".app-shell");
   if (!shell) return;
@@ -409,7 +409,7 @@ export default function ThemePicker({ darkMode, profile, onSaveTheme }) {
 
   return (
     <div className="tp-shell">
-      {/* Toggle button — collapses/expands the whole picker */}
+      {/* Toggle button: collapses/expands the whole picker */}
       <button
         className="tp-toggle"
         onClick={() => {
@@ -440,7 +440,7 @@ export default function ThemePicker({ darkMode, profile, onSaveTheme }) {
             })}
           </div>
 
-          {/* Variation row — only shown when a zone is expanded, appears below the dot row */}
+          {/* Variation row: only shown when a zone is expanded, appears below the dot row */}
           {expandedId &&
             (() => {
               const zone = ZONES.find((z) => z.id === expandedId);
@@ -457,7 +457,7 @@ export default function ThemePicker({ darkMode, profile, onSaveTheme }) {
                         animationDelay: `${i * 45}ms`,
                       }}
                       onClick={() => handleVariationPick(zone, v)}
-                      title={`${zone.label} — ${v.label}`}
+                      title={`${zone.label}: ${v.label}`}
                     />
                   ))}
                 </div>
