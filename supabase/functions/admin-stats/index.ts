@@ -4,7 +4,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 // Founder email is the only address allowed to read this view.
 // Server-enforced: even if the route leaks client-side, the
 // function returns 403 to anyone else.
-const FOUNDER_EMAIL = "britten63@hotmail.com";
+const FOUNDER_EMAIL = "firstsipsolutions@gmail.com";
 
 Deno.serve(async (req) => {
   const origin = req.headers.get("Origin");

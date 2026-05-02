@@ -28,7 +28,7 @@ const SEO_PAGES = [
   { path: "/invoice-for-painters.html",          title: /invoice app for painters/i },
   { path: "/invoice-for-plumbers.html",          title: /invoice app for plumbers/i },
   { path: "/invoice-for-tutors.html",            title: /invoice app for tutors/i },
-  { path: "/invoice-for-contractors.html",       title: /invoice app for contractors/i },
+  { path: "/invoice-for-contractors.html",       title: /invoice software for contractors/i },
   { path: "/invoice-for-designers.html",         title: /invoice generator for designers/i },
   { path: "/invoice-for-freelancers.html",       title: /invoice generator for freelancers/i },
   { path: "/invoice-for-handymen.html",          title: /invoice app for handymen/i },
