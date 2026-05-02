@@ -373,14 +373,49 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
 
       {/* Footer */}
       <footer className="lv2-footer">
-        <p>
-          <a href="/terms" className="lv2-footer-link">Terms</a>
-          {" · "}
-          <a href="/privacy" className="lv2-footer-link">Privacy</a>
-          {" · "}
-          <a href="/blog" className="lv2-footer-link">Changelog</a>
-        </p>
-        <p className="lv2-footer-disclaimer">For personal record-keeping only. Not a substitute for professional accounting or tax advice.</p>
+        <div className="lv2-footer-top">
+          <div className="lv2-footer-brand">
+            <div className="lv2-footer-wordmark">InvoicePrepper</div>
+            <p className="lv2-footer-tagline">Invoicing that gets out of your way.</p>
+          </div>
+          <div className="lv2-footer-cols">
+            <div className="lv2-footer-col">
+              <h4 className="lv2-footer-h">For</h4>
+              <a href="/invoice-for-freelancers" className="lv2-footer-link">Freelancers</a>
+              <a href="/invoice-for-contractors" className="lv2-footer-link">Contractors</a>
+              <a href="/invoice-for-designers" className="lv2-footer-link">Designers</a>
+              <a href="/invoice-for-photographers" className="lv2-footer-link">Photographers</a>
+              <a href="/invoice-for-tutors" className="lv2-footer-link">Tutors</a>
+              <a href="/invoice-for-personal-trainers" className="lv2-footer-link">Personal trainers</a>
+            </div>
+            <div className="lv2-footer-col">
+              <h4 className="lv2-footer-h">Trades</h4>
+              <a href="/invoice-for-cleaners" className="lv2-footer-link">Cleaners</a>
+              <a href="/invoice-for-electricians" className="lv2-footer-link">Electricians</a>
+              <a href="/invoice-for-plumbers" className="lv2-footer-link">Plumbers</a>
+              <a href="/invoice-for-painters" className="lv2-footer-link">Painters</a>
+              <a href="/invoice-for-landscapers" className="lv2-footer-link">Landscapers</a>
+              <a href="/invoice-for-handymen" className="lv2-footer-link">Handymen</a>
+            </div>
+            <div className="lv2-footer-col">
+              <h4 className="lv2-footer-h">Resources</h4>
+              <a href="/free-invoice-generator" className="lv2-footer-link">Free invoice generator</a>
+              <a href="/voice-invoicing" className="lv2-footer-link">Voice invoicing</a>
+              <a href="/how-to-invoice-clients" className="lv2-footer-link">How to invoice clients</a>
+              <a href="/invoice-simple-alternative" className="lv2-footer-link">Vs Invoice Simple</a>
+              <a href="/blog" className="lv2-footer-link">Blog</a>
+            </div>
+            <div className="lv2-footer-col">
+              <h4 className="lv2-footer-h">Company</h4>
+              <a href="/terms" className="lv2-footer-link">Terms</a>
+              <a href="/privacy" className="lv2-footer-link">Privacy</a>
+            </div>
+          </div>
+        </div>
+        <div className="lv2-footer-bottom">
+          <span className="lv2-footer-copy">© {new Date().getFullYear()} InvoicePrepper</span>
+          <span className="lv2-footer-disclaimer">For personal record-keeping. Not a substitute for professional accounting or tax advice.</span>
+        </div>
       </footer>
 
       {legal && <LegalModal type={legal} onClose={() => setLegal(null)} />}

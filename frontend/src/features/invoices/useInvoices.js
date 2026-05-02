@@ -71,9 +71,13 @@ export function useInvoices({ session, profile, showToast }) {
   }
 
   async function selectFull(id) {
+    const cached = receipts.find((r) => r.id === id);
+    if (cached?.line_items) { setSelected(cached); return; }
+    if (cached) setSelected(cached);
     const full = await fetchReceiptById(id);
     if (full?.error) return;
     setSelected(full);
+    setReceipts((prev) => prev.map((r) => (r.id === id ? full : r)));
   }
 
   function openNewReceipt() { setEditingReceipt(null); setShowForm(true); }
