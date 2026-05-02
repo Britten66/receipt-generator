@@ -125,7 +125,7 @@ const Threads = ({ color = [1, 1, 1], amplitude = 1, distance = 0, enableMouseIn
   const animationFrameId = useRef();
   const programRef = useRef(null);
 
-  // Main setup — does NOT depend on color so dark mode toggles never cause a flash
+  // Main setup: does NOT depend on color so dark mode toggles never cause a flash
   useEffect(() => {
     if (!containerRef.current) return;
     const container = containerRef.current;
@@ -215,7 +215,7 @@ const Threads = ({ color = [1, 1, 1], amplitude = 1, distance = 0, enableMouseIn
     };
   }, [amplitude, distance, enableMouseInteraction]); // color intentionally excluded
 
-  // Separate effect — updates color uniform in-place, no WebGL teardown
+  // Separate effect: updates color uniform in-place, no WebGL teardown
   useEffect(() => {
     if (!programRef.current) return;
     programRef.current.uniforms.uColor.value.r = color[0];

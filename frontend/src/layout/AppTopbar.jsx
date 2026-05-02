@@ -13,7 +13,7 @@ export default function AppTopbar({
   return (
     <header className="topbar">
 
-      {/* Column 1 — dark mode toggle + palette picker (Pro/Voice only) */}
+      {/* Column 1: dark mode toggle + palette picker (Pro/Voice only) */}
       <div className="topbar-left">
         <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)}>
           {darkMode ? "Light" : "Dark"}
@@ -76,12 +76,12 @@ export default function AppTopbar({
         )}
       </div>
 
-      {/* Column 2 — date */}
+      {/* Column 2: date */}
       <div className="topbar-meta">
         {new Date().toLocaleDateString("en-CA", { weekday: "long", month: "short", day: "numeric" })}
       </div>
 
-      {/* Column 3 — avatar dropdown */}
+      {/* Column 3: avatar dropdown */}
       <div className="topbar-right">
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>

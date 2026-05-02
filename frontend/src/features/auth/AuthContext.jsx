@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
         try {
           const { exp } = JSON.parse(atob(newSession.access_token.split(".")[1]));
           if (exp * 1000 < Date.now()) return;
-        } catch { /* malformed token — fall through */ }
+        } catch { /* malformed token: fall through */ }
       }
 
       if (!newSession) {

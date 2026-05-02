@@ -1,6 +1,6 @@
 /*
   ══════════════════════════════════════════════════════════════════════════════
-  COMPONENT TEST: ReceiptForm — validation, line items, AI tier gate
+  COMPONENT TEST: ReceiptForm: validation, line items, AI tier gate
   File: components/ReceiptForm.test.jsx
   ══════════════════════════════════════════════════════════════════════════════
 
@@ -42,7 +42,7 @@ vi.mock("../../api/aiParse", () => ({
 }));
 vi.mock("posthog-js", () => ({ default: { capture: vi.fn() } }));
 
-// Stub matchMedia — jsdom doesn't implement it
+// Stub matchMedia: jsdom doesn't implement it
 // Set pointer:fine = true so isDesktop=true and text input renders
 Object.defineProperty(window, "matchMedia", {
   writable: true,
@@ -70,7 +70,7 @@ function renderForm(tier = "free", initialData = null) {
   return props;
 }
 
-describe("ReceiptForm — renders", () => {
+describe("ReceiptForm: renders", () => {
   it("renders Issued By field", () => {
     renderForm();
     expect(screen.getByPlaceholderText(/business name/i)).toBeInTheDocument();
@@ -89,7 +89,7 @@ describe("ReceiptForm — renders", () => {
   });
 });
 
-describe("ReceiptForm — submit validation", () => {
+describe("ReceiptForm: submit validation", () => {
   beforeEach(() => {
     vi.spyOn(window, "alert").mockImplementation(() => {});
   });
@@ -121,7 +121,7 @@ describe("ReceiptForm — submit validation", () => {
   });
 });
 
-describe("ReceiptForm — line items", () => {
+describe("ReceiptForm: line items", () => {
   it("renders at least one line item description field", () => {
     renderForm();
     expect(screen.getByPlaceholderText(/description/i)).toBeInTheDocument();
@@ -136,7 +136,7 @@ describe("ReceiptForm — line items", () => {
   });
 });
 
-describe("ReceiptForm — AI tier gate", () => {
+describe("ReceiptForm: AI tier gate", () => {
   it("AI text input visible for pro user on desktop", () => {
     renderForm("pro");
     expect(screen.getByPlaceholderText(/invoice to john/i)).toBeInTheDocument();

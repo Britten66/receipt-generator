@@ -1,5 +1,5 @@
 /*
-  E2E: Billing — open modal, plan display, close
+  E2E: Billing: open modal, plan display, close
   Suite: Billing
 */
 

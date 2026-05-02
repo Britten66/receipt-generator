@@ -1,5 +1,5 @@
 /*
-  E2E: Invoices — create, view, status
+  E2E: Invoices: create, view, status
   Suite: Invoices
 */
 

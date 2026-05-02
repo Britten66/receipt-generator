@@ -1,5 +1,5 @@
 /*
-  E2E: Profile — open, fields, close
+  E2E: Profile: open, fields, close
   Suite: Profile
 */
 

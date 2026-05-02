@@ -57,7 +57,7 @@ body {
   transform: translate(1px, 1px);
 }
 
-/* .field is defined in App.css — not duplicated here */
+/* .field is defined in App.css: not duplicated here */
 
 /* Table row used in the receipt list */
 .row {

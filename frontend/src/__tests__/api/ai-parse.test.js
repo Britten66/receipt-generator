@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
   - mapParsedToForm: field extraction and line item calculation
 
   Strategy: mock fetch to avoid real API calls. All AI behaviour (LLaMA output)
-  is tested via mapParsedToForm — the part we control.
+  is tested via mapParsedToForm: the part we control.
 */
 
 vi.stubEnv("VITE_SUPABASE_URL", "https://test.supabase.co");
@@ -187,7 +187,7 @@ describe("parseAudio", () => {
 // Mobile auth edge cases
 // ---------------------------------------------------------------------------
 
-describe("authHeaders — mobile session edge cases", () => {
+describe("authHeaders: mobile session edge cases", () => {
   it("uses getSession token when session is valid (no refresh needed)", async () => {
     mockFetch({ parsed: { vendor_name: "Acme", line_items: [] } });
     await parseText("test");
@@ -230,7 +230,7 @@ describe("authHeaders — mobile session edge cases", () => {
 });
 
 // ---------------------------------------------------------------------------
-// mapParsedToForm — field extraction and line item math
+// mapParsedToForm: field extraction and line item math
 // ---------------------------------------------------------------------------
 
 describe("mapParsedToForm", () => {

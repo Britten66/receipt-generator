@@ -1,6 +1,6 @@
 /*
   ══════════════════════════════════════════════════════════════════════════════
-  COMPONENT TEST: InvoiceDetail — tier-gated buttons
+  COMPONENT TEST: InvoiceDetail: tier-gated buttons
   File: components/InvoiceDetail.test.jsx
   ══════════════════════════════════════════════════════════════════════════════
 
@@ -8,7 +8,7 @@
   ─────────────────
   Share Invoice and Send Invoice are Pro/Voice-only features. Send Reminder is
   Pro/Voice-only AND only shows on "sent" invoices. If the tier gate breaks,
-  free users get pro features silently. These are the features you're selling —
+  free users get pro features silently. These are the features you're selling -
   gating them correctly is critical.
 
   WHAT WE VERIFY:
@@ -88,7 +88,7 @@ function renderDetail(invoiceOverrides = {}, profileTier = "free") {
   return props;
 }
 
-describe("InvoiceDetail — null state", () => {
+describe("InvoiceDetail: null state", () => {
   it("renders nothing when no invoice selected", () => {
     const { container } = render(
       <InvoiceDetail
@@ -102,7 +102,7 @@ describe("InvoiceDetail — null state", () => {
   });
 });
 
-describe("InvoiceDetail — tier gates", () => {
+describe("InvoiceDetail: tier gates", () => {
   beforeEach(() => {
     // Simulate navigator.share being available
     Object.defineProperty(navigator, "share", { value: vi.fn(), configurable: true, writable: true });
@@ -148,7 +148,7 @@ describe("InvoiceDetail — tier gates", () => {
   });
 });
 
-describe("InvoiceDetail — action buttons", () => {
+describe("InvoiceDetail: action buttons", () => {
   it("Edit button calls openEditReceipt", () => {
     const { openEditReceipt } = renderDetail();
     fireEvent.click(screen.getByRole("button", { name: /edit/i }));
@@ -169,10 +169,10 @@ describe("InvoiceDetail — action buttons", () => {
   });
 });
 
-describe("InvoiceDetail — invoice content", () => {
+describe("InvoiceDetail: invoice content", () => {
   it("status change buttons exclude current status", () => {
     renderDetail({ status: "draft" });
-    // Should see sent, paid, voided — but NOT draft
+    // Should see sent, paid, voided: but NOT draft
     expect(screen.queryByRole("button", { name: /^draft$/i })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^sent$/i })).toBeInTheDocument();
   });

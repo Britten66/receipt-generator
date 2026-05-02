@@ -1,6 +1,6 @@
 /*
   ══════════════════════════════════════════════════════════════════════════════
-  E2E: Auth Modal — open, mode switch, consent gate, password validation
+  E2E: Auth Modal: open, mode switch, consent gate, password validation
   File: e2e/auth.spec.js
   ══════════════════════════════════════════════════════════════════════════════
 
@@ -27,7 +27,7 @@
 
 import { test, expect } from "@playwright/test";
 
-test.describe("Auth modal — Sign In", () => {
+test.describe("Auth modal: Sign In", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
     await page.getByRole("button", { name: /^sign in$/i }).click();
@@ -56,7 +56,7 @@ test.describe("Auth modal — Sign In", () => {
   });
 });
 
-test.describe("Auth modal — Sign Up", () => {
+test.describe("Auth modal: Sign Up", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
     await page.getByRole("button", { name: /^sign up$/i }).click();
@@ -67,7 +67,7 @@ test.describe("Auth modal — Sign Up", () => {
   });
 
   test("Sign In tab switches back to login mode", async ({ page }) => {
-    // There are two "Sign In" buttons — the nav one and the tab inside the modal.
+    // There are two "Sign In" buttons: the nav one and the tab inside the modal.
     // The modal tab is inside .auth-card
     await page.locator(".auth-card").getByRole("button", { name: /^sign in$/i }).click();
     await expect(page.getByText("Welcome back")).toBeVisible();
@@ -95,7 +95,7 @@ test.describe("Auth modal — Sign Up", () => {
   });
 });
 
-test.describe("Auth modal — Forgot password", () => {
+test.describe("Auth modal: Forgot password", () => {
   test("shows reset form with Send Reset Link button", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("button", { name: /^sign in$/i }).click();

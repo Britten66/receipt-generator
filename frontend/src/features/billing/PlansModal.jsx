@@ -1,16 +1,16 @@
 /*
-  PlansModal.jsx — "Choose your plan" modal shown before Stripe checkout.
+  PlansModal.jsx: "Choose your plan" modal shown before Stripe checkout.
 
   Shows Pro and Voice AI cards side by side (or just Voice if user is already Pro).
   Clicking a plan card calls onSelectPro / onSelectVoice, which opens the consent
   modal (UpgradeConfirmModal) before redirecting to Stripe.
 
   Props:
-    profile       — user profile object; used to decide which cards to show
-    darkMode      — boolean; drives the BorderGlow accent colours
-    onClose       — called when user dismisses without selecting
-    onSelectPro   — called when user clicks "Get Pro"
-    onSelectVoice — called when user clicks "Get Voice AI"
+    profile      : user profile object; used to decide which cards to show
+    darkMode     : boolean; drives the BorderGlow accent colours
+    onClose      : called when user dismisses without selecting
+    onSelectPro  : called when user clicks "Get Pro"
+    onSelectVoice: called when user clicks "Get Voice AI"
 */
 
 import BorderGlow from "../../layout/BorderGlow";
@@ -33,7 +33,7 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
           style={{ display: "grid", gridTemplateColumns: isProUser ? "1fr" : "1fr 1fr", gap: 16, padding: 20 }}
         >
 
-          {/* Pro card — only shown to free users */}
+          {/* Pro card: only shown to free users */}
           {(profile?.tier === "free" || !profile?.tier) && (
             <BorderGlow
               borderRadius={0}
@@ -68,7 +68,7 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
             </BorderGlow>
           )}
 
-          {/* Voice AI card — shown to both free and pro users */}
+          {/* Voice AI card: shown to both free and pro users */}
           <BorderGlow
             borderRadius={0}
             glowColor={darkMode ? "185 75 55" : "185 72 32"}

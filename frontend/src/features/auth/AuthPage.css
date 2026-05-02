@@ -69,7 +69,7 @@
   font-family: var(--mono);
 }
 
-/* The actual heading — large, confident, readable */
+/* The actual heading: large, confident, readable */
 .auth-heading {
   font-family: var(--sans);
   font-size: 22px;
@@ -209,7 +209,7 @@
   cursor: not-allowed;
 }
 
-/* Input fields inside the auth modal — warm beige so they don't go stark white */
+/* Input fields inside the auth modal: warm beige so they don't go stark white */
 .auth-field {
   width: 100%;
   background: #f5f0e8;
@@ -225,7 +225,7 @@
 .auth-field:focus        { border-color: var(--accent); }
 .auth-field::placeholder { color: rgba(42, 37, 32, 0.35); }
 
-/* Plain text-link button — "Forgot password?" / "Back to sign in" */
+/* Plain text-link button: "Forgot password?" / "Back to sign in" */
 .auth-text-btn {
   background: none;
   border: none;
@@ -244,7 +244,7 @@
 }
 .auth-text-btn:hover { color: var(--text-dim); }
 
-/* Back button — top-left of auth card */
+/* Back button: top-left of auth card */
 .auth-back-btn {
   position: absolute;
   top: 14px;
@@ -342,20 +342,20 @@
 
 /* ── Dark mode overrides ───────────────────────────────────────────────────── */
 
-/* Card background — use surface-2 (#26292B) instead of white-ish glass */
+/* Card background: use surface-2 (#26292B) instead of white-ish glass */
 [data-theme="dark"] .auth-card {
   background: var(--surface-2);
   border-color: var(--border);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
 
-/* Active toggle tab — dark surface instead of #fff */
+/* Active toggle tab: dark surface instead of #fff */
 [data-theme="dark"] .auth-toggle button.active {
   background: var(--surface);
   color: var(--text);
 }
 
-/* Inputs — dark muted background, sand text */
+/* Inputs: dark muted background, sand text */
 [data-theme="dark"] .auth-field {
   background: var(--surface);
   border-color: var(--border);

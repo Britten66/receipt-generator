@@ -14,7 +14,7 @@ Deno.serve(async (req)=>{
     status: 405,
     headers: corsHeaders
   });
-  // Auth — verify JWT using user-scoped client
+  // Auth: verify JWT using user-scoped client
   const supabase = createClient(Deno.env.get("SUPABASE_URL"), Deno.env.get("SUPABASE_ANON_KEY"), {
     global: { headers: { Authorization: req.headers.get("Authorization") } }
   });
@@ -24,7 +24,7 @@ Deno.serve(async (req)=>{
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
   }
 
-  // Use service role client to fetch profile — bypasses RLS, safe because user is already verified above
+  // Use service role client to fetch profile: bypasses RLS, safe because user is already verified above
   const adminClient = createClient(Deno.env.get("SUPABASE_URL"), Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"), {
     auth: { persistSession: false }
   });
@@ -37,7 +37,7 @@ Deno.serve(async (req)=>{
     return new Response(JSON.stringify({ error: "Text AI requires the Pro plan or higher." }), { status: 403, headers: corsHeaders });
   }
 
-  // Rate limiting by tier — skip for admins
+  // Rate limiting by tier: skip for admins
   const adminIds = (Deno.env.get("ADMIN_USER_IDS") ?? "").split(",").map(s => s.trim()).filter(Boolean);
   const isAdmin = adminIds.includes(user.id);
   const today = new Date().toISOString().slice(0, 10);
@@ -93,7 +93,7 @@ Deno.serve(async (req)=>{
 
   // RAG: pull the user's past invoice history to give the model user-specific context.
   // This lets the model recognise recurring clients and typical service prices.
-  // Non-fatal — if the query fails for any reason, we proceed without context.
+  // Non-fatal: if the query fails for any reason, we proceed without context.
   let ragContext = "";
   try {
     const { data: history } = await supabase
@@ -142,10 +142,10 @@ Deno.serve(async (req)=>{
       }
     }
   } catch {
-    // RAG failure is non-fatal — the model still parses without history
+    // RAG failure is non-fatal: the model still parses without history
   }
 
-  // Extract invoice fields with Groq LLaMA — same prompt as voice-parse
+  // Extract invoice fields with Groq LLaMA: same prompt as voice-parse
   const extractRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -181,7 +181,7 @@ Rules:
 - customer_name is who is RECEIVING the invoice. Often said as "to [name]" or "for [name]" or "invoicing [name]".
 - currency: detect from explicit mentions like "USD", "US dollars", "Canadian dollars", "CAD", "euros", "pounds". Default to "CAD" if not mentioned.
 - CRITICAL: Every distinct product or service MUST be its own separate object in the line_items array. NEVER combine two services into one description. "web service and paint service" = TWO items. "design, hosting, and support" = THREE items. The word "and" or a comma between services always means a new line item.
-- quantity: extract from ANY of these patterns — "4 apples" → qty 4, "apples x4" → qty 4, "3 hours" → qty 3, "two units" → qty 2, "x5" → qty 5. Written numbers like "two", "three" count too. Default to 1 only if truly no quantity is mentioned.
+- quantity: extract from ANY of these patterns: "4 apples" → qty 4, "apples x4" → qty 4, "3 hours" → qty 3, "two units" → qty 2, "x5" → qty 5. Written numbers like "two", "three" count too. Default to 1 only if truly no quantity is mentioned.
 - description: the item name only, never include the quantity in the description. "4 apples" → description "Apples", quantity 4.
 - unit_price: price PER UNIT. Extract from "at $85", "for 200", "90 each", "fifty bucks", "$10/unit". If a total price is given with a quantity, divide: "4 apples for $8" → unit_price 2.
 - currency: detect from explicit mentions like "USD", "US dollars", "Canadian dollars", "CAD", "euros", "pounds". Default to "CAD" if not mentioned.

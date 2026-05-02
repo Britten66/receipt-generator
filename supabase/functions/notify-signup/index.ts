@@ -1,5 +1,5 @@
 /*
-  notify-signup — fires when a new user is created in auth.users.
+  notify-signup: fires when a new user is created in auth.users.
 
   WIRED UP VIA:
   ─────────────
@@ -181,7 +181,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  // PostHog — only if configured, never blocks the response
+  // PostHog: only if configured, never blocks the response
   const phKey = Deno.env.get("POSTHOG_API_KEY");
   if (phKey && userId && userId !== "unknown") {
     try {

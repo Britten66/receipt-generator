@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: corsHeaders });
   }
 
-  // Auth check — anon key + user JWT
+  // Auth check: anon key + user JWT
   const authClient = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
   }
 
-  // Service role client — needed to delete auth user and bypass RLS
+  // Service role client: needed to delete auth user and bypass RLS
   const admin = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
   // 3. Delete profile
   await admin.from("profiles").delete().eq("user_id", user.id);
 
-  // 4. Delete the auth user — this is irreversible
+  // 4. Delete the auth user: this is irreversible
   const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
   if (deleteError) {
     return new Response(JSON.stringify({ error: deleteError.message }), { status: 500, headers: corsHeaders });

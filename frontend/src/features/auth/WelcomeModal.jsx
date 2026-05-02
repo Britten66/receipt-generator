@@ -1,12 +1,12 @@
 /*
-  WelcomeModal.jsx — shown once to brand-new users on their first sign-in.
+  WelcomeModal.jsx: shown once to brand-new users on their first sign-in.
 
   Triggered in App.jsx when a SIGNED_IN event fires and the account was created
   less than 2 minutes ago (created_at age check). Using created_at instead of
-  localStorage is intentional — localStorage is unreliable in iOS PWA sessions.
+  localStorage is intentional: localStorage is unreliable in iOS PWA sessions.
 
   Props:
-    onClose — called when user clicks "Get Started" or the backdrop
+    onClose: called when user clicks "Get Started" or the backdrop
 */
 
 export default function WelcomeModal({ onClose }) {

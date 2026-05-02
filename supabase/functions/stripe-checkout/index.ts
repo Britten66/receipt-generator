@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
       customer_email: user.email,
     });
 
-    // Notify owner of checkout entry — no GA, this is our only conversion signal.
+    // Notify owner of checkout entry: no GA, this is our only conversion signal.
     const ownerNotifyRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {

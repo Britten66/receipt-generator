@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
 
-  // Fetch tier + custom sender name — both used server-side, never trusted from client
+  // Fetch tier + custom sender name: both used server-side, never trusted from client
   const { data: profile } = await supabase.from("profiles").select("tier, business_name").eq("user_id", user.id).single();
   const isPro = profile?.tier === "pro" || profile?.tier === "voice";
 

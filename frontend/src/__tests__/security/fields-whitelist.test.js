@@ -14,7 +14,7 @@
 
   …and potentially reassign a receipt to another user or escalate their own
   privileges. This is called a "mass assignment" attack and is one of the
-  OWASP Top 10 API security risks (API6:2023 — Unrestricted Access to
+  OWASP Top 10 API security risks (API6:2023: Unrestricted Access to
   Sensitive Business Flows / Mass Assignment).
 
   The fix (in supabase/functions/receipts/index.ts) is ALLOWED_FIELDS:
@@ -46,7 +46,7 @@ const ALLOWED_FIELDS = [
   "logo_url", "logo_corner",
 ];
 
-// The filter logic from the edge function — replicated verbatim
+// The filter logic from the edge function: replicated verbatim
 function filterAllowedFields(body) {
   const updates = {};
   for (const key of ALLOWED_FIELDS) {
@@ -56,11 +56,11 @@ function filterAllowedFields(body) {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("ALLOWED_FIELDS — structural integrity", () => {
+describe("ALLOWED_FIELDS: structural integrity", () => {
   it("contains exactly 11 allowed fields (catches silent additions)", () => {
     /*
       Anyone adding a field to the edge function's ALLOWED_FIELDS must also
-      update this count — forcing a deliberate code review of what's safe.
+      update this count: forcing a deliberate code review of what's safe.
     */
     expect(ALLOWED_FIELDS).toHaveLength(11);
   });
@@ -71,7 +71,7 @@ describe("ALLOWED_FIELDS — structural integrity", () => {
   });
 });
 
-describe("ALLOWED_FIELDS — safe fields are present", () => {
+describe("ALLOWED_FIELDS: safe fields are present", () => {
   const EXPECTED_SAFE = [
     "vendor_name", "customer_name", "status", "date",
     "subtotal", "tax", "total", "notes", "currency",
@@ -83,7 +83,7 @@ describe("ALLOWED_FIELDS — safe fields are present", () => {
   });
 });
 
-describe("ALLOWED_FIELDS — sensitive fields are excluded", () => {
+describe("ALLOWED_FIELDS: sensitive fields are excluded", () => {
   /*
     These fields must NEVER be user-writable via the PATCH endpoint.
     user_id  → would allow reassigning invoices to another account
@@ -107,7 +107,7 @@ describe("ALLOWED_FIELDS — sensitive fields are excluded", () => {
   });
 });
 
-describe("filterAllowedFields — request body sanitisation", () => {
+describe("filterAllowedFields: request body sanitisation", () => {
   it("passes through a normal receipt update body unchanged", () => {
     const body = { vendor_name: "Acme Corp", total: 500, status: "sent" };
     const result = filterAllowedFields(body);
@@ -146,7 +146,7 @@ describe("filterAllowedFields — request body sanitisation", () => {
 
   it("preserves null values for optional fields (intentional clear)", () => {
     /*
-      Setting logo_url: null is valid — it removes the logo from a receipt.
+      Setting logo_url: null is valid: it removes the logo from a receipt.
       The filter must preserve null values, not treat them as absent.
     */
     const body = { logo_url: null, logo_corner: null };
@@ -163,7 +163,7 @@ describe("filterAllowedFields — request body sanitisation", () => {
   it("handles prototype pollution attempt in body keys", () => {
     /*
       If an attacker sends __proto__ or constructor as a key, the for-of
-      loop over ALLOWED_FIELDS means those keys are never looked up — the
+      loop over ALLOWED_FIELDS means those keys are never looked up: the
       filter is a whitelist, not a blocklist.
     */
     const body = {
@@ -177,7 +177,7 @@ describe("filterAllowedFields — request body sanitisation", () => {
   });
 });
 
-describe("Body size limits — constants are defined and reasonable", () => {
+describe("Body size limits: constants are defined and reasonable", () => {
   /*
     WHY: Without request body size limits, an attacker can send a 100MB
     payload to any edge function, consuming memory and causing a DoS.
@@ -185,10 +185,10 @@ describe("Body size limits — constants are defined and reasonable", () => {
     set to 0 or an unreasonably large value.
 
     Limits from the edge functions:
-      receipts:     64 KB  — normal invoice data
-      profile:      32 KB  — bio / address fields
-      stripe-checkout: 4 KB — just a return_url
-      send-invoice: 3 MB   — includes base64 PDF attachment
+      receipts:     64 KB : normal invoice data
+      profile:      32 KB : bio / address fields
+      stripe-checkout: 4 KB: just a return_url
+      send-invoice: 3 MB  : includes base64 PDF attachment
   */
 
   const LIMITS = {

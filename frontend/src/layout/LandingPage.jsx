@@ -146,7 +146,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       </nav>
 
       <main>
-      {/* 2 — Hero: hook + invoice preview */}
+      {/* 2: Hero: hook + invoice preview */}
       <section className="lv2-hero">
         <div className="lv2-hero-text">
           <p className="lv2-eyebrow">InvoicePrepper</p>
@@ -181,9 +181,9 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         </div>
       </section>
 
-      {/* 3 — Features */}
+      {/* 3: Features */}
 
-      {/* 5 — How it works */}
+      {/* 5: How it works */}
       <section className="lv2-steps">
         <p className="lv2-steps-eyebrow">How it works</p>
         <h2 className="lv2-steps-title">Invoice sent in under 60 seconds</h2>
@@ -206,7 +206,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         </div>
       </section>
 
-      {/* 6 — Threads break */}
+      {/* 6: Threads break */}
       <div className="lv2-texture-break" aria-hidden="true">
         <Threads
           color={darkMode ? [0.85, 0.72, 0.45] : [0.22, 0.2, 0.18]}
@@ -216,7 +216,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         />
       </div>
 
-      {/* 7 — Pricing */}
+      {/* 7: Pricing */}
       <section className="lv2-pricing">
         <h2 className="lv2-pricing-title">Simple pricing</h2>
         <p className="lv2-pricing-sub">Start free. Upgrade when you're ready.</p>
@@ -283,7 +283,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             </div>
           </BorderGlow>
 
-          {/* Voice AI card — teal glow, separate CSS shadow in .lv2-plan-voice */}
+          {/* Voice AI card: teal glow, separate CSS shadow in .lv2-plan-voice */}
           <BorderGlow
             borderRadius={0}
             glowColor={darkMode ? "185 75 55" : "185 72 32"}
@@ -319,7 +319,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         </div>
       </section>
 
-      {/* 8 — FAQ */}
+      {/* 8: FAQ */}
       <section className="lv2-faq-editorial">
         <div className="lv2-faq-left">
           <span className="lv2-faq-eyebrow">Common Questions</span>
@@ -362,7 +362,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         </div>
       </section>
 
-      {/* 9 — Final CTA */}
+      {/* 9: Final CTA */}
       <section className="lv2-final-cta">
         <h2 className="lv2-final-cta-title">Ready to send your first invoice?</h2>
         <p className="lv2-final-cta-sub">Free forever. No credit card. Takes two minutes.</p>

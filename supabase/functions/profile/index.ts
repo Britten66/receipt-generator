@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     const { data } = await supabase.from("profiles").select("*").eq("user_id", user.id).single();
     if (data) return new Response(JSON.stringify(data), { headers: corsHeaders });
 
-    // No profile yet — create a blank one on first login
+    // No profile yet: create a blank one on first login
     const { data: created } = await supabase.from("profiles").insert({
       user_id: user.id,
       tier: "free",
@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
   if (req.method === "PUT") {
     const body = await req.json();
 
-    // Sanitize all profile fields — lengths are generous but bounded.
+    // Sanitize all profile fields: lengths are generous but bounded.
     // URL fields are validated to prevent javascript: injection via payment_url/website.
     const tax_rate_val = parseFloat(String(body.tax_rate ?? ""));
     const { data, error } = await supabase.from("profiles").upsert({

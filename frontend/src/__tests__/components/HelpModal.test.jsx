@@ -8,7 +8,7 @@
   ─────────────────
   HelpModal has a unique minimize/restore interaction not found in other modals.
   If minimize breaks, the window body disappears permanently. The legal section
-  only renders when onLegal is provided — if that wiring breaks, users can't
+  only renders when onLegal is provided: if that wiring breaks, users can't
   reach Terms or Privacy from inside the app.
 
   WHAT WE VERIFY:
@@ -42,7 +42,7 @@ function renderModal(overrides = {}) {
   return props;
 }
 
-describe("HelpModal — content", () => {
+describe("HelpModal: content", () => {
   it("renders How it works title", () => {
     renderModal();
     expect(screen.getByText("How it works")).toBeInTheDocument();
@@ -54,7 +54,7 @@ describe("HelpModal — content", () => {
   });
 });
 
-describe("HelpModal — minimize and restore", () => {
+describe("HelpModal: minimize and restore", () => {
   it("minimize button hides body content", () => {
     renderModal();
     fireEvent.click(screen.getByTitle(/minimise/i));
@@ -69,7 +69,7 @@ describe("HelpModal — minimize and restore", () => {
   });
 });
 
-describe("HelpModal — close", () => {
+describe("HelpModal: close", () => {
   it("close button calls onClose", () => {
     const { onClose } = renderModal();
     fireEvent.click(screen.getByTitle(/close/i));
@@ -77,7 +77,7 @@ describe("HelpModal — close", () => {
   });
 });
 
-describe("HelpModal — legal section", () => {
+describe("HelpModal: legal section", () => {
   it("legal section shown when onLegal provided", () => {
     renderModal({ onLegal: vi.fn() });
     expect(screen.getByText(/Terms of Service/i)).toBeInTheDocument();

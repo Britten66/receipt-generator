@@ -1,12 +1,12 @@
 /*
-  UpgradeThanksModal.jsx — shown once after a successful Pro or Voice AI checkout.
+  UpgradeThanksModal.jsx: shown once after a successful Pro or Voice AI checkout.
 
-  Triggered in App.jsx by the ?upgraded=true URL param polling loop — once the
+  Triggered in App.jsx by the ?upgraded=true URL param polling loop: once the
   webhook confirms the tier change in the DB, the modal flag is set in localStorage
   (key: upgrade_thanks_shown_{userId}) so it only shows once per user.
 
   Props:
-    onClose — called when user clicks "Got It" or the backdrop
+    onClose: called when user clicks "Got It" or the backdrop
 */
 
 export default function UpgradeThanksModal({ onClose }) {

@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&display=swap");
 
-/* Reset — remove browser default margins and padding from every element */
+/* Reset: remove browser default margins and padding from every element */
 *,
 *::before,
 *::after {
@@ -24,35 +24,35 @@
   --border-light: #c4c4c0; /* subtle dividers */
   --text: #111110;         /* primary text */
   --text-dim: #3a3a38;     /* secondary text */
-  --text-muted: #555553;   /* labels, placeholders — #555553 gives 5.4:1 on --bg (WCAG AA) */
-  --paid: #1a5c3a;         /* green — paid status */
-  --sent: #1a3060;         /* blue — sent status */
-  --draft: #555552;        /* grey — draft status */
-  --voided: #7a1a1a;       /* red — voided status */
-  --accent: #a06830;       /* warm copper — readable on light backgrounds */
+  --text-muted: #555553;   /* labels, placeholders: #555553 gives 5.4:1 on --bg (WCAG AA) */
+  --paid: #1a5c3a;         /* green: paid status */
+  --sent: #1a3060;         /* blue: sent status */
+  --draft: #555552;        /* grey: draft status */
+  --voided: #7a1a1a;       /* red: voided status */
+  --accent: #a06830;       /* warm copper: readable on light backgrounds */
   --accent-dim: rgba(160, 104, 48, 0.12);
-  --voice-text: #0a8a96;   /* cyan text — readable on light backgrounds */
+  --voice-text: #0a8a96;   /* cyan text: readable on light backgrounds */
   --mono: ui-monospace, "Courier New", monospace;
   --sans: "Public Sans", sans-serif;
 }
 
-/* Dark mode — applied when <html data-theme="dark"> is set */
+/* Dark mode: applied when <html data-theme="dark"> is set */
 [data-theme="dark"] {
   --bg: #2c3032;           /* full page background */
   --surface: #181a1b;      /* header, sidebar, topbar */
   --surface-2: #26292b;    /* detail panel, modal body, cards */
   --border: #3d4145;       /* strong borders */
   --border-light: #2e3235; /* subtle dividers */
-  --text: #e8dcc8;         /* cream sand — primary text */
+  --text: #e8dcc8;         /* cream sand: primary text */
   --text-dim: #c4b99a;     /* secondary text */
-  --text-muted: #989896;   /* labels, placeholders — #989896 gives 4.62:1 on dark --bg (WCAG AA) */
+  --text-muted: #989896;   /* labels, placeholders: #989896 gives 4.62:1 on dark --bg (WCAG AA) */
   --paid: #2e9e5e;
   --sent: #4a70c0;
   --draft: #888884;
   --voided: #c04a4a;
   --accent: #D9B873;
   --accent-dim: rgba(217, 184, 115, 0.14);
-  --voice-text: #4dd8e0;   /* bright cyan — readable on dark backgrounds */
+  --voice-text: #4dd8e0;   /* bright cyan: readable on dark backgrounds */
 }
 
 /* Dark mode: cream button, dark text */
@@ -66,7 +66,7 @@
   color: #1a1a1a;
 }
 
-/* Ghost buttons have no background by default — in dark mode give them a subtle fill so they stand out from the surface */
+/* Ghost buttons have no background by default: in dark mode give them a subtle fill so they stand out from the surface */
 [data-theme="dark"] .btn-ghost {
   background: var(--surface-2);
 }
@@ -75,7 +75,7 @@
   Dark mode hover overrides.
 
   The rule: anything that gets a background on hover should switch to
-  cream (#e7ddc7) with dark text (#1a1a1a) — like inverting into a warm light mode.
+  cream (#e7ddc7) with dark text (#1a1a1a): like inverting into a warm light mode.
   Anything that only changes text color on hover should go to #e7ddc7 instead
   of the usual var(--text), so it stands out against the dark surface.
 */
@@ -168,7 +168,7 @@ body,
   padding-bottom: 6px;
 }
 /* When the user is not signed in, the right column is empty.
-   The date stays centered and the toggle stays far left — no change needed. */
+   The date stays centered and the toggle stays far left: no change needed. */
 .topbar-meta {
   font-family: "Oswald", sans-serif;
   font-size: 12px;
@@ -178,7 +178,7 @@ body,
   color: var(--text-muted);
 }
 
-/* Dark mode toggle button — far left of the topbar */
+/* Dark mode toggle button: far left of the topbar */
 .dark-toggle {
   /* Use --surface so the button always matches the topbar background in both modes */
   background: var(--surface);
@@ -202,7 +202,7 @@ body,
   transform: translate(1px, 1px);
 }
 
-/* ── Topbar left column — mode toggle + palette picker ──────────────────── */
+/* ── Topbar left column: mode toggle + palette picker ──────────────────── */
 .topbar-left {
   display: flex;
   align-items: center;
@@ -212,7 +212,7 @@ body,
 
 /* ── Palette picker ──────────────────────────────────────────────────────── */
 
-/* Outer row — just the trigger circle when collapsed */
+/* Outer row: just the trigger circle when collapsed */
 .palette-picker {
   display: flex;
   align-items: center;
@@ -221,7 +221,7 @@ body,
   overflow: visible;
 }
 
-/* Base swatch — a small circle with a diagonal bg/accent split */
+/* Base swatch: a small circle with a diagonal bg/accent split */
 .palette-swatch {
   width: 18px;
   height: 18px;
@@ -239,14 +239,14 @@ body,
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 
-/* Active (selected) swatch — ring in accent color */
+/* Active (selected) swatch: ring in accent color */
 .palette-swatch-active {
   border-color: var(--accent) !important;
   box-shadow: 0 0 0 2px var(--accent-dim), 0 1px 2px rgba(0,0,0,0.18) !important;
   transform: scale(1.15);
 }
 
-/* Default swatch — uses surface + a diagonal cross to signal "reset" */
+/* Default swatch: uses surface + a diagonal cross to signal "reset" */
 .palette-swatch-default {
   background: var(--surface-2);
   position: relative;
@@ -266,7 +266,7 @@ body,
   );
 }
 
-/* Trigger swatch — hides when expanded */
+/* Trigger swatch: hides when expanded */
 .palette-trigger {
   transition: width 0.2s ease, opacity 0.15s ease, margin 0.2s ease, transform 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
@@ -279,7 +279,7 @@ body,
   overflow: hidden;
 }
 
-/* Expanded swatch strip — slides in horizontally */
+/* Expanded swatch strip: slides in horizontally */
 .palette-swatches {
   display: flex;
   align-items: center;
@@ -328,7 +328,7 @@ body,
   }
 }
 
-/* Date text is too dim in dark mode — bump it up to text-dim */
+/* Date text is too dim in dark mode: bump it up to text-dim */
 [data-theme="dark"] .topbar-meta {
   color: var(--text-dim);
 }
@@ -367,7 +367,7 @@ body,
   border-color: var(--text);
 }
 
-/* Upgrade button — inherits btn + btn-primary, just overrides size */
+/* Upgrade button: inherits btn + btn-primary, just overrides size */
 .btn-upgrade-pill {
   font-size: 9px;
   padding: 4px 11px;
@@ -380,7 +380,7 @@ body,
 .plans-modal-glow > .edge-light { mix-blend-mode: multiply; }
 [data-theme="dark"] .plans-modal-glow > .edge-light { mix-blend-mode: plus-lighter; }
 
-/* BorderGlow wrapper — needs to stretch to fill grid cell */
+/* BorderGlow wrapper: needs to stretch to fill grid cell */
 .plans-modal-glow {
   display: flex;
   flex-direction: column;
@@ -476,7 +476,7 @@ body,
   .receipt-form-voice .modal-body { padding-bottom: 60px; }
 }
 
-/* Plan buttons — match landing page exactly */
+/* Plan buttons: match landing page exactly */
 .plans-modal-btn {
   width: 100%;
   padding: 12px;
@@ -663,7 +663,7 @@ body,
   gap: 8px;
 }
 
-/* The delete button revealed on mobile swipe — hidden on desktop */
+/* The delete button revealed on mobile swipe: hidden on desktop */
 .swipe-delete-btn {
   display: none;
 }
@@ -711,7 +711,7 @@ body,
   color: var(--text-muted);
   text-transform: uppercase;
 }
-/* Desktop delete button — fades in on hover, hidden otherwise */
+/* Desktop delete button: fades in on hover, hidden otherwise */
 .card-delete {
   background: none;
   border: none;
@@ -729,7 +729,7 @@ body,
 .card-delete:hover {
   color: var(--voided);
 }
-/* Client name — bold and large, shown first for easy scanning */
+/* Client name: bold and large, shown first for easy scanning */
 .card-vendor {
   font-size: 14px;
   font-weight: 600;
@@ -737,7 +737,7 @@ body,
   line-height: 1.3;
   font-family: var(--sans);
 }
-/* Business/vendor name — smaller, shown below the client name */
+/* Business/vendor name: smaller, shown below the client name */
 .card-customer {
   font-size: 12px;
   color: var(--text-muted);
@@ -911,7 +911,7 @@ body,
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* Right-align number columns — monospace + tabular figures so digits stack */
+/* Right-align number columns: monospace + tabular figures so digits stack */
 .line-items-table td.number {
   text-align: right;
   color: var(--text);
@@ -942,7 +942,7 @@ body,
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
 }
-/* Grand total row — larger and bolder */
+/* Grand total row: larger and bolder */
 .total-line.grand {
   border-top: 1px solid var(--border);
   margin-top: 4px;
@@ -963,7 +963,7 @@ body,
 }
 
 /* INVOICE DOCUMENT PREVIEW */
-/* The styled invoice card shown in the detail panel — mirrors the PDF layout */
+/* The styled invoice card shown in the detail panel: mirrors the PDF layout */
 .inv-doc {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1094,11 +1094,11 @@ body,
 /*
   Base button style. All buttons inherit from .btn.
   Variants:
-    .btn-primary — dark fill, used for the main action (e.g. Generate Receipt)
-    .btn-ghost   — transparent, used for secondary actions
-    .btn-danger  — red outline, used for destructive actions (e.g. Delete)
-    .btn-status  — small, used for the status-change buttons in the detail panel
-    .btn-icon    — no border, just an icon character (e.g. the ✕ close button)
+    .btn-primary: dark fill, used for the main action (e.g. Generate Receipt)
+    .btn-ghost  : transparent, used for secondary actions
+    .btn-danger : red outline, used for destructive actions (e.g. Delete)
+    .btn-status : small, used for the status-change buttons in the detail panel
+    .btn-icon   : no border, just an icon character (e.g. the ✕ close button)
 */
 .btn {
   font-family: var(--mono);
@@ -1288,14 +1288,14 @@ body,
   width: 400px;
   min-width: 280px;
   max-height: 80vh;
-  /* CSS resize — shows native grip in bottom-right corner */
+  /* CSS resize: shows native grip in bottom-right corner */
   resize: both;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-/* Title bar — the drag handle strip */
+/* Title bar: the drag handle strip */
 .win-titlebar {
   display: flex;
   align-items: center;
@@ -1352,7 +1352,7 @@ body,
   margin: 14px 0;
 }
 
-/* Tiny resize-grip indicator in the corner (decorative — CSS resize does the work) */
+/* Tiny resize-grip indicator in the corner (decorative: CSS resize does the work) */
 .win-resize-grip {
   position: absolute;
   bottom: 3px;
@@ -1472,7 +1472,7 @@ body,
 }
 /*
   .field is used on every input inside the receipt form modal.
-  Public Sans matches the auth modal — keeping font consistent across all forms.
+  Public Sans matches the auth modal: keeping font consistent across all forms.
   Cream background (#f5f0e8) matches .auth-field so nothing blinds you with stark white.
   In dark mode, background falls back to var(--surface) via the override below.
 */
@@ -1511,7 +1511,7 @@ body,
 .field-row-meta {
   grid-template-columns: 1fr 1fr auto;
 }
-/* Date input: iOS renders date inputs with intrinsic width — override fully */
+/* Date input: iOS renders date inputs with intrinsic width: override fully */
 input[type="date"].field {
   display: block;
   width: 100%;
@@ -1577,7 +1577,7 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
     padding-bottom: 80px; /* space for the floating button at the bottom */
   }
 
-  /* Topbar height on mobile — grows to clear iOS status bar in PWA mode */
+  /* Topbar height on mobile: grows to clear iOS status bar in PWA mode */
   .topbar {
     min-height: calc(52px + env(safe-area-inset-top));
     flex-shrink: 0;
@@ -1636,13 +1636,13 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
     border-radius: 0;
   }
 
-  /* Hide the column headers on mobile — layout is stacked instead */
+  /* Hide the column headers on mobile: layout is stacked instead */
   .line-item-row.header {
     display: none;
   }
 
   /*
-    Mobile line item layout — stacked card style:
+    Mobile line item layout: stacked card style:
     Row 1: description (full width) + delete button
     Row 2: qty | price | total side by side
   */
@@ -1677,7 +1677,7 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
     text-align: center;
   }
 
-  /* Hide the toolbar (greeting + count) on mobile — not enough room */
+  /* Hide the toolbar (greeting + count) on mobile: not enough room */
   .toolbar {
     display: none;
   }
@@ -1692,7 +1692,7 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
     z-index: 10;
   }
 
-  /* Stats section — three columns side by side */
+  /* Stats section: three columns side by side */
   .sidebar-section:first-child {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1711,7 +1711,7 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
     font-size: 10px;
     letter-spacing: 0.06em;
   }
-  /* Hide the sub-labels on mobile — not enough room */
+  /* Hide the sub-labels on mobile: not enough room */
   .stat-sublabel,
   .stat-sub {
     display: none;
@@ -1734,12 +1734,12 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
   .total-line .tl-val   { font-size: 13px; }
   .total-line.grand .tl-val { font-size: 20px; }
   .btn { font-size: 12px; padding: 10px 16px; }
-  /* Status change buttons — larger touch target on mobile */
+  /* Status change buttons: larger touch target on mobile */
   .btn-status { padding: 10px 14px; font-size: 11px; min-height: 44px; }
-  /* Form field labels — readable on mobile */
+  /* Form field labels: readable on mobile */
   .field-label { font-size: 10px; letter-spacing: 0.14em; }
 
-  /* Filter nav — horizontal scrollable pill row, never clips */
+  /* Filter nav: horizontal scrollable pill row, never clips */
   .sidebar-section:nth-child(2) {
     display: flex;
     flex-direction: row;
@@ -1784,7 +1784,7 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
 
   /*
     The "+ New Invoice" button is fixed to the bottom of the screen on mobile.
-    Profile/upgrade/billing buttons are hidden — too cramped in the fixed footer.
+    Profile/upgrade/billing buttons are hidden: too cramped in the fixed footer.
     Upgrade prompts reach users via gated actions (Send to Client, Share, etc.)
   */
   .sidebar > div:last-child {
@@ -1817,7 +1817,7 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
     transform: scale(0.96);
   }
 
-  /* Receipt grid — single column on mobile */
+  /* Receipt grid: single column on mobile */
   .content-area {
     flex: 1;
     overflow-y: auto;
@@ -1907,7 +1907,7 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
     text-transform: uppercase;
     cursor: pointer;
   }
-  /* Hide the hover-based delete on mobile — swipe handles deletion instead */
+  /* Hide the hover-based delete on mobile: swipe handles deletion instead */
   .card-delete {
     display: none;
   }
@@ -1958,14 +1958,14 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
   }
   .win-titlebar { cursor: default; } /* no drag affordance on touch */
 
-  /* ── Invoice document preview — mobile adjustments ── */
+  /* ── Invoice document preview: mobile adjustments ── */
 
   /* Tighter outer padding on small screens */
   .detail-panel > div:nth-child(2) {
     padding: 8px 10px 20px;
   }
 
-  /* Totals footer — more readable on mobile */
+  /* Totals footer: more readable on mobile */
   .total-line .tl-label {
     color: var(--text-dim);
   }
@@ -2008,7 +2008,7 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
 }
 
 /*
-  Extra-small phones (< 400px) — stack the two-column field row to one column
+  Extra-small phones (< 400px): stack the two-column field row to one column
   so receipt number and date fields don't get too cramped.
   768px already does this, but just in case it's referenced from other breakpoints.
 */

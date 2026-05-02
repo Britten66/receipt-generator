@@ -1,18 +1,18 @@
 /*
-  ReceiptForm.jsx — the modal form for creating or editing a receipt.
+  ReceiptForm.jsx: the modal form for creating or editing a receipt.
 
   Props:
-    onSubmit(data)       — called when the user clicks Generate/Save. data is the full receipt object.
-    onClose()            — called when the user clicks Cancel or the backdrop.
-    initialData          — if editing an existing receipt, this is the receipt object to pre-fill.
+    onSubmit(data)      : called when the user clicks Generate/Save. data is the full receipt object.
+    onClose()           : called when the user clicks Cancel or the backdrop.
+    initialData         : if editing an existing receipt, this is the receipt object to pre-fill.
                            if creating a new receipt, this is null/undefined.
-    profile              — the user's profile, used to pre-fill the "Issued By" business name field.
-    userEmail            — the user's email address, used to build the logo storage path.
-    onLogoUpdate(url)    — called after a logo is uploaded so App can update profile state globally.
+    profile             : the user's profile, used to pre-fill the "Issued By" business name field.
+    userEmail           : the user's email address, used to build the logo storage path.
+    onLogoUpdate(url)   : called after a logo is uploaded so App can update profile state globally.
 
   The form manages two pieces of state:
-    form  — the top-level fields (vendor name, client name, date, etc.)
-    items — the array of line items (description, qty, unit price, total per line)
+    form : the top-level fields (vendor name, client name, date, etc.)
+    items: the array of line items (description, qty, unit price, total per line)
 */
 
 import { useState, useEffect, useRef } from "react";
@@ -33,10 +33,10 @@ const EMPTY_ITEM = {
   total: "",
 };
 
-// Default tax rate is 0 — users set their own rate per invoice (GST, VAT, HST, etc.)
+// Default tax rate is 0: users set their own rate per invoice (GST, VAT, HST, etc.)
 const DEFAULT_TAX_RATE = 0;
 
-// Corner rotation order — clicking the tile cycles through these in sequence.
+// Corner rotation order: clicking the tile cycles through these in sequence.
 const CORNER_ORDER  = ["top-left", "top-right", "bottom-right", "bottom-left"];
 const CORNER_LABELS = {
   "top-left":     "Top Left",
@@ -48,7 +48,7 @@ const CORNER_LABELS = {
 export default function ReceiptForm({ onSubmit, onClose, initialData, profile, userEmail, onLogoUpdate, onUpgradeClick }) {
 
   /*
-    form — the main fields of the receipt.
+    form: the main fields of the receipt.
 
     When creating a new receipt (initialData is null):
       - vendor_name pre-fills from the user's saved profile business name
@@ -61,7 +61,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   */
   const [form, setForm] = useState(() => {
     // Figure out the initial vendor name
-    // If editing, leave it blank — useEffect will fill it in from initialData
+    // If editing, leave it blank: useEffect will fill it in from initialData
     // If creating new, use the saved business name from the profile (or blank)
     let startingVendorName = "";
     if (!initialData && profile && profile.business_name) {
@@ -75,7 +75,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       date: new Date().toISOString().split("T")[0], // today in YYYY-MM-DD format
       isTaxExempt: false,
       taxRate: String(DEFAULT_TAX_RATE * 100), // stored as percent string, e.g. "13" = 13%
-      taxLabel: "Tax",                          // e.g. "GST", "VAT", "HST" — user sets per invoice
+      taxLabel: "Tax",                          // e.g. "GST", "VAT", "HST": user sets per invoice
       currency: localStorage.getItem("lastCurrency") || "CAD",
       notes: "",
       id: null,
@@ -94,7 +94,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   // Which corner to place the logo in on the PDF. Cycles through CORNER_ORDER on each click.
   const [logoCorner, setLogoCorner] = useState("top-left");
 
-  // Local copy of the logo URL — syncs with profile.logo_url unless the user
+  // Local copy of the logo URL: syncs with profile.logo_url unless the user
   // has already uploaded a fresh one during this form session.
   const [localLogoUrl, setLocalLogoUrl] = useState(profile?.logo_url || "");
 
@@ -113,7 +113,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   // Ref to the hidden file input inside the logo panel.
   const logoFileInputRef = useRef(null);
 
-  // Voice parsing state — voice tier only
+  // Voice parsing state: voice tier only
   const [voiceRecording, setVoiceRecording]   = useState(false);
   const [voiceParsing, setVoiceParsing]       = useState(false);
   const [voiceError, setVoiceError]           = useState("");
@@ -127,7 +127,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   const audioCtxRef      = useRef(null);
   const MAX_RECORDING_SECONDS = 45;
 
-  // True on desktop (mouse pointer) — shows text input instead of mic orb
+  // True on desktop (mouse pointer): shows text input instead of mic orb
   const isDesktop = typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches;
 
   function playChime(type = "start") {
@@ -155,18 +155,18 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       }
 
       if (type === "start") {
-        // Four ascending notes — "listening" (C5 D5 E5 G5)
+        // Four ascending notes: "listening" (C5 D5 E5 G5)
         note(523,  t,        0.18, 0.15);
         note(587,  t + 0.16, 0.18, 0.16);
         note(659,  t + 0.32, 0.18, 0.17);
         note(784,  t + 0.48, 0.22, 0.18);
       } else if (type === "stop") {
-        // Three descending notes — "stopping" (G5 E5 C5)
+        // Three descending notes: "stopping" (G5 E5 C5)
         note(784,  t,        0.18, 0.18);
         note(659,  t + 0.16, 0.18, 0.17);
         note(523,  t + 0.32, 0.22, 0.16);
       } else {
-        // Single long ding — "recorded and saved" (A5, rings out)
+        // Single long ding: "recorded and saved" (A5, rings out)
         note(880,  t,        0.65, 0.22);
       }
     } catch {}
@@ -252,7 +252,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       setField("taxRate", fields.taxRate);
       if (fields.taxRate === "0") setField("isTaxExempt", true);
     }
-    // Append new line items instead of replacing — lets users build up a complex invoice
+    // Append new line items instead of replacing: lets users build up a complex invoice
     // across multiple voice or text passes without losing what they already have
     if (items && items.length > 0) {
       setItems((prev) => {
@@ -368,7 +368,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   }, [initialData]);
 
   /*
-    setField(key, value) — update a single field in the form state.
+    setField(key, value): update a single field in the form state.
     For example: setField("customer_name", "Bob Smith")
 
     The spread ...f copies all existing fields and then overwrites just the one we want.
@@ -379,12 +379,12 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   }
 
   /*
-    setItem(index, key, value) — update a single field on a single line item.
+    setItem(index, key, value): update a single field on a single line item.
 
     Arguments:
-      index — which line item to update (0 = first row, 1 = second row, etc.)
-      key   — which field to update ("description", "quantity", or "unit_price")
-      value — the new value typed by the user
+      index: which line item to update (0 = first row, 1 = second row, etc.)
+      key  : which field to update ("description", "quantity", or "unit_price")
+      value: the new value typed by the user
 
     When quantity or unit_price changes, we also recalculate the row total automatically.
     Empty strings are treated as 0 so the field doesn't glitch when the user clears it.
@@ -399,7 +399,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
       // If quantity or price changed, recalculate the row total
       if (key === "quantity" || key === "unit_price") {
-        // Parse the values — treat empty string as 0
+        // Parse the values: treat empty string as 0
         let qty = 0;
         if (updatedRow.quantity !== "") {
           qty = parseFloat(updatedRow.quantity) || 0;
@@ -433,9 +433,9 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   /*
     Calculate the running totals shown at the bottom of the form.
 
-    subtotal — sum of all line item totals (before tax)
-    tax      — 15% of subtotal, or 0 if the receipt is marked tax exempt
-    total    — subtotal + tax
+    subtotal: sum of all line item totals (before tax)
+    tax     : 15% of subtotal, or 0 if the receipt is marked tax exempt
+    total   : subtotal + tax
   */
   const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
 
@@ -444,7 +444,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   const total = subtotal + tax;
 
   /*
-    cycleCorner() — advances the logo corner one step through CORNER_ORDER on each click.
+    cycleCorner(): advances the logo corner one step through CORNER_ORDER on each click.
   */
   function cycleCorner() {
     setLogoCorner((prev) => {
@@ -454,7 +454,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   }
 
   /*
-    handleLogoUpload(event) — uploads the selected image to Supabase Storage and
+    handleLogoUpload(event): uploads the selected image to Supabase Storage and
     updates both local state and the user's profile so the new logo persists.
   */
   async function handleLogoUpload(event) {
@@ -478,7 +478,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   }
 
   /*
-    handleSubmit() — called when the user clicks "Generate Receipt" or "Save Changes".
+    handleSubmit(): called when the user clicks "Generate Receipt" or "Save Changes".
 
     Validates required fields, then calls onSubmit() with the full receipt data.
     Line items are filtered to remove any rows where description is blank
@@ -561,12 +561,12 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={onClose}>✕</button>
         </div>
 
-        {/* Text AI entry — Pro and Voice AI tiers only. Voice recording status shown on mobile for voice tier. */}
+        {/* Text AI entry: Pro and Voice AI tiers only. Voice recording status shown on mobile for voice tier. */}
         {(profile?.tier === "pro" || profile?.tier === "voice") && <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", background: "var(--surface-2)", display: "flex", alignItems: "center", gap: 10 }}>
 
           {/* Desktop: always show text input. Mobile voice tier: show recording status. Mobile free/pro: show text input. */}
           {(isDesktop || profile?.tier !== "voice") ? (
-            /* Text input — desktop all tiers, mobile free/pro */
+            /* Text input: desktop all tiers, mobile free/pro */
             <>
               <input
                 type="text"
@@ -604,7 +604,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
               )}
             </>
           ) : (
-            /* Mobile voice tier: recording status only — recording button is the full-width bar in the footer */
+            /* Mobile voice tier: recording status only: recording button is the full-width bar in the footer */
             <div style={{ flex: 1, minWidth: 0 }}>
               {!voiceRecording && !voiceParsing && !voiceTranscript && !voiceError && (
                 <span style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic" }}>
@@ -694,7 +694,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             </div>
           </div>
 
-          {/* Line items — each row is one product or service */}
+          {/* Line items: each row is one product or service */}
           <div>
             <div className="field-label" style={{ marginBottom: 10 }}>Products &amp; Services</div>
             <div className="line-item-row header">
@@ -733,7 +733,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                   onChange={(e) => setItem(i, "unit_price", e.target.value)}
                   onFocus={(e) => e.target.select()}
                 />
-                {/* Row total is read-only — it's calculated automatically from qty × price */}
+                {/* Row total is read-only: it's calculated automatically from qty × price */}
                 <input
                   className="field"
                   readOnly
@@ -756,13 +756,13 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
           {/* Totals section: subtotal, tax toggle, grand total */}
           <div style={{ borderTop: "1px solid var(--border)", paddingTop: 16, display: "grid", gap: 12 }}>
 
-            {/* Subtotal — sum of all line item totals before tax */}
+            {/* Subtotal: sum of all line item totals before tax */}
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--text-dim)" }}>
               <span>Subtotal</span>
               <span style={{ fontFamily: "var(--mono)" }}>${subtotal.toFixed(2)}</span>
             </div>
 
-            {/* Tax row — user sets their own label (GST, VAT, HST…) and rate per invoice */}
+            {/* Tax row: user sets their own label (GST, VAT, HST…) and rate per invoice */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
               <button
                 type="button"
@@ -814,7 +814,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             </div>
           </div>
 
-          {/* Notes section — hidden until the user clicks "+ Add Note" */}
+          {/* Notes section: hidden until the user clicks "+ Add Note" */}
           {showNotes ? (
             <div className="field-group" style={{ marginTop: 8 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
@@ -849,7 +849,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             </button>
           )}
 
-          {/* Logo placement — upgrade prompt for free users only */}
+          {/* Logo placement: upgrade prompt for free users only */}
           {profile?.tier !== "pro" && profile?.tier !== "voice" && (
             <button
               type="button"
@@ -926,7 +926,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                   />
                 </div>
 
-                {/* Corner picker — only shown when a logo exists */}
+                {/* Corner picker: only shown when a logo exists */}
                 {localLogoUrl && (
                   <>
                     <div style={{ fontSize: 9, color: "var(--text-muted)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>
@@ -936,7 +936,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                     {/* Single tile that cycles corner on each click */}
                     <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
 
-                      {/* Mini document tile — click to cycle */}
+                      {/* Mini document tile: click to cycle */}
                       <div
                         onClick={cycleCorner}
                         title="Click to change corner"
@@ -959,7 +959,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                         <div style={{ position: "absolute", top: 26, left: 4, right: 10, height: 2, background: "var(--border)", borderRadius: 1 }} />
                         {/* Footer strip */}
                         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 7, background: "var(--surface-2)", borderTop: "1px solid var(--border)" }} />
-                        {/* Logo position indicator — moves to current corner */}
+                        {/* Logo position indicator: moves to current corner */}
                         <div style={{
                           position: "absolute",
                           width: 16,
@@ -1002,7 +1002,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
         <div className="modal-footer" style={{ alignItems: "center", ...(!isDesktop && profile?.tier === "voice" ? { padding: 0, paddingBottom: "env(safe-area-inset-bottom, 0px)", gap: 0 } : {}) }}>
           {profile?.tier === "voice" ? (
             isDesktop ? (
-              /* Desktop: small orb + label — mouse precision is fine */
+              /* Desktop: small orb + label: mouse precision is fine */
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <button
                   type="button"
@@ -1027,7 +1027,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 </span>
               </div>
             ) : (
-              /* Mobile: full-width easy-to-tap button — no more tiny orb */
+              /* Mobile: full-width easy-to-tap button: no more tiny orb */
               <button
                 type="button"
                 onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}

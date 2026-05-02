@@ -41,7 +41,7 @@ test.describe("Landing page", () => {
   });
 
   test("hero CTA button is visible", async ({ page }) => {
-    // Multiple CTA buttons exist on the page (hero + pricing section) — check the first one
+    // Multiple CTA buttons exist on the page (hero + pricing section): check the first one
     const cta = page.getByRole("button", { name: /start invoicing free|create your first invoice/i }).first();
     await expect(cta).toBeVisible();
   });

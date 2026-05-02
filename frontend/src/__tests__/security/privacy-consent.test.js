@@ -9,30 +9,30 @@
   InvoicePrepper charges $6 CAD/month and processes user data (email, business
   name, address, invoice content). From Canada, this creates obligations under:
 
-    • PIPEDA (Canadian federal privacy law) — requires informed consent before
+    • PIPEDA (Canadian federal privacy law): requires informed consent before
       collecting personal information, and the ability to withdraw that consent.
 
-    • CASL (Canada's Anti-Spam Law) — sending commercial electronic messages
+    • CASL (Canada's Anti-Spam Law): sending commercial electronic messages
       requires express consent AND a functioning unsubscribe mechanism.
 
-    • FTC Act (US users) — deceptive subscription practices are actionable.
+    • FTC Act (US users): deceptive subscription practices are actionable.
       FTC regulations require: clear disclosure before charging, easy cancellation,
       and immediate cancellation processing.
 
-    • Consumer Protection Laws (general) — users must be able to cancel their
+    • Consumer Protection Laws (general): users must be able to cancel their
       own subscriptions without contacting support.
 
   These tests verify the contract between the UI's consent capture and the
   Supabase auth metadata schema. If either side changes without the other, a
-  signup could complete without valid consent being recorded — exposing
+  signup could complete without valid consent being recorded: exposing
   InvoicePrepper to regulatory liability.
 
   WHAT WE VERIFY:
   ───────────────
-  1.  Consent schema — required fields are present and correctly named
+  1.  Consent schema: required fields are present and correctly named
   2.  terms_agreed_at is stored as a UTC ISO 8601 timestamp (auditable)
   3.  email_marketing_ok is a boolean (not a truthy string or number)
-  4.  Consent cannot be backdated — timestamp must be within 5 seconds of "now"
+  4.  Consent cannot be backdated: timestamp must be within 5 seconds of "now"
   5.  Marketing opt-in defaults to true (pre-checked) but is not required
   6.  Signup is blocked when terms_agreed_at is absent
   7.  Signup is blocked when terms_agreed_at is a non-date string
@@ -76,7 +76,7 @@ function isValidConsent(meta) {
   if (isNaN(Date.parse(meta.terms_agreed_at))) return false;
   if (typeof meta.email_marketing_ok !== "boolean") return false;
 
-  // Reject epoch zero — a default/unset timestamp is not real consent
+  // Reject epoch zero: a default/unset timestamp is not real consent
   if (new Date(meta.terms_agreed_at).getTime() === 0) return false;
 
   return true;
@@ -84,7 +84,7 @@ function isValidConsent(meta) {
 // ──────────────────────────────────────────────────────────────────────────────
 
 
-describe("Consent schema — field naming and structure", () => {
+describe("Consent schema: field naming and structure", () => {
 
   it("buildConsentMetadata returns an object with all required fields when terms agreed", () => {
     /*
@@ -118,13 +118,13 @@ describe("Consent schema — field naming and structure", () => {
 });
 
 
-describe("terms_agreed_at — timestamp integrity", () => {
+describe("terms_agreed_at: timestamp integrity", () => {
 
   it("is a valid ISO 8601 UTC string", () => {
     /*
       ISO 8601 with UTC ('Z' suffix) is the audit-safe format. If the timestamp
       is in a local timezone, it becomes ambiguous when stored in a system that
-      normalises to UTC — the agreement time could appear to be in the future
+      normalises to UTC: the agreement time could appear to be in the future
       or past depending on the server's locale.
     */
     const meta = buildConsentMetadata({ termsAgreed: true, emailOptIn: false });
@@ -151,7 +151,7 @@ describe("terms_agreed_at — timestamp integrity", () => {
     expect(ts).toBeLessThanOrEqual(after + 5000);
   });
 
-  it("is not epoch zero (1970-01-01) — a sentinel for unset/default", () => {
+  it("is not epoch zero (1970-01-01): a sentinel for unset/default", () => {
     /*
       If a bug caused the timestamp to default to 'new Date(0).toISOString()',
       we'd have consent records that all claim the user agreed in 1970.
@@ -163,7 +163,7 @@ describe("terms_agreed_at — timestamp integrity", () => {
 });
 
 
-describe("email_marketing_ok — opt-in/opt-out correctness", () => {
+describe("email_marketing_ok: opt-in/opt-out correctness", () => {
 
   it("is stored as a boolean true when user opts in", () => {
     /*
@@ -202,14 +202,14 @@ describe("email_marketing_ok — opt-in/opt-out correctness", () => {
 });
 
 
-describe("isValidConsent — consent validation gate", () => {
+describe("isValidConsent: consent validation gate", () => {
 
   it("accepts a well-formed consent object", () => {
     const meta = buildConsentMetadata({ termsAgreed: true, emailOptIn: true });
     expect(isValidConsent(meta)).toBe(true);
   });
 
-  it("rejects null (terms not agreed — signup blocked)", () => {
+  it("rejects null (terms not agreed: signup blocked)", () => {
     expect(isValidConsent(null)).toBe(false);
   });
 
@@ -231,7 +231,7 @@ describe("isValidConsent — consent validation gate", () => {
   it("rejects an object where email_marketing_ok is a string instead of boolean", () => {
     /*
       String "true" evaluates as truthy in JS but is not the same type as
-      boolean true. The DB schema should be boolean — this test catches a
+      boolean true. The DB schema should be boolean: this test catches a
       serialization regression that could happen if the value is read from a
       form input (which always returns strings) without explicit casting.
     */
@@ -262,7 +262,7 @@ describe("isValidConsent — consent validation gate", () => {
 });
 
 
-describe("Recurring billing disclosure — pre-checkout contract", () => {
+describe("Recurring billing disclosure: pre-checkout contract", () => {
   /*
     The FTC's Negative Option Rule and ROSCA require that before a user is
     charged a recurring fee, they must see:
@@ -273,7 +273,7 @@ describe("Recurring billing disclosure — pre-checkout contract", () => {
     We verify these strings are present in the disclosure text that must be
     shown in the upgrade confirmation modal before the Stripe redirect fires.
 
-    These tests document the disclosure content as a contract — if the UI
+    These tests document the disclosure content as a contract: if the UI
     copy is changed to remove required elements, the tests fail.
   */
 
@@ -287,7 +287,7 @@ describe("Recurring billing disclosure — pre-checkout contract", () => {
   // The actual disclosure text shown in the upgrade modal (App.jsx)
   const UPGRADE_MODAL_DISCLOSURE =
     "You will be charged $6.00 USD each month. Your subscription renews automatically until cancelled. " +
-    "Cancellation takes effect at the end of the current billing period — no partial refunds.";
+    "Cancellation takes effect at the end of the current billing period: no partial refunds.";
 
   it.each(REQUIRED_DISCLOSURE_ELEMENTS)(
     "disclosure contains required element: $key",

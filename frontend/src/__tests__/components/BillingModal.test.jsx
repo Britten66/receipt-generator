@@ -6,7 +6,7 @@
 
   WHY THIS MATTERS:
   ─────────────────
-  BillingModal has the most complex conditional rendering in the app — free vs
+  BillingModal has the most complex conditional rendering in the app: free vs
   paid view, loading state, error state, cancelled subscription notice, and
   action buttons. Paid users hit this when managing their subscription. A
   broken state means they can't cancel or access billing history.
@@ -51,7 +51,7 @@ function renderModal(profileTier = "free", overrides = {}) {
   return props;
 }
 
-describe("BillingModal — free user", () => {
+describe("BillingModal: free user", () => {
   it("shows Free plan heading", () => {
     renderModal("free");
     expect(screen.getByText("Free plan")).toBeInTheDocument();
@@ -80,7 +80,7 @@ describe("BillingModal — free user", () => {
   });
 });
 
-describe("BillingModal — paid user", () => {
+describe("BillingModal: paid user", () => {
   it("pro user sees Pro label", () => {
     renderModal("pro");
     expect(screen.getByText(/Pro · CAD \$9 \/ mo/i)).toBeInTheDocument();
@@ -102,14 +102,14 @@ describe("BillingModal — paid user", () => {
   });
 
   it("shows Loading billing info... before status loads", () => {
-    // fetchSubscriptionStatus returns a pending promise — status stays null
+    // fetchSubscriptionStatus returns a pending promise: status stays null
     vi.mocked(fetchSubscriptionStatus).mockReturnValueOnce(new Promise(() => {}));
     renderModal("pro");
     expect(screen.getByText(/loading billing info/i)).toBeInTheDocument();
   });
 });
 
-describe("BillingModal — close", () => {
+describe("BillingModal: close", () => {
   it("close button calls onClose", () => {
     const { onClose } = renderModal("free");
     fireEvent.click(screen.getByRole("button", { name: /✕/ }));

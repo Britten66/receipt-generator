@@ -6,23 +6,23 @@
 
   WHY THIS MATTERS:
   ─────────────────
-  These are the silent failure modes that don't throw errors — they just
+  These are the silent failure modes that don't throw errors: they just
   produce wrong output. Wrong numbers on invoices, broken CSV exports, bad
   redirects, and missed rate limit resets. Each test here was written because
   a real failure path exists in the codebase.
 
   COVERS:
   ───────
-  1.  Stripe redirect URL safety (billing.js — window.location.href = body.url)
+  1.  Stripe redirect URL safety (billing.js: window.location.href = body.url)
   2.  Billing portal URL safety (same pattern in openBillingPortal)
   3.  return_url safety (window.location.origin sent to Stripe)
-  4.  JWT decode — malformed token payload fails gracefully
-  5.  CSV cell escaping — commas, quotes, newlines in client names
-  6.  CSV num formatting — null/undefined amounts
-  7.  Date formatting — invalid date, missing date, timezone edge
-  8.  Rate limit month boundary — counter resets on the 1st
-  9.  Tier gate — free user blocked at 15/day, pro user allowed
-  10. Invoice number padding — always 6 digits
+  4.  JWT decode: malformed token payload fails gracefully
+  5.  CSV cell escaping: commas, quotes, newlines in client names
+  6.  CSV num formatting: null/undefined amounts
+  7.  Date formatting: invalid date, missing date, timezone edge
+  8.  Rate limit month boundary: counter resets on the 1st
+  9.  Tier gate: free user blocked at 15/day, pro user allowed
+  10. Invoice number padding: always 6 digits
   ══════════════════════════════════════════════════════════════════════════════
 */
 
@@ -33,7 +33,7 @@ describe("Invoice Logic", () => {
 // ── 1 & 2. Stripe / portal URL safety ────────────────────────────────────────
 // Replicated from billing.js intent: only redirect to safe URLs.
 // body.url from the edge function should always be a Stripe checkout URL.
-// If it isn't, we must not redirect — especially not to javascript: or about:blank.
+// If it isn't, we must not redirect: especially not to javascript: or about:blank.
 
 function isSafeRedirectUrl(url) {
   if (!url || typeof url !== "string") return false;
@@ -115,10 +115,10 @@ describe("return_url (window.location.origin) safety", () => {
   });
 });
 
-// ── 4. JWT decode — malformed token ──────────────────────────────────────────
+// ── 4. JWT decode: malformed token ──────────────────────────────────────────
 // Replicated from receipts.js:
 //   const { exp } = JSON.parse(atob(session.access_token.split(".")[1]));
-// A malformed token must not throw an unhandled error — the try/catch wraps it.
+// A malformed token must not throw an unhandled error: the try/catch wraps it.
 
 function decodeJwtExpiry(token) {
   try {
@@ -129,7 +129,7 @@ function decodeJwtExpiry(token) {
   }
 }
 
-describe("JWT expiry decode — malformed token handling", () => {
+describe("JWT expiry decode: malformed token handling", () => {
   it("decodes a well-formed JWT and returns exp", () => {
     // Build a minimal fake JWT: header.payload.signature
     const payload = btoa(JSON.stringify({ exp: 9999999999 }));
@@ -157,7 +157,7 @@ describe("JWT expiry decode — malformed token handling", () => {
   it("returns null for a payload missing the exp field", () => {
     const payload = btoa(JSON.stringify({ sub: "user-123" }));
     const token = `header.${payload}.sig`;
-    // exp is undefined — that's ok, caller checks exp * 1000 <= Date.now()
+    // exp is undefined: that's ok, caller checks exp * 1000 <= Date.now()
     // undefined * 1000 = NaN which is not <= Date.now(), so no refresh triggered
     expect(decodeJwtExpiry(token)).toBeUndefined();
   });
@@ -267,7 +267,7 @@ describe("Invoice date formatting", () => {
 
 // ── 8. Rate limit month boundary ──────────────────────────────────────────────
 // The text-parse edge function tracks usage by month.
-// Counter must reset on the 1st — an off-by-one means users either
+// Counter must reset on the 1st: an off-by-one means users either
 // lose parses at month end or get unlimited parses for one day.
 
 // Use explicit year/month values to avoid UTC vs local timezone shifts
@@ -302,7 +302,7 @@ describe("Rate limit month boundary", () => {
   });
 });
 
-// ── 9. Tier gate — parse limit enforcement ────────────────────────────────────
+// ── 9. Tier gate: parse limit enforcement ────────────────────────────────────
 // Pro users get 15 text parses per day. Voice AI users get unlimited.
 // Free users get 0 (blocked entirely).
 
@@ -363,7 +363,7 @@ describe("Invoice number padding", () => {
   });
 
   it("handles 7 digits without truncation", () => {
-    // Should not truncate — padStart only adds, never removes
+    // Should not truncate: padStart only adds, never removes
     expect(formatInvoiceNumber(1000000)).toBe("INV-1000000");
   });
 

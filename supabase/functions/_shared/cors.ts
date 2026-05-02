@@ -15,5 +15,5 @@ export function getCorsHeaders(origin: string | null) {
   };
 }
 
-// Legacy export — use getCorsHeaders(origin) in new code
+// Legacy export: use getCorsHeaders(origin) in new code
 export const corsHeaders = getCorsHeaders(null);

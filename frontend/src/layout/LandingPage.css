@@ -7,9 +7,10 @@
   font-family: var(--sans);
   overflow-x: hidden;
   padding-top: 48px; /* clears the fixed nav */
+  cursor: default;
 }
 
-/* ── NAV — lazy-follow fixed ── */
+/* ── NAV: lazy-follow fixed ── */
 .lv2-topbar {
   position: fixed;
   top: 0;
@@ -70,7 +71,7 @@
 .lv2-currency-select:hover { border-color: var(--text); color: var(--text); }
 .lv2-currency-select option { background: var(--bg); color: var(--text); }
 
-/* Shared base for both nav buttons — same box model, same font as the app */
+/* Shared base for both nav buttons: same box model, same font as the app */
 .lv2-nav-login,
 .lv2-signin {
   display: inline-flex;
@@ -89,7 +90,7 @@
   transition: color 0.1s, border-color 0.1s, opacity 0.1s;
 }
 
-/* Ghost "Sign In" — secondary */
+/* Ghost "Sign In": secondary */
 .lv2-nav-login {
   background: none;
   border: 1px solid var(--border);
@@ -97,7 +98,7 @@
 }
 .lv2-nav-login:hover { color: var(--text); border-color: var(--text); }
 
-/* Filled "Sign Up" — primary */
+/* Filled "Sign Up": primary */
 .lv2-signin {
   background: var(--text);
   border: 1px solid var(--text);
@@ -172,7 +173,7 @@
   color: var(--text-muted);
 }
 
-/* Invoice preview pane — static, no scroll */
+/* Invoice preview pane: static, no scroll */
 .lv2-hero-preview {
   overflow: hidden;
   background: var(--surface-2);
@@ -180,7 +181,7 @@
   box-shadow: 0 24px 72px rgba(0,0,0,0.28), 0 4px 16px rgba(0,0,0,0.14);
 }
 
-/* Fade only the bottom edge — must match the mock invoice background, not the container */
+/* Fade only the bottom edge: must match the mock invoice background, not the container */
 .lv2-hero-preview::after {
   content: "";
   position: absolute;
@@ -195,7 +196,7 @@
   background: linear-gradient(to top, #1e2022, transparent);
 }
 
-/* Preview + reflection wrapper — overflow:clip prevents glow bleed pushing section taller */
+/* Preview + reflection wrapper: overflow:clip prevents glow bleed pushing section taller */
 .lv2-preview-wrap {
   display: flex;
   flex-direction: column;
@@ -234,7 +235,7 @@
   flex: 1;
 }
 
-/* Force full glow on any hover — center included */
+/* Force full glow on any hover: center included */
 .lv2-plan-glow.border-glow-card:hover::before,
 .lv2-plan-glow.border-glow-card:hover > .edge-light {
   opacity: 0.85;
@@ -268,7 +269,7 @@
   display: none;
 }
 
-/* ── MOCK INVOICE — premium document style ── */
+/* ── MOCK INVOICE: premium document style ── */
 .mock-invoice {
   background: #fff;
   padding: 32px;
@@ -342,7 +343,7 @@
 }
 [data-theme="dark"] .mock-invoice-meta { color: #5a5854; }
 
-/* Status badge — mirrors the real app stamp */
+/* Status badge: mirrors the real app stamp */
 .mock-status-badge {
   display: inline-flex;
   align-items: center;
@@ -501,7 +502,7 @@
 }
 
 .lv2-problem-item::before {
-  content: "— ";
+  content: "- ";
   color: var(--text-muted);
 }
 
@@ -555,6 +556,7 @@
   flex-direction: column;
   gap: 8px;
   position: relative;
+  cursor: default;
 }
 
 .lv2-feature-card-pro {
@@ -865,6 +867,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  cursor: default;
 }
 
 .lv2-plan-pro {
@@ -1028,6 +1031,7 @@
   font-size: 10px;
   color: var(--text-muted);
 }
+
 
 /* ── MOBILE ── */
 @media (max-width: 768px) {

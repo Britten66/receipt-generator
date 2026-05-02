@@ -64,7 +64,7 @@ function renderSidebar(overrides = {}) {
   return props;
 }
 
-describe("AppSidebar — stats", () => {
+describe("AppSidebar: stats", () => {
   it("displays revenue", () => {
     renderSidebar();
     expect(screen.getByText("$300.00")).toBeInTheDocument();
@@ -77,14 +77,14 @@ describe("AppSidebar — stats", () => {
 
   it("displays invoice count", () => {
     renderSidebar();
-    // "3" appears multiple times (invoice count + filter badges) — check the stat block
+    // "3" appears multiple times (invoice count + filter badges): check the stat block
     const statValues = document.querySelectorAll(".stat-value");
     const countStat = Array.from(statValues).find(el => el.textContent === "3");
     expect(countStat).toBeTruthy();
   });
 });
 
-describe("AppSidebar — filters", () => {
+describe("AppSidebar: filters", () => {
   it("active filter button has 'active' class", () => {
     renderSidebar({ filter: "draft" });
     const draftBtn = screen.getByRole("button", { name: /draft/i });
@@ -110,7 +110,7 @@ describe("AppSidebar — filters", () => {
   });
 });
 
-describe("AppSidebar — profile", () => {
+describe("AppSidebar: profile", () => {
   it("shows business name when profile has one", () => {
     renderSidebar({ profile: { business_name: "Acme Co" } });
     expect(screen.getByText(/Acme Co/)).toBeInTheDocument();
@@ -128,7 +128,7 @@ describe("AppSidebar — profile", () => {
   });
 });
 
-describe("AppSidebar — action buttons", () => {
+describe("AppSidebar: action buttons", () => {
   it("New Invoice button calls openNewReceipt", () => {
     const { openNewReceipt } = renderSidebar();
     fireEvent.click(screen.getByRole("button", { name: /\+ New Invoice/i }));
