@@ -90,6 +90,20 @@
   transition: color 0.1s, border-color 0.1s, opacity 0.1s;
 }
 
+/* Gift / referral icon in nav */
+.lv2-nav-gift {
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.lv2-nav-gift:hover { color: var(--accent); }
+.lv2-nav-gift:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
 /* Ghost "Sign In": secondary */
 .lv2-nav-login {
   background: none;
@@ -97,6 +111,7 @@
   color: var(--text-dim);
 }
 .lv2-nav-login:hover { color: var(--text); border-color: var(--text); }
+.lv2-nav-login:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Filled "Sign Up": primary */
 .lv2-signin {
@@ -105,135 +120,8 @@
   color: var(--bg);
 }
 .lv2-signin:hover { opacity: 0.8; }
+.lv2-signin:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* Referral promo: friendly modal shown once per session when ?ref= is detected */
-.lv2-ref-promo-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 10, 10, 0.55);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 24px;
-  animation: lv2-ref-fade 0.18s ease-out;
-}
-@keyframes lv2-ref-fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-.lv2-ref-promo {
-  position: relative;
-  width: 100%;
-  max-width: 420px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  padding: 36px 32px 28px;
-  font-family: var(--sans);
-  text-align: center;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.4);
-  animation: lv2-ref-rise 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-@keyframes lv2-ref-rise {
-  from { transform: translateY(12px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-.lv2-ref-promo-close {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.12s, border-color 0.12s, background 0.12s;
-}
-.lv2-ref-promo-close:hover {
-  color: var(--text);
-  border-color: var(--text);
-  background: var(--bg);
-}
-.lv2-ref-promo-eyebrow {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 12px;
-}
-.lv2-ref-promo-title {
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--text);
-  margin-bottom: 10px;
-  line-height: 1.25;
-}
-.lv2-ref-promo-sub {
-  font-size: 13px;
-  color: var(--text-dim);
-  line-height: 1.6;
-  margin-bottom: 20px;
-}
-.lv2-ref-promo-code {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border-light);
-  padding: 12px 16px;
-  margin-bottom: 20px;
-}
-.lv2-ref-promo-code-label {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-.lv2-ref-promo-code-val {
-  font-family: var(--mono);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--text);
-}
-.lv2-ref-promo-cta {
-  display: block;
-  width: 100%;
-  background: var(--text);
-  color: var(--bg);
-  border: 1px solid var(--text);
-  padding: 14px 20px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  margin-bottom: 8px;
-  transition: opacity 0.12s;
-}
-.lv2-ref-promo-cta:hover { opacity: 0.85; }
-.lv2-ref-promo-skip {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 11px;
-  cursor: pointer;
-  padding: 8px;
-}
-.lv2-ref-promo-skip:hover { color: var(--text-dim); }
 
 /* Referral banner: shown only when ?ref= captured a code into localStorage */
 .lv2-ref-banner {
@@ -373,6 +261,77 @@
   margin-top: 10px;
 }
 
+/* "See an example" sticker: absolute bottom-right of the preview card */
+.lv2-try-me-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 16px;
+  z-index: 10;
+  padding: 8px 16px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-family: var(--sans);
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+  transform: rotate(2deg);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.32);
+  transition: transform 0.14s, box-shadow 0.14s;
+  -webkit-tap-highlight-color: transparent;
+}
+.lv2-try-me-btn:hover { transform: rotate(0deg) scale(1.07); box-shadow: 0 5px 18px rgba(0, 0, 0, 0.38); }
+.lv2-try-me-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.lv2-try-me-btn:disabled { opacity: 0.65; cursor: default; transform: rotate(2deg); }
+
+/* PDF preview modal */
+.example-pdf-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(820px, calc(100vw - 32px));
+  height: min(90vh, 1060px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.36);
+  overflow: hidden;
+}
+.example-pdf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.example-pdf-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-family: var(--sans);
+}
+.example-pdf-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-dim);
+  padding: 4px 8px;
+  line-height: 1;
+  transition: color 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.example-pdf-close:hover { color: var(--text); }
+.example-pdf-frame {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: #fff;
+}
+
 .lv2-plan-glow {
   display: flex;
   flex-direction: column;
@@ -501,26 +460,11 @@
   gap: 5px;
   font-size: 10px;
   font-weight: 500;
-  padding: 3px 9px;
+  padding: 2px 4px;
   letter-spacing: 0.04em;
 }
-.mock-status-badge::before {
-  content: "";
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.mock-status-sent {
-  color: #1a3060;
-  background: rgba(26,48,96,0.08);
-}
-.mock-status-sent::before { background: #4a70c0; }
-[data-theme="dark"] .mock-status-sent {
-  color: #c8d8f8;
-  background: rgba(100,140,220,0.15);
-}
-[data-theme="dark"] .mock-status-sent::before { background: #6490e0; }
+.mock-status-sent { color: #1a3060; }
+[data-theme="dark"] .mock-status-sent { color: #4a70c0; }
 
 .mock-invoice-divider {
   height: 1px;
@@ -614,7 +558,7 @@
 }
 [data-theme="dark"] .mock-invoice-notes {
   border-top-color: #2a2e32;
-  color: #4a4845;
+  color: #7a7875;
 }
 
 /* ── PROBLEM SECTION ── */
@@ -1112,6 +1056,24 @@
   opacity: 1;
 }
 
+.lv2-plan-promo-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 0 0 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+.lv2-plan-promo-btn:hover { opacity: 1; }
+
 .lv2-plan-btn {
   width: 100%;
   padding: 12px;
@@ -1129,6 +1091,7 @@
 }
 
 .lv2-plan-btn:hover { opacity: 0.85; }
+.lv2-plan-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .lv2-plan-btn:active {
   box-shadow: inset 1px 1px 0 rgba(0,0,0,0.3);
   transform: translate(1px, 1px);
@@ -1266,23 +1229,6 @@
     padding-top: 48px;
   }
 
-  /* Outreach promo: shrink padding, tighten title on small screens. */
-  .lv2-ref-promo-backdrop {
-    padding: 16px;
-  }
-  .lv2-ref-promo {
-    padding: 28px 20px 22px;
-  }
-  .lv2-ref-promo-title {
-    font-size: 19px;
-  }
-  .lv2-ref-promo-sub {
-    font-size: 12px;
-  }
-  .lv2-ref-promo-code-val {
-    font-size: 15px;
-    letter-spacing: 0.08em;
-  }
 
   /* Referral banner wraps cleanly on narrow screens */
   .lv2-ref-banner {
