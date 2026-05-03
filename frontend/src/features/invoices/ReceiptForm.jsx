@@ -682,33 +682,14 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
               />
             </div>
             <div className="field-group">
-              <label className="field-label" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                <span>Due Date</span>
-                <label style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 400, textTransform: "none", letterSpacing: 0, color: "var(--text-muted)", cursor: "pointer" }}>
-                  <input
-                    type="checkbox"
-                    checked={!!form.due_by}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        // Default: 14 days from issue date
-                        const base = form.date ? new Date(form.date) : new Date();
-                        base.setDate(base.getDate() + 14);
-                        setField("due_by", base.toISOString().split("T")[0]);
-                      } else {
-                        setField("due_by", "");
-                      }
-                    }}
-                  />
-                  Set
-                </label>
-              </label>
+              <label className="field-label" htmlFor="due-date">Due Date <span style={{ fontWeight: 400, color: "var(--text-muted)", textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
               <input
+                id="due-date"
                 className="field"
                 type="date"
                 value={form.due_by}
                 onChange={(e) => setField("due_by", e.target.value)}
-                disabled={!form.due_by && !document.activeElement?.matches?.("input[type=checkbox]")}
-                style={!form.due_by ? { opacity: 0.5 } : undefined}
+                placeholder="Optional"
               />
             </div>
             <div className="field-group">
