@@ -174,12 +174,16 @@ async function buildDoc(receipt) {
   doc.setTextColor(100, 96, 90);
 
   if (receipt.date) {
-    // Format the date as YYYY-MM-DD (Canadian format)
     const formattedDate = new Date(receipt.date).toLocaleDateString("en-CA");
     doc.text(`Date: ${formattedDate}`, m, metaY);
-    doc.text(`Status: ${receipt.status.toUpperCase()}`, m + 50, metaY);
+    if (receipt.due_by) {
+      const formattedDue = new Date(receipt.due_by + "T00:00:00").toLocaleDateString("en-CA");
+      doc.text(`Due: ${formattedDue}`, m + 50, metaY);
+      doc.text(`Status: ${receipt.status.toUpperCase()}`, m + 100, metaY);
+    } else {
+      doc.text(`Status: ${receipt.status.toUpperCase()}`, m + 50, metaY);
+    }
   } else {
-    // No date: just show the status
     doc.text(`Status: ${receipt.status.toUpperCase()}`, m, metaY);
   }
 
@@ -344,6 +348,43 @@ export async function downloadReceiptPDF(receipt) {
 */
 export async function getPDFBlobUrl(receipt) {
   const doc = await buildDoc(receipt);
+  return doc.output("bloburl");
+}
+
+/*
+  getExamplePDFBlobUrl(): builds a sample invoice PDF with a diagonal EXAMPLE
+  watermark for the landing page "Try Me" demo. No receipt data required.
+  Caller is responsible for revoking via URL.revokeObjectURL when done.
+*/
+export async function getExamplePDFBlobUrl() {
+  const example = {
+    receipt_number: "INV-001042",
+    vendor_name: "Maple & Co. Creative",
+    customer_name: "Summit Tech Solutions",
+    date: "2026-03-14",
+    status: "sent",
+    subtotal: 1930.00,
+    tax: 250.90,
+    total: 2180.90,
+    notes: "Payment due within 14 days. Thank you for your business.",
+    currency: "CAD",
+    line_items: [
+      { description: "Brand Identity Package", quantity: 1, unit_price: 1200.00, total: 1200.00 },
+      { description: "Social Media Asset Kit", quantity: 3, unit_price: 180.00, total: 540.00 },
+      { description: "Revision Round", quantity: 2, unit_price: 95.00, total: 190.00 },
+    ],
+  };
+
+  const doc = await buildDoc(example);
+
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(68);
+  doc.setTextColor(215, 212, 208);
+  doc.text("EXAMPLE", pageW / 2, pageH / 2, { angle: 45, align: "center", baseline: "middle" });
+
   return doc.output("bloburl");
 }
 

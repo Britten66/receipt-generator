@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
+import { Gift, Newspaper, Send } from "lucide-react";
 import posthog from "posthog-js";
 import LegalModal from "../features/profile/LegalModal";
+import ReferralModal from "../features/referrals/ReferralModal";
 import BorderGlow from "./BorderGlow";
 import Threads from "./Threads";
 import "./LandingPage.css";
@@ -46,7 +48,10 @@ function MockInvoice() {
       {/* Meta row: date + status badge */}
       <div className="mock-invoice-meta">
         <span>{MOCK_INVOICE.date}</span>
-        <span className="mock-status-badge mock-status-sent">Sent</span>
+        <span className="mock-status-badge mock-status-sent">
+          <Send size={10} strokeWidth={2} />
+          Sent
+        </span>
       </div>
 
       <div className="mock-invoice-divider" />
@@ -88,22 +93,39 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
   const [ctaVariant, setCtaVariant] = useState("control");
   const navRef = useRef(null);
   const refCode = typeof localStorage !== "undefined" ? localStorage.getItem("pending_ref_code") : null;
-  const [showRefPromo, setShowRefPromo] = useState(false);
+  const [showReferralModal, setShowReferralModal] = useState(false);
+  const [examplePdfUrl, setExamplePdfUrl] = useState(null);
+  const [exampleLoading, setExampleLoading] = useState(false);
 
-  // Show the referral promo once per session when a code is pending.
-  // sessionStorage means it reappears on a new browser session but does not nag.
-  useEffect(() => {
-    if (!refCode) return;
-    if (typeof sessionStorage === "undefined") return;
-    if (sessionStorage.getItem("ref_promo_seen") === "1") return;
-    const t = setTimeout(() => setShowRefPromo(true), 600);
-    return () => clearTimeout(t);
-  }, [refCode]);
-
-  function dismissRefPromo() {
-    setShowRefPromo(false);
-    try { sessionStorage.setItem("ref_promo_seen", "1"); } catch { /* private mode */ }
+  async function handleTryMe() {
+    if (exampleLoading) return;
+    setExampleLoading(true);
+    try {
+      const { getExamplePDFBlobUrl } = await import("../features/invoices/ReceiptPDF");
+      const url = await getExamplePDFBlobUrl();
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.userAgent));
+      if (isIOS) {
+        window.open(url, "_blank");
+      } else {
+        setExamplePdfUrl(url);
+      }
+    } finally {
+      setExampleLoading(false);
+    }
   }
+
+  function closeExamplePdf() {
+    if (examplePdfUrl) URL.revokeObjectURL(examplePdfUrl);
+    setExamplePdfUrl(null);
+  }
+
+  useEffect(() => {
+    if (!examplePdfUrl) return;
+    const handler = (e) => { if (e.key === "Escape") closeExamplePdf(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [examplePdfUrl]);
 
   // A/B test: hero CTA copy. Flag key: landing-cta-copy
   // Variants: control ("Start Invoicing Free") vs first-invoice ("Create Your First Invoice")
@@ -148,6 +170,12 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           </button>
         </div>
         <div className="lv2-nav-controls">
+          <a className="lv2-nav-gift" href="/blog" target="_blank" rel="noopener noreferrer" aria-label="What's new" title="What's new">
+            <Newspaper size={17} strokeWidth={1.75} />
+          </a>
+          <button className="lv2-nav-gift" onClick={() => setShowReferralModal(true)} aria-label="Refer a friend" title="Refer a friend, you both get 1 month Pro free">
+            <Gift size={17} strokeWidth={1.75} />
+          </button>
           <select
             className="lv2-currency-select"
             value={currency}
@@ -199,6 +227,14 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           >
             <div className="lv2-hero-preview" aria-label="Sample invoice preview">
               <MockInvoice />
+              <button
+                className="lv2-try-me-btn"
+                onClick={handleTryMe}
+                disabled={exampleLoading}
+                aria-label="Open a sample PDF"
+              >
+                {exampleLoading ? "..." : "See an example"}
+              </button>
             </div>
           </BorderGlow>
         </div>
@@ -258,8 +294,8 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             className="lv2-plan-glow"
           >
             <div className="lv2-plan">
-              <div className="lv2-plan-name">Free</div>
-              <div className="lv2-plan-price">{currency || "CAD"} $0<span>/mo</span></div>
+              <div className="lv2-plan-name">Basic</div>
+              <div className="lv2-plan-price">Free</div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>No credit card required</p>
               <ul className="lv2-plan-features">
                 <li>Unlimited invoices</li>
@@ -288,15 +324,20 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             className="lv2-plan-glow"
           >
             <div className="lv2-plan lv2-plan-pro">
+              <button className="lv2-plan-promo-btn" onClick={() => setShowReferralModal(true)} title="Check out our promotion">
+                <Gift size={14} strokeWidth={1.75} />
+                <span>Check out our promotion</span>
+              </button>
               <div className="lv2-plan-name">Pro</div>
               <div className="lv2-plan-price">{currency || "CAD"} $9<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
               <ul className="lv2-plan-features">
-                <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Everything in Free</li>
-                <li>Email invoices straight to clients with your logo</li>
-                <li>Text AI parsing: describe an invoice, the form fills itself (15 per day)</li>
-                <li>Send payment reminders to clients who haven't paid</li>
-                <li>CSV export ready for your accountant</li>
+                <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Everything in Basic</li>
+                <li>Email invoices to clients with your logo</li>
+                <li>Invoice due dates</li>
+                <li>Text AI parsing: describe an invoice, the form fills itself</li>
+                <li>Send payment reminders to clients</li>
+                <li>CSV export</li>
                 <li>Custom dashboard themes</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro}>Get Pro</button>
@@ -440,24 +481,26 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
 
       {legal && <LegalModal type={legal} onClose={() => setLegal(null)} />}
 
-      {showRefPromo && (
-        <div className="lv2-ref-promo-backdrop" onClick={dismissRefPromo} role="dialog" aria-modal="true" aria-labelledby="ref-promo-title">
-          <div className="lv2-ref-promo" onClick={(e) => e.stopPropagation()}>
-            <button className="lv2-ref-promo-close" onClick={dismissRefPromo} aria-label="Close promo">✕</button>
-            <div className="lv2-ref-promo-eyebrow">Outreach Promo</div>
-            <h2 id="ref-promo-title" className="lv2-ref-promo-title">Give the gift of Pro.</h2>
-            <p className="lv2-ref-promo-sub">A friend signs up, makes an invoice, and you both get a month of Pro free.</p>
-            <div className="lv2-ref-promo-code">
-              <span className="lv2-ref-promo-code-label">Your friend's code</span>
-              <span className="lv2-ref-promo-code-val">{refCode}</span>
+      {showReferralModal && (
+        <ReferralModal onClose={() => setShowReferralModal(false)} onSignUp={onSignUp} />
+      )}
+
+      {examplePdfUrl && (
+        <div className="modal-backdrop" onClick={closeExamplePdf}>
+          <div className="example-pdf-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Sample invoice PDF">
+            <div className="example-pdf-header">
+              <span className="example-pdf-label">Sample Invoice</span>
+              <button className="example-pdf-close" onClick={closeExamplePdf} aria-label="Close PDF preview">✕</button>
             </div>
-            <button className="lv2-ref-promo-cta" onClick={() => { dismissRefPromo(); onSignUp(); }}>
-              Claim my month
-            </button>
-            <button className="lv2-ref-promo-skip" onClick={dismissRefPromo}>Maybe later</button>
+            <iframe
+              src={examplePdfUrl}
+              title="Sample invoice PDF"
+              className="example-pdf-frame"
+            />
           </div>
         </div>
       )}
+
     </div>
   );
 }
