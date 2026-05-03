@@ -287,52 +287,6 @@
 .lv2-try-me-btn:focus-visible { outline: 2px solid #D4AF37; outline-offset: 3px; }
 .lv2-try-me-btn:disabled { opacity: 0.65; cursor: default; transform: rotate(2deg); }
 
-/* PDF preview modal */
-.example-pdf-modal {
-  display: flex;
-  flex-direction: column;
-  width: min(820px, calc(100vw - 32px));
-  height: min(90vh, 1060px);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.36);
-  overflow: hidden;
-}
-.example-pdf-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.example-pdf-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  font-family: var(--sans);
-}
-.example-pdf-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--text-dim);
-  padding: 4px 8px;
-  line-height: 1;
-  transition: color 0.1s;
-  -webkit-tap-highlight-color: transparent;
-}
-.example-pdf-close:hover { color: var(--text); }
-.example-pdf-frame {
-  flex: 1;
-  width: 100%;
-  border: none;
-  background: #fff;
-}
-
 .lv2-plan-glow {
   display: flex;
   flex-direction: column;

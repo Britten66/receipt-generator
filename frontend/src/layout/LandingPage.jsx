@@ -94,7 +94,6 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
   const navRef = useRef(null);
   const refCode = typeof localStorage !== "undefined" ? localStorage.getItem("pending_ref_code") : null;
   const [showReferralModal, setShowReferralModal] = useState(false);
-  const [examplePdfUrl, setExamplePdfUrl] = useState(null);
   const [exampleLoading, setExampleLoading] = useState(false);
 
   async function handleTryMe() {
@@ -103,29 +102,11 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
     try {
       const { getExamplePDFBlobUrl } = await import("../features/invoices/ReceiptPDF");
       const url = await getExamplePDFBlobUrl();
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-        (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.userAgent));
-      if (isIOS) {
-        window.open(url, "_blank");
-      } else {
-        setExamplePdfUrl(url);
-      }
+      window.open(url, "_blank");
     } finally {
       setExampleLoading(false);
     }
   }
-
-  function closeExamplePdf() {
-    if (examplePdfUrl) URL.revokeObjectURL(examplePdfUrl);
-    setExamplePdfUrl(null);
-  }
-
-  useEffect(() => {
-    if (!examplePdfUrl) return;
-    const handler = (e) => { if (e.key === "Escape") closeExamplePdf(); };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [examplePdfUrl]);
 
   // A/B test: hero CTA copy. Flag key: landing-cta-copy
   // Variants: control ("Start Invoicing Free") vs first-invoice ("Create Your First Invoice")
@@ -483,22 +464,6 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
 
       {showReferralModal && (
         <ReferralModal onClose={() => setShowReferralModal(false)} onSignUp={onSignUp} />
-      )}
-
-      {examplePdfUrl && (
-        <div className="modal-backdrop" onClick={closeExamplePdf}>
-          <div className="example-pdf-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Sample invoice PDF">
-            <div className="example-pdf-header">
-              <span className="example-pdf-label">Sample Invoice</span>
-              <button className="example-pdf-close" onClick={closeExamplePdf} aria-label="Close PDF preview">✕</button>
-            </div>
-            <iframe
-              src={examplePdfUrl}
-              title="Sample invoice PDF"
-              className="example-pdf-frame"
-            />
-          </div>
-        </div>
       )}
 
     </div>
