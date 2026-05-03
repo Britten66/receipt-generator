@@ -34,15 +34,22 @@
 .notif-panel {
   width: 360px;
   max-width: calc(100vw - 24px);
+  /* Never grow taller than the visible viewport so the panel cannot clip
+     behind the topbar when content stacks (promo + reminders + activity). */
+  max-height: calc(100dvh - 80px);
   background: var(--bg);
   border: 1px solid var(--border);
   box-shadow: 0 16px 56px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.08);
   font-family: var(--sans);
   color: var(--text);
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
   z-index: 250;
   animation: notif-rise 0.14s ease-out;
+  scrollbar-width: none;
 }
+.notif-panel::-webkit-scrollbar { display: none; }
 @keyframes notif-rise {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }

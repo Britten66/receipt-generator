@@ -16,6 +16,7 @@
 */
 
 import { useState, useEffect, useRef } from "react";
+import DatePicker from "../../components/DatePicker";
 import { saveProfile } from "../../api/profile";
 import { uploadLogo } from "../../api/uploadLogo";
 import { parseText, parseAudio, mapParsedToForm } from "../../api/aiParse";
@@ -674,22 +675,19 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             </div>
             <div className="field-group">
               <label className="field-label">Issue Date</label>
-              <input
-                className="field"
-                type="date"
+              <DatePicker
                 value={form.date}
-                onChange={(e) => setField("date", e.target.value)}
+                onChange={(v) => setField("date", v)}
+                placeholder="Pick a date"
+                clearable={false}
               />
             </div>
             <div className="field-group">
-              <label className="field-label" htmlFor="due-date">Due Date <span style={{ fontWeight: 400, color: "var(--text-muted)", textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
-              <input
-                id="due-date"
-                className="field"
-                type="date"
+              <label className="field-label">Due Date <span style={{ fontWeight: 400, color: "var(--text-muted)", textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
+              <DatePicker
                 value={form.due_by}
-                onChange={(e) => setField("due_by", e.target.value)}
-                placeholder="Optional"
+                onChange={(v) => setField("due_by", v)}
+                placeholder="No due date"
               />
             </div>
             <div className="field-group">

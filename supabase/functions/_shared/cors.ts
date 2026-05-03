@@ -1,14 +1,19 @@
-const ALLOWED_ORIGINS = new Set([
+// Production origins must be explicit. Localhost on any port is allowed for dev
+// because Vite picks whatever port is free (5173, 5174, 5175, 5176...).
+const ALLOWED_PROD_ORIGINS = new Set([
   "https://invoiceprepper.com",
   "https://www.invoiceprepper.com",
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "http://localhost:5175",
-  "http://localhost:3000",
 ]);
+const LOCALHOST_RE = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+
+function isAllowed(origin: string | null): boolean {
+  if (!origin) return false;
+  if (ALLOWED_PROD_ORIGINS.has(origin)) return true;
+  return LOCALHOST_RE.test(origin);
+}
 
 export function getCorsHeaders(origin: string | null) {
-  const allowed = origin && ALLOWED_ORIGINS.has(origin) ? origin : "https://invoiceprepper.com";
+  const allowed = isAllowed(origin) ? origin! : "https://invoiceprepper.com";
   return {
     "Access-Control-Allow-Origin": allowed,
     "Access-Control-Allow-Headers": "authorization, Authorization, x-client-info, apikey, content-type, content-length",

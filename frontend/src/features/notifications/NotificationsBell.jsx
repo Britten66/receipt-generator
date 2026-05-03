@@ -37,7 +37,7 @@ export default function NotificationsBell({ receipts, profile }) {
         </button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
-        <DropdownMenu.Content className="notif-panel" sideOffset={10} align="end">
+        <DropdownMenu.Content className="notif-panel" sideOffset={10} align="end" collisionPadding={12} avoidCollisions>
           {showPromo && (
             <div className="notif-promo">
               <div className="notif-promo-head">

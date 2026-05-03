@@ -1,0 +1,134 @@
+/* Trigger: looks like a normal .field input but is a button */
+.datepicker-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  font-family: var(--sans);
+  font-size: 13px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.12s, background 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.datepicker-trigger:hover:not(:disabled) { border-color: var(--text-dim); }
+.datepicker-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.datepicker-trigger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.datepicker-icon {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+.datepicker-value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.datepicker-placeholder { color: var(--text-muted); }
+.datepicker-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+  color: var(--text-muted);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s;
+}
+.datepicker-clear:hover { color: var(--text); background: var(--surface); }
+
+/* Popover container */
+.datepicker-popover {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 12px;
+  box-shadow: 0 16px 56px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 400;
+  animation: datepicker-rise 0.14s ease-out;
+}
+@keyframes datepicker-rise {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* react-day-picker style overrides to match the app palette */
+.datepicker-popover .rdp-root {
+  --rdp-accent-color: var(--accent);
+  --rdp-accent-background-color: var(--accent-dim, rgba(160, 104, 48, 0.14));
+  --rdp-day_button-border-radius: 0;
+  --rdp-day_button-width: 36px;
+  --rdp-day_button-height: 36px;
+  --rdp-selected-border: 1px solid var(--accent);
+  --rdp-day-font: 13px var(--sans);
+  --rdp-weekday-text-color: var(--text-muted);
+  font-family: var(--sans);
+  color: var(--text);
+}
+
+.datepicker-popover .rdp-caption_label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.datepicker-popover .rdp-button_previous,
+.datepicker-popover .rdp-button_next {
+  color: var(--text-dim);
+  background: none;
+  border: 1px solid var(--border-light);
+  width: 26px;
+  height: 26px;
+}
+.datepicker-popover .rdp-button_previous:hover,
+.datepicker-popover .rdp-button_next:hover {
+  color: var(--text);
+  border-color: var(--text);
+}
+
+.datepicker-popover .rdp-day_button {
+  color: var(--text);
+  background: transparent;
+  border: 1px solid transparent;
+  font-size: 12px;
+}
+.datepicker-popover .rdp-day_button:hover {
+  background: var(--surface);
+  border-color: var(--border-light);
+}
+
+.datepicker-popover .rdp-today .rdp-day_button {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.datepicker-popover .rdp-selected .rdp-day_button {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.datepicker-popover .rdp-outside .rdp-day_button {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+.datepicker-popover .rdp-disabled .rdp-day_button {
+  color: var(--text-muted);
+  opacity: 0.3;
+}
+
+/* Mobile: shrink slightly */
+@media (max-width: 480px) {
+  .datepicker-popover .rdp-root {
+    --rdp-day_button-width: 32px;
+    --rdp-day_button-height: 32px;
+  }
+}

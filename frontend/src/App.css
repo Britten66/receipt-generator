@@ -397,6 +397,24 @@ body,
 
 /* Plans modal cards */
 /* Light mode: multiply so glow is visible on light surface (same fix as landing) */
+/* Date and datetime inputs in dark mode: invert the native calendar icon so it
+   shows on dark backgrounds. WebKit's calendar-picker-indicator is a black SVG
+   by default; without color-scheme: dark, it stays black on a dark field. */
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="datetime-local"],
+[data-theme="dark"] input[type="time"],
+[data-theme="dark"] input[type="month"],
+[data-theme="dark"] input[type="week"] {
+  color-scheme: dark;
+}
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] input[type="month"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.1);
+  cursor: pointer;
+}
+
 /* Follow-up reminder block in InvoiceDetail. box-sizing keeps the input from
    blowing past the container on iOS where datetime-local has implicit width. */
 .reminder-block {
