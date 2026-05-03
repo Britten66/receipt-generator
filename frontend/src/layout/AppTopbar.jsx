@@ -1,4 +1,4 @@
-import { Zap } from "lucide-react";
+import { Zap, Gift } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { PALETTE_ENTRIES, PALETTE_KEYS } from "../lib/themes";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -11,7 +11,7 @@ export default function AppTopbar({
   receipts,
   currentPalette, paletteExpanded, setPaletteExpanded,
   setPalette,
-  setShowPlansModal, setShowProfileModal,
+  setShowPlansModal, setShowProfileModal, setShowReferralModal,
 }) {
   return (
     <header className="topbar">
@@ -87,8 +87,11 @@ export default function AppTopbar({
         {new Date().toLocaleDateString("en-CA", { weekday: "long", month: "short", day: "numeric" })}
       </div>
 
-      {/* Column 3: notifications + avatar dropdown */}
+      {/* Column 3: referral + notifications + avatar dropdown */}
       <div className="topbar-right">
+<button className="topbar-icon-btn" onClick={() => setShowReferralModal(true)} aria-label="Refer a friend" title="Refer a friend">
+          <Gift size={18} strokeWidth={1.75} />
+        </button>
         <NotificationsBell receipts={receipts} profile={profile} />
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
@@ -98,7 +101,7 @@ export default function AppTopbar({
               style={(profile?.tier === "pro" || profile?.tier === "voice") ? { border: "2px solid #D4AF37", boxShadow: "0 0 0 1px rgba(212,175,55,0.25)" } : undefined}
             >
               {avatarUrl
-                ? <img src={avatarUrl} alt="" width={34} height={34} style={{ display: "block", objectFit: "cover" }} />
+                ? <img src={avatarUrl} alt={userEmail} width={34} height={34} style={{ display: "block", objectFit: "cover" }} />
                 : <div className="avatar-fallback">{userEmail[0] ? userEmail[0].toUpperCase() : "?"}</div>
               }
             </button>
