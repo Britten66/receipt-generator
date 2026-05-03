@@ -1,3 +1,4 @@
+import { Zap } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { PALETTE_ENTRIES, PALETTE_KEYS } from "../lib/themes";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -22,7 +23,10 @@ export default function AppTopbar({
         </button>
 
         {!profileLoading && profile?.tier !== "pro" && profile?.tier !== "voice" && (
-          <button className="btn btn-primary btn-upgrade-pill" onClick={() => setShowPlansModal(true)}>Upgrade</button>
+          <button className="btn btn-primary btn-upgrade-pill" onClick={() => setShowPlansModal(true)} aria-label="Upgrade">
+            <Zap size={12} strokeWidth={2.25} className="upgrade-icon" />
+            <span className="upgrade-text">Upgrade</span>
+          </button>
         )}
 
         {(profile?.tier === "pro" || profile?.tier === "voice") && (

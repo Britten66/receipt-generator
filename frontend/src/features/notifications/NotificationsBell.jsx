@@ -13,12 +13,12 @@ export default function NotificationsBell({ receipts, profile }) {
   async function handleShare() {
     if (!referral?.code) return;
     const text = `Try InvoicePrepper. Use my code ${referral.code} and you get 1 month of Pro free. ${referral.share_url}`;
-    if (typeof navigator !== "undefined" && navigator.share) {
+    if (hasNativeShare) {
       try {
         await navigator.share({ title: "InvoicePrepper", text, url: referral.share_url });
         trackReferralCopied(referral.code);
-        return;
-      } catch { /* user cancelled */ }
+      } catch { /* user cancelled, do nothing */ }
+      return;
     }
     try {
       await navigator.clipboard.writeText(referral.share_url);

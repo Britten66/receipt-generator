@@ -21,14 +21,14 @@ export default function UpgradeConfirmModal({ targetTier, agreed, onAgreeChange,
 
   return (
     <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" style={{ maxWidth: 380 }}>
+      <div className="modal upgrade-confirm-modal" style={{ maxWidth: 380 }}>
 
         <div className="modal-header">
           <span className="modal-title">Upgrade to {label}</span>
           <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={onClose}>✕</button>
         </div>
 
-        <div className="modal-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="modal-body upgrade-confirm-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
           <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>
             {label}: CAD {price} / month

@@ -531,9 +531,9 @@ function ReferralBlock() {
   const shareText = `Try InvoicePrepper. Use my code ${info.code} and you get 1 month of Pro free. ${info.share_url}`;
 
   async function handleShare() {
-    // Use the OS share sheet when supported (mobile + some desktop browsers).
-    // Falls back to clipboard copy with toast feedback otherwise.
-    if (typeof navigator !== "undefined" && navigator.share) {
+    // If the OS share sheet exists, always use it. Cancelling the sheet should
+    // do nothing (no copy fallback) so the user is not surprised by "Copied".
+    if (hasNativeShare) {
       try {
         await navigator.share({
           title: "InvoicePrepper",
@@ -541,18 +541,19 @@ function ReferralBlock() {
           url: info.share_url,
         });
         trackReferralCopied(info.code);
-        return;
       } catch {
-        // User cancelled the share sheet. Fall through to copy as a backup.
+        // User cancelled. Stay quiet, do nothing.
       }
+      return;
     }
+    // No native share: clipboard copy is the only option, show feedback.
     try {
       await navigator.clipboard.writeText(info.share_url);
       setCopied(true);
       trackReferralCopied(info.code);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // Clipboard blocked (e.g. insecure context). Last resort: select the input.
+      // Clipboard blocked, no recoverable action.
     }
   }
 
