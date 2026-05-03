@@ -432,13 +432,17 @@ body,
   appearance: none;
 }
 
-/* Plans + upgrade confirm modals: keep them within the viewport but hide the
-   visible scrollbar so the edges look clean. The body still scrolls if it
-   has to (long content, small phones), it just doesn't show a scroll track. */
+/* Hide scrollbars only on the plans/upgrade modals where they look loose.
+   Other modals keep their native scrollbars. */
 .plans-modal-body,
 .upgrade-confirm-body { scrollbar-width: none; }
 .plans-modal-body::-webkit-scrollbar,
 .upgrade-confirm-body::-webkit-scrollbar { display: none; }
+/* Belt-and-suspenders for the plans modal: also kill horizontal overflow on
+   the BorderGlow card wrapper, which sometimes pokes a scrollbar. */
+.plans-modal-glow,
+.plans-modal-glow > .border-glow-inner,
+.plans-modal-card { overflow: hidden; }
 
 /* Mobile: side-by-side cards stack to one column so they don't overflow. */
 @media (max-width: 640px) {
