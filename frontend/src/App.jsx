@@ -76,7 +76,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
   // ─── INVOICES (from useInvoices hook) ──────────────────────────────────────
   function showToast(msg, type = "error") {
     setToast({ msg, type });
-    setTimeout(() => setToast(null), 3500);
+    setTimeout(() => setToast(null), type === "promo" ? 6000 : 3500);
   }
 
   const {
@@ -423,7 +423,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
       {showWelcome && <WelcomeModal onClose={() => setShowWelcome(false)} />}
 
       {/* Referral program */}
-      {showReferralModal && <ReferralModal onClose={() => setShowReferralModal(false)} />}
+      {showReferralModal && <ReferralModal onClose={() => setShowReferralModal(false)} onCopy={() => showToast("Thanks for participating in our promo! Your feedback is welcome and will help make this a better tool for your work.", "promo")} />}
 
       {showTrash && (
         <TrashModal
@@ -451,16 +451,24 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
       )}
 
 
-      {/* Toast: success (green) / upgrade (accent copper) / error (red) */}
+      {/* Toast: success (green) / upgrade (accent copper) / promo (surface) / error (red) */}
       {toast && (
         <div
           style={{
             position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)",
-            background: toast.type === "success" ? "var(--paid)" : toast.type === "upgrade" ? "var(--accent)" : "var(--voided)",
-            color: "#fff", padding: "10px 20px", fontSize: 10, letterSpacing: "0.15em",
-            textTransform: "uppercase", fontFamily: "var(--mono)", zIndex: 500,
+            background: toast.type === "success" ? "var(--paid)" : toast.type === "upgrade" ? "var(--accent)" : toast.type === "promo" ? "var(--surface)" : "var(--voided)",
+            color: toast.type === "promo" ? "var(--text)" : "#fff",
+            padding: toast.type === "promo" ? "14px 22px" : "10px 20px",
+            fontSize: toast.type === "promo" ? 12 : 10,
+            letterSpacing: toast.type === "promo" ? "0.02em" : "0.15em",
+            textTransform: toast.type === "promo" ? "none" : "uppercase",
+            fontFamily: "var(--mono)", zIndex: 500,
             border: "1px solid rgba(0,0,0,0.2)", boxShadow: "2px 2px 0 rgba(0,0,0,0.15)",
-            whiteSpace: "nowrap", cursor: toast.type === "upgrade" ? "pointer" : "default",
+            whiteSpace: toast.type === "promo" ? "normal" : "nowrap",
+            maxWidth: toast.type === "promo" ? 320 : undefined,
+            textAlign: toast.type === "promo" ? "center" : undefined,
+            lineHeight: toast.type === "promo" ? 1.5 : undefined,
+            cursor: toast.type === "upgrade" ? "pointer" : "default",
           }}
           onClick={toast.type === "upgrade" ? () => openUpgradeConfirm("pro") : undefined}
         >

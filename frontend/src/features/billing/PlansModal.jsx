@@ -51,11 +51,12 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
                 <div className="plans-modal-name">Pro</div>
                 <div className="plans-modal-price">{currencyLabel} $9<span>/mo</span></div>
                 <ul className="plans-modal-features">
-                  <li className="plans-modal-includes">Everything in Free</li>
-                  <li>Email invoices straight to clients with your logo</li>
-                  <li>Text AI parsing: describe an invoice, the form fills itself (15 per day)</li>
-                  <li>Send payment reminders to clients who haven't paid</li>
-                  <li>CSV export ready for your accountant</li>
+                  <li className="plans-modal-includes">Everything in Basic</li>
+                  <li>Email invoices to clients with your logo</li>
+                  <li>Invoice due dates</li>
+                  <li>Text AI parsing: describe an invoice, the form fills itself</li>
+                  <li>Send payment reminders to clients</li>
+                  <li>CSV export</li>
                   <li>Custom dashboard themes</li>
                 </ul>
                 <button className="plans-modal-btn plans-modal-btn-pro" onClick={onSelectPro}>

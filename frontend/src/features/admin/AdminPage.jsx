@@ -147,6 +147,36 @@ export default function AdminPage() {
         <span className="admin-count">{filtered.length} of {users.length} users</span>
       </div>
 
+      <div className="admin-ci">
+        <a
+          href="https://github.com/Britten66/receipt-generator/actions/workflows/ci.yml"
+          target="_blank"
+          rel="noreferrer"
+          className="admin-ci-badge"
+        >
+          <img
+            src="https://github.com/Britten66/receipt-generator/actions/workflows/ci.yml/badge.svg"
+            alt="CI status"
+          />
+        </a>
+        <a
+          href="https://github.com/Britten66/receipt-generator/actions/workflows/ci.yml"
+          target="_blank"
+          rel="noreferrer"
+          className="admin-ci-link"
+        >
+          Actions
+        </a>
+        <a
+          href="https://britten66.github.io/receipt-generator/"
+          target="_blank"
+          rel="noreferrer"
+          className="admin-ci-link"
+        >
+          Test Report
+        </a>
+      </div>
+
       <div className="admin-kpis">
         <div className="admin-kpi"><div className="admin-kpi-num">{totals.total}</div><div className="admin-kpi-label">Users</div></div>
         <div className="admin-kpi"><div className="admin-kpi-num">{totals.pro}</div><div className="admin-kpi-label">Pro</div></div>
