@@ -1,8 +1,8 @@
 /* Bell trigger: bare icon, no border */
 .notif-bell {
   position: relative;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;

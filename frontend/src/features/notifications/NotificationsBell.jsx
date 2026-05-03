@@ -6,7 +6,7 @@ import { trackReferralCopied } from "../../api/referrals";
 import "./NotificationsBell.css";
 
 export default function NotificationsBell({ receipts, profile }) {
-  const { items, unreadCount, showPromo, referral, reminders, isPaid } = useNotifications({ receipts, profile });
+  const { items, unreadCount, showPromo, referral, reminders, isPaid, markSeen } = useNotifications({ receipts, profile });
   const [copied, setCopied] = useState(false);
   const hasNativeShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
 
@@ -29,7 +29,7 @@ export default function NotificationsBell({ receipts, profile }) {
   }
 
   return (
-    <DropdownMenu.Root>
+    <DropdownMenu.Root onOpenChange={(open) => { if (open) markSeen(); }}>
       <DropdownMenu.Trigger asChild>
         <button className="notif-bell" aria-label="Notifications">
           <Bell size={18} strokeWidth={1.75} />
