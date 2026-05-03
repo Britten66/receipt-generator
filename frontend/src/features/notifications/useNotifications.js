@@ -18,9 +18,7 @@ export function useNotifications({ receipts, profile }) {
   const isPaid = effectiveTier === "pro" || effectiveTier === "voice";
   const showPromo = stripeTier === "free" && !!referral?.code;
 
-  // Upcoming reminders + due dates. Two sources, same dropdown section.
-  // Self-reminders: receipt.reminder_at.
-  // Due dates: receipt.due_by (only for unpaid invoices: status not 'paid' or 'voided').
+  // Upcoming due dates. Pulled from receipts.due_by, only for unpaid invoices.
   // Surfaces anything within the next 7 days, plus anything overdue.
   const reminders = useMemo(() => {
     const now = Date.now();
@@ -28,35 +26,21 @@ export function useNotifications({ receipts, profile }) {
     const out = [];
 
     for (const r of (receipts || [])) {
-      if (r.reminder_at) {
-        const ts = new Date(r.reminder_at).getTime();
-        if (ts <= horizon) {
-          out.push({
-            id: `rem-${r.id}`,
-            kind: "reminder",
-            status: r.status,
-            title: `Follow up on ${r.receipt_number || "invoice"}`,
-            subtitle: ts < now ? "overdue" : reminderRelative(ts),
-            timestamp: r.reminder_at,
-            ts,
-          });
-        }
-      }
-      if (r.due_by && r.status !== "paid" && r.status !== "voided") {
-        // Compare to end of due day so "today" feels right
-        const due = new Date(r.due_by + "T23:59:59");
-        const ts = due.getTime();
-        if (ts <= horizon || ts < now) {
-          out.push({
-            id: `due-${r.id}`,
-            kind: "due",
-            status: r.status,
-            title: `${r.receipt_number || "Invoice"} due`,
-            subtitle: ts < now ? "overdue" : reminderRelative(ts),
-            timestamp: r.due_by,
-            ts,
-          });
-        }
+      if (!r.due_by) continue;
+      if (r.status === "paid" || r.status === "voided") continue;
+      // Compare to end of due day so "today" feels right
+      const due = new Date(r.due_by + "T23:59:59");
+      const ts = due.getTime();
+      if (ts <= horizon || ts < now) {
+        out.push({
+          id: `due-${r.id}`,
+          kind: "due",
+          status: r.status,
+          title: `${r.receipt_number || "Invoice"} due`,
+          subtitle: ts < now ? "overdue" : reminderRelative(ts),
+          timestamp: r.due_by,
+          ts,
+        });
       }
     }
 
