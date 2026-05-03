@@ -507,6 +507,7 @@ const [logoUploading,   setLogoUploading]   = useState(false);
 function ReferralBlock() {
   const [info, setInfo] = useState(null);
   const [copied, setCopied] = useState(false);
+  const hasNativeShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
 
   useEffect(() => {
     fetchReferralInfo().then((data) => {
@@ -572,7 +573,7 @@ function ReferralBlock() {
           style={{ flexShrink: 0, fontSize: 11, padding: "10px 16px", letterSpacing: "0.04em" }}
           onClick={handleShare}
         >
-          {copied ? "Copied!" : "Share"}
+          {copied ? "Copied" : hasNativeShare ? "Share" : "Copy link"}
         </button>
       </div>
       <div style={{ fontSize: 10, color: "var(--text-muted)", lineHeight: 1.5 }}>

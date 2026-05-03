@@ -177,34 +177,38 @@ export default function InvoiceDetail({
           </button>
         )}
 
-        <button
-          className="btn btn-ghost"
-          style={{ width: "100%", marginBottom: 6 }}
-          onClick={async () => {
-            const isIOS   = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-              (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.userAgent));
-            const isMobile = window.innerWidth <= 768;
-            const win = (!isIOS && !isMobile) ? window.open("", "_blank") : null;
-            const { downloadReceiptPDF, getPDFBlobUrl } = await import("./ReceiptPDF");
-            const receiptData = { ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier, currency: profile?.currency || "CAD" };
-            if (isIOS) {
-              if (win) win.close();
-              downloadReceiptPDF(receiptData);
-            } else if (isMobile) {
-              const url = await getPDFBlobUrl(receiptData);
-              setPdfPreviewUrl(url);
-            } else {
-              const url = await getPDFBlobUrl(receiptData);
-              if (win) {
-                win.location.href = url;
-              } else {
-                downloadReceiptPDF(receiptData);
-              }
-            }
-          }}
-        >
-          Preview PDF
-        </button>
+        {(() => {
+          // Preview is only meaningful when it does something different from Download.
+          // On iOS the in-app browser cannot render a blob PDF inline, so Preview
+          // would just trigger a download, identical to the Download button. Hide it there.
+          const isIOS = typeof navigator !== "undefined" && (
+            /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.userAgent))
+          );
+          if (isIOS) return null;
+          return (
+            <button
+              className="btn btn-ghost"
+              style={{ width: "100%", marginBottom: 6 }}
+              onClick={async () => {
+                const isMobile = window.innerWidth <= 768;
+                const win = !isMobile ? window.open("", "_blank") : null;
+                const { downloadReceiptPDF, getPDFBlobUrl } = await import("./ReceiptPDF");
+                const receiptData = { ...selectedReceipt, logo_url: selectedReceipt.logo_url || profile?.logo_url, tier: profile?.tier, currency: profile?.currency || "CAD" };
+                if (isMobile) {
+                  const url = await getPDFBlobUrl(receiptData);
+                  setPdfPreviewUrl(url);
+                } else {
+                  const url = await getPDFBlobUrl(receiptData);
+                  if (win) win.location.href = url;
+                  else downloadReceiptPDF(receiptData);
+                }
+              }}
+            >
+              Preview PDF
+            </button>
+          );
+        })()}
 
         <button
           className="btn btn-download"
@@ -325,36 +329,55 @@ function ReminderControl({ receipt, setSelected, showToast }) {
   }
 
   return (
-    <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--border-light)", background: "var(--surface)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 22, height: 22, color: "var(--text-dim)" }}>
-          <BellIcon size={13} strokeWidth={1.75} />
+    <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border-light)", background: "var(--surface)" }}>
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 8,
+        fontSize: 10,
+        fontWeight: 600,
+        letterSpacing: "0.12em",
+        textTransform: "uppercase",
+        color: "var(--text-muted)",
+        marginBottom: 6,
+      }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <BellIcon size={11} strokeWidth={1.75} />
+          Follow-up reminder
         </span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 4 }}>
-            Follow-up reminder
-          </div>
-          <input
-            type="datetime-local"
-            value={localValue}
-            onChange={onPick}
-            disabled={saving}
-            className="field"
-            style={{ fontSize: 12, padding: "6px 8px", width: "100%" }}
-          />
-        </div>
         {reminderAt && (
           <button
             type="button"
             onClick={() => save(null)}
             disabled={saving}
             aria-label="Clear reminder"
-            style={{ flexShrink: 0, width: 28, height: 28, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "var(--bg)", border: "1px solid var(--border)", color: "var(--text-dim)", cursor: "pointer" }}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--text-muted)",
+              cursor: "pointer",
+              padding: 4,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              fontSize: 10,
+              letterSpacing: "0.08em",
+            }}
           >
-            <XIcon size={12} strokeWidth={2} />
+            <XIcon size={10} strokeWidth={2} />
+            Clear
           </button>
         )}
       </div>
+      <input
+        type="datetime-local"
+        value={localValue}
+        onChange={onPick}
+        disabled={saving}
+        className="field"
+        style={{ fontSize: 13, padding: "8px 10px", width: "100%" }}
+      />
     </div>
   );
 }

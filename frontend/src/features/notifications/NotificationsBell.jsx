@@ -8,6 +8,7 @@ import "./NotificationsBell.css";
 export default function NotificationsBell({ receipts, profile }) {
   const { items, unreadCount, showPromo, referral, reminders, isPaid } = useNotifications({ receipts, profile });
   const [copied, setCopied] = useState(false);
+  const hasNativeShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
 
   async function handleShare() {
     if (!referral?.code) return;
@@ -48,7 +49,7 @@ export default function NotificationsBell({ receipts, profile }) {
               <div className="notif-promo-row">
                 <code className="notif-promo-code">{referral?.code}</code>
                 <button className="notif-promo-share" onClick={handleShare}>
-                  {copied ? "Copied" : "Share"}
+                  {copied ? "Copied" : hasNativeShare ? "Share" : "Copy link"}
                 </button>
               </div>
             </div>
