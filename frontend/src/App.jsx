@@ -12,6 +12,7 @@ import UpgradeConfirmModal from "./features/billing/UpgradeConfirmModal";
 import WelcomeModal        from "./features/auth/WelcomeModal";
 import ConsentModal        from "./features/auth/ConsentModal";
 import UpgradeThanksModal  from "./features/billing/UpgradeThanksModal";
+import ReferralModal       from "./features/referrals/ReferralModal";
 import posthog             from "posthog-js";
 import { startCheckout }   from "./api/billing";
 import { fetchProfile, saveProfile } from "./api/profile";
@@ -65,6 +66,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
   const [legal, setLegal]                                 = useState(null);
   const [upgradeLegal, setUpgradeLegal]                   = useState(null);
   const [showUpgradeConfirm, setShowUpgradeConfirm]       = useState(false);
+  const [showReferralModal, setShowReferralModal]         = useState(false);
   const [upgradeAgreed, setUpgradeAgreed]                 = useState(false);
   const [upgradeTargetTier, setUpgradeTargetTier]         = useState("pro");
   const [pdfPreviewUrl, setPdfPreviewUrl]                 = useState(null);
@@ -281,6 +283,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
         paletteExpanded={paletteExpanded} setPaletteExpanded={setPaletteExpanded}
         setPalette={setPalette}
         setShowPlansModal={setShowPlansModal} setShowProfileModal={setShowProfileModal}
+        setShowReferralModal={setShowReferralModal}
       />
 
       <AppSidebar
@@ -418,6 +421,9 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
 
       {/* Welcome (new user, shown once) */}
       {showWelcome && <WelcomeModal onClose={() => setShowWelcome(false)} />}
+
+      {/* Referral program */}
+      {showReferralModal && <ReferralModal onClose={() => setShowReferralModal(false)} />}
 
       {showTrash && (
         <TrashModal
