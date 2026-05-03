@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { FileText, Mic, Mail, Scale } from "lucide-react";
+import { FileText, Mic, Mail, ShieldCheck } from "lucide-react";
 
 export default function HelpModal({ onClose, isPro, onLegal }) {
   /*
@@ -155,7 +155,7 @@ export default function HelpModal({ onClose, isPro, onLegal }) {
               <>
                 <div className="win-divider" />
                 <div className="help-section">
-                  <div className="help-section-head"><Scale size={13} strokeWidth={2} /><span>Legal</span></div>
+                  <div className="help-section-head"><ShieldCheck size={13} strokeWidth={2} /><span>Policies</span></div>
                   <div className="help-row">
                     <span className="help-dot" />
                     <button onClick={() => { onLegal("terms"); onClose(); }} style={{ background: "none", border: "none", padding: 0, color: "var(--accent)", cursor: "pointer", fontSize: 11 }}>Terms of Service</button>
