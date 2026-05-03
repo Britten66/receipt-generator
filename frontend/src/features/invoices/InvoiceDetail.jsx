@@ -2,6 +2,7 @@ import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import posthog from "posthog-js";
 import { Bell as BellIcon, X as XIcon } from "lucide-react";
+import StatusBadge from "./StatusBadge";
 import { STATUS_CONFIG, fmt } from "../../lib/constants";
 import { useSendInvoice } from "./useSendInvoice";
 import { updateReceipt } from "../../api/receipts";
@@ -62,9 +63,7 @@ export default function InvoiceDetail({
               <div className="inv-party-name" style={{ fontFamily: "var(--mono)", fontSize: 11 }}>
                 {selectedReceipt.date ? new Date(selectedReceipt.date).toLocaleDateString("en-CA") : "-"}
               </div>
-              <span className={`stamp ${selectedReceipt.status}`} style={{ marginTop: 6 }}>
-                {selectedReceipt.status}
-              </span>
+              <StatusBadge status={selectedReceipt.status} style={{ marginTop: 6 }} />
             </div>
           </div>
 
