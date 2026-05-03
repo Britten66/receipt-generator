@@ -1,11 +1,8 @@
-import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import posthog from "posthog-js";
-import { Bell as BellIcon, X as XIcon } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import { STATUS_CONFIG, fmt } from "../../lib/constants";
 import { useSendInvoice } from "./useSendInvoice";
-import { updateReceipt } from "../../api/receipts";
 
 export default function InvoiceDetail({
   selectedReceipt, profile,
@@ -152,8 +149,6 @@ export default function InvoiceDetail({
         </div>
       )}
 
-      {/* Follow-up reminder (all tiers). Self-reminder, surfaces in the bell. */}
-      <ReminderControl receipt={selectedReceipt} setSelected={setSelected} showToast={showToast} />
 
 
       {/* PDF actions */}
@@ -293,67 +288,3 @@ export default function InvoiceDetail({
   );
 }
 
-function ReminderControl({ receipt, setSelected, showToast }) {
-  const [saving, setSaving] = useState(false);
-  const reminderAt = receipt?.reminder_at ? new Date(receipt.reminder_at) : null;
-  // Native datetime-local needs YYYY-MM-DDTHH:mm in local time
-  const localValue = reminderAt
-    ? new Date(reminderAt.getTime() - reminderAt.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, 16)
-    : "";
-
-  async function save(nextIso) {
-    setSaving(true);
-    try {
-      const updated = await updateReceipt(receipt.id, { reminder_at: nextIso });
-      if (updated?.error) {
-        showToast?.(updated.error || "Could not save reminder", "error");
-      } else {
-        setSelected({ ...receipt, reminder_at: nextIso });
-        if (nextIso) showToast?.("Follow-up reminder set", "success");
-        else showToast?.("Reminder cleared", "success");
-      }
-    } catch {
-      showToast?.("Could not save reminder", "error");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  function onPick(e) {
-    const v = e.target.value;
-    if (!v) { save(null); return; }
-    save(new Date(v).toISOString());
-  }
-
-  return (
-    <div className="reminder-block">
-      <div className="reminder-block-head">
-        <span className="reminder-block-label">
-          <BellIcon size={11} strokeWidth={1.75} />
-          Follow-up reminder
-        </span>
-        {reminderAt && (
-          <button
-            type="button"
-            onClick={() => save(null)}
-            disabled={saving}
-            aria-label="Clear reminder"
-            className="reminder-block-clear"
-          >
-            <XIcon size={10} strokeWidth={2} />
-            Clear
-          </button>
-        )}
-      </div>
-      <input
-        type="datetime-local"
-        value={localValue}
-        onChange={onPick}
-        disabled={saving}
-        className="field reminder-block-input"
-      />
-    </div>
-  );
-}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Bell, CheckCircle2, Send, FileText, Ban, Gift, UserPlus, Sparkles, Clock, CalendarClock } from "lucide-react";
+import { Bell, CheckCircle2, Send, FileText, Ban, Gift, UserPlus, Sparkles, CalendarClock } from "lucide-react";
 import { useNotifications } from "./useNotifications";
 import { trackReferralCopied } from "../../api/referrals";
 import "./NotificationsBell.css";
@@ -57,12 +57,12 @@ export default function NotificationsBell({ receipts, profile }) {
 
           {reminders.length > 0 && (
             <>
-              <div className="notif-section-h">Upcoming</div>
+              <div className="notif-section-h">Due dates</div>
               <ul className="notif-list">
                 {reminders.map((it) => (
                   <li key={it.id} className="notif-item">
-                    <span className={`notif-icon notif-icon-${it.kind}${it.subtitle === "overdue" ? " notif-icon-overdue" : ""}`}>
-                      {it.kind === "due" ? <CalendarClock size={14} strokeWidth={1.75} /> : <Clock size={14} strokeWidth={1.75} />}
+                    <span className={`notif-icon notif-icon-due${it.subtitle === "overdue" ? " notif-icon-overdue" : ""}`}>
+                      <CalendarClock size={14} strokeWidth={1.75} />
                     </span>
                     <div className="notif-text">
                       <div className="notif-title">{it.title}</div>
