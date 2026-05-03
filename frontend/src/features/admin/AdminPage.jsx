@@ -1,11 +1,52 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "../../lib/supabase";
 import "./AdminPage.css";
+
+const LABELS_KEY = "admin_user_labels";
+const LABEL_OPTIONS = ["real", "friend", "tester", "demo", "hidden"];
+
+function getStoredLabels() {
+  try { return JSON.parse(localStorage.getItem(LABELS_KEY) || "{}"); }
+  catch { return {}; }
+}
+
+function persistLabel(userId, label) {
+  const stored = getStoredLabels();
+  if (label === "real") delete stored[userId];
+  else stored[userId] = label;
+  localStorage.setItem(LABELS_KEY, JSON.stringify(stored));
+}
+
+const SortIcon = ({ col, sort }) => {
+  if (sort.col !== col) return <span className="sort-icon sort-none">⇅</span>;
+  return <span className="sort-icon">{sort.dir === "asc" ? "↑" : "↓"}</span>;
+};
+
+const Th = ({ col, children, sort, onSort }) => (
+  <th
+    onClick={() => onSort(col)}
+    onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onSort(col)}
+    className="admin-th-sortable"
+    tabIndex={0}
+    role="columnheader"
+    aria-sort={sort.col === col ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
+  >
+    {children} <SortIcon col={col} sort={sort} />
+  </th>
+);
 
 export default function AdminPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
+  const [labels, setLabels] = useState(getStoredLabels);
+
+  const [search, setSearch] = useState("");
+  const [tierFilter, setTierFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("real");
+  const [activityFilter, setActivityFilter] = useState("all");
+  const [joinedFilter, setJoinedFilter] = useState("all");
+  const [sort, setSort] = useState({ col: "signed_up_at", dir: "desc" });
 
   useEffect(() => {
     let cancelled = false;
@@ -24,7 +65,70 @@ export default function AdminPage() {
     return () => { cancelled = true; };
   }, []);
 
-  const totals = users.reduce((acc, u) => {
+  const handleLabel = (userId, label) => {
+    persistLabel(userId, label);
+    setLabels(getStoredLabels());
+  };
+
+  const toggleSort = (col) => {
+    setSort(s => s.col === col
+      ? { col, dir: s.dir === "asc" ? "desc" : "asc" }
+      : { col, dir: "asc" }
+    );
+  };
+
+  const resetFilters = () => {
+    setSearch("");
+    setTierFilter("all");
+    setCategoryFilter("real");
+    setActivityFilter("all");
+    setJoinedFilter("all");
+    setSort({ col: "signed_up_at", dir: "desc" });
+  };
+
+  const isFiltered = search || tierFilter !== "all" || categoryFilter !== "real"
+    || activityFilter !== "all" || joinedFilter !== "all";
+
+  const filtered = useMemo(() => {
+    let list = users.map(u => ({ ...u, _label: labels[u.user_id] || "real" }));
+
+    if (categoryFilter === "all") {
+      // show everything
+    } else {
+      list = list.filter(u => u._label === categoryFilter);
+    }
+
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter(u => u.email?.toLowerCase().includes(q));
+    }
+
+    if (tierFilter !== "all") list = list.filter(u => u.tier === tierFilter);
+
+    if (activityFilter === "active") list = list.filter(u => (u.invoice_count || 0) > 0);
+    if (activityFilter === "inactive") list = list.filter(u => (u.invoice_count || 0) === 0);
+    if (activityFilter === "sent") list = list.filter(u => (u.sent_count || 0) > 0);
+    if (activityFilter === "paid") list = list.filter(u => (u.paid_count || 0) > 0);
+
+    if (joinedFilter !== "all") {
+      const days = parseInt(joinedFilter);
+      list = list.filter(u => (u.days_since_signup || 0) <= days);
+    }
+
+    list = [...list].sort((a, b) => {
+      let av = a[sort.col] ?? "";
+      let bv = b[sort.col] ?? "";
+      if (typeof av === "string") av = av.toLowerCase();
+      if (typeof bv === "string") bv = bv.toLowerCase();
+      if (av < bv) return sort.dir === "asc" ? -1 : 1;
+      if (av > bv) return sort.dir === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return list;
+  }, [users, labels, search, tierFilter, categoryFilter, activityFilter, joinedFilter, sort]);
+
+  const totals = filtered.reduce((acc, u) => {
     acc.total += 1;
     acc.pro += u.tier === "pro" ? 1 : 0;
     acc.voice += u.tier === "voice" ? 1 : 0;
@@ -38,7 +142,10 @@ export default function AdminPage() {
 
   return (
     <div className="admin-wrap">
-      <h1 className="admin-title">Admin</h1>
+      <div className="admin-header">
+        <h1 className="admin-title">Admin</h1>
+        <span className="admin-count">{filtered.length} of {users.length} users</span>
+      </div>
 
       <div className="admin-kpis">
         <div className="admin-kpi"><div className="admin-kpi-num">{totals.total}</div><div className="admin-kpi-label">Users</div></div>
@@ -48,25 +155,83 @@ export default function AdminPage() {
         <div className="admin-kpi"><div className="admin-kpi-num">{totals.paid}</div><div className="admin-kpi-label">Paid</div></div>
       </div>
 
+      <div className="admin-filters">
+        <input
+          className="admin-search"
+          type="text"
+          placeholder="Search email..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+
+        <select className="admin-select" value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+          <option value="real">Real users</option>
+          <option value="all">All categories</option>
+          <option value="friend">Friends</option>
+          <option value="tester">Testers</option>
+          <option value="demo">Demo</option>
+          <option value="hidden">Hidden</option>
+        </select>
+
+        <select className="admin-select" value={tierFilter} onChange={e => setTierFilter(e.target.value)}>
+          <option value="all">All tiers</option>
+          <option value="free">Free</option>
+          <option value="pro">Pro</option>
+          <option value="voice">Voice AI</option>
+        </select>
+
+        <select className="admin-select" value={activityFilter} onChange={e => setActivityFilter(e.target.value)}>
+          <option value="all">All activity</option>
+          <option value="active">Has invoices</option>
+          <option value="inactive">No invoices</option>
+          <option value="sent">Has sent</option>
+          <option value="paid">Has paid</option>
+        </select>
+
+        <select className="admin-select" value={joinedFilter} onChange={e => setJoinedFilter(e.target.value)}>
+          <option value="all">Any time</option>
+          <option value="7">Last 7 days</option>
+          <option value="30">Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+
+        {isFiltered && (
+          <button className="admin-reset" onClick={resetFilters}>Reset</button>
+        )}
+      </div>
+
       <div className="admin-table-wrap">
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Email</th>
-              <th>Tier</th>
-              <th>Signed up</th>
-              <th>Days</th>
-              <th>Invoices</th>
-              <th>Sent</th>
-              <th>Paid</th>
-              <th>Last invoice</th>
+              <Th col="email" sort={sort} onSort={toggleSort}>Email</Th>
+              <Th col="tier" sort={sort} onSort={toggleSort}>Tier</Th>
+              <th>Category</th>
+              <Th col="signed_up_at" sort={sort} onSort={toggleSort}>Signed up</Th>
+              <Th col="days_since_signup" sort={sort} onSort={toggleSort}>Days</Th>
+              <Th col="invoice_count" sort={sort} onSort={toggleSort}>Invoices</Th>
+              <Th col="sent_count" sort={sort} onSort={toggleSort}>Sent</Th>
+              <Th col="paid_count" sort={sort} onSort={toggleSort}>Paid</Th>
+              <Th col="last_invoice_at" sort={sort} onSort={toggleSort}>Last invoice</Th>
             </tr>
           </thead>
           <tbody>
-            {users.map((u) => (
-              <tr key={u.user_id}>
+            {filtered.map((u) => (
+              <tr key={u.user_id} className={u._label !== "real" ? `admin-row-${u._label}` : ""}>
                 <td>{u.email}</td>
                 <td><span className={`admin-tier admin-tier-${u.tier}`}>{u.tier}</span></td>
+                <td>
+                  <select
+                    className={`admin-label-select admin-label-${u._label}`}
+                    aria-label={`Category for ${u.email}`}
+                    value={u._label}
+                    onChange={e => handleLabel(u.user_id, e.target.value)}
+                  >
+                    {LABEL_OPTIONS.map(l => (
+                      <option key={l} value={l}>{l}</option>
+                    ))}
+                  </select>
+                </td>
                 <td>{u.signed_up_at ? new Date(u.signed_up_at).toLocaleDateString() : "-"}</td>
                 <td>{u.days_since_signup}</td>
                 <td>{u.invoice_count}</td>
@@ -75,6 +240,9 @@ export default function AdminPage() {
                 <td>{u.last_invoice_at ? new Date(u.last_invoice_at).toLocaleDateString() : "-"}</td>
               </tr>
             ))}
+            {filtered.length === 0 && (
+              <tr><td colSpan="9" className="admin-empty">No users match these filters.</td></tr>
+            )}
           </tbody>
         </table>
       </div>
