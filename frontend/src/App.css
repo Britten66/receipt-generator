@@ -375,14 +375,75 @@ body,
   font-size: 9px;
   padding: 4px 11px;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 .btn-upgrade-pill:hover { opacity: 0.75; }
+.btn-upgrade-pill .upgrade-icon { display: none; }
 
 /* Plans modal cards */
 /* Light mode: multiply so glow is visible on light surface (same fix as landing) */
-/* Plans modal: content fits, no scrollbars */
-.plans-modal { max-height: none; }
-.plans-modal-body { overflow: visible; }
+/* Follow-up reminder block in InvoiceDetail. box-sizing keeps the input from
+   blowing past the container on iOS where datetime-local has implicit width. */
+.reminder-block {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--surface);
+  box-sizing: border-box;
+}
+.reminder-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.reminder-block-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.reminder-block-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.reminder-block-clear:hover { color: var(--text); }
+.reminder-block-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 13px;
+  padding: 8px 10px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Plans + upgrade confirm modals: keep them within the viewport but hide the
+   visible scrollbar so the edges look clean. The body still scrolls if it
+   has to (long content, small phones), it just doesn't show a scroll track. */
+.plans-modal-body,
+.upgrade-confirm-body { scrollbar-width: none; }
+.plans-modal-body::-webkit-scrollbar,
+.upgrade-confirm-body::-webkit-scrollbar { display: none; }
+
+/* Mobile: side-by-side cards stack to one column so they don't overflow. */
+@media (max-width: 640px) {
+  .plans-modal-body { grid-template-columns: 1fr !important; }
+}
 
 .plans-modal-glow > .edge-light { mix-blend-mode: multiply; }
 [data-theme="dark"] .plans-modal-glow > .edge-light { mix-blend-mode: plus-lighter; }
@@ -1573,6 +1634,18 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
   - Cards can be swiped left to reveal a delete button
 */
 @media (max-width: 768px) {
+
+  /* Topbar upgrade pill collapses to a tight icon button on mobile so it never
+     overlaps the centered date. */
+  .btn-upgrade-pill {
+    padding: 0;
+    width: 28px;
+    height: 28px;
+    justify-content: center;
+    gap: 0;
+  }
+  .btn-upgrade-pill .upgrade-icon { display: inline-flex; }
+  .btn-upgrade-pill .upgrade-text { display: none; }
 
   /* Full-height layout using dynamic viewport height (accounts for browser chrome on iOS) */
   .app-shell {

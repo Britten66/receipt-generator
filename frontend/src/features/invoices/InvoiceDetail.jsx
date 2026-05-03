@@ -329,20 +329,9 @@ function ReminderControl({ receipt, setSelected, showToast }) {
   }
 
   return (
-    <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--border-light)", background: "var(--surface)" }}>
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 8,
-        fontSize: 10,
-        fontWeight: 600,
-        letterSpacing: "0.12em",
-        textTransform: "uppercase",
-        color: "var(--text-muted)",
-        marginBottom: 6,
-      }}>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+    <div className="reminder-block">
+      <div className="reminder-block-head">
+        <span className="reminder-block-label">
           <BellIcon size={11} strokeWidth={1.75} />
           Follow-up reminder
         </span>
@@ -352,18 +341,7 @@ function ReminderControl({ receipt, setSelected, showToast }) {
             onClick={() => save(null)}
             disabled={saving}
             aria-label="Clear reminder"
-            style={{
-              background: "none",
-              border: "none",
-              color: "var(--text-muted)",
-              cursor: "pointer",
-              padding: 4,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-              fontSize: 10,
-              letterSpacing: "0.08em",
-            }}
+            className="reminder-block-clear"
           >
             <XIcon size={10} strokeWidth={2} />
             Clear
@@ -375,8 +353,7 @@ function ReminderControl({ receipt, setSelected, showToast }) {
         value={localValue}
         onChange={onPick}
         disabled={saving}
-        className="field"
-        style={{ fontSize: 13, padding: "8px 10px", width: "100%" }}
+        className="field reminder-block-input"
       />
     </div>
   );
