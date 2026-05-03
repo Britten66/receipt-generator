@@ -94,13 +94,20 @@ export function useNotifications({ receipts, profile }) {
     return out;
   }, [receipts, profile, referral]);
 
-  // Unread count: anything from the last 24h.
-  const unreadCount = useMemo(() => {
-    const cutoff = Date.now() - 24 * 60 * 60 * 1000;
-    return items.filter((i) => i.timestamp && new Date(i.timestamp).getTime() > cutoff).length;
-  }, [items]);
+  const SEEN_KEY = "notif_last_seen";
+  const [lastSeen, setLastSeen] = useState(() => parseInt(localStorage.getItem(SEEN_KEY) || "0", 10));
 
-  return { items, unreadCount, showPromo, referral, reminders, isPaid };
+  function markSeen() {
+    const now = Date.now();
+    localStorage.setItem(SEEN_KEY, String(now));
+    setLastSeen(now);
+  }
+
+  const unreadCount = useMemo(() => {
+    return items.filter((i) => i.timestamp && new Date(i.timestamp).getTime() > lastSeen).length;
+  }, [items, lastSeen]);
+
+  return { items, unreadCount, showPromo, referral, reminders, isPaid, markSeen };
 }
 
 function reminderRelative(ts) {
