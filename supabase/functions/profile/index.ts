@@ -57,14 +57,21 @@ Deno.serve(async (req) => {
     const { data } = await supabase.from("profiles").select("*").eq("user_id", user.id).single();
     if (data) return new Response(JSON.stringify(applyGrantToTier(data)), { headers: corsHeaders });
 
-    // No profile yet: create a blank one on first login. Capture ?ref= from query string.
+    // No profile yet: create one on first login. Look for a referral code in
+    // two places, in priority order:
+    //   1. ?ref= query param (same-device signup flow, set by fetchProfile)
+    //   2. user.user_metadata.ref_code (set at signUp, survives device switches)
     const url = new URL(req.url);
-    const refCode = url.searchParams.get("ref")?.trim().toUpperCase().slice(0, 8) || null;
+    const queryRef = url.searchParams.get("ref")?.trim().toUpperCase().slice(0, 8) || null;
+    const metaRefRaw = (user.user_metadata as Record<string, unknown> | undefined)?.ref_code;
+    const metaRef = typeof metaRefRaw === "string" ? metaRefRaw.trim().toUpperCase().slice(0, 8) : null;
+    const refCode = queryRef || metaRef;
+    const validRef = refCode && /^[A-Z0-9]+$/.test(refCode) ? refCode : null;
 
     const { data: created } = await supabase.from("profiles").insert({
       user_id: user.id,
       tier: "free",
-      ...(refCode ? { referred_by_code: refCode } : {}),
+      ...(validRef ? { referred_by_code: validRef } : {}),
     }).select().single();
     return new Response(JSON.stringify(applyGrantToTier(created ?? {})), { headers: corsHeaders });
   }
@@ -72,27 +79,28 @@ Deno.serve(async (req) => {
   if (req.method === "PUT") {
     const body = await req.json();
 
-    // Sanitize all profile fields: lengths are generous but bounded.
-    // URL fields are validated to prevent javascript: injection via payment_url/website.
+    // Only include fields the client actually sent. Skipping a field leaves the existing
+    // DB value untouched. Without this, a partial PUT (e.g. just terms_agreed_at) would
+    // wipe business_name, address, etc., to null.
     const tax_rate_val = parseFloat(String(body.tax_rate ?? ""));
-    const { data, error } = await supabase.from("profiles").upsert({
-      user_id:       user.id,
-      business_name: str(body.business_name, 200),
-      address:       str(body.address,       400),
-      email:         str(body.email,         254),
-      phone:         str(body.phone,         30),
-      bio:           str(body.bio,           500),
-      website:       safeUrl(body.website),
-      payment_url:   safeUrl(body.payment_url),
-      logo_url:      str(body.logo_url,      500),
-      avatar_url:    str(body.avatar_url,    500),
-      ...(body.theme    !== undefined ? { theme:     str(body.theme, 50) }                                       : {}),
-      ...(body.tax_rate !== undefined ? { tax_rate:  isNaN(tax_rate_val) ? 0 : Math.min(Math.max(tax_rate_val, 0), 100) } : {}),
-      ...(body.tax_label !== undefined ? { tax_label: str(body.tax_label, 50) }                                  : {}),
-      ...(body.currency          !== undefined ? { currency: VALID_CURRENCIES.has(body.currency) ? body.currency : "CAD" } : {}),
-      ...(body.terms_agreed_at   !== undefined ? { terms_agreed_at: typeof body.terms_agreed_at === "string" ? body.terms_agreed_at : null } : {}),
-      ...(body.email_marketing_ok !== undefined ? { email_marketing_ok: !!body.email_marketing_ok } : {}),
-    }, { onConflict: "user_id" }).select().single();
+    const payload: Record<string, unknown> = { user_id: user.id };
+    if (body.business_name !== undefined) payload.business_name = str(body.business_name, 200);
+    if (body.address       !== undefined) payload.address       = str(body.address,       400);
+    if (body.email         !== undefined) payload.email         = str(body.email,         254);
+    if (body.phone         !== undefined) payload.phone         = str(body.phone,         30);
+    if (body.bio           !== undefined) payload.bio           = str(body.bio,           500);
+    if (body.website       !== undefined) payload.website       = safeUrl(body.website);
+    if (body.payment_url   !== undefined) payload.payment_url   = safeUrl(body.payment_url);
+    if (body.logo_url      !== undefined) payload.logo_url      = str(body.logo_url,      500);
+    if (body.avatar_url    !== undefined) payload.avatar_url    = str(body.avatar_url,    500);
+    if (body.theme         !== undefined) payload.theme         = str(body.theme, 50);
+    if (body.tax_rate      !== undefined) payload.tax_rate      = isNaN(tax_rate_val) ? 0 : Math.min(Math.max(tax_rate_val, 0), 100);
+    if (body.tax_label     !== undefined) payload.tax_label     = str(body.tax_label, 50);
+    if (body.currency      !== undefined) payload.currency      = VALID_CURRENCIES.has(body.currency) ? body.currency : "CAD";
+    if (body.terms_agreed_at   !== undefined) payload.terms_agreed_at   = typeof body.terms_agreed_at === "string" ? body.terms_agreed_at : null;
+    if (body.email_marketing_ok !== undefined) payload.email_marketing_ok = !!body.email_marketing_ok;
+
+    const { data, error } = await supabase.from("profiles").upsert(payload, { onConflict: "user_id" }).select().single();
 
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
     return new Response(JSON.stringify(applyGrantToTier(data)), { headers: corsHeaders });
