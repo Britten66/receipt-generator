@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { fmt } from "../../lib/constants";
+import StatusBadge from "./StatusBadge";
 
 export default function InvoiceGrid({
   loading, filtered, selectedReceipt,
@@ -59,7 +60,7 @@ export default function InvoiceGrid({
             <div className="card-vendor">{r.customer_name}</div>
             <div className="card-customer">{r.vendor_name}</div>
             <div className="card-footer">
-              <span className={`stamp ${r.status}`}>{r.status}</span>
+              <StatusBadge status={r.status} />
               <span className="card-total">{fmt(r.total)}</span>
             </div>
           </div>
