@@ -4,7 +4,7 @@ import { fetchReferralInfo } from "../../api/referrals";
 import { useModalEscape } from "../../lib/useModalEscape";
 import "./ReferralModal.css";
 
-export default function ReferralModal({ onClose, onSignUp }) {
+export default function ReferralModal({ onClose, onSignUp, onCopy }) {
   const isGuest = !!onSignUp;
   const [info, setInfo] = useState(null);
   const [loading, setLoading] = useState(!isGuest);
@@ -40,6 +40,7 @@ export default function ReferralModal({ onClose, onSignUp }) {
     navigator.clipboard.writeText(info.share_url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+    onCopy?.();
   };
 
   const grantExpiry = info?.pro_grant_until

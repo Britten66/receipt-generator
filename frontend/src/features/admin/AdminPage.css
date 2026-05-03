@@ -25,6 +25,33 @@
   color: var(--text-muted);
 }
 
+.admin-ci {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.admin-ci-badge img {
+  display: block;
+  height: 20px;
+}
+
+.admin-ci-link {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: var(--mono);
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1px;
+}
+
+.admin-ci-link:hover {
+  color: var(--text);
+  border-color: var(--text);
+}
+
 .admin-kpis {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
