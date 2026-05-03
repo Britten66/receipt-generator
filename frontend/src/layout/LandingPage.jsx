@@ -296,7 +296,6 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 <li>Email invoices straight to clients with your logo</li>
                 <li>Text AI parsing: describe an invoice, the form fills itself (15 per day)</li>
                 <li>Send payment reminders to clients who haven't paid</li>
-                <li>No watermark on any PDF</li>
                 <li>CSV export ready for your accountant</li>
                 <li>Custom dashboard themes</li>
               </ul>
