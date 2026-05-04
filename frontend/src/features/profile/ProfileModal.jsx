@@ -157,6 +157,10 @@ const [logoUploading,   setLogoUploading]   = useState(false);
     If the user left it blank we save null so ReceiptForm falls back to its default.
   */
   async function handleSave() {
+    if (form.payment_url && !form.payment_url.startsWith("https://")) {
+      alert("Payment link must start with https://");
+      return;
+    }
     setSaving(true);
     const dataToSave = {
       ...form,

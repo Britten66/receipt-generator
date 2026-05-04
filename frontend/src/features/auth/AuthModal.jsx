@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 import LegalModal from "../profile/LegalModal";
-import "./AuthPage.css";
+import "./AuthModal.css";
 
 /*
   checkPassword: validates password strength.

@@ -3,11 +3,26 @@ import { supabase } from "../../lib/supabase";
 import "./AdminPage.css";
 
 const LABELS_KEY = "admin_user_labels";
+const FILTERS_KEY = "admin_filters";
 const LABEL_OPTIONS = ["real", "friend", "tester", "demo", "hidden"];
+
+const FILTER_DEFAULTS = {
+  search: "",
+  tierFilter: "all",
+  categoryFilter: "real",
+  activityFilter: "all",
+  joinedFilter: "all",
+  sort: { col: "signed_up_at", dir: "desc" },
+};
 
 function getStoredLabels() {
   try { return JSON.parse(localStorage.getItem(LABELS_KEY) || "{}"); }
   catch { return {}; }
+}
+
+function getStoredFilters() {
+  try { return { ...FILTER_DEFAULTS, ...JSON.parse(localStorage.getItem(FILTERS_KEY) || "{}") }; }
+  catch { return FILTER_DEFAULTS; }
 }
 
 function persistLabel(userId, label) {
@@ -41,12 +56,13 @@ export default function AdminPage() {
   const [err, setErr] = useState(null);
   const [labels, setLabels] = useState(getStoredLabels);
 
-  const [search, setSearch] = useState("");
-  const [tierFilter, setTierFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("real");
-  const [activityFilter, setActivityFilter] = useState("all");
-  const [joinedFilter, setJoinedFilter] = useState("all");
-  const [sort, setSort] = useState({ col: "signed_up_at", dir: "desc" });
+  const stored = getStoredFilters();
+  const [search, setSearch] = useState(stored.search);
+  const [tierFilter, setTierFilter] = useState(stored.tierFilter);
+  const [categoryFilter, setCategoryFilter] = useState(stored.categoryFilter);
+  const [activityFilter, setActivityFilter] = useState(stored.activityFilter);
+  const [joinedFilter, setJoinedFilter] = useState(stored.joinedFilter);
+  const [sort, setSort] = useState(stored.sort);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,6 +80,10 @@ export default function AdminPage() {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem(FILTERS_KEY, JSON.stringify({ search, tierFilter, categoryFilter, activityFilter, joinedFilter, sort }));
+  }, [search, tierFilter, categoryFilter, activityFilter, joinedFilter, sort]);
 
   const handleLabel = (userId, label) => {
     persistLabel(userId, label);
