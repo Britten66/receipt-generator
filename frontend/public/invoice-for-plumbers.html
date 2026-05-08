@@ -100,9 +100,10 @@
 
     /* Trade photos */
     .photo-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 32px 0; }
+    .photo-item { position: relative; }
     .photo-item img { width: 100%; height: 220px; object-fit: cover; display: block; }
-    .photo-credit { font-size: 10px; color: var(--text-muted); margin-top: 5px; }
-    .photo-credit a { color: var(--text-muted); }
+    .photo-credit { position: absolute; bottom: 6px; right: 8px; font-size: 8px; color: #bbb; }
+    .photo-credit a { color: #bbb; text-decoration: none; }
 
     /* Invoice document mockup */
     .invoice-doc { background: #fff; border: 1px solid #ccc; box-shadow: 0 3px 16px rgba(0,0,0,0.1); padding: 32px 36px; margin: 28px 0; }
