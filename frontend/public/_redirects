@@ -1,5 +1,25 @@
 https://www.invoiceprepper.com/* https://invoiceprepper.com/:splat 301!
 
+# Strip .html extension — canonical tags use clean URLs, so redirect .html to clean
+/free-invoice-generator.html /free-invoice-generator 301!
+/how-to-invoice-clients.html /how-to-invoice-clients 301!
+/invoice-for-cleaners.html /invoice-for-cleaners 301!
+/invoice-for-contractors.html /invoice-for-contractors 301!
+/invoice-for-designers.html /invoice-for-designers 301!
+/invoice-for-electricians.html /invoice-for-electricians 301!
+/invoice-for-freelancers.html /invoice-for-freelancers 301!
+/invoice-for-handymen.html /invoice-for-handymen 301!
+/invoice-for-landscapers.html /invoice-for-landscapers 301!
+/invoice-for-painters.html /invoice-for-painters 301!
+/invoice-for-personal-trainers.html /invoice-for-personal-trainers 301!
+/invoice-for-photographers.html /invoice-for-photographers 301!
+/invoice-for-plumbers.html /invoice-for-plumbers 301!
+/invoice-for-tutors.html /invoice-for-tutors 301!
+/invoice-simple-alternative.html /invoice-simple-alternative 301!
+/voice-invoicing.html /voice-invoicing 301!
+/privacy.html /privacy 301!
+/terms.html /terms 301!
+
 # SPA fallback. Anything not a static file falls through to the React app
 # at the root, which renders the landing page rather than returning a hard 404.
 # Cuts the Googlebot 4XX rate by handling typo URLs and stale-index URLs.
