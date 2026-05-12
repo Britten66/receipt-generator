@@ -33,7 +33,7 @@
   --accent-dim: rgba(160, 104, 48, 0.12);
   --voice-text: #0a8a96;   /* cyan text: readable on light backgrounds */
   --mono: ui-monospace, "Courier New", monospace;
-  --sans: "Public Sans", sans-serif;
+  --sans: "Satoshi", sans-serif;
 }
 
 /* Dark mode: applied when <html data-theme="dark"> is set */

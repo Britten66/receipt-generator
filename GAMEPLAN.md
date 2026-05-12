@@ -32,6 +32,31 @@ Domain knowledge is the distribution edge.
 
 ---
 
+## Pain Points We Fix on Day One (Fast User Acquisition)
+
+These are Reddit-validated complaints about ServiceTitan, Jobber, and Housecall Pro.
+Fix these out of the gate and tradespeople will switch immediately.
+
+| Pain Point | Who Has It | What We Do |
+|---|---|---|
+| Onboarding takes months | ServiceTitan | Under 10 min to first quote sent |
+| $250-$500/month per tech | ServiceTitan | Flat $49/month, one price |
+| Follow-up is a paid add-on | Housecall Pro | Included in base plan, always |
+| Review requests cost extra | Housecall Pro | Included in base plan, always |
+| Bill doubles from add-on creep | Housecall Pro | No add-ons. One price covers it |
+| No offline access | Jobber | Works offline, syncs when back |
+| QuickBooks sync breaks | Jobber | No QuickBooks dependency at launch |
+| Rigid, can't customize | Jobber | Simple flows that match how trades work |
+| Human support replaced by AI | Housecall Pro (2025) | Real human support while small |
+| Can't export your data when leaving | ServiceTitan | Your data is yours, exportable anytime |
+| Review requests feel generic, get flagged | All of them | Timed 2hr post-job trigger, personal tone |
+
+### The one-liner for sales conversations:
+> "Jobber and Housecall Pro charge you extra for follow-up and reviews.
+> We built a tool where that IS the product, for $49 flat."
+
+---
+
 ## Tech Stack (Same as InvoicePrepper)
 
 - React + Vite (frontend)
