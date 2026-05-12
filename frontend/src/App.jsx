@@ -117,9 +117,11 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
   useEffect(() => {
     if (darkMode) {
       document.documentElement.setAttribute("data-theme", "dark");
+      document.documentElement.style.background = "#2c3032";
       localStorage.setItem("dark_mode", "1");
     } else {
       document.documentElement.removeAttribute("data-theme");
+      document.documentElement.style.background = "#dcdcda";
       localStorage.setItem("dark_mode", "0");
     }
   }, [darkMode]);
