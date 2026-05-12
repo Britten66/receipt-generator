@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -7,7 +7,7 @@ body {
   min-height: 100vh;
   background: radial-gradient(ellipse at top left, #1c1814 0%, #0f0d0b 60%, #0a0908 100%);
   color: #e8e2d9;
-  font-family: "Public Sans", sans-serif;
+  font-family: "Satoshi", sans-serif;
 }
 
 ::-webkit-scrollbar       { width: 4px; }
@@ -38,7 +38,7 @@ body {
   color: #c9a96e;
   background: rgba(180, 130, 70, 0.07);
   border-radius: 0;
-  font-family: "Public Sans", sans-serif;
+  font-family: "Satoshi", sans-serif;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.1em;

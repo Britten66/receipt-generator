@@ -16,6 +16,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+    <script>
+      try {
+        var stored = localStorage.getItem("dark_mode");
+        var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var isDark = stored !== null ? stored === "1" : prefersDark;
+        if (isDark) {
+          document.documentElement.setAttribute("data-theme", "dark");
+          document.documentElement.style.background = "#2c3032";
+        } else {
+          document.documentElement.style.background = "#dcdcda";
+        }
+        if (stored === null) localStorage.setItem("dark_mode", isDark ? "1" : "0");
+      } catch {}
+    </script>
 
     <title>InvoicePrepper | Free Invoice Generator for Freelancers and Contractors</title>
     <meta name="description" content="Free invoice generator. Create a professional invoice, download the PDF, and send it to your client — no account required to start. Free forever, no credit card." />
@@ -82,21 +98,6 @@
     </script>
   </head>
   <body>
-    <script>
-      try {
-        var stored = localStorage.getItem("dark_mode");
-        var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        var isDark = stored !== null ? stored === "1" : prefersDark;
-        if (isDark) {
-          document.documentElement.setAttribute("data-theme", "dark");
-          document.body.style.background = "#1e1c18";
-          if (stored === null) localStorage.setItem("dark_mode", "1");
-        } else {
-          document.body.style.background = "#f5f3ef";
-          if (stored === null) localStorage.setItem("dark_mode", "0");
-        }
-      } catch {}
-    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
