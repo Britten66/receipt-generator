@@ -228,9 +228,10 @@ async function buildDoc(receipt) {
 
   // Draw the table using jspdf-autotable
   const unitHeader = receipt.unit_label || "Qty";
+  const rateHeader = unitHeader === "Qty" ? "Unit Price" : "Rate";
   autoTable(doc, {
     startY: dividerY + 5,
-    head: [["Description", unitHeader, "Unit Price", "Total"]],
+    head: [["Description", unitHeader, rateHeader, "Total"]],
     body: tableRows,
     margin: { left: m, right: m },
     headStyles: {

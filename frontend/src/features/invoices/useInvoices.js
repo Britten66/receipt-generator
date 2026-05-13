@@ -23,14 +23,15 @@ export function useInvoices({ session, profile, showToast }) {
       if (data.id) {
         const result = await updateReceipt(data.id, data);
         if (result?.error) throw new Error(result.error);
-        const updated = { ...result, line_items: data.line_items ?? [] };
+        const updated = { ...result, line_items: data.line_items ?? [], unit_label: data.unit_label || result.unit_label || "Qty" };
         setReceipts((prev) => prev.map((r) => (r.id === data.id ? updated : r)));
         setSelected(updated);
         showToast("Invoice updated.", "success");
       } else {
         const result = await createReceipt(data);
         if (result?.error) throw new Error(result.error);
-        setReceipts((prev) => [result, ...prev]);
+        const created = { ...result, unit_label: data.unit_label || result.unit_label || "Qty" };
+        setReceipts((prev) => [created, ...prev]);
         posthog.capture("invoice_created", {
           invoice_count: receipts.length + 1,
           has_line_items: (data.line_items?.length ?? 0) > 0,
