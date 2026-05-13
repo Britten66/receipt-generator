@@ -149,27 +149,45 @@ async function buildDoc(receipt) {
     doc.text(`#${receipt.receipt_number}`, pageW - m, 11, { align: "right" });
   }
 
-  // Vendor name (the business issuing the receipt): shown below the header on the left
+  // ── Vendor block (left): name + contact info ──
+  const vendorNameY = 26;
   if (receipt.vendor_name) {
     doc.setFontSize(13);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(30, 28, 24);
-    doc.text(receipt.vendor_name, m, 32);
+    doc.text(receipt.vendor_name, m, vendorNameY);
   }
 
-  // Customer name (the client being billed): shown on the right side
+  const contactLines = [
+    receipt.vendor_address,
+    receipt.vendor_phone,
+    receipt.vendor_email,
+    receipt.vendor_website,
+  ].filter(Boolean);
+
+  if (contactLines.length) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 96, 90);
+    contactLines.forEach((line, i) => {
+      doc.text(line, m, vendorNameY + 6 + i * 5);
+    });
+  }
+
+  // ── Customer block (right): billed-to label + name ──
   if (receipt.customer_name) {
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.setTextColor(100, 96, 90);
-    doc.text("ISSUED TO", pageW - m - 60, 26);
+    doc.text("BILLED TO", pageW - m - 60, 23);
     doc.setFontSize(11);
     doc.setTextColor(30, 28, 24);
-    doc.text(receipt.customer_name, pageW - m - 60, 32);
+    doc.text(receipt.customer_name, pageW - m - 60, 30);
   }
 
-  // Date and status line: shown below the names
-  const metaY = 40; // Y position in mm from top of page
+  // Date and status line: positioned below vendor block
+  const vendorBlockEndY = vendorNameY + 6 + contactLines.length * 5;
+  const metaY = Math.max(vendorBlockEndY + 4, 40);
   doc.setFontSize(8);
   doc.setTextColor(100, 96, 90);
 
@@ -188,9 +206,10 @@ async function buildDoc(receipt) {
   }
 
   // Horizontal divider line separating the header info from the table
+  const dividerY = metaY + 6;
   doc.setDrawColor(200, 196, 188);
   doc.setLineWidth(0.3);
-  doc.line(m, 45, pageW - m, 45); // from left margin to right margin
+  doc.line(m, dividerY, pageW - m, dividerY);
 
   // Build the rows for the line items table
   // Each row is an array: [description, qty, unit price, total]
@@ -208,9 +227,10 @@ async function buildDoc(receipt) {
   }
 
   // Draw the table using jspdf-autotable
+  const unitHeader = receipt.unit_label || "Qty";
   autoTable(doc, {
-    startY: 50,
-    head: [["Description", "Qty", "Unit Price", "Total"]],
+    startY: dividerY + 5,
+    head: [["Description", unitHeader, "Unit Price", "Total"]],
     body: tableRows,
     margin: { left: m, right: m },
     headStyles: {

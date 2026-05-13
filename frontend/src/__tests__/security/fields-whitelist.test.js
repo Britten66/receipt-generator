@@ -43,7 +43,7 @@ describe("Security", () => {
 const ALLOWED_FIELDS = [
   "vendor_name", "customer_name", "status", "date",
   "subtotal", "tax", "total", "notes", "currency",
-  "logo_url", "logo_corner",
+  "logo_url", "logo_corner", "reminder_at", "due_by", "unit_label",
 ];
 
 // The filter logic from the edge function: replicated verbatim
@@ -57,12 +57,12 @@ function filterAllowedFields(body) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("ALLOWED_FIELDS: structural integrity", () => {
-  it("contains exactly 11 allowed fields (catches silent additions)", () => {
+  it("contains exactly 14 allowed fields (catches silent additions)", () => {
     /*
       Anyone adding a field to the edge function's ALLOWED_FIELDS must also
       update this count: forcing a deliberate code review of what's safe.
     */
-    expect(ALLOWED_FIELDS).toHaveLength(11);
+    expect(ALLOWED_FIELDS).toHaveLength(14);
   });
 
   it("contains no duplicate entries", () => {
