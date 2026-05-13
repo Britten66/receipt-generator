@@ -313,6 +313,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
               loading={loading} filtered={filtered} selectedReceipt={selectedReceipt}
               swipedId={swipedId} setSwipedId={setSwipedId}
               handleDelete={handleDelete} selectFull={selectFull}
+              openEditReceipt={openEditReceipt}
             />
           </div>
           <InvoiceDetail

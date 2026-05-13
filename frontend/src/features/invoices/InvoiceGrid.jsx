@@ -5,7 +5,7 @@ import StatusBadge from "./StatusBadge";
 export default function InvoiceGrid({
   loading, filtered, selectedReceipt,
   swipedId, setSwipedId,
-  handleDelete, selectFull,
+  handleDelete, selectFull, openEditReceipt,
 }) {
   const touchStartX = useRef(0);
 
@@ -48,6 +48,7 @@ export default function InvoiceGrid({
               if (swipedId === r.id) { setSwipedId(null); return; }
               selectFull(r.id);
             }}
+            onDoubleClick={() => openEditReceipt(r)}
           >
             <div className="card-top-row">
               <span className="card-num">{r.receipt_number}</span>
