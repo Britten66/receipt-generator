@@ -1081,6 +1081,16 @@
   opacity: 1;
 }
 
+.lv2-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ── COMPARE TABLE ── */
 .lv2-compare {
   padding: 56px 64px 80px;
@@ -1206,7 +1216,7 @@
 [data-theme="dark"] .lv2-cth-btn-basic { color: #a0a0a0; }
 .lv2-cth-btn-pro   { color: #7a6025; }
 [data-theme="dark"] .lv2-cth-btn-pro { color: #D9B873; }
-.lv2-cth-btn-voice { color: #0d7580; }
+.lv2-cth-btn-voice { color: #096570; }
 [data-theme="dark"] .lv2-cth-btn-voice { color: #4dd8e0; }
 
 /* ── Price sub-row ── */
@@ -1228,7 +1238,7 @@
 [data-theme="dark"] .lv2-cth-price .lv2-cth-basic { color: #a0a0a0; }
 .lv2-cth-price .lv2-cth-pro        { color: #7a6025; font-size: 15px; }
 [data-theme="dark"] .lv2-cth-price .lv2-cth-pro { color: #D9B873; }
-.lv2-cth-price .lv2-cth-voice      { color: #0d7580; font-size: 15px; }
+.lv2-cth-price .lv2-cth-voice      { color: #096570; font-size: 15px; }
 [data-theme="dark"] .lv2-cth-price .lv2-cth-voice { color: #4dd8e0; }
 
 /* ── Body rows ── */
@@ -1276,7 +1286,7 @@
 .lv2-ct-pro     { color: #7a6025; }
 [data-theme="dark"] .lv2-ct-pro { color: #D9B873; }
 /* Voice AI ✓ — teal matching Voice tier */
-.lv2-ct-voice   { color: #0d7580; }
+.lv2-ct-voice   { color: #096570; }
 [data-theme="dark"] .lv2-ct-voice { color: #4dd8e0; }
 
 @media (max-width: 768px) {
