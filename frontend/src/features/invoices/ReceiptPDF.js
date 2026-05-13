@@ -282,6 +282,13 @@ async function buildDoc(receipt) {
   // Build the list of total rows to draw
   // We only show Subtotal and Tax if they have values
   const totalRows = [];
+  const unitLabel = receipt.unit_label || "Qty";
+  if (unitLabel !== "Qty") {
+    const totalUnits = (receipt.line_items || [])
+      .reduce((s, i) => s + parseFloat(i.quantity || 0), 0);
+    const display = totalUnits % 1 === 0 ? String(totalUnits) : totalUnits.toFixed(2);
+    totalRows.push([`Total ${unitLabel}`, display]);
+  }
   if (subtotal > 0) {
     totalRows.push(["Subtotal", fmtMoney(subtotal, receipt.currency)]);
   }
