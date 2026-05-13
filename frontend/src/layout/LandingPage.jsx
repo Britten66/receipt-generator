@@ -390,7 +390,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           <table className="lv2-compare-table">
             <thead>
               <tr>
-                <th className="lv2-cth-feature" aria-label="Feature"></th>
+                <th className="lv2-cth-feature"><span className="lv2-sr-only">Feature</span></th>
                 <th className="lv2-cth-basic">
                   <button className="lv2-cth-btn lv2-cth-btn-basic" onClick={onEnter}>Basic</button>
                 </th>
