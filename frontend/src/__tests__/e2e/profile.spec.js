@@ -36,6 +36,6 @@ test.describe("Profile", () => {
 
   test("help button opens help modal", async ({ page }) => {
     await page.locator(".help-btn").click();
-    await expect(page.locator(".modal")).toBeVisible();
+    await expect(page.locator(".win-modal")).toBeVisible();
   });
 });

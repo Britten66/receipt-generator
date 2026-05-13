@@ -76,7 +76,8 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       customer_name: "",
       receipt_number: "",
       date: new Date().toISOString().split("T")[0], // today in YYYY-MM-DD format
-      due_by: "",                                   // optional, blank means no due date
+      due_by: "",
+      billing_period: "",
       isTaxExempt: false,
       taxRate: String(DEFAULT_TAX_RATE * 100), // stored as percent string, e.g. "13" = 13%
       taxLabel: "Tax",                          // e.g. "GST", "VAT", "HST": user sets per invoice
@@ -341,6 +342,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       receipt_number: initialData.receipt_number || "",
       date: formattedDate,
       due_by: initialData.due_by || "",
+      billing_period: initialData.billing_period || "",
       isTaxExempt: wasTaxExempt,
       taxRate:  inferredRate,
       taxLabel: "Tax",
@@ -513,6 +515,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
     onSubmit({
       ...form,
       unit_label: form.unit_label || "Qty",
+      billing_period: form.billing_period || null,
       subtotal,
       tax,
       total,
@@ -693,6 +696,16 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 value={form.due_by}
                 onChange={(v) => setField("due_by", v)}
                 placeholder="No due date"
+              />
+            </div>
+            <div className="field-group">
+              <label className="field-label">Billing Period <span style={{ fontWeight: 400, color: "var(--text-muted)", textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
+              <input
+                className="field"
+                type="text"
+                placeholder="e.g. May 1-31 2026"
+                value={form.billing_period}
+                onChange={(e) => setField("billing_period", e.target.value)}
               />
             </div>
             <div className="field-group">
