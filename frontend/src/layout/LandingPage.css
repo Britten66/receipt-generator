@@ -1174,10 +1174,16 @@
 }
 
 .lv2-cth-feature { width: 34%; color: var(--text-muted); }
-.lv2-cth-wave    { color: var(--text-muted); font-size: 12px; font-weight: 500; border-top: 3px solid var(--border); }
-.lv2-cth-basic   { padding: 18px 8px 10px; border-top: 3px solid #909090; }
-.lv2-cth-pro     { padding: 18px 8px 10px; border-top: 3px solid #D9B873; }
-.lv2-cth-voice   { padding: 18px 8px 10px; border-top: 3px solid #4dd8e0; }
+.lv2-cth-wave    { color: var(--text-muted); font-size: 12px; font-weight: 500; }
+.lv2-cth-basic   { padding: 18px 8px 10px; }
+.lv2-cth-pro     { padding: 18px 8px 10px; }
+.lv2-cth-voice   { padding: 18px 8px 10px; }
+
+/* Colored top border — scoped to name row only so price-row cells aren't affected */
+.lv2-compare-table thead tr:first-child .lv2-cth-basic { border-top: 3px solid #909090; }
+.lv2-compare-table thead tr:first-child .lv2-cth-pro   { border-top: 3px solid #D9B873; }
+.lv2-compare-table thead tr:first-child .lv2-cth-voice { border-top: 3px solid #4dd8e0; }
+.lv2-compare-table thead tr:first-child .lv2-cth-wave  { border-top: 3px solid var(--border); }
 
 /* Clickable tier header buttons */
 .lv2-cth-btn {
