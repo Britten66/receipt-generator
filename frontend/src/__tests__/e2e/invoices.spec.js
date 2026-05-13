@@ -13,12 +13,12 @@ test.describe("Invoices", () => {
 
   test("can open new invoice form", async ({ page }) => {
     await page.getByRole("button", { name: /new invoice/i }).click();
-    await expect(page.locator(".modal")).toBeVisible();
+    await expect(page.locator(".receipt-form-modal")).toBeVisible();
   });
 
   test("new invoice form has client name field", async ({ page }) => {
     await page.getByRole("button", { name: /new invoice/i }).click();
-    await page.locator(".modal").waitFor();
+    await page.locator(".receipt-form-modal").waitFor();
     await expect(
       page.locator("input[placeholder*='client' i], input[placeholder*='billed' i], input[placeholder*='customer' i]").first()
     ).toBeVisible();
@@ -26,7 +26,7 @@ test.describe("Invoices", () => {
 
   test("new invoice form has a line item description field", async ({ page }) => {
     await page.getByRole("button", { name: /new invoice/i }).click();
-    await page.locator(".modal").waitFor();
+    await page.locator(".receipt-form-modal").waitFor();
     await expect(
       page.locator("input[placeholder*='description' i], input[placeholder*='item' i], input[placeholder*='service' i]").first()
     ).toBeVisible();
@@ -34,9 +34,9 @@ test.describe("Invoices", () => {
 
   test("cancel closes the invoice form", async ({ page }) => {
     await page.getByRole("button", { name: /new invoice/i }).click();
-    await page.locator(".modal").waitFor();
-    await page.locator(".modal button.btn-ghost").first().click();
-    await expect(page.locator(".modal")).not.toBeVisible();
+    await page.locator(".receipt-form-modal").waitFor();
+    await page.locator(".receipt-form-modal button.btn-ghost").first().click();
+    await expect(page.locator(".receipt-form-modal")).not.toBeVisible();
   });
 
   test("invoice list shows status filters", async ({ page }) => {
