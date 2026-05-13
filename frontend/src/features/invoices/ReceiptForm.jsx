@@ -724,7 +724,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                   {UNIT_LABELS.map((u) => <option key={u} value={u}>{u}</option>)}
                 </select>
               </span>
-              <span>Price</span>
+              <span>{form.unit_label === "Qty" ? "Price" : "Rate"}</span>
               <span>Total</span>
               <span></span>
             </div>
@@ -739,13 +739,13 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 <input
                   className="field"
                   type="number"
-                  inputMode="numeric"
-                  step="1"
-                  min="1"
+                  inputMode={form.unit_label === "Qty" ? "numeric" : "decimal"}
+                  step={form.unit_label === "Qty" ? "1" : "0.25"}
+                  min="0"
                   placeholder={form.unit_label}
                   value={item.quantity}
                   onChange={(e) => setItem(i, "quantity", e.target.value)}
-                  onFocus={(e) => e.target.select()} // select all text when focused so it's easy to replace
+                  onFocus={(e) => e.target.select()}
                 />
                 <input
                   className="field"
