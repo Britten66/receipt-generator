@@ -45,11 +45,12 @@ export default async function globalSetup() {
     // No welcome modal: continue
   }
 
-  // Dismiss consent modal if it appears
+  // Dismiss consent modal if it appears (must click through — no Escape handler)
   try {
-    const consent = page.locator(".consent-modal, [class*='consent']").first();
-    await consent.waitFor({ timeout: 3000 });
-    await page.keyboard.press("Escape");
+    await page.getByText("Before you continue").waitFor({ timeout: 3000 });
+    await page.locator("input[type='checkbox']").first().check();
+    await page.getByRole("button", { name: /continue/i }).click();
+    await page.waitForTimeout(500);
   } catch {
     // No consent modal: continue
   }
