@@ -1175,36 +1175,31 @@
 
 .lv2-cth-feature { width: 34%; color: var(--text-muted); }
 .lv2-cth-wave    { color: var(--text-muted); font-size: 12px; font-weight: 500; }
-.lv2-cth-basic   { color: #5a5a5a; padding: 18px 8px 10px; }
-[data-theme="dark"] .lv2-cth-basic { color: #a0a0a0; }
-.lv2-cth-pro     { color: #7a6025; padding: 18px 8px 10px; }
-[data-theme="dark"] .lv2-cth-pro { color: #D9B873; }
-.lv2-cth-voice   { color: #0d7580; padding: 18px 8px 10px; }
-[data-theme="dark"] .lv2-cth-voice { color: #4dd8e0; }
+.lv2-cth-basic   { padding: 18px 8px 10px; }
+.lv2-cth-pro     { padding: 18px 8px 10px; }
+.lv2-cth-voice   { padding: 18px 8px 10px; }
 
-/* Clickable tier header buttons */
+/* Clickable tier header buttons — colored pill badges */
 .lv2-cth-btn {
   display: block;
   width: 100%;
-  background: none;
   border: none;
-  padding: 6px 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
   font-family: var(--sans);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: -0.01em;
   cursor: pointer;
-  text-align: left;
+  text-align: center;
+  color: #1a1a1a;
   transition: opacity 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
-.lv2-cth-btn:hover { opacity: 0.7; }
-.lv2-cth-btn-basic { color: #5a5a5a; }
-[data-theme="dark"] .lv2-cth-btn-basic { color: #a0a0a0; }
-.lv2-cth-btn-pro   { color: #7a6025; }
-[data-theme="dark"] .lv2-cth-btn-pro { color: #D9B873; }
-.lv2-cth-btn-voice { color: #0d7580; }
-[data-theme="dark"] .lv2-cth-btn-voice { color: #4dd8e0; }
+.lv2-cth-btn:hover { opacity: 0.8; }
+.lv2-cth-btn-basic { background: #909090; }
+.lv2-cth-btn-pro   { background: #D9B873; }
+.lv2-cth-btn-voice { background: #4dd8e0; }
 
 /* ── Price sub-row ── */
 .lv2-cth-price {
