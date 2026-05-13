@@ -2,9 +2,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { createPostHogClient, isPostHogConfigured, safeShutdown } from "../_shared/posthog.ts";
 
-const ALLOWED_FIELDS  = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency", "logo_url", "logo_corner", "reminder_at", "due_by"];
+const ALLOWED_FIELDS  = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency", "logo_url", "logo_corner", "reminder_at", "due_by", "unit_label"];
 const VALID_STATUSES  = new Set(["draft", "sent", "paid", "voided"]);
 const VALID_CORNERS   = new Set(["top-left", "top-right", "bottom-left", "bottom-right"]);
+const VALID_UNIT_LABELS = new Set(["Qty", "Hrs", "Days"]);
 const VALID_CURRENCIES = new Set(["CAD", "USD", "EUR", "GBP", "AUD", "NZD", "CHF", "JPY", "MXN", "SGD", "HKD", "INR"]);
 const MAX_BODY_BYTES  = 64 * 1024; // 64 KB
 const MAX_LINE_ITEMS  = 100;
@@ -89,6 +90,7 @@ Deno.serve(async (req) => {
     const logo_url      = str(body.logo_url, 500);
     const date          = typeof body.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.date) ? body.date : new Date().toISOString().split("T")[0];
     const due_by        = typeof body.due_by === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.due_by) ? body.due_by : null;
+    const unit_label    = VALID_UNIT_LABELS.has(body.unit_label) ? body.unit_label : "Qty";
 
     if (!vendor_name || !customer_name) {
       return new Response(JSON.stringify({ error: "Vendor name and customer name are required" }), { status: 400, headers: corsHeaders });
@@ -107,6 +109,7 @@ Deno.serve(async (req) => {
       status,
       date,
       due_by,
+      unit_label,
       subtotal: num(body.subtotal),
       tax:      num(body.tax),
       total:    num(body.total),
@@ -184,6 +187,7 @@ Deno.serve(async (req) => {
         else if (typeof body[key] === "string" && !isNaN(Date.parse(body[key]))) updates[key] = body[key];
         else updates[key] = undefined;
       }
+      else if (key === "unit_label") updates[key] = VALID_UNIT_LABELS.has(body[key]) ? body[key] : undefined;
       else if (["subtotal","tax","total"].includes(key)) updates[key] = num(body[key]);
       else updates[key] = body[key];
       // Drop undefined values (invalid enum entries above)

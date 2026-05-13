@@ -17,9 +17,13 @@ export function useSendInvoice({ profile, handleStatusChange, showToast }) {
       const { buildPDFBase64 } = await import("./ReceiptPDF");
       const pdfBase64 = await buildPDFBase64({
         ...r,
-        logo_url:    r.logo_url || profile?.logo_url || null,
-        logo_corner: r.logo_corner || null,
-        tier:        profile?.tier ?? "free",
+        logo_url:       r.logo_url || profile?.logo_url || null,
+        logo_corner:    r.logo_corner || null,
+        tier:           profile?.tier ?? "free",
+        vendor_address: profile?.address  || "",
+        vendor_phone:   profile?.phone    || "",
+        vendor_email:   profile?.email    || "",
+        vendor_website: profile?.website  || "",
       });
       const { data: { session: _s } } = await supabase.auth.getSession();
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invoice`, {

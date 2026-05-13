@@ -34,6 +34,8 @@ const EMPTY_ITEM = {
   total: "",
 };
 
+const UNIT_LABELS = ["Qty", "Hrs", "Days"];
+
 // Default tax rate is 0: users set their own rate per invoice (GST, VAT, HST, etc.)
 const DEFAULT_TAX_RATE = 0;
 
@@ -80,6 +82,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       taxLabel: "Tax",                          // e.g. "GST", "VAT", "HST": user sets per invoice
       currency: localStorage.getItem("lastCurrency") || "CAD",
       notes: "",
+      unit_label: "Qty",
       id: null,
     };
   });
@@ -343,6 +346,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
       taxLabel: "Tax",
       currency: initialData.currency || "CAD",
       notes: initialData.notes || "",
+      unit_label: initialData.unit_label || "Qty",
       id: initialData.id,
     });
 
@@ -508,6 +512,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
 
     onSubmit({
       ...form,
+      unit_label: form.unit_label || "Qty",
       subtotal,
       tax,
       total,
@@ -710,7 +715,15 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
             <div className="field-label" style={{ marginBottom: 10 }}>Products &amp; Services</div>
             <div className="line-item-row header">
               <span>Description</span>
-              <span>Qty</span>
+              <span>
+                <select
+                  value={form.unit_label}
+                  onChange={(e) => setField("unit_label", e.target.value)}
+                  style={{ font: "inherit", background: "none", border: "none", cursor: "pointer", padding: 0, color: "inherit" }}
+                >
+                  {UNIT_LABELS.map((u) => <option key={u} value={u}>{u}</option>)}
+                </select>
+              </span>
               <span>Price</span>
               <span>Total</span>
               <span></span>
@@ -729,7 +742,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                   inputMode="numeric"
                   step="1"
                   min="1"
-                  placeholder="Qty"
+                  placeholder={form.unit_label}
                   value={item.quantity}
                   onChange={(e) => setItem(i, "quantity", e.target.value)}
                   onFocus={(e) => e.target.select()} // select all text when focused so it's easy to replace
