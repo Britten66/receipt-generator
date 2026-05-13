@@ -23,14 +23,27 @@ export function useInvoices({ session, profile, showToast }) {
       if (data.id) {
         const result = await updateReceipt(data.id, data);
         if (result?.error) throw new Error(result.error);
-        const updated = { ...result, line_items: data.line_items ?? [], unit_label: data.unit_label || result.unit_label || "Qty" };
+        // Merge submitted data over the DB result so fields the live Edge Function
+        // may not yet support (unit_label, billing_period) survive the round-trip.
+        const updated = {
+          ...result,
+          line_items:     data.line_items     ?? [],
+          unit_label:     data.unit_label     || result.unit_label     || "Qty",
+          billing_period: data.billing_period ?? result.billing_period ?? null,
+          notes:          data.notes          ?? result.notes,
+          due_by:         data.due_by         || result.due_by         || null,
+        };
         setReceipts((prev) => prev.map((r) => (r.id === data.id ? updated : r)));
         setSelected(updated);
         showToast("Invoice updated.", "success");
       } else {
         const result = await createReceipt(data);
         if (result?.error) throw new Error(result.error);
-        const created = { ...result, unit_label: data.unit_label || result.unit_label || "Qty" };
+        const created = {
+          ...result,
+          unit_label:     data.unit_label     || result.unit_label     || "Qty",
+          billing_period: data.billing_period ?? result.billing_period ?? null,
+        };
         setReceipts((prev) => [created, ...prev]);
         posthog.capture("invoice_created", {
           invoice_count: receipts.length + 1,
@@ -77,7 +90,8 @@ export function useInvoices({ session, profile, showToast }) {
     if (cached) setSelected(cached);
     const full = await fetchReceiptById(id);
     if (full?.error) return;
-    setSelected(full);
+    // Guard: only apply if the user hasn't moved to a different invoice while this was fetching
+    setSelected((current) => (current?.id === id ? full : current));
     setReceipts((prev) => prev.map((r) => (r.id === id ? full : r)));
   }
 
