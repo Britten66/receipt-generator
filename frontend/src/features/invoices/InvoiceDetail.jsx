@@ -98,6 +98,14 @@ export default function InvoiceDetail({
           </div>
 
           <div style={{ padding: "8px 14px 14px", borderTop: "1px solid var(--border-light)", marginTop: 4 }}>
+            {selectedReceipt.unit_label && selectedReceipt.unit_label !== "Qty" && (
+              <div className="total-line" style={{ opacity: 0.6 }}>
+                <span className="tl-label">Total {selectedReceipt.unit_label}</span>
+                <span className="tl-val">
+                  {(selectedReceipt.line_items || []).reduce((s, i) => s + parseFloat(i.quantity || 0), 0).toFixed(2).replace(/\.00$/, "")}
+                </span>
+              </div>
+            )}
             {parseFloat(selectedReceipt.subtotal || 0) > 0 && (
               <div className="total-line">
                 <span className="tl-label">Subtotal</span>
