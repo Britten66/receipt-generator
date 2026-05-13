@@ -381,9 +381,9 @@ export async function getExamplePDFBlobUrl() {
   const pageH = doc.internal.pageSize.getHeight();
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(68);
-  doc.setTextColor(215, 212, 208);
-  doc.text("EXAMPLE", pageW / 2, pageH / 2, { angle: 45, align: "center", baseline: "middle" });
+  doc.setFontSize(36);
+  doc.setTextColor(210, 207, 202);
+  doc.text("EXAMPLE", pageW / 2, pageH / 2, { angle: 30, align: "center", baseline: "middle" });
 
   return doc.output("bloburl");
 }

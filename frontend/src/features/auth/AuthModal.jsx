@@ -129,8 +129,8 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
 
   return (
     <>
-      <div className="modal-backdrop auth-backdrop">
-        <div className="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-heading">
+      <div className="modal-backdrop auth-backdrop" onClick={onClose}>
+        <div className="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-heading" onClick={e => e.stopPropagation()}>
 
           {onBack && (
             <button className="auth-back-btn" onClick={onBack}>← Back</button>

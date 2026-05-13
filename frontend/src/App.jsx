@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import ReceiptForm         from "./features/invoices/ReceiptForm";
 import LandingPage         from "./layout/LandingPage";
 import AuthModal           from "./features/auth/AuthModal";
@@ -72,6 +72,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
   const [pdfPreviewUrl, setPdfPreviewUrl]                 = useState(null);
   const [toast, setToast]                                 = useState(null);
   const [showConsent, setShowConsent]                     = useState(false);
+  const savedScrollY = useRef(0);
 
   // ─── INVOICES (from useInvoices hook) ──────────────────────────────────────
   function showToast(msg, type = "error") {
@@ -137,24 +138,23 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
     const anyOpen = showForm || showProfileModal || showHelp || showBilling || !!legal || !!upgradeLegal
       || showUpgradeConfirm || showWelcome || showUpgradeThanks || showPlansModal || showAuthModal || !!pdfPreviewUrl || showConsent;
     if (anyOpen) {
-      const scrollY = window.scrollY;
-      document.body.style.position  = "fixed";
-      document.body.style.top       = `-${scrollY}px`;
-      document.body.style.width     = "100%";
-      document.body.style.overflow  = "hidden";
+      savedScrollY.current           = window.scrollY;
+      document.body.style.position   = "fixed";
+      document.body.style.top        = `-${savedScrollY.current}px`;
+      document.body.style.width      = "100%";
+      document.body.style.overflow   = "hidden";
     } else {
-      const scrollY = parseFloat(document.body.style.top || "0") * -1;
-      document.body.style.position  = "";
-      document.body.style.top       = "";
-      document.body.style.width     = "";
-      document.body.style.overflow  = "";
-      window.scrollTo(0, scrollY);
+      document.body.style.position   = "";
+      document.body.style.top        = "";
+      document.body.style.width      = "";
+      document.body.style.overflow   = "";
+      window.scrollTo(0, savedScrollY.current);
     }
     return () => {
-      document.body.style.position  = "";
-      document.body.style.top       = "";
-      document.body.style.width     = "";
-      document.body.style.overflow  = "";
+      document.body.style.position   = "";
+      document.body.style.top        = "";
+      document.body.style.width      = "";
+      document.body.style.overflow   = "";
     };
   }, [showForm, showProfileModal, showHelp, showBilling, legal, upgradeLegal, showUpgradeConfirm, showWelcome, showUpgradeThanks, showPlansModal, showAuthModal, pdfPreviewUrl, showConsent]);
 

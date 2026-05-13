@@ -315,13 +315,13 @@ const ZONES = [
         label: "Classic",
         light: {
           "--paid": "#1a5c3a",
-          "--sent": "#1a3060",
+          "--sent": "#2abcc8",
           "--draft": "#555552",
           "--voided": "#7a1a1a",
         },
         dark: {
           "--paid": "#2e9e5e",
-          "--sent": "#4a70c0",
+          "--sent": "#4dd8e0",
           "--draft": "#888884",
           "--voided": "#c04a4a",
         },
