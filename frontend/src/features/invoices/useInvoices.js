@@ -82,6 +82,36 @@ export function useInvoices({ session, profile, showToast }) {
 
   function openNewReceipt() { setEditingReceipt(null); setShowForm(true); }
 
+  async function handleDismissForm(formData) {
+    setShowForm(false);
+    setEditingReceipt(null);
+
+    // Only auto-save new invoices — editing an existing one on dismiss stays discarded
+    if (formData?.id) return;
+
+    const hasData = formData?.customer_name?.trim() ||
+      formData?.line_items?.some((i) => i.description?.trim());
+    if (!hasData) return;
+
+    const cleanedItems = (formData.line_items ?? [])
+      .filter((i) => i.description?.trim())
+      .map((i) => ({
+        description: i.description,
+        quantity:    parseFloat(i.quantity)   || 0,
+        unit_price:  parseFloat(i.unit_price) || 0,
+        total:       parseFloat(i.total)      || 0,
+      }));
+
+    try {
+      const result = await createReceipt({ ...formData, line_items: cleanedItems, status: "draft" });
+      if (result?.error) throw new Error(result.error);
+      setReceipts((prev) => [result, ...prev]);
+      showToast("Saved as draft.", "success");
+    } catch {
+      // Silent — don't block the user from leaving
+    }
+  }
+
   async function openEditReceipt(receipt) {
     if (!receipt.line_items) {
       const full = await fetchReceiptById(receipt.id);
@@ -126,7 +156,7 @@ export function useInvoices({ session, profile, showToast }) {
     showForm, setShowForm,
     editingReceipt, setEditingReceipt,
     loadReceipts,
-    handleSaveReceipt, handleStatusChange, handleDelete,
+    handleSaveReceipt, handleDismissForm, handleStatusChange, handleDelete,
     selectFull, openNewReceipt, openEditReceipt,
     counts, revenue, outstanding, filtered,
   };

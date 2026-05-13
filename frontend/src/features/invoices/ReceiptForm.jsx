@@ -555,13 +555,13 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
         // Close the modal if the user clicks the dark backdrop behind it
         // e.target is what was clicked, e.currentTarget is the backdrop div itself
         // If they're the same element, the user clicked outside the modal
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget) onClose({ ...form, line_items: items });
       }}
     >
       <div className={`modal${!isDesktop && profile?.tier === "voice" ? " receipt-form-voice" : ""}`}>
         <div className="modal-header">
           <span className="modal-title">{modalTitle}</span>
-          <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={onClose}>✕</button>
+          <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={() => onClose({ ...form, line_items: items })}>✕</button>
         </div>
 
         {/* Text AI entry: Pro and Voice AI tiers only. Voice recording status shown on mobile for voice tier. */}
@@ -1061,7 +1061,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
               </button>
             )
           ) : (
-            <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+            <button className="btn btn-ghost" onClick={() => onClose({ ...form, line_items: items })}>Cancel</button>
           )}
           <button className="btn btn-primary" onClick={handleSubmit} style={!isDesktop && profile?.tier === "voice" ? { flex: "0 0 40%", height: 44, borderRadius: 0 } : {}}>{submitButtonLabel}</button>
         </div>
