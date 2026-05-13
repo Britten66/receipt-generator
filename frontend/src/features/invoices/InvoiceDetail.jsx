@@ -71,7 +71,7 @@ export default function InvoiceDetail({
               <thead>
                 <tr>
                   <th>Description</th>
-                  <th style={{ textAlign: "right" }}>Qty</th>
+                  <th style={{ textAlign: "right" }}>{selectedReceipt.unit_label || "Qty"}</th>
                   <th style={{ textAlign: "right" }}>Unit</th>
                   <th style={{ textAlign: "right" }}>Total</th>
                 </tr>
