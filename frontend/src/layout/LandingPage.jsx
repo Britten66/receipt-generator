@@ -570,7 +570,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <a href="/free-invoice-generator" className="lv2-footer-link">Free invoice generator</a>
               <a href="/voice-invoicing" className="lv2-footer-link">Voice invoicing</a>
               <a href="/how-to-invoice-clients" className="lv2-footer-link">How to invoice clients</a>
-              <a href="/invoice-simple-alternative" className="lv2-footer-link">Vs Invoice Simple</a>
+
               <a href="/blog" className="lv2-footer-link">Blog</a>
             </div>
             <div className="lv2-footer-col">
