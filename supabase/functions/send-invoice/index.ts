@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     to, vendor_name, vendor_email, vendor_address,
     customer_name, receipt_number, date, line_items,
     subtotal, tax, total, currency, notes, payment_url, pdf_base64,
-    is_reminder,
+    is_reminder, unit_label, billing_period,
   } = await req.json();
   const tier = profile?.tier ?? "free"; // use server-verified tier, not client-supplied
 
@@ -127,20 +127,22 @@ Deno.serve(async (req) => {
           </td>
         </tr>
       </table>
-      <div style="font-size:11px;color:#908e8a;margin-bottom:20px;">Date: ${dateStr} · Currency: ${safe.currency}</div>
+      <div style="font-size:11px;color:#908e8a;margin-bottom:${billing_period ? "6px" : "20px"};">Date: ${dateStr} · Currency: ${safe.currency}</div>
+      ${billing_period ? `<div style="font-size:11px;color:#908e8a;margin-bottom:20px;">Period: ${escapeHtml(billing_period)}</div>` : ""}
     </div>
     <table width="100%" style="border-collapse:collapse;">
       <thead>
         <tr style="background:#f0ede8;">
           <th style="padding:8px 12px;text-align:left;font-size:10px;color:#908e8a;font-weight:600;">DESCRIPTION</th>
-          <th style="padding:8px 12px;text-align:right;font-size:10px;color:#908e8a;font-weight:600;">QTY</th>
-          <th style="padding:8px 12px;text-align:right;font-size:10px;color:#908e8a;font-weight:600;">PRICE</th>
+          <th style="padding:8px 12px;text-align:right;font-size:10px;color:#908e8a;font-weight:600;">${escapeHtml(unit_label || "QTY")}</th>
+          <th style="padding:8px 12px;text-align:right;font-size:10px;color:#908e8a;font-weight:600;">${(unit_label && unit_label !== "Qty") ? "RATE" : "PRICE"}</th>
           <th style="padding:8px 12px;text-align:right;font-size:10px;color:#908e8a;font-weight:600;">TOTAL</th>
         </tr>
       </thead>
       <tbody>${itemRows || `<tr><td colspan="4" style="padding:12px;color:#908e8a;font-size:12px;">No line items</td></tr>`}</tbody>
     </table>
     <div style="padding:20px 28px;">
+      ${(unit_label && unit_label !== "Qty") ? (() => { const totalUnits = ((line_items as Array<{quantity:number}>) ?? []).reduce((s: number, i: {quantity:number}) => s + parseFloat(String(i.quantity || 0)), 0); const display = totalUnits % 1 === 0 ? String(totalUnits) : totalUnits.toFixed(2); return `<div style="display:flex;justify-content:space-between;font-size:12px;color:#908e8a;margin-bottom:6px;opacity:0.75;"><span>Total ${escapeHtml(unit_label)}</span><span>${display}</span></div>`; })() : ""}
       ${parseFloat(String(subtotal)) > 0 ? `<div style="display:flex;justify-content:space-between;font-size:12px;color:#908e8a;margin-bottom:6px;"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>` : ""}
       ${parseFloat(String(tax)) > 0 ? `<div style="display:flex;justify-content:space-between;font-size:12px;color:#908e8a;margin-bottom:10px;"><span>Tax</span><span>${fmt(tax)}</span></div>` : ""}
       <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;color:#1e1c18;border-top:1px solid #e8e6e1;padding-top:12px;">

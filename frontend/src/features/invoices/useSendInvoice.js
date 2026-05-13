@@ -53,6 +53,8 @@ export function useSendInvoice({ profile, handleStatusChange, showToast }) {
           logo_corner:    r.logo_corner || null,
           pdf_base64:     pdfBase64,
           is_reminder:    !!r._isReminder,
+          unit_label:     r.unit_label || "Qty",
+          billing_period: r.billing_period || null,
         }),
       });
       if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error ?? "Send failed"); }
