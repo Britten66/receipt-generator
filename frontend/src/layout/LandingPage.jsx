@@ -243,18 +243,18 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         <div className="lv2-steps-grid">
           <div className="lv2-step">
             <div className="lv2-step-num">01</div>
-            <div className="lv2-step-label">Speak or type your invoice</div>
-            <p className="lv2-step-desc">Say what you did and who to bill. AI pulls out the line items, quantities, and amounts automatically.</p>
+            <div className="lv2-step-label">Fill in your invoice</div>
+            <p className="lv2-step-desc">Enter your client, line items, and amounts in a clean simple form. On Pro, describe the job and AI fills it in for you.</p>
           </div>
           <div className="lv2-step">
             <div className="lv2-step-num">02</div>
-            <div className="lv2-step-label">Review and send</div>
-            <p className="lv2-step-desc">Confirm the details, attach your logo, and email a professional PDF directly from the app.</p>
+            <div className="lv2-step-label">Download or send</div>
+            <p className="lv2-step-desc">Get a professional PDF instantly. Share the link, download it, or email it directly to your client from the app.</p>
           </div>
           <div className="lv2-step">
             <div className="lv2-step-num">03</div>
-            <div className="lv2-step-label">Track every dollar</div>
-            <p className="lv2-step-desc">See what is draft, sent, and paid at a glance. Know exactly what is outstanding without opening a spreadsheet.</p>
+            <div className="lv2-step-label">Track what is paid</div>
+            <p className="lv2-step-desc">Every invoice shows Draft, Sent, or Paid. See your outstanding balance at a glance without touching a spreadsheet.</p>
           </div>
         </div>
       </section>
