@@ -86,7 +86,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
     showForm, setShowForm,
     editingReceipt,
     loadReceipts,
-    handleSaveReceipt, handleStatusChange, handleDelete,
+    handleSaveReceipt, handleDismissForm, handleStatusChange, handleDelete,
     selectFull, openNewReceipt, openEditReceipt,
     counts, revenue, outstanding, filtered,
   } = useInvoices({ session, profile, showToast });
@@ -337,7 +337,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
           onLogoUpdate={(url) => setProfile((p) => ({ ...p, logo_url: url }))}
           onUpgradeClick={() => openUpgradeConfirm("pro")}
           onSubmit={handleSaveReceipt}
-          onClose={() => setShowForm(false)}
+          onClose={handleDismissForm}
         />
       )}
 
