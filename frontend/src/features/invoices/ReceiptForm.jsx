@@ -719,7 +719,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
                 <select
                   value={form.unit_label}
                   onChange={(e) => setField("unit_label", e.target.value)}
-                  style={{ font: "inherit", background: "none", border: "none", cursor: "pointer", padding: 0, color: "inherit" }}
+                  style={{ fontSize: 11, fontFamily: "var(--sans)", textTransform: "none", letterSpacing: 0, background: "none", border: "none", cursor: "pointer", padding: 0, color: "var(--text-muted)" }}
                 >
                   {UNIT_LABELS.map((u) => <option key={u} value={u}>{u}</option>)}
                 </select>
