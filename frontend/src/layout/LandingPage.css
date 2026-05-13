@@ -1174,7 +1174,7 @@
 }
 
 .lv2-cth-feature { width: 34%; color: var(--text-muted); }
-.lv2-cth-wave    { color: var(--text-muted); font-size: 12px; font-weight: 500; }
+.lv2-cth-wave    { color: var(--text-muted); font-size: 12px; font-weight: 500; border-top: 3px solid var(--border); }
 .lv2-cth-basic   { padding: 18px 8px 10px; border-top: 3px solid #909090; }
 .lv2-cth-pro     { padding: 18px 8px 10px; border-top: 3px solid #D9B873; }
 .lv2-cth-voice   { padding: 18px 8px 10px; border-top: 3px solid #4dd8e0; }
