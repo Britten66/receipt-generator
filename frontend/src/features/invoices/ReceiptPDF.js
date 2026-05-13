@@ -205,8 +205,13 @@ async function buildDoc(receipt) {
     doc.text(`Status: ${receipt.status.toUpperCase()}`, m, metaY);
   }
 
+  let dividerY = metaY + 6;
+  if (receipt.billing_period) {
+    doc.text(`Period: ${receipt.billing_period}`, m, metaY + 5);
+    dividerY = metaY + 11;
+  }
+
   // Horizontal divider line separating the header info from the table
-  const dividerY = metaY + 6;
   doc.setDrawColor(200, 196, 188);
   doc.setLineWidth(0.3);
   doc.line(m, dividerY, pageW - m, dividerY);

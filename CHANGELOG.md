@@ -4,6 +4,31 @@ Developer-facing log of significant changes. For the user-facing changelog see [
 
 ---
 
+## May 13 2026
+
+**Invoicing**
+
+- Added billing unit selector to invoices. Each invoice can now be set to Qty, Hrs, or Days. The column header, quantity step, and input mode update automatically to match the selected unit.
+- Added a total unit summary line to the invoice preview panel and generated PDF. When an invoice uses Hrs or Days, the total unit count is displayed above the subtotal so clients can verify hours at a glance.
+- Due date now appears in the invoice detail preview panel. Previously the due date was saved and included in the PDF but was not shown in the side panel.
+- Added an optional Billing Period field to invoices. Appears in the form, the detail preview, and on the generated PDF when filled in. Intended for hourly and contract work billed by time range.
+- Double-clicking an invoice card in the dashboard now opens the edit form directly.
+- Closing the invoice creation form without saving now auto-saves the in-progress entry as a draft, provided a client name or at least one line item description has been entered. This prevents data loss when navigating away mid-invoice.
+- Vendor contact details (address, phone, email, website) now appear on generated PDFs beneath the business name. Fields render only when filled in on the profile. Layout adjusts dynamically so invoices without contact info are unaffected.
+
+**Bug Fixes**
+
+- Fixed invoice preview panel showing hardcoded Qty in the table header regardless of the selected billing unit.
+- Fixed billing unit label reverting to Qty on page reload. Root cause was a missing database column. Migration applied.
+- Fixed Playwright end-to-end tests failing due to strict mode violations. Invoice form modal now carries a dedicated CSS class so test locators do not resolve to multiple elements when the consent modal is also present.
+- Fixed test setup not correctly dismissing the consent modal. The consent modal has no close or cancel button by design. The global setup now checks the terms checkbox and clicks Continue to properly persist acceptance before saving session state.
+- Fixed the help modal test using the wrong CSS class selector. The help window uses a floating draggable style and carries a separate class from standard modals.
+
+**Database**
+
+- Added unit_label column to receipts table with constraint limiting values to Qty, Hrs, and Days. Existing invoices default to Qty.
+- Added billing_period column to receipts table as optional free text, maximum 100 characters.
+
 ## Apr 15 2026
 
 - Fixed PDF preview about:blank on desktop — switched from document.write embed to direct blob URL navigation

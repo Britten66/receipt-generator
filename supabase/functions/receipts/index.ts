@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { createPostHogClient, isPostHogConfigured, safeShutdown } from "../_shared/posthog.ts";
 
-const ALLOWED_FIELDS  = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency", "logo_url", "logo_corner", "reminder_at", "due_by", "unit_label"];
+const ALLOWED_FIELDS  = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency", "logo_url", "logo_corner", "reminder_at", "due_by", "unit_label", "billing_period"];
 const VALID_STATUSES  = new Set(["draft", "sent", "paid", "voided"]);
 const VALID_CORNERS   = new Set(["top-left", "top-right", "bottom-left", "bottom-right"]);
 const VALID_UNIT_LABELS = new Set(["Qty", "Hrs", "Days"]);
@@ -91,6 +91,7 @@ Deno.serve(async (req) => {
     const date          = typeof body.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.date) ? body.date : new Date().toISOString().split("T")[0];
     const due_by        = typeof body.due_by === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.due_by) ? body.due_by : null;
     const unit_label    = VALID_UNIT_LABELS.has(body.unit_label) ? body.unit_label : "Qty";
+    const billing_period = str(body.billing_period, 100);
 
     if (!vendor_name || !customer_name) {
       return new Response(JSON.stringify({ error: "Vendor name and customer name are required" }), { status: 400, headers: corsHeaders });
@@ -110,6 +111,7 @@ Deno.serve(async (req) => {
       date,
       due_by,
       unit_label,
+      billing_period,
       subtotal: num(body.subtotal),
       tax:      num(body.tax),
       total:    num(body.total),
@@ -170,8 +172,9 @@ Deno.serve(async (req) => {
       if (!(key in body)) continue;
       // Sanitize each field type appropriately
       if (key === "vendor_name" || key === "customer_name") updates[key] = str(body[key], 200);
-      else if (key === "notes")       updates[key] = str(body[key], 2000);
-      else if (key === "logo_url")    updates[key] = str(body[key], 500);
+      else if (key === "notes")          updates[key] = str(body[key], 2000);
+      else if (key === "billing_period") updates[key] = str(body[key], 100);
+      else if (key === "logo_url")       updates[key] = str(body[key], 500);
       else if (key === "status")      updates[key] = VALID_STATUSES.has(body[key])    ? body[key] : undefined;
       else if (key === "currency")    updates[key] = VALID_CURRENCIES.has(body[key])  ? body[key] : undefined;
       else if (key === "logo_corner") updates[key] = VALID_CORNERS.has(body[key])     ? body[key] : null;
