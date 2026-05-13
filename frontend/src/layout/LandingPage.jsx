@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Gift, Newspaper, Send } from "lucide-react";
+import { Gift, Newspaper, Send, Check, X } from "lucide-react";
 import posthog from "posthog-js";
 import LegalModal from "../features/profile/LegalModal";
 import ReferralModal from "../features/referrals/ReferralModal";
@@ -95,6 +95,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
   const refCode = typeof localStorage !== "undefined" ? localStorage.getItem("pending_ref_code") : null;
   const [showReferralModal, setShowReferralModal] = useState(false);
   const [exampleLoading, setExampleLoading] = useState(false);
+  const [examplePdfUrl, setExamplePdfUrl] = useState(null);
 
   async function handleTryMe() {
     if (exampleLoading) return;
@@ -102,11 +103,23 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
     try {
       const { getExamplePDFBlobUrl } = await import("../features/invoices/ReceiptPDF");
       const url = await getExamplePDFBlobUrl();
-      window.open(url, "_blank");
+      setExamplePdfUrl(url);
     } finally {
       setExampleLoading(false);
     }
   }
+
+  function closeExamplePdf() {
+    if (examplePdfUrl) URL.revokeObjectURL(examplePdfUrl);
+    setExamplePdfUrl(null);
+  }
+
+  useEffect(() => {
+    if (!examplePdfUrl) return;
+    function onKey(e) { if (e.key === "Escape") closeExamplePdf(); }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [examplePdfUrl]);
 
   // A/B test: hero CTA copy. Flag key: landing-cta-copy
   // Variants: control ("Start Invoicing Free") vs first-invoice ("Create Your First Invoice")
@@ -196,7 +209,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         <div className="lv2-preview-wrap">
           <BorderGlow
             borderRadius={0}
-            glowColor={darkMode ? "180 155 50" : "160 138 40"}
+            glowColor={darkMode ? "180 155 50" : "25 10 12"}
             glowIntensity={darkMode ? 1.6 : 1.3}
             glowRadius={48}
             edgeSensitivity={8}
@@ -214,7 +227,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 disabled={exampleLoading}
                 aria-label="Open a sample PDF"
               >
-                {exampleLoading ? "..." : "See an example"}
+                {exampleLoading ? "..." : "Example"}
               </button>
             </div>
           </BorderGlow>
@@ -315,7 +328,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <ul className="lv2-plan-features">
                 <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Everything in Basic</li>
                 <li>Email invoices to clients with your logo</li>
-                <li>Invoice due dates</li>
+                <li>Recurring invoices</li>
                 <li>Text AI parsing: describe an invoice, the form fills itself</li>
                 <li>Send payment reminders to clients</li>
                 <li>CSV export</li>
@@ -361,7 +374,120 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         </div>
       </section>
 
+      {/* Compare: right under tier cards */}
+      <section className="lv2-compare" style={{ position: "relative", overflow: "hidden" }}>
+        <div className="lv2-compare-threads" aria-hidden="true">
+          <Threads
+            color={darkMode ? [0.85, 0.72, 0.45] : [0.58, 0.54, 0.48]}
+            amplitude={0.5}
+            distance={0.3}
+            enableMouseInteraction={false}
+          />
+        </div>
+        <p className="lv2-compare-eyebrow">How we compare</p>
+        <h2 className="lv2-compare-title">What other apps charge for. Plus AI they don't have.</h2>
+        <div className="lv2-compare-wrap">
+          <table className="lv2-compare-table">
+            <thead>
+              <tr>
+                <th className="lv2-cth-feature"></th>
+                <th className="lv2-cth-basic">
+                  <button className="lv2-cth-btn lv2-cth-btn-basic" onClick={onEnter}>Basic</button>
+                </th>
+                <th className="lv2-cth-pro">
+                  <button className="lv2-cth-btn lv2-cth-btn-pro" onClick={onEnterPro}>Pro</button>
+                </th>
+                <th className="lv2-cth-voice">
+                  <button className="lv2-cth-btn lv2-cth-btn-voice" onClick={onEnterVoice}>Voice AI</button>
+                </th>
+                <th className="lv2-cth-wave">Other apps</th>
+              </tr>
+              <tr className="lv2-cth-price">
+                <td></td>
+                <td className="lv2-cth-basic">Free</td>
+                <td className="lv2-cth-pro">$9 / mo</td>
+                <td className="lv2-cth-voice">$12 / mo</td>
+                <td></td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Free forever, unlimited invoices</td>
+                <td className="lv2-ct-basic"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+              </tr>
+              <tr>
+                <td>Multiple currencies on free plan</td>
+                <td className="lv2-ct-basic"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+              </tr>
+              <tr>
+                <td>Works in any browser, nothing to install</td>
+                <td className="lv2-ct-basic"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+              </tr>
+              <tr>
+                <td>Email invoices to clients</td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-wave"><Check size={13} strokeWidth={1.5} /></td>
+              </tr>
+              <tr>
+                <td>Recurring invoices</td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-wave"><Check size={13} strokeWidth={1.5} /></td>
+              </tr>
+              <tr>
+                <td>CSV export</td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-wave"><Check size={13} strokeWidth={1.5} /></td>
+              </tr>
+              <tr>
+                <td>Refer a friend, both get a free month</td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+              </tr>
+              <tr>
+                <td>AI text parsing</td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+              </tr>
+              <tr>
+                <td>Voice AI: speak your invoice</td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+              </tr>
+              <tr>
+                <td>Remembers your clients and rates</td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-no">—</td>
+                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* 8: FAQ */}
+
       <section className="lv2-faq-editorial">
         <div className="lv2-faq-left">
           <span className="lv2-faq-eyebrow">Common Questions</span>
@@ -461,6 +587,16 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       </footer>
 
       {legal && <LegalModal type={legal} onClose={() => setLegal(null)} />}
+
+      {examplePdfUrl && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 600, display: "flex", flexDirection: "column", background: "#000", paddingTop: "env(safe-area-inset-top)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", background: "var(--surface)", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-dim)" }}>Example Invoice</span>
+            <button onClick={closeExamplePdf} style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", background: "none", border: "1px solid var(--border)", color: "var(--text-dim)", padding: "4px 12px", cursor: "pointer" }}>Close</button>
+          </div>
+          <iframe src={examplePdfUrl} title="Example Invoice" style={{ flex: 1, border: "none", width: "100%" }} />
+        </div>
+      )}
 
       {showReferralModal && (
         <ReferralModal onClose={() => setShowReferralModal(false)} onSignUp={onSignUp} />

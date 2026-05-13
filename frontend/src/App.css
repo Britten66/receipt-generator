@@ -26,7 +26,7 @@
   --text-dim: #3a3a38;     /* secondary text */
   --text-muted: #555553;   /* labels, placeholders: #555553 gives 5.4:1 on --bg (WCAG AA) */
   --paid: #1a5c3a;         /* green: paid status */
-  --sent: #1a3060;         /* blue: sent status */
+  --sent: #2abcc8;         /* teal: sent status */
   --draft: #555552;        /* grey: draft status */
   --voided: #7a1a1a;       /* red: voided status */
   --accent: #a06830;       /* warm copper: readable on light backgrounds */
@@ -47,7 +47,7 @@
   --text-dim: #c4b99a;     /* secondary text */
   --text-muted: #989896;   /* labels, placeholders: #989896 gives 4.62:1 on dark --bg (WCAG AA) */
   --paid: #2e9e5e;
-  --sent: #4a70c0;
+  --sent: #4dd8e0;
   --draft: #888884;
   --voided: #c04a4a;
   --accent: #D9B873;
