@@ -136,26 +136,28 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   // True on desktop (mouse pointer): shows text input instead of mic orb
   const isDesktop = typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches;
 
-  // Snapshot of the form on open. Used to detect unsaved changes when the
-  // user tries to close. We delay the capture by a tick so any initialData
-  // useEffect has time to populate form + items first.
-  const initialSnapshotRef = useRef(null);
+  // Dirty tracking: any user-initiated change to form or items flips this to true.
+  // Survives state churn (refs do not re-render) and avoids the snapshot-timing race
+  // of comparing JSON on every render.
+  const dirtyRef = useRef(false);
+  // Suppress dirty marking while the initialData useEffect is populating the form.
+  const populatingRef = useRef(true);
   useEffect(() => {
-    const t = setTimeout(() => {
-      initialSnapshotRef.current = JSON.stringify({ form, items });
-    }, 60);
+    // After initialData finishes populating, mark population done so subsequent
+    // form/items changes flip dirty. setTimeout 0 defers past any sync useEffects.
+    const t = setTimeout(() => { populatingRef.current = false; }, 0);
     return () => clearTimeout(t);
-  }, [initialData]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [initialData]);
+  // Flip dirty on every meaningful form/items change after population is done.
+  useEffect(() => {
+    if (populatingRef.current) return;
+    dirtyRef.current = true;
+  }, [form, items]);
 
-  function isDirty() {
-    if (!initialSnapshotRef.current) return false;
-    return JSON.stringify({ form, items }) !== initialSnapshotRef.current;
-  }
-
-  // Wrapped close: edits with unsaved changes ask for confirmation.
-  // New invoices auto-save as draft via the parent handleDismissForm so no prompt needed there.
+  // Edits with unsaved changes ask for confirmation on close.
+  // New invoices auto-save as draft via handleDismissForm in the parent so no prompt needed there.
   function requestClose() {
-    if (form.id && isDirty()) {
+    if (form.id && dirtyRef.current) {
       if (!window.confirm("You have unsaved changes. Discard them?")) return;
     }
     onClose({ ...form, line_items: items });

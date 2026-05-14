@@ -192,7 +192,8 @@ async function buildDoc(receipt) {
   doc.setTextColor(100, 96, 90);
 
   if (receipt.date) {
-    const formattedDate = new Date(receipt.date).toLocaleDateString("en-CA");
+    // Parse as local midnight, not UTC midnight, so any timezone west of UTC does not drop a day.
+    const formattedDate = new Date(receipt.date + "T00:00:00").toLocaleDateString("en-CA");
     doc.text(`Date: ${formattedDate}`, m, metaY);
     if (receipt.due_by) {
       const formattedDue = new Date(receipt.due_by + "T00:00:00").toLocaleDateString("en-CA");

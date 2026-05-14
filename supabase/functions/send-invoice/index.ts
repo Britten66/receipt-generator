@@ -97,7 +97,8 @@ Deno.serve(async (req) => {
 
   const safePaymentUrl = (payment_url && /^https?:\/\//i.test(payment_url)) ? payment_url : null;
   const fmt = (n: unknown) => `$${parseFloat(String(n || 0)).toFixed(2)}`;
-  const dateStr = date ? new Date(date).toLocaleDateString("en-CA") : "";
+  // Parse as local midnight, not UTC midnight, so any timezone west of UTC does not drop a day.
+  const dateStr = date ? new Date(date + "T00:00:00").toLocaleDateString("en-CA") : "";
 
   const itemRows = ((line_items as Array<{ description: string; quantity: number; unit_price: number; total: number }>) ?? [])
     .map((li) => `
