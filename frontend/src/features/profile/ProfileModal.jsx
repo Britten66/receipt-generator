@@ -431,6 +431,25 @@ const [logoUploading,   setLogoUploading]   = useState(false);
             </div>
           </label>
 
+          {/* Email-me-a-copy: BCCs the user on every outbound invoice so they have a paper trail.
+              Default true; saved through profile PUT so it persists between sessions. */}
+          <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={profile?.copy_on_send !== false}
+              onChange={async (e) => {
+                const next = e.target.checked;
+                onSave({ ...profile, copy_on_send: next });
+                await saveProfile({ copy_on_send: next });
+              }}
+              style={{ width: 14, height: 14, accentColor: "var(--accent)", cursor: "pointer", flexShrink: 0 }}
+            />
+            <div>
+              <div style={{ fontSize: 11, color: "var(--text)", fontWeight: 500 }}>Email me a copy of every invoice I send</div>
+              <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>A blind copy lands in your inbox so you have a record of every invoice sent through the app.</div>
+            </div>
+          </label>
+
           {/* ---- Security section ---- */}
           <div className="profile-section-label" style={{ marginTop: 16 }}>Security</div>
 

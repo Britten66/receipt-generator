@@ -99,6 +99,7 @@ Deno.serve(async (req) => {
     if (body.currency      !== undefined) payload.currency      = VALID_CURRENCIES.has(body.currency) ? body.currency : "CAD";
     if (body.terms_agreed_at   !== undefined) payload.terms_agreed_at   = typeof body.terms_agreed_at === "string" ? body.terms_agreed_at : null;
     if (body.email_marketing_ok !== undefined) payload.email_marketing_ok = !!body.email_marketing_ok;
+    if (body.copy_on_send       !== undefined) payload.copy_on_send       = !!body.copy_on_send;
 
     const { data, error } = await supabase.from("profiles").upsert(payload, { onConflict: "user_id" }).select().single();
 

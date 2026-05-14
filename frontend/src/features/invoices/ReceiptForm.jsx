@@ -136,6 +136,31 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
   // True on desktop (mouse pointer): shows text input instead of mic orb
   const isDesktop = typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches;
 
+  // Snapshot of the form on open. Used to detect unsaved changes when the
+  // user tries to close. We delay the capture by a tick so any initialData
+  // useEffect has time to populate form + items first.
+  const initialSnapshotRef = useRef(null);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      initialSnapshotRef.current = JSON.stringify({ form, items });
+    }, 60);
+    return () => clearTimeout(t);
+  }, [initialData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function isDirty() {
+    if (!initialSnapshotRef.current) return false;
+    return JSON.stringify({ form, items }) !== initialSnapshotRef.current;
+  }
+
+  // Wrapped close: edits with unsaved changes ask for confirmation.
+  // New invoices auto-save as draft via the parent handleDismissForm so no prompt needed there.
+  function requestClose() {
+    if (form.id && isDirty()) {
+      if (!window.confirm("You have unsaved changes. Discard them?")) return;
+    }
+    onClose({ ...form, line_items: items });
+  }
+
   function playChime(type = "start") {
     try {
       if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
@@ -563,13 +588,13 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
         // Close the modal if the user clicks the dark backdrop behind it
         // e.target is what was clicked, e.currentTarget is the backdrop div itself
         // If they're the same element, the user clicked outside the modal
-        if (e.target === e.currentTarget) onClose({ ...form, line_items: items });
+        if (e.target === e.currentTarget) requestClose();
       }}
     >
       <div className={`modal receipt-form-modal${!isDesktop && profile?.tier === "voice" ? " receipt-form-voice" : ""}`}>
         <div className="modal-header">
           <span className="modal-title">{modalTitle}</span>
-          <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={() => onClose({ ...form, line_items: items })}>✕</button>
+          <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={requestClose}>✕</button>
         </div>
 
         {/* Text AI entry: Pro and Voice AI tiers only. Voice recording status shown on mobile for voice tier. */}
@@ -1087,7 +1112,7 @@ export default function ReceiptForm({ onSubmit, onClose, initialData, profile, u
               </button>
             )
           ) : (
-            <button className="btn btn-ghost" onClick={() => onClose({ ...form, line_items: items })}>Cancel</button>
+            <button className="btn btn-ghost" onClick={requestClose}>Cancel</button>
           )}
           <button className="btn btn-primary" onClick={handleSubmit} style={!isDesktop && profile?.tier === "voice" ? { flex: "0 0 40%", height: 44, borderRadius: 0 } : {}}>{submitButtonLabel}</button>
         </div>
