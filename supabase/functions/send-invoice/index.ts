@@ -35,9 +35,13 @@ Deno.serve(async (req) => {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
 
-  // Fetch tier + custom sender name: both used server-side, never trusted from client
-  const { data: profile } = await supabase.from("profiles").select("tier, business_name").eq("user_id", user.id).single();
+  // Fetch tier + sender identity + copy-me preference.
+  // `email` is the user's preferred reply address; falls back to auth email.
+  // `copy_on_send` is the user-facing "Email me a copy" toggle (default true).
+  const { data: profile } = await supabase.from("profiles").select("tier, business_name, email, copy_on_send").eq("user_id", user.id).single();
   const isPro = profile?.tier === "pro" || profile?.tier === "voice";
+  const senderInbox = (profile?.email || user.email || "").trim();
+  const wantsCopy = profile?.copy_on_send !== false; // null/undefined treated as true
 
   // Daily rate limit. Insert-then-count to bound concurrent abuse.
   // The prior check-then-insert pattern lets N parallel requests all read the
@@ -165,11 +169,17 @@ Deno.serve(async (req) => {
     body: JSON.stringify({
       from: isPro && profile?.business_name ? `${profile.business_name} <invoices@invoiceprepper.com>` : "InvoicePrepper <invoices@invoiceprepper.com>",
       to: safe.to,
+      // Email-me-a-copy: BCC the sender if they have it turned on in profile.
+      // Hidden from the client by design (BCC, not CC). Surfaces as "Email me
+      // a copy" in the profile UI because BCC is jargon.
+      ...(senderInbox && wantsCopy ? { bcc: senderInbox } : {}),
       subject: is_reminder
         ? `Friendly reminder: Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`
         : `Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`,
       html,
-      reply_to: "support@invoiceprepper.com",
+      // Replies go to the user who sent the invoice, not to support.
+      // Falls back to support if the user has no email on file (should never happen).
+      reply_to: senderInbox || "support@invoiceprepper.com",
       ...(pdf_base64 ? {
         attachments: [{
           filename: `invoice-${safe.receipt_number}.pdf`,
