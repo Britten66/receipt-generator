@@ -66,11 +66,11 @@ export default function AppSidebar({
             <FileText size={14} strokeWidth={1.75} />
             <span>Terms</span>
           </button>
-          <button className="sidebar-footer-btn" onClick={() => setShowTrash(true)} aria-label="Recently deleted">
+          <button className="sidebar-footer-btn trash-btn" onClick={() => setShowTrash(true)} aria-label="Recently deleted">
             <Trash2 size={14} strokeWidth={1.75} />
             <span>Trash</span>
           </button>
-          <button className="sidebar-footer-btn" onClick={() => setShowHelp(true)} aria-label="Help">
+          <button className="sidebar-footer-btn help-btn" onClick={() => setShowHelp(true)} aria-label="Help">
             <HelpCircle size={14} strokeWidth={1.75} />
             <span>Help</span>
           </button>
