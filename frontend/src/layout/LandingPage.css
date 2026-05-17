@@ -11,13 +11,40 @@
   cursor: default;
 }
 
-/* ── NAV: lazy-follow fixed ── */
+/* ── NAV: Stripe pattern ──
+   Transparent at top of page. IntersectionObserver toggles .lv2-topbar-scrolled
+   the moment the page scrolls past .lv2-nav-sentinel (60px down). State change
+   fires once per direction, not per frame. CSS transitions handle the fade. */
+.lv2-nav-sentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 60px;
+  width: 1px;
+  pointer-events: none;
+}
+
 .lv2-topbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 200;
+  height: calc(48px + env(safe-area-inset-top));
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.2s ease, border-bottom-color 0.2s ease, box-shadow 0.2s ease, backdrop-filter 0.2s ease;
+}
+
+.lv2-topbar-scrolled {
+  background-color: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom-color: var(--border-light);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.lv2-topbar-inner {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -25,12 +52,23 @@
   padding-bottom: 0;
   padding-right: max(24px, env(safe-area-inset-right));
   padding-left: max(24px, env(safe-area-inset-left));
-  height: calc(48px + env(safe-area-inset-top));
-  background: color-mix(in srgb, var(--bg) 80%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-light);
-  will-change: transform;
+  height: 100%;
+}
+
+/* Mobile: drop backdrop-filter entirely (#1 iOS Safari paint cost).
+   Use a near-solid bg when scrolled so it still reads as a nav. */
+@media (max-width: 768px) {
+  .lv2-topbar-scrolled {
+    background-color: var(--bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lv2-topbar {
+    transition: none;
+  }
 }
 
 .lv2-nav-left {
@@ -824,6 +862,11 @@
   left: 0;
   color: var(--text-muted);
 }
+
+/* Highlight a single feature in the Voice AI teal — used to call out
+   the AI parsing line in the Pro card so it visually links to the Voice tier */
+.lv2-plan-features li.lv2-plan-feature-voice { color: #096570; }
+[data-theme="dark"] .lv2-plan-features li.lv2-plan-feature-voice { color: #4dd8e0; }
 
 .lv2-plan-caveat {
   opacity: 1;

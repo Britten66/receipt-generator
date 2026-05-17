@@ -11,11 +11,12 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
   const prefersReducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const [legal, setLegal] = useState(null);
   const [ctaVariant, setCtaVariant] = useState("control");
-  const navRef = useRef(null);
   const refCode = typeof localStorage !== "undefined" ? localStorage.getItem("pending_ref_code") : null;
   const [showReferralModal, setShowReferralModal] = useState(false);
   const [exampleLoading, setExampleLoading] = useState(false);
   const [examplePdfUrl, setExamplePdfUrl] = useState(null);
+  const [navScrolled, setNavScrolled] = useState(false);
+  const navSentinelRef = useRef(null);
 
   async function handleTryMe() {
     if (exampleLoading) return;
@@ -50,57 +51,51 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
     });
   }, []);
 
-  // Lazy-follow nav: velocity-based drag that decays back to 0
+  // Stripe-style nav: transparent at top, solid once scrolled past the sentinel.
+  // IntersectionObserver fires once per state change (not per scroll frame).
   useEffect(() => {
-    const nav = navRef.current;
-    if (!nav) return;
-    let lastScrollY = window.scrollY;
-    let offset = 0;
-    let rafId;
-
-    const loop = () => {
-      const scrollY = window.scrollY;
-      const velocity = scrollY - lastScrollY;
-      lastScrollY = scrollY;
-      // Push nav opposite to scroll direction, decay back to resting position
-      offset += velocity * 0.25;
-      offset *= 0.7;
-      offset = Math.max(-14, Math.min(14, offset));
-      nav.style.transform = `translateY(${(-offset).toFixed(2)}px)`;
-      rafId = requestAnimationFrame(loop);
-    };
-    rafId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafId);
+    const sentinel = navSentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setNavScrolled(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
   }, []);
 
   return (
     <div className="landing-v2">
 
-      {/* Lazy-follow nav */}
-      <nav className="lv2-topbar" ref={navRef}>
-        <div className="lv2-nav-left">
-          <button className="dark-toggle" onClick={onToggleDark}>
-            {darkMode ? "Light" : "Dark"}
-          </button>
-        </div>
-        <div className="lv2-nav-controls">
-          <a className="lv2-nav-gift" href="/blog" target="_blank" rel="noopener noreferrer" aria-label="What's new" title="What's new">
-            <Newspaper size={17} strokeWidth={1.75} />
-          </a>
-          <button className="lv2-nav-gift" onClick={() => setShowReferralModal(true)} aria-label="Refer a friend" title="Refer a friend, you both get 1 month Pro free">
-            <Gift size={17} strokeWidth={1.75} />
-          </button>
-          <select
-            className="lv2-currency-select"
-            value={currency}
-            onChange={(e) => onCurrencyChange(e.target.value)}
-            aria-label="Select currency"
-          >
-            <option value="CAD">$ CAD</option>
-            <option value="USD">$ USD</option>
-          </select>
-          <button className="lv2-nav-login" onClick={onSignIn}>Sign In</button>
-          <button className="lv2-signin" onClick={onSignUp}>Sign Up</button>
+      {/* Sentinel: nav goes solid the moment this scrolls out of view */}
+      <div ref={navSentinelRef} className="lv2-nav-sentinel" aria-hidden="true" />
+
+      <nav className={`lv2-topbar${navScrolled ? " lv2-topbar-scrolled" : ""}`} aria-label="Primary">
+        <div className="lv2-topbar-inner">
+          <div className="lv2-nav-left">
+            <button className="dark-toggle" onClick={onToggleDark}>
+              {darkMode ? "Light" : "Dark"}
+            </button>
+          </div>
+          <div className="lv2-nav-controls">
+            <a className="lv2-nav-gift" href="/blog" target="_blank" rel="noopener noreferrer" aria-label="What's new" title="What's new">
+              <Newspaper size={17} strokeWidth={1.75} />
+            </a>
+            <button className="lv2-nav-gift" onClick={() => setShowReferralModal(true)} aria-label="Refer a friend" title="Refer a friend, you both get 1 month Pro free">
+              <Gift size={17} strokeWidth={1.75} />
+            </button>
+            <select
+              className="lv2-currency-select"
+              value={currency}
+              onChange={(e) => onCurrencyChange(e.target.value)}
+              aria-label="Select currency"
+            >
+              <option value="CAD">$ CAD</option>
+              <option value="USD">$ USD</option>
+            </select>
+            <button className="lv2-nav-login" onClick={onSignIn}>Sign In</button>
+            <button className="lv2-signin" onClick={onSignUp}>Sign Up</button>
+          </div>
         </div>
       </nav>
 
@@ -259,7 +254,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Everything in Basic</li>
                 <li>Email invoices to clients with your logo</li>
                 <li>Recurring invoices</li>
-                <li>Text AI parsing: describe an invoice, the form fills itself</li>
+                <li className="lv2-plan-feature-voice">Text AI parsing: describe an invoice, the form fills itself</li>
                 <li>Send payment reminders to clients</li>
                 <li>CSV export</li>
                 <li>Custom dashboard themes</li>
