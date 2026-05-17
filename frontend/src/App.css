@@ -634,6 +634,70 @@ body,
   border-bottom: 1px solid var(--border-light);
   padding: 12px 0;
 }
+
+/* Primary CTA at top of sidebar. */
+.sidebar-cta {
+  padding: 14px 12px;
+}
+.btn-create {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 10px 14px;
+}
+
+/* Sidebar footer: business profile + utility actions. */
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.btn-business {
+  width: 100%;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  min-height: 32px;
+}
+.sidebar-footer-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.sidebar-footer-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 4px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+  min-height: 44px;
+}
+.sidebar-footer-btn:hover {
+  color: var(--text);
+  background: var(--bg);
+  border-color: var(--border);
+}
+.sidebar-footer-btn:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: -2px;
+}
 .sidebar-label {
   padding: 0 12px 8px;
   font-size: 10px;
@@ -862,6 +926,117 @@ body,
   white-space: nowrap;
   text-align: right;
   font-family: var(--mono);
+}
+
+/* Date shown on each card / row. */
+.card-date {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  letter-spacing: 0.02em;
+}
+
+/* Toolbar view toggle. */
+.view-toggle {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  padding: 4px 6px;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.view-toggle:hover {
+  background: var(--bg);
+  border-color: var(--text);
+}
+
+/* Compact row view: same DOM as the grid, restyled as a vertical list. */
+.receipt-grid.view-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: transparent;
+  border-top: 1px solid var(--border);
+}
+.receipt-grid.view-row .swipe-wrapper {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+.receipt-grid.view-row .receipt-card {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  min-height: 0;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.receipt-grid.view-row .receipt-card:hover {
+  box-shadow: none;
+  background: var(--surface);
+}
+.receipt-grid.view-row .receipt-card.selected {
+  background: var(--surface);
+  box-shadow: inset 3px 0 0 var(--text);
+  border: none;
+}
+.receipt-grid.view-row .card-top-row {
+  flex: 0 0 auto;
+  width: 88px;
+}
+.receipt-grid.view-row .card-num {
+  font-size: 10px;
+}
+.receipt-grid.view-row .card-vendor {
+  flex: 1 1 auto;
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.receipt-grid.view-row .card-customer {
+  flex: 0 0 auto;
+  width: 110px;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.receipt-grid.view-row .card-date {
+  flex: 0 0 auto;
+  width: 64px;
+  text-align: right;
+}
+.receipt-grid.view-row .card-footer {
+  flex: 0 0 auto;
+  width: auto;
+  margin-top: 0;
+  gap: 12px;
+}
+.receipt-grid.view-row .card-total {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  min-width: 72px;
+  transition: color 0.12s, font-weight 0.12s;
+}
+.receipt-grid.view-row .receipt-card:hover .card-total {
+  color: var(--text);
+  font-weight: 600;
+}
+/* Hide the inline ✕ delete button in row view: it doesn't fit and
+   swipe-to-delete on mobile + sidebar trash modal still cover the action. */
+.receipt-grid.view-row .card-delete {
+  display: none;
 }
 
 /* STATUS BADGES */

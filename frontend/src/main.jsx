@@ -1,12 +1,14 @@
-import { StrictMode } from 'react'
+import { StrictMode, Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
 import posthog from 'posthog-js'
 import * as Sentry from '@sentry/react'
 import './index.css'
 import App from './App.jsx'
-import AdminPage from './features/admin/AdminPage.jsx'
 import { AuthProvider } from './features/auth/AuthContext.jsx'
 import { captureRefFromUrl } from './api/referrals.js'
+
+// Admin page lazy-loaded so its source does not ship in every user's bundle.
+const AdminPage = lazy(() => import('./features/admin/AdminPage.jsx'))
 
 captureRefFromUrl();
 
@@ -51,7 +53,9 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Sentry.ErrorBoundary fallback={<ErrorFallback />}>
       <AuthProvider>
-        {isAdminRoute ? <AdminPage /> : <App />}
+        {isAdminRoute
+          ? <Suspense fallback={null}><AdminPage /></Suspense>
+          : <App />}
       </AuthProvider>
     </Sentry.ErrorBoundary>
   </StrictMode>,

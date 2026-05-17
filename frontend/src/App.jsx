@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { LayoutGrid, Rows3 } from "lucide-react";
 import ReceiptForm         from "./features/invoices/ReceiptForm";
 import LandingPage         from "./layout/LandingPage";
 import AuthModal           from "./features/auth/AuthModal";
@@ -50,6 +51,12 @@ export default function App() {
 
   // ─── THEME ─────────────────────────────────────────────────────────────────
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("dark_mode") === "1");
+  const [invoiceView, setInvoiceView] = useState(() => localStorage.getItem("invoice_view") || "row");
+  function toggleInvoiceView() {
+    const next = invoiceView === "row" ? "grid" : "row";
+    setInvoiceView(next);
+    localStorage.setItem("invoice_view", next);
+  }
   const [lightPalette, setLightPaletteState] = useState(() => readPaletteFromStorage("theme_light_palette"));
   const [darkPalette,  setDarkPaletteState]  = useState(() => readPaletteFromStorage("theme_dark_palette"));
   const [paletteExpanded, setPaletteExpanded] = useState(false);
@@ -132,6 +139,25 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
     if (!entered) { clearPalette(); return; }
     applyPalette(currentPalette, darkMode ? "dark" : "light");
   }, [entered, currentPalette, darkMode]);
+
+  // Escape closes the detail preview.
+  useEffect(() => {
+    if (!selectedReceipt) return;
+    function onKey(e) { if (e.key === "Escape") setSelected(null); }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedReceipt, setSelected]);
+
+  // One-time "What's new" toast for returning users after the May 16 layout update.
+  useEffect(() => {
+    if (!entered || loading || !receipts.length) return;
+    if (localStorage.getItem("whatsnew_2026_05_16")) return;
+    showToast(
+      "New layout: rows by default. Tap an invoice to preview, click anywhere or press Esc to close.",
+      "promo"
+    );
+    localStorage.setItem("whatsnew_2026_05_16", "1");
+  }, [entered, loading, receipts.length]);
 
   // Lock body scroll when any modal is open
   useEffect(() => {
@@ -299,17 +325,34 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
       {/* ── MAIN ── toolbar greeting + receipt grid + detail panel */}
       <main className="main">
 
-        {/* Toolbar: greeting on the left, filter count on the right */}
+        {/* Toolbar: greeting, count, view toggle. */}
         <div className="toolbar">
           <span className="toolbar-greeting">{greeting}</span>
           <span className="toolbar-title">
             {filter === "ALL" ? "All" : STATUS_CONFIG[filter]?.label}: {filtered.length} invoice{filtered.length !== 1 ? "s" : ""}
           </span>
+          <button
+            type="button"
+            className="view-toggle"
+            onClick={toggleInvoiceView}
+            title={invoiceView === "row" ? "Switch to card grid" : "Switch to compact rows"}
+            aria-label={invoiceView === "row" ? "Switch to card grid" : "Switch to compact rows"}
+            aria-pressed={invoiceView === "row"}
+          >
+            {invoiceView === "row" ? <LayoutGrid size={16} /> : <Rows3 size={16} />}
+          </button>
         </div>
 
         <div className="content-area">
-          <div className="receipt-grid-wrap">
+          {/* Click outside any card clears the detail preview. */}
+          <div
+            className="receipt-grid-wrap"
+            onClick={(e) => {
+              if (!e.target.closest(".receipt-card")) setSelected(null);
+            }}
+          >
             <InvoiceGrid
+              viewMode={invoiceView}
               loading={loading} filtered={filtered} selectedReceipt={selectedReceipt}
               swipedId={swipedId} setSwipedId={setSwipedId}
               handleDelete={handleDelete} selectFull={selectFull}

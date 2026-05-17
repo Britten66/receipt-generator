@@ -1,4 +1,5 @@
 import { NAV, STATUS_CONFIG, fmtStat } from "../lib/constants";
+import { Plus, CreditCard, FileText, Trash2, HelpCircle } from "lucide-react";
 
 export default function AppSidebar({
   receipts, revenue, outstanding, counts,
@@ -9,6 +10,13 @@ export default function AppSidebar({
 }) {
   return (
     <aside className="sidebar">
+
+      <div className="sidebar-section sidebar-cta">
+        <button className="btn btn-primary btn-create" onClick={openNewReceipt} aria-label="Create new invoice">
+          <Plus size={16} strokeWidth={2.5} />
+          <span>New Invoice</span>
+        </button>
+      </div>
 
       <div className="sidebar-section">
         <div className="stat-block">
@@ -42,26 +50,30 @@ export default function AppSidebar({
         ))}
       </div>
 
-      <div style={{ marginTop: "auto", padding: 12, borderTop: "1px solid var(--border-light)", display: "flex", flexDirection: "column", gap: 8 }}>
+      <div className="sidebar-footer">
         <button
-          className="btn btn-ghost"
-          style={{ width: "100%", fontSize: 12, letterSpacing: "0.06em" }}
+          className="btn btn-ghost btn-business"
           onClick={() => setShowProfileModal(true)}
         >
           {profile?.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
         </button>
-        <button className="btn btn-primary" style={{ width: "100%" }} onClick={openNewReceipt}>
-          + New Invoice
-        </button>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, paddingTop: 4 }}>
-          <button onClick={() => setShowBilling(true)} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Billing</button>
-          <button onClick={() => setLegal("terms")} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: 0 }}>Terms</button>
-          <button className="trash-btn" onClick={() => setShowTrash(true)} aria-label="Recently deleted" title="Recently deleted">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"block"}}>
-              <path d="M1.5 3h10M4.5 3V2a1 1 0 011-1h2a1 1 0 011 1v1M5.5 6v4M7.5 6v4M2.5 3l.75 7.5A1 1 0 004.25 11.5h4.5a1 1 0 001-.994L10.5 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+        <div className="sidebar-footer-row" role="group" aria-label="Account actions">
+          <button className="sidebar-footer-btn" onClick={() => setShowBilling(true)} aria-label="Billing">
+            <CreditCard size={14} strokeWidth={1.75} />
+            <span>Billing</span>
           </button>
-          <button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Help">?</button>
+          <button className="sidebar-footer-btn" onClick={() => setLegal("terms")} aria-label="Terms">
+            <FileText size={14} strokeWidth={1.75} />
+            <span>Terms</span>
+          </button>
+          <button className="sidebar-footer-btn" onClick={() => setShowTrash(true)} aria-label="Recently deleted">
+            <Trash2 size={14} strokeWidth={1.75} />
+            <span>Trash</span>
+          </button>
+          <button className="sidebar-footer-btn" onClick={() => setShowHelp(true)} aria-label="Help">
+            <HelpCircle size={14} strokeWidth={1.75} />
+            <span>Help</span>
+          </button>
         </div>
       </div>
 

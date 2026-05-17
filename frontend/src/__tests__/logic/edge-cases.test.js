@@ -27,6 +27,7 @@
 */
 
 import { describe, it, expect } from "vitest";
+import { fmtDate } from "../../lib/constants";
 
 describe("Invoice Logic", () => {
 
@@ -262,6 +263,60 @@ describe("Invoice date formatting", () => {
 
   it("returns empty string for empty string", () => {
     expect(formatInvoiceDate("")).toBe("");
+  });
+});
+
+// ── 7b. Short date helper used on invoice cards and rows ──────────────────────
+// fmtDate renders the date column. Must:
+//   1. Anchor "YYYY-MM-DD" at local midnight so the day never slips a notch
+//      in negative UTC offsets (covers the "dates not lining up" regression).
+//   2. Return "" for null / undefined / invalid input rather than "Invalid Date".
+//   3. Use the en-US "Mon D" short form so rows stay narrow and aligned.
+describe("fmtDate: invoice card / row date column", () => {
+  it("returns empty string for null", () => {
+    expect(fmtDate(null)).toBe("");
+  });
+
+  it("returns empty string for undefined", () => {
+    expect(fmtDate(undefined)).toBe("");
+  });
+
+  it("returns empty string for empty string", () => {
+    expect(fmtDate("")).toBe("");
+  });
+
+  it("returns empty string for unparseable input", () => {
+    expect(fmtDate("not-a-date")).toBe("");
+  });
+
+  it("formats a YYYY-MM-DD string in en-US short form", () => {
+    expect(fmtDate("2026-04-14")).toBe("Apr 14");
+  });
+
+  it("does NOT slip a day for YYYY-MM-DD even in negative UTC offsets", () => {
+    // Anchored at local midnight, so April 14 stays April 14 in PT/MT/CT/ET.
+    expect(fmtDate("2026-04-14")).toBe("Apr 14");
+    expect(fmtDate("2026-01-01")).toBe("Jan 1");
+    expect(fmtDate("2026-12-31")).toBe("Dec 31");
+  });
+
+  it("formats every month consistently for grid alignment", () => {
+    const months = [
+      ["2026-01-15", "Jan 15"], ["2026-02-15", "Feb 15"],
+      ["2026-03-15", "Mar 15"], ["2026-04-15", "Apr 15"],
+      ["2026-05-15", "May 15"], ["2026-06-15", "Jun 15"],
+      ["2026-07-15", "Jul 15"], ["2026-08-15", "Aug 15"],
+      ["2026-09-15", "Sep 15"], ["2026-10-15", "Oct 15"],
+      ["2026-11-15", "Nov 15"], ["2026-12-15", "Dec 15"],
+    ];
+    for (const [iso, expected] of months) {
+      expect(fmtDate(iso)).toBe(expected);
+    }
+  });
+
+  it("accepts a Date object", () => {
+    const d = new Date("2026-04-14T12:00:00Z");
+    expect(fmtDate(d)).toMatch(/Apr 1[34]/); // tolerate timezone drift on Date objects
   });
 });
 

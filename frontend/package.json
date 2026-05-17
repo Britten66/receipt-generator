@@ -13,6 +13,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:report": "allure generate allure-results --clean -o allure-report && allure open allure-report",
+    "report:portfolio": "node -e \"require('fs').rmSync('allure-results',{recursive:true,force:true})\" && npm test && node scripts/anonymize-allure-portfolio.cjs && allure generate allure-results --clean -o allure-report",
     "audit": "npm audit --audit-level=high",
     "security": "cd .. && ./security/scan-all.sh"
   },

@@ -31,3 +31,12 @@ export function fmtStat(n) {
   if (n >= 10_000)    return `$${(n / 1_000).toFixed(1)}K`;
   return `$${n.toFixed(2)}`;
 }
+
+// "Apr 18" short date. Anchors YYYY-MM-DD at local midnight so the day does not slip in negative UTC offsets.
+export function fmtDate(d) {
+  if (!d) return "";
+  const safe = typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d) ? d + "T00:00:00" : d;
+  const dt = new Date(safe);
+  if (isNaN(dt.getTime())) return "";
+  return dt.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}

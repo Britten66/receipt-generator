@@ -101,6 +101,10 @@ jobs:
           TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
 
+      - name: Anonymize and group Allure results for portfolio
+        if: always()
+        run: node scripts/anonymize-allure-portfolio.cjs
+
       - name: Generate Allure report
         if: always()
         run: npx allure generate allure-results --clean -o allure-report
