@@ -18,6 +18,7 @@ Developer-facing log of significant changes. For the user-facing changelog see [
 **Bug Fixes**
 
 - Fixed invoice dates that could slip back a day depending on your timezone.
+- Fixed PDF preview opening a blank tab on desktop.
 
 ---
 
