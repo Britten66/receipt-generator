@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Gift, Newspaper, Send, Check, X } from "lucide-react";
+import { Gift, Newspaper, Check, X } from "lucide-react";
 import posthog from "posthog-js";
 import LegalModal from "../features/profile/LegalModal";
 import ReferralModal from "../features/referrals/ReferralModal";
@@ -7,88 +7,8 @@ import BorderGlow from "./BorderGlow";
 import Threads from "./Threads";
 import "./LandingPage.css";
 
-const MOCK_INVOICE = {
-  receipt_number: "INV-001042",
-  vendor_name: "Maple & Co. Creative",
-  customer_name: "Summit Tech Solutions",
-  date: "March 14, 2026",
-  line_items: [
-    { description: "Brand Identity Package", quantity: 1, unit_price: 1200.00, total: 1200.00 },
-    { description: "Social Media Asset Kit", quantity: 3, unit_price: 180.00, total: 540.00 },
-    { description: "Revision Round", quantity: 2, unit_price: 95.00, total: 190.00 },
-  ],
-  subtotal: 1930.00,
-  tax: 250.90,
-  total: 2180.90,
-  notes: "Payment due within 14 days. Thank you for your business.",
-};
-
-function MockInvoice() {
-  const fmt = (n) => `$${parseFloat(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  return (
-    <div className="mock-invoice">
-      {/* Header bar */}
-      <div className="mock-invoice-header">
-        <span className="mock-invoice-label">INVOICE</span>
-        <span className="mock-invoice-num">{MOCK_INVOICE.receipt_number}</span>
-      </div>
-
-      {/* Parties row */}
-      <div className="mock-invoice-parties">
-        <div>
-          <div className="mock-party-label">FROM</div>
-          <div className="mock-party-name">{MOCK_INVOICE.vendor_name}</div>
-        </div>
-        <div style={{ textAlign: "right" }}>
-          <div className="mock-party-label">BILLED TO</div>
-          <div className="mock-party-name">{MOCK_INVOICE.customer_name}</div>
-        </div>
-      </div>
-
-      {/* Meta row: date + status badge */}
-      <div className="mock-invoice-meta">
-        <span>{MOCK_INVOICE.date}</span>
-        <span className="mock-status-badge mock-status-sent">
-          <Send size={10} strokeWidth={2} />
-          Sent
-        </span>
-      </div>
-
-      <div className="mock-invoice-divider" />
-
-      <table className="mock-invoice-table">
-        <thead>
-          <tr>
-            <th>Description</th>
-            <th>Qty</th>
-            <th>Unit</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {MOCK_INVOICE.line_items.map((li, i) => (
-            <tr key={i}>
-              <td>{li.description}</td>
-              <td className="mock-num">{li.quantity}</td>
-              <td className="mock-num">{fmt(li.unit_price)}</td>
-              <td className="mock-num">{fmt(li.total)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className="mock-invoice-totals">
-        <div className="mock-total-row"><span>Subtotal</span><span>{fmt(MOCK_INVOICE.subtotal)}</span></div>
-        <div className="mock-total-row"><span>Tax (13%)</span><span>{fmt(MOCK_INVOICE.tax)}</span></div>
-        <div className="mock-total-row mock-total-final"><span>Total</span><span>{fmt(MOCK_INVOICE.total)}</span></div>
-      </div>
-
-      <div className="mock-invoice-notes">{MOCK_INVOICE.notes}</div>
-    </div>
-  );
-}
-
 export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignIn, onSignUp, darkMode, onToggleDark, currency, onCurrencyChange }) {
+  const prefersReducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const [legal, setLegal] = useState(null);
   const [ctaVariant, setCtaVariant] = useState("control");
   const navRef = useRef(null);
@@ -220,7 +140,17 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             className="lv2-border-glow"
           >
             <div className="lv2-hero-preview" aria-label="Sample invoice preview">
-              <MockInvoice />
+              <video
+                className="lv2-hero-video"
+                src="/hero.mp4"
+                poster="/hero-poster.jpg"
+                autoPlay={!prefersReducedMotion}
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                aria-label="Voice to invoice demo"
+              />
               <button
                 className="lv2-try-me-btn"
                 onClick={handleTryMe}
