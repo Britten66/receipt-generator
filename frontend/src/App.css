@@ -2197,16 +2197,26 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
   }
 
   /*
-    Row view needs its own background or the slide is invisible: by default
-    the row view card is transparent and sits over a surface-2 wrapper, so
-    sliding shows the same colour underneath. Giving the card its own bg and
-    the wrapper a darker bg makes the slide read as a card moving off a tray.
+    Mobile row view shows only customer, status, and total. Five columns do
+    not fit in a phone viewport: forcing them caused the Sent badge to clip
+    on the right edge. Invoice number, date, and vendor name are reachable
+    by tapping the row to open the detail panel.
+  */
+  .receipt-grid.view-row .card-top-row,
+  .receipt-grid.view-row .card-customer,
+  .receipt-grid.view-row .card-date {
+    display: none;
+  }
+  /*
+    Row view card gets its own bg so the swipe is visible. Wrapper goes
+    transparent so the slide reveals the page bg behind the card plus the
+    red Delete button at the right edge, instead of two stacked shades.
   */
   .receipt-grid.view-row .receipt-card {
     background: var(--surface-2);
   }
   .receipt-grid.view-row .swipe-wrapper {
-    background: var(--surface);
+    background: transparent;
   }
 
   .topbar-meta {
