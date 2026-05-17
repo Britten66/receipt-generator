@@ -1,11 +1,12 @@
 import { useRef } from "react";
-import { fmt } from "../../lib/constants";
+import { fmt, fmtDate } from "../../lib/constants";
 import StatusBadge from "./StatusBadge";
 
 export default function InvoiceGrid({
   loading, filtered, selectedReceipt,
   swipedId, setSwipedId,
   handleDelete, selectFull, openEditReceipt,
+  viewMode = "grid",
 }) {
   const touchStartX = useRef(0);
 
@@ -16,7 +17,7 @@ export default function InvoiceGrid({
   }
 
   return (
-    <div className="receipt-grid">
+    <div className={`receipt-grid${viewMode === "row" ? " view-row" : ""}`}>
       {filtered.map((r) => (
         <div key={r.id} className="swipe-wrapper">
 
@@ -59,6 +60,7 @@ export default function InvoiceGrid({
               >✕</button>
             </div>
             <div className="card-vendor">{r.customer_name}</div>
+            <div className="card-date" aria-label="Invoice date">{fmtDate(r.date)}</div>
             <div className="card-customer">{r.vendor_name}</div>
             <div className="card-footer">
               <StatusBadge status={r.status} />

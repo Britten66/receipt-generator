@@ -31,8 +31,8 @@ import InvoiceGrid from "../../features/invoices/InvoiceGrid";
 describe("Dashboard", () => {
 
 const MOCK_INVOICES = [
-  { id: "1", receipt_number: "INV-000001", customer_name: "Alice", vendor_name: "My Biz", status: "draft", total: 100 },
-  { id: "2", receipt_number: "INV-000002", customer_name: "Bob",   vendor_name: "My Biz", status: "sent",  total: 200 },
+  { id: "1", receipt_number: "INV-000001", customer_name: "Alice", vendor_name: "My Biz", status: "draft", total: 100, date: "2026-04-14" },
+  { id: "2", receipt_number: "INV-000002", customer_name: "Bob",   vendor_name: "My Biz", status: "sent",  total: 200, date: "2026-04-18" },
 ];
 
 function renderGrid(overrides = {}) {
@@ -71,6 +71,33 @@ describe("InvoiceGrid: states", () => {
     renderGrid();
     expect(screen.getByText("Alice")).toBeInTheDocument();
     expect(screen.getByText("Bob")).toBeInTheDocument();
+  });
+
+  it("renders a .card-date element for every invoice, with the correct formatted date", () => {
+    renderGrid();
+    const dates = document.querySelectorAll(".card-date");
+    expect(dates).toHaveLength(2);
+    expect(dates[0].textContent).toBe("Apr 14");
+    expect(dates[1].textContent).toBe("Apr 18");
+  });
+
+  it("renders an empty .card-date element when an invoice has no date (no 'Invalid Date' leak)", () => {
+    renderGrid({ filtered: [{ ...MOCK_INVOICES[0], date: null }] });
+    const date = document.querySelector(".card-date");
+    expect(date).not.toBeNull();
+    expect(date.textContent).toBe("");
+  });
+
+  it("applies the view-row modifier class when viewMode='row'", () => {
+    renderGrid({ viewMode: "row" });
+    const container = document.querySelector(".receipt-grid");
+    expect(container.classList.contains("view-row")).toBe(true);
+  });
+
+  it("does NOT apply the view-row modifier class when viewMode='grid'", () => {
+    renderGrid({ viewMode: "grid" });
+    const container = document.querySelector(".receipt-grid");
+    expect(container.classList.contains("view-row")).toBe(false);
   });
 });
 

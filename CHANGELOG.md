@@ -4,6 +4,23 @@ Developer-facing log of significant changes. For the user-facing changelog see [
 
 ---
 
+## May 16 2026
+
+**Dashboard**
+
+- Added a compact row view for the invoice list. Tap the toggle in the toolbar to switch between roomy cards and a tight rows view. Your choice saves between sessions.
+- Moved the New Invoice button to the top of the sidebar so it is the first thing you reach.
+- Cleaned up the sidebar footer. Billing, Terms, Trash, and Help are now proper labelled buttons instead of tiny corner icons.
+- Every invoice now shows its date right on the card or row.
+- Tap an invoice to preview it. Click anywhere outside the preview, or press Escape, to close it. No more hunting for a close button.
+- Improved dark mode contrast so borders, dividers, and buttons stay easy to see.
+
+**Bug Fixes**
+
+- Fixed invoice dates that could slip back a day depending on your timezone.
+
+---
+
 ## May 13 2026
 
 **Invoicing**
