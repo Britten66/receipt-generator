@@ -2182,10 +2182,31 @@ input[type="date"].field::-webkit-calendar-picker-indicator {
     position: relative;
     z-index: 1;
     background: var(--surface-2);
+    /*
+      touch-action: pan-y lets iOS know vertical scroll is the only built-in
+      gesture on this element. Horizontal touches go straight to our JS
+      handlers instead of being captured as ambiguous scroll, which was the
+      main reason the row view swipe felt unresponsive.
+    */
+    touch-action: pan-y;
+    will-change: transform;
   }
   /* When swiped, the card slides 76px left to reveal the delete button */
   .receipt-card.swiped {
     transform: translateX(-76px);
+  }
+
+  /*
+    Row view needs its own background or the slide is invisible: by default
+    the row view card is transparent and sits over a surface-2 wrapper, so
+    sliding shows the same colour underneath. Giving the card its own bg and
+    the wrapper a darker bg makes the slide read as a card moving off a tray.
+  */
+  .receipt-grid.view-row .receipt-card {
+    background: var(--surface-2);
+  }
+  .receipt-grid.view-row .swipe-wrapper {
+    background: var(--surface);
   }
 
   .topbar-meta {
