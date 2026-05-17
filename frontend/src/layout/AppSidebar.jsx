@@ -18,7 +18,7 @@ export default function AppSidebar({
         </button>
       </div>
 
-      <div className="sidebar-section">
+      <div className="sidebar-section sidebar-stats">
         <div className="stat-block">
           <div className="stat-label">Revenue</div>
           <div className="stat-value">{fmtStat(revenue)}</div>
@@ -34,7 +34,7 @@ export default function AppSidebar({
         </div>
       </div>
 
-      <div className="sidebar-section">
+      <div className="sidebar-section sidebar-nav">
         <div className="sidebar-label">View</div>
         {NAV.map((n) => (
           <button
