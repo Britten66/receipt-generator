@@ -79,8 +79,16 @@ async function loadImageAsDataUrl(url) {
     after totals: notes (if any)
     284:   footer text at page bottom
 */
-// Format a number as currency with thousand separators: e.g. 43252345 → "$43,252,345.00"
-// currency param is the ISO code from profile (CAD, USD, etc.): all use $ symbol
+/*
+  Format a number as currency with thousand separators.
+  CAD/USD use "$". Anything else falls back to the ISO code prefix
+  ("INR 5,000.00", "EUR 5,000.00") rather than the proper symbol,
+  because jsPDF's default Helvetica only ships with latin glyphs
+  and would render ₹ or € as garbage. The web UI shows the proper
+  symbols via currencySymbol() in constants.js. The PDF stays
+  reliable everywhere instead of pretty in some browsers and broken
+  on Windows/older Acrobat.
+*/
 function fmtMoney(n, currency) {
   const symbol = (currency && currency !== "CAD" && currency !== "USD") ? (currency + " ") : "$";
   return symbol + parseFloat(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });

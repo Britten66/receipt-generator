@@ -96,8 +96,8 @@ export default function InvoiceDetail({
                     <tr key={li.id}>
                       <td>{li.description}</td>
                       <td className="number">{li.quantity}</td>
-                      <td className="number">{fmt(li.unit_price)}</td>
-                      <td className="number">{fmt(li.total)}</td>
+                      <td className="number">{fmt(li.unit_price, selectedReceipt.currency)}</td>
+                      <td className="number">{fmt(li.total, selectedReceipt.currency)}</td>
                     </tr>
                   ))
                 ) : (
@@ -123,18 +123,18 @@ export default function InvoiceDetail({
             {parseFloat(selectedReceipt.subtotal || 0) > 0 && (
               <div className="total-line">
                 <span className="tl-label">Subtotal</span>
-                <span className="tl-val">{fmt(selectedReceipt.subtotal)}</span>
+                <span className="tl-val">{fmt(selectedReceipt.subtotal, selectedReceipt.currency)}</span>
               </div>
             )}
             {parseFloat(selectedReceipt.tax || 0) > 0 && (
               <div className="total-line">
                 <span className="tl-label">Tax</span>
-                <span className="tl-val">{fmt(selectedReceipt.tax)}</span>
+                <span className="tl-val">{fmt(selectedReceipt.tax, selectedReceipt.currency)}</span>
               </div>
             )}
             <div className="total-line grand">
               <span className="tl-label">Total</span>
-              <span className="tl-val">{fmt(selectedReceipt.total)}</span>
+              <span className="tl-val">{fmt(selectedReceipt.total, selectedReceipt.currency)}</span>
             </div>
           </div>
 
@@ -166,7 +166,7 @@ export default function InvoiceDetail({
         <div className="detail-section" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "16px 14px" }}>
           <QRCodeSVG value={profile.payment_url} size={130} bgColor="#ffffff" fgColor="#111110" level="M" />
           <div style={{ fontSize: 10, color: "var(--text-muted)", textAlign: "center", letterSpacing: "0.05em" }}>
-            Scan to pay · {fmt(selectedReceipt.total)}
+            Scan to pay · {fmt(selectedReceipt.total, selectedReceipt.currency)}
           </div>
         </div>
       )}

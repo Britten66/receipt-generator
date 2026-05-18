@@ -21,11 +21,11 @@ export default function AppSidebar({
       <div className="sidebar-section sidebar-stats">
         <div className="stat-block">
           <div className="stat-label">Revenue</div>
-          <div className="stat-value">{fmtStat(revenue)}</div>
+          <div className="stat-value">{fmtStat(revenue, profile?.currency)}</div>
         </div>
         <div className="stat-block">
           <div className="stat-label">Outstanding</div>
-          <div className="stat-value">{fmtStat(outstanding)}</div>
+          <div className="stat-value">{fmtStat(outstanding, profile?.currency)}</div>
           <div className="stat-sub">inc. tax</div>
         </div>
         <div className="stat-block">

@@ -104,9 +104,15 @@
   </url>
   <url>
     <loc>https://invoiceprepper.com/blog</loc>
-    <lastmod>2026-05-02</lastmod>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-05-18</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://invoiceprepper.com/changelog</loc>
+    <lastmod>2026-05-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://invoiceprepper.com/blog/whats-new-april-2026</loc>

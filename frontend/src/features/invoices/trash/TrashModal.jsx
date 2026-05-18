@@ -42,7 +42,7 @@ export default function TrashModal({ onClose, showToast, onRestored }) {
                       {r.receipt_number}
                     </div>
                     <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {r.customer_name} · {fmt(r.total)}
+                      {r.customer_name} · {fmt(r.total, r.currency)}
                     </div>
                     <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>
                       Deleted {new Date(r.deleted_at).toLocaleDateString("en-CA")}

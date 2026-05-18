@@ -23,7 +23,7 @@ export default defineConfig({
   },
 
   projects: [
-    // Public tests — no login needed
+    // Public tests: no login needed
     {
       name: "public",
       testMatch: [
@@ -35,7 +35,7 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
 
-    // Dashboard tests — reuse saved login session
+    // Dashboard tests: reuse saved login session
     {
       name: "dashboard",
       testMatch: [
@@ -46,6 +46,28 @@ export default defineConfig({
       ],
       use: {
         ...devices["Desktop Chrome"],
+        storageState: AUTH_FILE,
+      },
+    },
+
+    /*
+      Mobile coverage. Without these projects, every @media (max-width: 768px)
+      rule in App.css and LandingPage.css is invisible to the suite, which is
+      how the mobile sidebar regression in d1b0c2be reached production.
+      iPhone 13 viewport (390x844) triggers the mobile media queries so the
+      existing assertions (clicking sidebar items, opening invoices) run
+      against the mobile layout.
+    */
+    {
+      name: "mobile-public",
+      testMatch: ["**/landing.spec.js"],
+      use: { ...devices["iPhone 13"] },
+    },
+    {
+      name: "mobile-dashboard",
+      testMatch: ["**/dashboard.spec.js"],
+      use: {
+        ...devices["iPhone 13"],
         storageState: AUTH_FILE,
       },
     },
