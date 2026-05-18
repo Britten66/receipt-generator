@@ -99,14 +99,22 @@ describe("PlansModal: pro user view", () => {
 });
 
 describe("PlansModal: pricing", () => {
-  it("shows CAD label by default", () => {
-    renderModal("free", "CAD");
-    expect(screen.getAllByText(/CAD/).length).toBeGreaterThan(0);
+  /*
+    Subscriptions are billed in CAD by Stripe regardless of the user's
+    invoice-currency preference, so the modal now always shows the CAD
+    price with a "Billed in CAD" footnote. The old behaviour displayed
+    misleading labels like "INR $9" when an India user opened the modal.
+  */
+  it("always shows CAD billing note regardless of selected invoice currency", () => {
+    renderModal("free", "INR");
+    expect(screen.getAllByText(/Billed in CAD/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/INR \$/)).toBeNull();
   });
 
-  it("shows USD label when currency is USD", () => {
-    renderModal("free", "USD");
-    expect(screen.getAllByText(/USD/).length).toBeGreaterThan(0);
+  it("displays the Pro and Voice AI prices as plain dollar amounts", () => {
+    renderModal("free", "CAD");
+    expect(screen.getByText(/^\$9$/)).toBeInTheDocument();
+    expect(screen.getByText(/^\$12$/)).toBeInTheDocument();
   });
 });
 

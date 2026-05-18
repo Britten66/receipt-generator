@@ -1,5 +1,15 @@
 import { useState, useEffect, useRef } from "react";
-import { Gift, Newspaper, Check, X } from "lucide-react";
+import { Gift, Compass, Sparkles, Check, X, BookOpen, Mail, HelpCircle, LifeBuoy, MessageSquare } from "lucide-react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+
+/*
+  Date of the most recent /changelog entry. Bump this every time a new
+  entry ships in frontend/public/changelog/index.html. The Sparkles icon
+  in the nav shows a red dot when the user has not yet visited the
+  changelog page since this date. Visiting /changelog writes today's
+  date to localStorage and clears the dot.
+*/
+const CHANGELOG_LATEST_DATE = "2026-05-18";
 import posthog from "posthog-js";
 import LegalModal from "../features/profile/LegalModal";
 import ReferralModal from "../features/referrals/ReferralModal";
@@ -17,6 +27,29 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
   const [examplePdfUrl, setExamplePdfUrl] = useState(null);
   const [navScrolled, setNavScrolled] = useState(false);
   const navSentinelRef = useRef(null);
+
+  /*
+    Changelog unread state. If the user has never opened /changelog, or
+    if their last visit predates CHANGELOG_LATEST_DATE, show the red dot.
+    String date comparison works because both are ISO yyyy-mm-dd format.
+  */
+  const [changelogUnread, setChangelogUnread] = useState(() => {
+    if (typeof localStorage === "undefined") return false;
+    const lastSeen = localStorage.getItem("changelog_last_seen");
+    return !lastSeen || lastSeen < CHANGELOG_LATEST_DATE;
+  });
+
+  function handleChangelogClick() {
+    /*
+      Optimistically clear the dot. The changelog page also writes this
+      key on load as a belt-and-suspenders measure (covers middle-click,
+      cmd-click into new tab, etc.) where this handler does not fire.
+    */
+    try {
+      localStorage.setItem("changelog_last_seen", CHANGELOG_LATEST_DATE);
+    } catch {}
+    setChangelogUnread(false);
+  }
 
   async function handleTryMe() {
     if (exampleLoading) return;
@@ -78,9 +111,103 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             </button>
           </div>
           <div className="lv2-nav-controls">
-            <a className="lv2-nav-gift" href="/blog" target="_blank" rel="noopener noreferrer" aria-label="What's new" title="What's new">
-              <Newspaper size={17} strokeWidth={1.75} />
-            </a>
+            {/* About menu: mission, contact, FAQ */}
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <button
+                  className="lv2-nav-gift"
+                  aria-label="About InvoicePrepper"
+                  title="About"
+                >
+                  <Compass size={17} strokeWidth={1.75} />
+                </button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Portal>
+                <DropdownMenu.Content
+                  className="lv2-nav-menu"
+                  sideOffset={6}
+                  align="end"
+                >
+                  <DropdownMenu.Item asChild>
+                    <a className="lv2-nav-menu-item" href="/blog" target="_blank" rel="noopener noreferrer">
+                      <BookOpen size={14} strokeWidth={1.75} />
+                      <span>Our story</span>
+                    </a>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item asChild>
+                    <a
+                      className="lv2-nav-menu-item"
+                      href="mailto:support@invoiceprepper.com?subject=Hello"
+                    >
+                      <Mail size={14} strokeWidth={1.75} />
+                      <span>Contact us</span>
+                    </a>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item asChild>
+                    <a className="lv2-nav-menu-item" href="#faq">
+                      <HelpCircle size={14} strokeWidth={1.75} />
+                      <span>FAQ</span>
+                    </a>
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Portal>
+            </DropdownMenu.Root>
+
+            {/* Updates menu: changelog (top), support, feedback. Red dot on
+                the trigger when CHANGELOG_LATEST_DATE is newer than the
+                user's last-seen. Cleared by clicking the Changelog item
+                (handleChangelogClick) or by visiting /changelog directly. */}
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <button
+                  className={`lv2-nav-gift lv2-nav-changelog${changelogUnread ? " has-update" : ""}`}
+                  aria-label={changelogUnread ? "Updates (new)" : "Updates"}
+                  title="Updates and support"
+                >
+                  <Sparkles size={17} strokeWidth={1.75} />
+                </button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Portal>
+                <DropdownMenu.Content
+                  className="lv2-nav-menu"
+                  sideOffset={6}
+                  align="end"
+                >
+                  <DropdownMenu.Item asChild>
+                    <a
+                      className={`lv2-nav-menu-item${changelogUnread ? " has-update" : ""}`}
+                      href="/changelog"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={handleChangelogClick}
+                    >
+                      <Sparkles size={14} strokeWidth={1.75} />
+                      <span>Changelog</span>
+                    </a>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item asChild>
+                    <a
+                      className="lv2-nav-menu-item"
+                      href="mailto:support@invoiceprepper.com?subject=Support%20request"
+                    >
+                      <LifeBuoy size={14} strokeWidth={1.75} />
+                      <span>Support email</span>
+                    </a>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item asChild>
+                    <a
+                      className="lv2-nav-menu-item"
+                      href="https://tally.so/r/2EJZRM"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <MessageSquare size={14} strokeWidth={1.75} />
+                      <span>Send feedback</span>
+                    </a>
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Portal>
+            </DropdownMenu.Root>
             <button className="lv2-nav-gift" onClick={() => setShowReferralModal(true)} aria-label="Refer a friend" title="Refer a friend, you both get 1 month Pro free">
               <Gift size={17} strokeWidth={1.75} />
             </button>
@@ -92,6 +219,10 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             >
               <option value="CAD">$ CAD</option>
               <option value="USD">$ USD</option>
+              <option value="GBP">£ GBP</option>
+              <option value="EUR">€ EUR</option>
+              <option value="AUD">$ AUD</option>
+              <option value="INR">₹ INR</option>
             </select>
             <button className="lv2-nav-login" onClick={onSignIn}>Sign In</button>
             <button className="lv2-signin" onClick={onSignUp}>Sign Up</button>
@@ -248,8 +379,8 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 <span>Check out our promotion</span>
               </button>
               <div className="lv2-plan-name">Pro</div>
-              <div className="lv2-plan-price">{currency || "CAD"} $9<span>/mo</span></div>
-              <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
+              <div className="lv2-plan-price">$9<span>/mo</span></div>
+              <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly in CAD · Cancel anytime</p>
               <ul className="lv2-plan-features">
                 <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Everything in Basic</li>
                 <li>Email invoices to clients with your logo</li>
@@ -278,8 +409,8 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
           >
             <div className="lv2-plan lv2-plan-voice">
               <div className="lv2-plan-name">Voice AI</div>
-              <div className="lv2-plan-price">{currency || "CAD"} $12<span>/mo</span></div>
-              <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly · Cancel anytime</p>
+              <div className="lv2-plan-price">$12<span>/mo</span></div>
+              <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly in CAD · Cancel anytime</p>
               <ul className="lv2-plan-features">
                 <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Includes Pro Plan</li>
                 <li>Speak your invoice, AI fills it in</li>
@@ -413,7 +544,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
 
       {/* 8: FAQ */}
 
-      <section className="lv2-faq-editorial">
+      <section id="faq" className="lv2-faq-editorial">
         <div className="lv2-faq-left">
           <span className="lv2-faq-eyebrow">Common Questions</span>
           <h2 className="lv2-faq-headline">Simple answers.</h2>
@@ -496,7 +627,8 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <a href="/voice-invoicing" className="lv2-footer-link">Voice invoicing</a>
               <a href="/how-to-invoice-clients" className="lv2-footer-link">How to invoice clients</a>
 
-              <a href="/blog" className="lv2-footer-link">Blog</a>
+              <a href="/blog" className="lv2-footer-link">Our story</a>
+              <a href="/changelog" className="lv2-footer-link">What's new</a>
             </div>
             <div className="lv2-footer-col">
               <h3 className="lv2-footer-h">Company</h3>

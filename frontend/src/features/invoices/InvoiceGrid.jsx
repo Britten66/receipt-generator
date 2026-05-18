@@ -117,7 +117,7 @@ export default function InvoiceGrid({
             <div className="card-customer">{r.vendor_name}</div>
             <div className="card-footer">
               <StatusBadge status={r.status} />
-              <span className="card-total">{fmt(r.total)}</span>
+              <span className="card-total">{fmt(r.total, r.currency)}</span>
             </div>
           </div>
 

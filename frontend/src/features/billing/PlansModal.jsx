@@ -17,7 +17,10 @@ import BorderGlow from "../../layout/BorderGlow";
 
 export default function PlansModal({ profile, darkMode, currency, onClose, onSelectPro, onSelectVoice }) {
   const isProUser = profile?.tier === "pro";
-  const currencyLabel = currency === "USD" ? "USD" : "CAD";
+  // Subscriptions are always billed in CAD by Stripe regardless of the user's
+  // invoice-currency preference. Showing "CAD" honestly avoids confusion for
+  // international users (a "INR $9" label would be nonsense).
+  void currency;
 
   return (
     <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -49,7 +52,8 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
             >
               <div className="plans-modal-card">
                 <div className="plans-modal-name">Pro</div>
-                <div className="plans-modal-price">{currencyLabel} $9<span>/mo</span></div>
+                <div className="plans-modal-price">$9<span>/mo</span></div>
+                <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed in CAD</p>
                 <ul className="plans-modal-features">
                   <li className="plans-modal-includes">Everything in Basic</li>
                   <li>Email invoices to clients with your logo</li>
@@ -81,7 +85,8 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
           >
             <div className="plans-modal-card">
               <div className="plans-modal-name">Voice AI</div>
-              <div className="plans-modal-price">{currencyLabel} $12<span>/mo</span></div>
+              <div className="plans-modal-price">$12<span>/mo</span></div>
+              <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed in CAD</p>
               <ul className="plans-modal-features">
                 <li className="plans-modal-includes">Includes Pro Plan</li>
                 <li>Speak your invoice, AI fills it in</li>

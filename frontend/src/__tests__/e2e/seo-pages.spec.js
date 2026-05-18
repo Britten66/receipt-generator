@@ -48,9 +48,17 @@ for (const { path, title } of SEO_PAGES) {
   });
 }
 
-test("Changelog page loads", async ({ page }) => {
-  // Use explicit path: /blog/ hits the React SPA in Vite dev server
+test("Our story page loads (formerly /blog)", async ({ page }) => {
+  // /blog is now the mission/journey page. Explicit path hits the static
+  // HTML directly instead of the React SPA's catch-all route.
   const response = await page.goto("/blog/index.html");
   expect(response.status()).toBe(200);
-  await expect(page).toHaveTitle(/changelog/i);
+  await expect(page).toHaveTitle(/our story/i);
+});
+
+test("Changelog page loads", async ({ page }) => {
+  // /changelog is the user-facing what's-new feed.
+  const response = await page.goto("/changelog/index.html");
+  expect(response.status()).toBe(200);
+  await expect(page).toHaveTitle(/what's new/i);
 });
