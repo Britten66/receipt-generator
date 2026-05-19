@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Gift, Compass, Sparkles, Check, X, BookOpen, Mail, HelpCircle, LifeBuoy, MessageSquare } from "lucide-react";
+import { Gift, Compass, Sparkles, Check, X, Minus, BookOpen, Mail, HelpCircle, LifeBuoy, MessageSquare } from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 /*
@@ -9,7 +9,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
   changelog page since this date. Visiting /changelog writes today's
   date to localStorage and clears the dot.
 */
-const CHANGELOG_LATEST_DATE = "2026-05-18";
+const CHANGELOG_LATEST_DATE = "2026-05-19";
 import posthog from "posthog-js";
 import LegalModal from "../features/profile/LegalModal";
 import ReferralModal from "../features/referrals/ReferralModal";
@@ -384,11 +384,11 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <ul className="lv2-plan-features">
                 <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Everything in Basic</li>
                 <li>Email invoices to clients with your logo</li>
-                <li>Recurring invoices</li>
-                <li className="lv2-plan-feature-voice">Text AI parsing: describe an invoice, the form fills itself</li>
                 <li>Send payment reminders to clients</li>
                 <li>CSV export</li>
                 <li>Custom dashboard themes</li>
+                <li className="lv2-plan-feature-voice">Text AI parsing: describe an invoice, the form fills itself</li>
+                <li className="lv2-plan-feature-voice">AI remembers your regular clients and rates</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-primary" onClick={onEnterPro}>Get Pro</button>
             </div>
@@ -411,17 +411,17 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <div className="lv2-plan-name">Voice AI</div>
               <div className="lv2-plan-price">$12<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly in CAD · Cancel anytime</p>
+              <p style={{ fontSize: 11, color: "var(--text-dim)", margin: "0 0 14px", lineHeight: 1.5 }}>Great for startups, solo devs, tutors, and self-employed who track their rates.</p>
               <ul className="lv2-plan-features">
                 <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Includes Pro Plan</li>
-                <li>Speak your invoice, AI fills it in</li>
                 <li>Works on mobile, hands-free</li>
-                <li>Detects line items, prices, and clients</li>
-                <li>Remembers your regular clients and rates</li>
                 <li>Create invoices on the fly, anywhere</li>
-                <li>Unlimited Voice AI and Text AI parses</li>
-                <li>Your invoicing companion on every job</li>
-                <li>Speak or type. Smart parsing does the rest</li>
-                <li>First access to new AI features</li>
+                <li className="lv2-plan-feature-voice">Speak your invoice, AI fills it in</li>
+                <li className="lv2-plan-feature-voice">Detects line items, prices, and clients</li>
+                <li className="lv2-plan-feature-voice">Remembers your regular clients and rates</li>
+                <li className="lv2-plan-feature-voice">Smart pricing: AI suggests rates from your history</li>
+                <li className="lv2-plan-feature-voice">Translate invoices into your client's language</li>
+                <li className="lv2-plan-feature-voice">First access to new AI features</li>
               </ul>
               <button className="lv2-plan-btn lv2-plan-btn-voice" onClick={onEnterVoice}>Get Voice AI</button>
             </div>
@@ -442,6 +442,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         </div>
         <p className="lv2-compare-eyebrow">How we compare</p>
         <h2 className="lv2-compare-title">What other apps charge for. Plus AI they don't have.</h2>
+        <p className="lv2-compare-sub">Great for startups, solo devs, tutors, and self-employed who track their rates.</p>
         <div className="lv2-compare-wrap">
           <table className="lv2-compare-table">
             <thead>
@@ -463,77 +464,87 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 <td className="lv2-cth-basic">Free</td>
                 <td className="lv2-cth-pro">$9 / mo</td>
                 <td className="lv2-cth-voice">$12 / mo</td>
-                <td></td>
+                <td className="lv2-cth-wave">$15+ / mo</td>
               </tr>
             </thead>
             <tbody>
+              {/* Universal-feature row: ALL tiers and competitors do this.
+                  Establishes that we are a real product, not a stripped trial. */}
               <tr>
-                <td>Free forever, unlimited invoices</td>
+                <td>Unlimited invoices, no caps</td>
                 <td className="lv2-ct-basic"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-no">—</td>
-                <td className="lv2-ct-no">—</td>
-                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-wave"><Check size={13} strokeWidth={1.5} /></td>
               </tr>
+              {/* Pro essentials at price parity with competitors. The kicker is
+                  the header price row: same features for $9 vs their $15+. */}
               <tr>
-                <td>Multiple currencies on free plan</td>
-                <td className="lv2-ct-basic"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-no">—</td>
-                <td className="lv2-ct-no">—</td>
-                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
-              </tr>
-              <tr>
-                <td>Works in any browser, nothing to install</td>
-                <td className="lv2-ct-basic"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-no">—</td>
-                <td className="lv2-ct-no">—</td>
-                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
-              </tr>
-              <tr>
-                <td>Email invoices to clients</td>
-                <td className="lv2-ct-no">—</td>
+                <td>Email invoices to clients with your logo</td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
                 <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
                 <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
                 <td className="lv2-ct-wave"><Check size={13} strokeWidth={1.5} /></td>
               </tr>
               <tr>
-                <td>Recurring invoices</td>
-                <td className="lv2-ct-no">—</td>
+                <td>Send payment reminders to clients</td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
                 <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
                 <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
                 <td className="lv2-ct-wave"><Check size={13} strokeWidth={1.5} /></td>
               </tr>
+              {/* AI rows: the real moat. Verified ✗ on competitors. */}
               <tr>
-                <td>CSV export</td>
-                <td className="lv2-ct-no">—</td>
-                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-wave"><Check size={13} strokeWidth={1.5} /></td>
-              </tr>
-              <tr>
-                <td>Refer a friend, both get a free month</td>
-                <td className="lv2-ct-no">—</td>
-                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-no">—</td>
-                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
-              </tr>
-              <tr>
-                <td>AI text parsing</td>
-                <td className="lv2-ct-no">—</td>
+                <td>AI text parsing: describe, AI fills</td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
                 <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
                 <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
                 <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
               </tr>
               <tr>
-                <td>Voice AI: speak your invoice</td>
-                <td className="lv2-ct-no">—</td>
-                <td className="lv2-ct-no">—</td>
+                <td>AI learns from your invoices and remembers your details</td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+              </tr>
+              {/* Pro exclusive: the viral growth perk. Voice subscribers already
+                  have more than the Pro reward, so it doesn't apply at that tier. */}
+              <tr>
+                <td>Refer a friend, both get a free month of Pro</td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+              </tr>
+              {/* Voice AI exclusives: the four differentiators that justify $12.
+                  Audio input via Whisper, uncapped daily parsing (Pro is 15/day),
+                  smart pricing suggestions, and client-language translation. */}
+              <tr>
+                <td>Voice AI: speak invoices hands-free, anywhere</td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
                 <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
                 <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
               </tr>
               <tr>
-                <td>Remembers your clients and rates</td>
-                <td className="lv2-ct-no">—</td>
-                <td className="lv2-ct-no">—</td>
+                <td>Unlimited daily AI parses for high-volume work</td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+              </tr>
+              <tr>
+                <td>Smart pricing: AI suggests rates from your history</td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+              </tr>
+              <tr>
+                <td>Translate invoices into your client's language</td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
                 <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
                 <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
               </tr>
