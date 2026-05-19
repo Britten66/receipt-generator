@@ -54,20 +54,23 @@ export default defineConfig({
       Mobile coverage. Without these projects, every @media (max-width: 768px)
       rule in App.css and LandingPage.css is invisible to the suite, which is
       how the mobile sidebar regression in d1b0c2be reached production.
-      iPhone 13 viewport (390x844) triggers the mobile media queries so the
-      existing assertions (clicking sidebar items, opening invoices) run
-      against the mobile layout.
+      Pixel 5 (Chromium, 393x851 viewport) triggers the mobile media queries
+      so the existing assertions (clicking sidebar items, opening invoices)
+      run against the mobile layout. Pixel 5 is chosen over iPhone 13 because
+      it uses Chromium, which CI already installs. iPhone 13 would require
+      installing WebKit separately and would not change what the mobile media
+      queries fire on.
     */
     {
       name: "mobile-public",
       testMatch: ["**/landing.spec.js"],
-      use: { ...devices["iPhone 13"] },
+      use: { ...devices["Pixel 5"] },
     },
     {
       name: "mobile-dashboard",
       testMatch: ["**/dashboard.spec.js"],
       use: {
-        ...devices["iPhone 13"],
+        ...devices["Pixel 5"],
         storageState: AUTH_FILE,
       },
     },

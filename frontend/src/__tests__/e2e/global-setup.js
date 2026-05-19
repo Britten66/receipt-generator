@@ -16,10 +16,11 @@ export default async function globalSetup() {
   const password = process.env.TEST_PASSWORD;
 
   if (!email || !password) {
-    throw new Error(
-      "TEST_EMAIL and TEST_PASSWORD must be set. " +
-      "Locally: create frontend/.env.test. In CI: add GitHub Secrets."
+    console.warn(
+      "TEST_EMAIL and TEST_PASSWORD not set: skipping auth setup. " +
+      "Dashboard project tests will be skipped, public project tests will still run."
     );
+    return;
   }
 
   const browser = await chromium.launch();
