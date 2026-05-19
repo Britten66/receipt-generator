@@ -20,7 +20,7 @@
       var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       var isDark = stored !== null ? stored === "1" : prefersDark;
       if (isDark) document.documentElement.setAttribute("data-theme", "dark");
-      localStorage.setItem("changelog_last_seen", "2026-05-18");
+      localStorage.setItem("changelog_last_seen", "2026-05-19");
     } catch {}
   </script>
   <style>
@@ -77,6 +77,16 @@
       <div class="eyebrow">Changelog</div>
       <div class="page-title">What's new</div>
       <p class="page-sub">Recent releases. For the full history of how the product has grown, see <a href="https://invoiceprepper.com/blog">our story</a>.</p>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">May 19, 2026</div>
+      <div class="entry-title">Row view alignment and tier cards refreshed</div>
+      <ul>
+        <li>Compact row view in the dashboard now keeps the status badge and total amount aligned cleanly between rows. Status words like Draft or Voided no longer push the total column around.</li>
+        <li>Tier comparison table and the in-app upgrade modal have been cleaned up. AI features now show in the Voice AI accent color so it is obvious at a glance what each tier gives you.</li>
+        <li>Pricing comparison now shows what competitor invoicing apps actually charge, so it is clear how Pro and Voice AI compare on value.</li>
+      </ul>
     </div>
 
     <div class="entry">

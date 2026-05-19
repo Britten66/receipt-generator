@@ -1021,12 +1021,26 @@ body,
   width: auto;
   margin-top: 0;
   gap: 12px;
+  justify-content: flex-end;
 }
+/* Fixed badge column so Draft / Sent / Paid / Voided all occupy the same
+   horizontal space. Without this the total column shifts left and right
+   between rows based on which status word fits in the badge. */
+.receipt-grid.view-row .stamp {
+  width: 72px;
+  justify-content: flex-start;
+  flex-shrink: 0;
+}
+/* Fixed total column with right-aligned text so $50.00 and $1,234.56 line
+   up to the same right edge. min-width was not enough on its own because
+   spans default to left-aligned text. */
 .receipt-grid.view-row .card-total {
   font-size: 12px;
   font-weight: 500;
   color: var(--text-muted);
-  min-width: 72px;
+  width: 90px;
+  text-align: right;
+  flex-shrink: 0;
   transition: color 0.12s, font-weight 0.12s;
 }
 .receipt-grid.view-row .receipt-card:hover .card-total {

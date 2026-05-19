@@ -362,7 +362,7 @@
   margin-bottom: 0 !important;
 }
 
-/* Light mode: plus-lighter would wash out on white — use multiply so the hover reads as a dark edge */
+/* Light mode: plus-lighter would wash out on white, so use multiply for a dark hover edge */
 .lv2-border-glow > .edge-light {
   mix-blend-mode: multiply;
 }
@@ -953,10 +953,13 @@
   color: var(--text-muted);
 }
 
-/* Highlight a single feature in the Voice AI teal — used to call out
+/* Highlight a single feature in the Voice AI teal: used to call out
    the AI parsing line in the Pro card so it visually links to the Voice tier */
-.lv2-plan-features li.lv2-plan-feature-voice { color: #096570; }
-[data-theme="dark"] .lv2-plan-features li.lv2-plan-feature-voice { color: #4dd8e0; }
+/* Generic AI-feature teal: applies anywhere this class is used so the
+   landing tier cards, the in-app PlansModal, and any future surface
+   all colour AI features with the Voice tier accent for visual cohesion. */
+li.lv2-plan-feature-voice { color: #096570; }
+[data-theme="dark"] li.lv2-plan-feature-voice { color: #4dd8e0; }
 
 .lv2-plan-caveat {
   opacity: 1;
@@ -1084,8 +1087,19 @@
   color: var(--text);
   text-align: center;
   letter-spacing: -0.02em;
-  margin-bottom: 40px;
+  margin-bottom: 14px;
   line-height: 1.2;
+}
+
+.lv2-compare-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 40px;
+  line-height: 1.5;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .lv2-compare-wrap {
@@ -1133,7 +1147,7 @@
 .lv2-cth-pro     { padding: 18px 8px 10px; }
 .lv2-cth-voice   { padding: 18px 8px 10px; }
 
-/* Colored top border — scoped to name row only so price-row cells aren't affected */
+/* Colored top border, scoped to name row only so price-row cells aren't affected */
 .lv2-compare-table thead tr:first-child .lv2-cth-basic { border-top: 3px solid #909090; }
 .lv2-compare-table thead tr:first-child .lv2-cth-pro   { border-top: 3px solid #D9B873; }
 .lv2-compare-table thead tr:first-child .lv2-cth-voice { border-top: 3px solid #4dd8e0; }
@@ -1218,18 +1232,18 @@
   vertical-align: middle;
 }
 
-/* Other apps X — soft red */
+/* Other apps X: soft red */
 .lv2-ct-x  { color: #a84444; }
 [data-theme="dark"] .lv2-ct-x { color: #e08080; }
-/* Any "—" cell — muted but visible */
+/* Any not-applicable cell: muted but visible */
 .lv2-ct-no { color: var(--text-muted); font-weight: 400; font-size: 13px; }
-/* Basic ✓ — grey matching the Basic tier */
+/* Basic ✓: grey matching the Basic tier */
 .lv2-ct-basic   { color: #5a5a5a; }
 [data-theme="dark"] .lv2-ct-basic { color: #a8a8a8; }
-/* Pro ✓ — gold matching Pro tier */
+/* Pro ✓: gold matching Pro tier */
 .lv2-ct-pro     { color: #7a6025; }
 [data-theme="dark"] .lv2-ct-pro { color: #D9B873; }
-/* Voice AI ✓ — teal matching Voice tier */
+/* Voice AI ✓: teal matching Voice tier */
 .lv2-ct-voice   { color: #096570; }
 [data-theme="dark"] .lv2-ct-voice { color: #4dd8e0; }
 

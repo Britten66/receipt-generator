@@ -58,10 +58,11 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
                   <li className="plans-modal-includes">Everything in Basic</li>
                   <li>Email invoices to clients with your logo</li>
                   <li>Invoice due dates</li>
-                  <li>Text AI parsing: describe an invoice, the form fills itself</li>
                   <li>Send payment reminders to clients</li>
                   <li>CSV export</li>
                   <li>Custom dashboard themes</li>
+                  <li className="lv2-plan-feature-voice">Text AI parsing: describe an invoice, the form fills itself</li>
+                  <li className="lv2-plan-feature-voice">AI remembers your regular clients and rates</li>
                 </ul>
                 <button className="plans-modal-btn plans-modal-btn-pro" onClick={onSelectPro}>
                   Get Pro
@@ -87,17 +88,17 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
               <div className="plans-modal-name">Voice AI</div>
               <div className="plans-modal-price">$12<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed in CAD</p>
+              <p style={{ fontSize: 11, color: "var(--text-dim)", margin: "0 0 14px", lineHeight: 1.5 }}>Great for startups, solo devs, tutors, and self-employed who track their rates.</p>
               <ul className="plans-modal-features">
                 <li className="plans-modal-includes">Includes Pro Plan</li>
-                <li>Speak your invoice, AI fills it in</li>
                 <li>Works on mobile, hands-free</li>
-                <li>Detects line items, prices, and clients</li>
-                <li>Remembers your regular clients and rates</li>
                 <li>Create invoices on the fly, anywhere</li>
-                <li>Unlimited Voice AI and Text AI parses</li>
-                <li>Your invoicing companion on every job</li>
-                <li>Speak or type. Smart parsing does the rest</li>
-                <li>First access to new AI features</li>
+                <li className="lv2-plan-feature-voice">Speak your invoice, AI fills it in</li>
+                <li className="lv2-plan-feature-voice">Detects line items, prices, and clients</li>
+                <li className="lv2-plan-feature-voice">Remembers your regular clients and rates</li>
+                <li className="lv2-plan-feature-voice">Smart pricing: AI suggests rates from your history</li>
+                <li className="lv2-plan-feature-voice">Translate invoices into your client's language</li>
+                <li className="lv2-plan-feature-voice">First access to new AI features</li>
               </ul>
               <button className="plans-modal-btn plans-modal-btn-voice" onClick={onSelectVoice}>
                 Get Voice AI
