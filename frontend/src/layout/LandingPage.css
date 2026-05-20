@@ -144,28 +144,6 @@
 .lv2-nav-gift:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /*
-  Changelog icon with unread indicator. Red dot appears in the top-right
-  of the Sparkles icon when CHANGELOG_LATEST_DATE is newer than the
-  user's last visit (tracked via localStorage). Visiting /changelog
-  or clicking the Changelog item in the dropdown clears the dot.
-*/
-.lv2-nav-changelog {
-  position: relative;
-}
-.lv2-nav-changelog.has-update::after {
-  content: "";
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #e54848;
-  box-shadow: 0 0 0 1.5px var(--bg);
-  pointer-events: none;
-}
-
-/*
   Nav dropdown menus (Radix). Both the Compass (About) and Sparkles
   (Updates) icons open one of these. Z-index sits above the fixed nav
   (z-index: 200) and the modals stack starts at 500, so 320 is a safe
@@ -219,19 +197,6 @@
   color: var(--accent);
 }
 
-/*
-  Changelog item gets the same red dot when unread. Sits inside the
-  Updates dropdown next to the Sparkles label.
-*/
-.lv2-nav-menu-item.has-update::after {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #e54848;
-  margin-left: auto;
-  flex-shrink: 0;
-}
 
 /* Ghost "Sign In": secondary */
 .lv2-nav-login {
@@ -1087,19 +1052,8 @@ li.lv2-plan-feature-voice { color: #096570; }
   color: var(--text);
   text-align: center;
   letter-spacing: -0.02em;
-  margin-bottom: 14px;
-  line-height: 1.2;
-}
-
-.lv2-compare-sub {
-  font-size: 13px;
-  color: var(--text-dim);
-  text-align: center;
   margin-bottom: 40px;
-  line-height: 1.5;
-  max-width: 560px;
-  margin-left: auto;
-  margin-right: auto;
+  line-height: 1.2;
 }
 
 .lv2-compare-wrap {

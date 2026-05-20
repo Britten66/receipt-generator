@@ -1,15 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Gift, Compass, Sparkles, Check, X, Minus, BookOpen, Mail, HelpCircle, LifeBuoy, MessageSquare } from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-
-/*
-  Date of the most recent /changelog entry. Bump this every time a new
-  entry ships in frontend/public/changelog/index.html. The Sparkles icon
-  in the nav shows a red dot when the user has not yet visited the
-  changelog page since this date. Visiting /changelog writes today's
-  date to localStorage and clears the dot.
-*/
-const CHANGELOG_LATEST_DATE = "2026-05-19";
 import posthog from "posthog-js";
 import LegalModal from "../features/profile/LegalModal";
 import ReferralModal from "../features/referrals/ReferralModal";
@@ -27,29 +18,6 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
   const [examplePdfUrl, setExamplePdfUrl] = useState(null);
   const [navScrolled, setNavScrolled] = useState(false);
   const navSentinelRef = useRef(null);
-
-  /*
-    Changelog unread state. If the user has never opened /changelog, or
-    if their last visit predates CHANGELOG_LATEST_DATE, show the red dot.
-    String date comparison works because both are ISO yyyy-mm-dd format.
-  */
-  const [changelogUnread, setChangelogUnread] = useState(() => {
-    if (typeof localStorage === "undefined") return false;
-    const lastSeen = localStorage.getItem("changelog_last_seen");
-    return !lastSeen || lastSeen < CHANGELOG_LATEST_DATE;
-  });
-
-  function handleChangelogClick() {
-    /*
-      Optimistically clear the dot. The changelog page also writes this
-      key on load as a belt-and-suspenders measure (covers middle-click,
-      cmd-click into new tab, etc.) where this handler does not fire.
-    */
-    try {
-      localStorage.setItem("changelog_last_seen", CHANGELOG_LATEST_DATE);
-    } catch {}
-    setChangelogUnread(false);
-  }
 
   async function handleTryMe() {
     if (exampleLoading) return;
@@ -153,15 +121,12 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
 
-            {/* Updates menu: changelog (top), support, feedback. Red dot on
-                the trigger when CHANGELOG_LATEST_DATE is newer than the
-                user's last-seen. Cleared by clicking the Changelog item
-                (handleChangelogClick) or by visiting /changelog directly. */}
+            {/* Updates menu: changelog (top), support, feedback. */}
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
                 <button
-                  className={`lv2-nav-gift lv2-nav-changelog${changelogUnread ? " has-update" : ""}`}
-                  aria-label={changelogUnread ? "Updates (new)" : "Updates"}
+                  className="lv2-nav-gift"
+                  aria-label="Updates"
                   title="Updates and support"
                 >
                   <Sparkles size={17} strokeWidth={1.75} />
@@ -175,11 +140,10 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 >
                   <DropdownMenu.Item asChild>
                     <a
-                      className={`lv2-nav-menu-item${changelogUnread ? " has-update" : ""}`}
+                      className="lv2-nav-menu-item"
                       href="/changelog"
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={handleChangelogClick}
                     >
                       <Sparkles size={14} strokeWidth={1.75} />
                       <span>Changelog</span>
@@ -276,6 +240,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 playsInline
                 preload="metadata"
                 aria-label="Voice to invoice demo"
+                onLoadedMetadata={(e) => { e.currentTarget.playbackRate = 0.75; }}
               />
               <button
                 className="lv2-try-me-btn"
@@ -411,7 +376,6 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <div className="lv2-plan-name">Voice AI</div>
               <div className="lv2-plan-price">$12<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed monthly in CAD · Cancel anytime</p>
-              <p style={{ fontSize: 11, color: "var(--text-dim)", margin: "0 0 14px", lineHeight: 1.5 }}>Great for startups, solo devs, tutors, and self-employed who track their rates.</p>
               <ul className="lv2-plan-features">
                 <li style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Includes Pro Plan</li>
                 <li>Works on mobile, hands-free</li>
@@ -442,7 +406,6 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         </div>
         <p className="lv2-compare-eyebrow">How we compare</p>
         <h2 className="lv2-compare-title">What other apps charge for. Plus AI they don't have.</h2>
-        <p className="lv2-compare-sub">Great for startups, solo devs, tutors, and self-employed who track their rates.</p>
         <div className="lv2-compare-wrap">
           <table className="lv2-compare-table">
             <thead>
