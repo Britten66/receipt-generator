@@ -10,17 +10,11 @@
   <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico" />
   <meta name="theme-color" content="#1e1c18" />
   <script>
-    /*
-      Mark the changelog as seen the moment this page loads, so the
-      red dot on the landing nav clears even if the user opens the
-      page in a new tab. The landing app reads this key on next render.
-    */
     try {
       var stored = localStorage.getItem("dark_mode");
       var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       var isDark = stored !== null ? stored === "1" : prefersDark;
       if (isDark) document.documentElement.setAttribute("data-theme", "dark");
-      localStorage.setItem("changelog_last_seen", "2026-05-19");
     } catch {}
   </script>
   <style>

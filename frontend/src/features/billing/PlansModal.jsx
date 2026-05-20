@@ -88,7 +88,6 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
               <div className="plans-modal-name">Voice AI</div>
               <div className="plans-modal-price">$12<span>/mo</span></div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed in CAD</p>
-              <p style={{ fontSize: 11, color: "var(--text-dim)", margin: "0 0 14px", lineHeight: 1.5 }}>Great for startups, solo devs, tutors, and self-employed who track their rates.</p>
               <ul className="plans-modal-features">
                 <li className="plans-modal-includes">Includes Pro Plan</li>
                 <li>Works on mobile, hands-free</li>
