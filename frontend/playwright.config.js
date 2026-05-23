@@ -63,7 +63,14 @@ export default defineConfig({
     */
     {
       name: "mobile-public",
-      testMatch: ["**/landing.spec.js"],
+      /*
+        accessibility.spec runs here too so axe-core scans the mobile
+        viewport for WCAG 2.1 AA violations specific to mobile (touch
+        target sizes, mobile nav landmarks, etc). Desktop axe scans alone
+        would miss anything that only manifests under the mobile media
+        queries.
+      */
+      testMatch: ["**/landing.spec.js", "**/accessibility.spec.js"],
       use: { ...devices["Pixel 5"] },
     },
     {
