@@ -63,6 +63,9 @@ jobs:
   security-pipeline:
     name: Security Tests + Build + Report
     runs-on: ubuntu-latest
+    # Backstop so a hung step can never burn the full 6h GitHub job limit again.
+    # Scheduled runs #335 and #336 hung on the Playwright install for 6 hours.
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -91,7 +94,19 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        # The browser download plus apt deps step has stalled for the full 6h
+        # job limit on scheduled runs (CI #335, #336), which shows the badge as
+        # cancelled. Cap each attempt and retry so a stalled CDN or apt mirror
+        # self-heals instead of hanging the whole pipeline.
+        timeout-minutes: 12
+        run: |
+          for attempt in 1 2 3; do
+            timeout 300 npx playwright install --with-deps chromium && exit 0
+            echo "Playwright install attempt $attempt timed out or failed; retrying..."
+            sleep 5
+          done
+          echo "Playwright install failed after 3 attempts"
+          exit 1
 
       - name: Run E2E tests
         run: npx playwright test --workers=4
