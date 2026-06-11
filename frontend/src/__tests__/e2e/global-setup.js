@@ -23,7 +23,9 @@ export default async function globalSetup() {
     return;
   }
 
-  const browser = await chromium.launch();
+  // CI uses the runner's preinstalled Chrome (bundled Chromium is not
+  // downloaded there); local runs use bundled Chromium.
+  const browser = await chromium.launch(process.env.CI ? { channel: "chrome" } : {});
   const page    = await browser.newPage();
 
   await page.goto("http://localhost:5173");

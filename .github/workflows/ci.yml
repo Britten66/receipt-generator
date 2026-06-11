@@ -64,9 +64,9 @@ jobs:
     name: Security Tests + Build + Report
     runs-on: ubuntu-latest
     # Backstop so a hung step can never burn the full 6h GitHub job limit again.
-    # Runs #335/#336 hung 6h on the Playwright browser download, #338 hung 12m.
-    # 45m covers a one-time cache-miss browser download plus the E2E run.
-    timeout-minutes: 45
+    # No browser download now (CI uses the runner's preinstalled Chrome), so
+    # 30m covers build plus the E2E run with headroom.
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -94,32 +94,13 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      # The Chromium binary download from cdn.playwright.dev stalls on the
-      # runner: it ran 6h on #335/#336 and 12m on #338, always on the download
-      # step, never on the apt deps. Cache the browser so it downloads once
-      # instead of every run, and keep the bootstrap download on its own
-      # retried, capped step so a stalled connection recovers without hanging.
-      - name: Cache Playwright browser
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
-
+      # CI cannot reliably download Playwright's bundled Chromium: the
+      # cdn.playwright.dev fetch stalls on the runner (6h on #335/#336, 12m on
+      # #338, and again on #339). Use the Google Chrome the runner image ships
+      # with (playwright.config sets channel:chrome under CI) and install only
+      # the apt libs, which have always completed in seconds.
       - name: Install Playwright system deps
         run: npx playwright install-deps chromium
-
-      - name: Download Playwright browser
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        timeout-minutes: 20
-        run: |
-          for attempt in 1 2 3; do
-            timeout 600 npx playwright install chromium && exit 0
-            echo "Playwright download attempt $attempt stalled; retrying..."
-            sleep 5
-          done
-          echo "Playwright download failed after 3 attempts"
-          exit 1
 
       - name: Run E2E tests
         run: npx playwright test --workers=4

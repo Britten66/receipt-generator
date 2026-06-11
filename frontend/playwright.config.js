@@ -20,6 +20,10 @@ export default defineConfig({
     baseURL: "http://localhost:5173",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
+    // CI cannot reliably download Playwright's bundled Chromium (the
+    // cdn.playwright.dev fetch stalls on the runner), so use the Google Chrome
+    // the GitHub runner image ships with. Local runs keep bundled Chromium.
+    ...(process.env.CI ? { channel: "chrome" } : {}),
   },
 
   projects: [
