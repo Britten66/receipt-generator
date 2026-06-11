@@ -8,11 +8,11 @@ import "./DatePicker.css";
 
 // A Radix Popover + react-day-picker wrapper. Drop-in for native <input type="date">.
 // Props:
-//   value     — "YYYY-MM-DD" string or empty
-//   onChange  — receives "YYYY-MM-DD" or "" when cleared
-//   placeholder — text shown when empty
-//   className  — applied to the trigger button (so you can keep the .field look)
-//   clearable  — show an X to clear the value
+//   value:       "YYYY-MM-DD" string or empty
+//   onChange:    receives "YYYY-MM-DD" or "" when cleared
+//   placeholder: text shown when empty
+//   className:   applied to the trigger button (so you can keep the .field look)
+//   clearable:   show an X to clear the value
 //   disabled
 export default function DatePicker({
   value,

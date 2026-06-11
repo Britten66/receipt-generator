@@ -101,7 +101,7 @@ export function useInvoices({ session, profile, showToast }) {
     setShowForm(false);
     setEditingReceipt(null);
 
-    // Only auto-save new invoices — editing an existing one on dismiss stays discarded
+    // Only auto-save new invoices. Editing an existing one on dismiss stays discarded
     if (formData?.id) return;
 
     const hasData = formData?.customer_name?.trim() ||
@@ -123,7 +123,7 @@ export function useInvoices({ session, profile, showToast }) {
       setReceipts((prev) => [result, ...prev]);
       showToast("Saved as draft.", "success");
     } catch {
-      // Silent — don't block the user from leaving
+      // Silent: don't block the user from leaving
     }
   }
 

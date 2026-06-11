@@ -84,8 +84,8 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
 
     if (mode === "signup") {
       // Persist the ref code in two places so it survives any flow:
-      //   1. localStorage  — picked up by fetchProfile if same-device confirmation
-      //   2. user_metadata — survives even if confirmation happens on a different device
+      //   1. localStorage:  picked up by fetchProfile if same-device confirmation
+      //   2. user_metadata: survives even if confirmation happens on a different device
       const cleanRef = refCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
       if (cleanRef) localStorage.setItem("pending_ref_code", cleanRef);
 
