@@ -17,7 +17,8 @@ package-lock.json
 posthog-setup-report.md
 .posthog-events.json
 
-# Internal docs
+# Internal docs (planning, ops, ROI - kept local, never pushed)
+GAMEPLAN.md
 docs/legal-audit.md
 docs/april-2-changes.md
 docs/api-queries.txt
@@ -26,6 +27,9 @@ docs/*.png
 docs/*.mp4
 docs/*.mov
 docs/legacy-backend/
+docs/referrals/roi-analysis.md
+docs/referrals/uh-oh-prevention.md
+docs/referrals/to-do-after-merge.md
 
 # macOS
 .DS_Store
