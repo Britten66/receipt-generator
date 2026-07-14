@@ -1205,6 +1205,60 @@ li.lv2-plan-feature-voice { color: #096570; }
   .lv2-compare {
     padding: 48px 24px 56px;
   }
+
+  /* Card-ify the comparison: no horizontal scroll. Each feature row becomes a
+     card with its name on top and one labeled line per tier. */
+  .lv2-compare-wrap {
+    overflow-x: visible;
+    border: none;
+    background: none;
+    box-shadow: none;
+  }
+  .lv2-compare-table {
+    min-width: 0;
+    display: block;
+  }
+  .lv2-compare-table thead {
+    display: none;  /* tier names move into each card's per-row labels */
+  }
+  .lv2-compare-table tbody,
+  .lv2-compare-table tbody tr,
+  .lv2-compare-table tbody td {
+    display: block;
+  }
+  .lv2-compare-table tbody tr {
+    border: 1px solid var(--border-light);
+    background: var(--surface);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    padding: 4px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .lv2-compare-table tbody tr:hover { background: var(--surface); }
+
+  /* Feature name = card heading */
+  .lv2-compare-table td:first-child {
+    font-size: 15px;
+    font-weight: 700;
+    padding: 12px 0 10px;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 4px;
+  }
+
+  /* Each tier value: label on the left, icon on the right */
+  .lv2-compare-table tbody td[data-label] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 0;
+    font-size: 14px;
+  }
+  .lv2-compare-table tbody td[data-label]::before {
+    content: attr(data-label);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 13px;
+  }
 }
 
 /* ── FOOTER ── */

@@ -435,81 +435,81 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                   Establishes that we are a real product, not a stripped trial. */}
               <tr>
                 <td>Unlimited invoices, no caps</td>
-                <td className="lv2-ct-basic"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-wave"><Check size={13} strokeWidth={1.5} /></td>
+                <td className="lv2-ct-basic" data-label="Basic"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-pro" data-label="Pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-voice" data-label="Voice AI"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-wave" data-label="Other apps"><Check size={13} strokeWidth={1.5} /></td>
               </tr>
               {/* Pro essentials at price parity with competitors. The kicker is
                   the header price row: same features for $9 vs their $15+. */}
               <tr>
                 <td>Email invoices to clients with your logo</td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-wave"><Check size={13} strokeWidth={1.5} /></td>
+                <td className="lv2-ct-no" data-label="Basic"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-pro" data-label="Pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-voice" data-label="Voice AI"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-wave" data-label="Other apps"><Check size={13} strokeWidth={1.5} /></td>
               </tr>
               <tr>
                 <td>Send payment reminders to clients</td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-wave"><Check size={13} strokeWidth={1.5} /></td>
+                <td className="lv2-ct-no" data-label="Basic"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-pro" data-label="Pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-voice" data-label="Voice AI"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-wave" data-label="Other apps"><Check size={13} strokeWidth={1.5} /></td>
               </tr>
               {/* AI rows: the real moat. Verified ✗ on competitors. */}
               <tr>
                 <td>AI text parsing: describe, AI fills</td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+                <td className="lv2-ct-no" data-label="Basic"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-pro" data-label="Pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-voice" data-label="Voice AI"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-x" data-label="Other apps"><X size={15} strokeWidth={2.5} /></td>
               </tr>
               <tr>
                 <td>AI learns from your invoices and remembers your details</td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+                <td className="lv2-ct-no" data-label="Basic"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-pro" data-label="Pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-voice" data-label="Voice AI"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-x" data-label="Other apps"><X size={15} strokeWidth={2.5} /></td>
               </tr>
               {/* Pro exclusive: the viral growth perk. Voice subscribers already
                   have more than the Pro reward, so it doesn't apply at that tier. */}
               <tr>
                 <td>Refer a friend, both get a free month of Pro</td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-pro"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+                <td className="lv2-ct-no" data-label="Basic"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-pro" data-label="Pro"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-no" data-label="Voice AI"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-x" data-label="Other apps"><X size={15} strokeWidth={2.5} /></td>
               </tr>
               {/* Voice AI exclusives: the four differentiators that justify $12.
                   Audio input via Whisper, uncapped daily parsing (Pro is 15/day),
                   smart pricing suggestions, and client-language translation. */}
               <tr>
                 <td>Voice AI: speak invoices hands-free, anywhere</td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+                <td className="lv2-ct-no" data-label="Basic"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-no" data-label="Pro"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-voice" data-label="Voice AI"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-x" data-label="Other apps"><X size={15} strokeWidth={2.5} /></td>
               </tr>
               <tr>
                 <td>Unlimited daily AI parses for high-volume work</td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+                <td className="lv2-ct-no" data-label="Basic"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-no" data-label="Pro"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-voice" data-label="Voice AI"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-x" data-label="Other apps"><X size={15} strokeWidth={2.5} /></td>
               </tr>
               <tr>
                 <td>Smart pricing: AI suggests rates from your history</td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+                <td className="lv2-ct-no" data-label="Basic"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-no" data-label="Pro"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-voice" data-label="Voice AI"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-x" data-label="Other apps"><X size={15} strokeWidth={2.5} /></td>
               </tr>
               <tr>
                 <td>Translate invoices into your client's language</td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-no"><Minus size={14} strokeWidth={2} /></td>
-                <td className="lv2-ct-voice"><Check size={16} strokeWidth={3} /></td>
-                <td className="lv2-ct-x"><X size={15} strokeWidth={2.5} /></td>
+                <td className="lv2-ct-no" data-label="Basic"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-no" data-label="Pro"><Minus size={14} strokeWidth={2} /></td>
+                <td className="lv2-ct-voice" data-label="Voice AI"><Check size={16} strokeWidth={3} /></td>
+                <td className="lv2-ct-x" data-label="Other apps"><X size={15} strokeWidth={2.5} /></td>
               </tr>
             </tbody>
           </table>

@@ -25,6 +25,11 @@
   color: var(--text-muted);
 }
 
+.admin-count-warn {
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .admin-ci {
   display: flex;
   align-items: center;

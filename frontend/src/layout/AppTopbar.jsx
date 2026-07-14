@@ -24,7 +24,7 @@ export default function AppTopbar({
 
         {!profileLoading && profile?.tier !== "pro" && profile?.tier !== "voice" && (
           <button className="btn btn-primary btn-upgrade-pill" onClick={() => setShowPlansModal(true)} aria-label="Upgrade">
-            <Zap size={12} strokeWidth={2.25} className="upgrade-icon" />
+            <Zap size={12} strokeWidth={1.75} className="upgrade-icon" />
             <span className="upgrade-text">Upgrade</span>
           </button>
         )}
@@ -98,7 +98,7 @@ export default function AppTopbar({
             <button
               className="avatar-btn"
               aria-label="User menu"
-              style={(profile?.tier === "pro" || profile?.tier === "voice") ? { border: "2px solid #D4AF37", boxShadow: "0 0 0 1px rgba(212,175,55,0.25)" } : undefined}
+              style={(profile?.tier === "pro" || profile?.tier === "voice") ? { border: "2px solid #D4AF37" } : undefined}
             >
               {avatarUrl
                 ? <img src={avatarUrl} alt={userEmail} width={34} height={34} style={{ display: "block", objectFit: "cover" }} />

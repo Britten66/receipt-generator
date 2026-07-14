@@ -81,9 +81,11 @@ export default function AdminPage() {
     return () => { cancelled = true; };
   }, []);
 
+  // Persist filters but never the sort: sort always resets to newest-first on
+  // load so recent signups are at the top and can't get buried by a stale sort.
   useEffect(() => {
-    localStorage.setItem(FILTERS_KEY, JSON.stringify({ search, tierFilter, categoryFilter, activityFilter, joinedFilter, sort }));
-  }, [search, tierFilter, categoryFilter, activityFilter, joinedFilter, sort]);
+    localStorage.setItem(FILTERS_KEY, JSON.stringify({ search, tierFilter, categoryFilter, activityFilter, joinedFilter }));
+  }, [search, tierFilter, categoryFilter, activityFilter, joinedFilter]);
 
   const handleLabel = (userId, label) => {
     persistLabel(userId, label);
@@ -164,7 +166,12 @@ export default function AdminPage() {
     <div className="admin-wrap">
       <div className="admin-header">
         <h1 className="admin-title">Admin</h1>
-        <span className="admin-count">{filtered.length} of {users.length} users</span>
+        <span className="admin-count">
+          {filtered.length} of {users.length} users
+          {filtered.length < users.length && (
+            <span className="admin-count-warn"> · filters hiding {users.length - filtered.length}</span>
+          )}
+        </span>
       </div>
 
       <div className="admin-ci">

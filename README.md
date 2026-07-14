@@ -16,7 +16,7 @@ Test coverage was treated as a primary deliverable.
 Claude was used to generate test scaffolding at speed. This required active oversight. During this build, a ghost test was caught that was testing a locally defined copy of a component rather than the real code, passing silently while covering nothing. That's the real dynamic: AI-assisted test generation accelerates coverage but introduces its own class of errors.
 Every test was reviewed and the suite audited for exactly this problem.
 
-372 automated tests across business logic, API security, AI parsing, component behavior, and Playwright end-to-end flows.
+380 automated tests across business logic, API security, AI parsing, component behavior, and Playwright end-to-end flows.
 
 ---
 
@@ -32,7 +32,7 @@ frontend/
     layout/         app shell, landing page, sidebar, topbar
     api/            fetch wrappers (receipts, profile, billing, AI)
     lib/            supabase client, themes, constants
-    __tests__/      372 tests: logic, API, security, components, E2E
+    __tests__/      380 tests: logic, API, security, components, E2E
 supabase/
   functions/        Edge functions: receipts, send-invoice, stripe-checkout,
                     voice-parse, text-parse, notify-signup, stripe-webhook

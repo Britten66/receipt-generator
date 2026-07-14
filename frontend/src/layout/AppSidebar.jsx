@@ -1,5 +1,5 @@
 import { NAV, STATUS_CONFIG, fmtStat } from "../lib/constants";
-import { Plus, CreditCard, FileText, Trash2, HelpCircle } from "lucide-react";
+import { Plus, Pencil, CreditCard, FileText, Trash2, HelpCircle } from "lucide-react";
 
 export default function AppSidebar({
   receipts, revenue, outstanding, counts,
@@ -55,7 +55,9 @@ export default function AppSidebar({
           className="btn btn-ghost btn-business"
           onClick={() => setShowProfileModal(true)}
         >
-          {profile?.business_name ? `✎ ${profile.business_name}` : "+ Add Business Profile"}
+          {profile?.business_name
+            ? <><Pencil size={13} strokeWidth={1.75} /><span>{profile.business_name}</span></>
+            : <><Plus size={13} strokeWidth={1.75} /><span>Add Business Profile</span></>}
         </button>
         <div className="sidebar-footer-row" role="group" aria-label="Account actions">
           <button className="sidebar-footer-btn" onClick={() => setShowBilling(true)} aria-label="Billing">
