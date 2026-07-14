@@ -68,7 +68,6 @@ const REDACTIONS = [
   [/invoiceprepper/gi, "the application"],
   [/MacBookPro/g, "ci-runner-linux"],
   [/britten63@hotmail\.com/gi, "tester@example.com"],
-  [/firstsipsolutions@gmail\.com/gi, "admin@example.com"],
 ];
 
 function redact(s) {

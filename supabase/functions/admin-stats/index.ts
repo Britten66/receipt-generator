@@ -4,7 +4,10 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 // Founder email is the only address allowed to read this view.
 // Server-enforced: even if the route leaks client-side, the
 // function returns 403 to anyone else.
-const FOUNDER_EMAIL = "redacted@example.com";
+// Prefer the FOUNDER_EMAIL secret so the address isn't hardcoded in a
+// public repo. The literal is a fallback so admin access never breaks if
+// the secret is unset; once the secret is set in Supabase it can be dropped.
+const FOUNDER_EMAIL = (Deno.env.get("FOUNDER_EMAIL") ?? "redacted@example.com").toLowerCase();
 
 Deno.serve(async (req) => {
   const origin = req.headers.get("Origin");
