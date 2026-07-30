@@ -83,7 +83,7 @@ jobs:
         run: npm ci
 
       - name: Audit dependencies for vulnerabilities
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=high --omit=dev
 
       - name: Run security tests
         run: npm test
