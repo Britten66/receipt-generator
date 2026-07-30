@@ -14,6 +14,13 @@ function escapeHtml(str: unknown): string {
     .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
+// For values placed in email headers (From display name, Subject). HTML escaping
+// is the wrong defense there: strip CR/LF and angle brackets so a crafted name
+// cannot break or spoof a header, and cap length.
+function headerSafe(str: unknown, maxLen = 200): string {
+  return String(str ?? "").replace(/[\r\n<>]/g, " ").trim().slice(0, maxLen);
+}
+
 Deno.serve(async (req) => {
   const origin = req.headers.get("Origin");
   const corsHeaders = getCorsHeaders(origin);
@@ -168,15 +175,15 @@ Deno.serve(async (req) => {
       "Authorization": `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
     },
     body: JSON.stringify({
-      from: isPro && profile?.business_name ? `${profile.business_name} <invoices@invoiceprepper.com>` : "InvoicePrepper <invoices@invoiceprepper.com>",
+      from: isPro && profile?.business_name ? `${headerSafe(profile.business_name)} <invoices@invoiceprepper.com>` : "InvoicePrepper <invoices@invoiceprepper.com>",
       to: safe.to,
       // Email-me-a-copy: BCC the sender if they have it turned on in profile.
       // Hidden from the client by design (BCC, not CC). Surfaces as "Email me
       // a copy" in the profile UI because BCC is jargon.
       ...(senderInbox && wantsCopy ? { bcc: senderInbox } : {}),
       subject: is_reminder
-        ? `Friendly reminder: Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`
-        : `Invoice #${safe.receipt_number} from ${safe.vendor_name || "your vendor"}`,
+        ? `Friendly reminder: Invoice #${headerSafe(receipt_number)} from ${headerSafe(vendor_name) || "your vendor"}`
+        : `Invoice #${headerSafe(receipt_number)} from ${headerSafe(vendor_name) || "your vendor"}`,
       html,
       // Replies go to the user who sent the invoice, not to support.
       // Falls back to support if the user has no email on file (should never happen).

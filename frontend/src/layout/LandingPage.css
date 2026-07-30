@@ -1202,8 +1202,9 @@ li.lv2-plan-feature-voice { color: #096570; }
 [data-theme="dark"] .lv2-ct-voice { color: #4dd8e0; }
 
 @media (max-width: 768px) {
+  /* Hidden on mobile: the comparison chart eats too much vertical space. */
   .lv2-compare {
-    padding: 48px 24px 56px;
+    display: none;
   }
 
   /* Card-ify the comparison: no horizontal scroll. Each feature row becomes a

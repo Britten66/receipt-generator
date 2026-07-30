@@ -17,10 +17,13 @@ const supabase = createClient(
 // Returns null if the price is unrecognised (caller decides how to handle).
 function tierFromPriceId(priceId: string | null | undefined): "pro" | "voice" | null {
   if (!priceId) return null;
-  const proPriceId   = Deno.env.get("STRIPE_PRO_PRICE_ID");
-  const voicePriceId = Deno.env.get("STRIPE_VOICE_PRICE_ID");
-  if (priceId === voicePriceId) return "voice";
-  if (priceId === proPriceId)   return "pro";
+  // Checkout charges on currency-specific price IDs (CAD default plus _USD).
+  // The webhook must recognise every price a user can be charged on, or USD
+  // subscribers resolve to null and get the wrong tier (Voice -> Pro default).
+  const voicePriceIds = [Deno.env.get("STRIPE_VOICE_PRICE_ID"), Deno.env.get("STRIPE_VOICE_PRICE_ID_USD")];
+  const proPriceIds   = [Deno.env.get("STRIPE_PRO_PRICE_ID"),   Deno.env.get("STRIPE_PRO_PRICE_ID_USD")];
+  if (voicePriceIds.includes(priceId)) return "voice";
+  if (proPriceIds.includes(priceId))   return "pro";
   return null;
 }
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Gift, Compass, Sparkles, Check, X, Minus, BookOpen, Mail, HelpCircle, LifeBuoy, MessageSquare } from "lucide-react";
+import { Gift, Sparkles, Check, X, Minus, BookOpen, Mail, HelpCircle, LifeBuoy, MessageSquare } from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import posthog from "posthog-js";
 import LegalModal from "../features/profile/LegalModal";
@@ -79,36 +79,17 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
             </button>
           </div>
           <div className="lv2-nav-controls">
-            {/* About menu: mission, contact, FAQ */}
+            {/* One consolidated menu: story, FAQ, changelog, contact, support, feedback */}
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
-                <button
-                  className="lv2-nav-gift"
-                  aria-label="About InvoicePrepper"
-                  title="About"
-                >
-                  <Compass size={17} strokeWidth={1.75} />
-                </button>
+                <button className="lv2-nav-login" aria-label="More" title="More">More</button>
               </DropdownMenu.Trigger>
               <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                  className="lv2-nav-menu"
-                  sideOffset={6}
-                  align="end"
-                >
+                <DropdownMenu.Content className="lv2-nav-menu" sideOffset={6} align="end">
                   <DropdownMenu.Item asChild>
                     <a className="lv2-nav-menu-item" href="/blog" target="_blank" rel="noopener noreferrer">
                       <BookOpen size={14} strokeWidth={1.75} />
                       <span>Our story</span>
-                    </a>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item asChild>
-                    <a
-                      className="lv2-nav-menu-item"
-                      href="mailto:support@invoiceprepper.com?subject=Hello"
-                    >
-                      <Mail size={14} strokeWidth={1.75} />
-                      <span>Contact us</span>
                     </a>
                   </DropdownMenu.Item>
                   <DropdownMenu.Item asChild>
@@ -117,54 +98,26 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                       <span>FAQ</span>
                     </a>
                   </DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Portal>
-            </DropdownMenu.Root>
-
-            {/* Updates menu: changelog (top), support, feedback. */}
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild>
-                <button
-                  className="lv2-nav-gift"
-                  aria-label="Updates"
-                  title="Updates and support"
-                >
-                  <Sparkles size={17} strokeWidth={1.75} />
-                </button>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                  className="lv2-nav-menu"
-                  sideOffset={6}
-                  align="end"
-                >
                   <DropdownMenu.Item asChild>
-                    <a
-                      className="lv2-nav-menu-item"
-                      href="/changelog"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a className="lv2-nav-menu-item" href="/changelog" target="_blank" rel="noopener noreferrer">
                       <Sparkles size={14} strokeWidth={1.75} />
-                      <span>Changelog</span>
+                      <span>What's new</span>
                     </a>
                   </DropdownMenu.Item>
                   <DropdownMenu.Item asChild>
-                    <a
-                      className="lv2-nav-menu-item"
-                      href="mailto:support@invoiceprepper.com?subject=Support%20request"
-                    >
+                    <a className="lv2-nav-menu-item" href="mailto:support@invoiceprepper.com?subject=Hello">
+                      <Mail size={14} strokeWidth={1.75} />
+                      <span>Contact us</span>
+                    </a>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item asChild>
+                    <a className="lv2-nav-menu-item" href="mailto:support@invoiceprepper.com?subject=Support%20request">
                       <LifeBuoy size={14} strokeWidth={1.75} />
                       <span>Support email</span>
                     </a>
                   </DropdownMenu.Item>
                   <DropdownMenu.Item asChild>
-                    <a
-                      className="lv2-nav-menu-item"
-                      href="https://tally.so/r/2EJZRM"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a className="lv2-nav-menu-item" href="https://tally.so/r/2EJZRM" target="_blank" rel="noopener noreferrer">
                       <MessageSquare size={14} strokeWidth={1.75} />
                       <span>Send feedback</span>
                     </a>
