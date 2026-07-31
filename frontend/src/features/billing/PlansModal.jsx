@@ -13,10 +13,14 @@
     onSelectVoice: called when user clicks "Get Voice AI"
 */
 
+import { useEffect } from "react";
+import posthog from "posthog-js";
 import BorderGlow from "../../layout/BorderGlow";
 
 export default function PlansModal({ profile, darkMode, currency, onClose, onSelectPro, onSelectVoice }) {
   const isProUser = profile?.tier === "pro";
+  // Funnel step: the paywall is now on screen.
+  useEffect(() => { posthog.capture("plans viewed", { tier: profile?.tier ?? "free" }); }, []);
   // Subscriptions are always billed in CAD by Stripe regardless of the user's
   // invoice-currency preference. Showing "CAD" honestly avoids confusion for
   // international users (a "INR $9" label would be nonsense).

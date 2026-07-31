@@ -125,9 +125,6 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
-            <button className="lv2-nav-gift" onClick={() => setShowReferralModal(true)} aria-label="Refer a friend" title="Refer a friend, you both get 1 month Pro free">
-              <Gift size={17} strokeWidth={1.75} />
-            </button>
             <select
               className="lv2-currency-select"
               value={currency}

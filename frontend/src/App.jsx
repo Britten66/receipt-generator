@@ -271,6 +271,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
             if (!session) setShowAuthModal(true);
           }}
           onEnterPro={() => {
+            posthog.capture("upgrade prompt shown", { source: "landing", tier: "pro" });
             proIntentRef.current = "pro";
             localStorage.setItem("app_entered", "1");
             setEntered(true);
@@ -278,6 +279,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
             else         { setShowAuthModal(true); }
           }}
           onEnterVoice={() => {
+            posthog.capture("upgrade prompt shown", { source: "landing", tier: "voice" });
             // Store intent so checkout fires immediately after sign-up if not yet signed in.
             proIntentRef.current = "voice";
             localStorage.setItem("app_entered", "1");
@@ -310,7 +312,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
         currentPalette={currentPalette}
         paletteExpanded={paletteExpanded} setPaletteExpanded={setPaletteExpanded}
         setPalette={setPalette}
-        setShowPlansModal={setShowPlansModal} setShowProfileModal={setShowProfileModal}
+        setShowPlansModal={(v) => { if (v) posthog.capture("upgrade prompt shown", { source: "topbar" }); setShowPlansModal(v); }} setShowProfileModal={setShowProfileModal}
         setShowReferralModal={setShowReferralModal}
       />
 
@@ -379,7 +381,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
           profile={profile}
           userEmail={userEmail}
           onLogoUpdate={(url) => setProfile((p) => ({ ...p, logo_url: url }))}
-          onUpgradeClick={() => openUpgradeConfirm("pro")}
+          onUpgradeClick={() => { posthog.capture("upgrade prompt shown", { source: "logo_gate_form" }); openUpgradeConfirm("pro"); }}
           onSubmit={handleSaveReceipt}
           onClose={handleDismissForm}
         />
@@ -405,7 +407,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
 
       {/* Billing */}
       {showBilling && (
-        <BillingModal profile={profile} onClose={() => setShowBilling(false)} onUpgrade={() => setShowPlansModal(true)} />
+        <BillingModal profile={profile} onClose={() => setShowBilling(false)} onUpgrade={() => { posthog.capture("upgrade prompt shown", { source: "billing" }); setShowPlansModal(true); }} />
       )}
 
       {/* Profile / settings */}
@@ -415,7 +417,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
           userEmail={session?.user?.email}
           onSave={(p) => setProfile(p)}
           onClose={() => setShowProfileModal(false)}
-          onUpgradeClick={() => { setShowProfileModal(false); setShowPlansModal(true); }}
+          onUpgradeClick={() => { posthog.capture("upgrade prompt shown", { source: "logo_gate_profile" }); setShowProfileModal(false); setShowPlansModal(true); }}
           onExport={handleExport}
         />
       )}
