@@ -24,7 +24,6 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
   const [mode, setMode]         = useState(initialMode);
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm]   = useState("");
   const [error, setError]       = useState("");
   const [message, setMessage]   = useState("");
   const [loading, setLoading]   = useState(false);
@@ -72,10 +71,6 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
       const pwCheck = checkPassword(password);
       if (!pwCheck?.ok) {
         setError(pwCheck?.msg ?? "Password does not meet requirements.");
-        return;
-      }
-      if (password !== confirm) {
-        setError("Passwords don't match.");
         return;
       }
     }

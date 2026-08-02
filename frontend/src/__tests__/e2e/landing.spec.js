@@ -59,7 +59,7 @@ test.describe("Landing page", () => {
   });
 
   test("How it works section is present", async ({ page }) => {
-    await expect(page.getByText("How it works")).toBeVisible();
+    await expect(page.locator("#how-it-works")).toBeVisible();
   });
 
   test("footer has Terms link", async ({ page }) => {
