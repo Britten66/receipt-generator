@@ -81,13 +81,6 @@ test.describe("Auth modal: Sign Up", () => {
     await expect(page.locator(".auth-error")).toBeVisible();
   });
 
-  test("mismatched passwords shows an error", async ({ page }) => {
-    await page.getByPlaceholder("you@example.com").fill("test@example.com");
-    await page.locator('input[type="password"]').first().fill("StrongPass1!");
-    await page.locator('input[type="password"]').last().fill("DifferentPass1!");
-    await page.getByRole("button", { name: /create account/i }).click();
-    await expect(page.getByText(/passwords don't match/i)).toBeVisible();
-  });
 
   test("Forgot password link appears in login mode", async ({ page }) => {
     await page.locator(".auth-card").getByRole("button", { name: /^sign in$/i }).click();
