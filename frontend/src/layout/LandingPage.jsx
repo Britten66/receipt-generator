@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Gift, Sparkles, Check, X, Minus, BookOpen, Mail, HelpCircle, LifeBuoy, MessageSquare } from "lucide-react";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { Gift, Sparkles, Check, X, Minus } from "lucide-react";
 import posthog from "posthog-js";
 import LegalModal from "../features/profile/LegalModal";
 import ReferralModal from "../features/referrals/ReferralModal";
@@ -74,57 +73,15 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       <nav className={`lv2-topbar${navScrolled ? " lv2-topbar-scrolled" : ""}`} aria-label="Primary">
         <div className="lv2-topbar-inner">
           <div className="lv2-nav-left">
+            <span className="lv2-nav-wordmark">InvoicePrepper</span>
+            <a className="lv2-nav-link" href="#how-it-works">How it works</a>
+            <a className="lv2-nav-link" href="#pricing">Pricing</a>
+            <a className="lv2-nav-link" href="#faq">FAQ</a>
+          </div>
+          <div className="lv2-nav-controls">
             <button className="dark-toggle" onClick={onToggleDark}>
               {darkMode ? "Light" : "Dark"}
             </button>
-          </div>
-          <div className="lv2-nav-controls">
-            {/* One consolidated menu: story, FAQ, changelog, contact, support, feedback */}
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild>
-                <button className="lv2-nav-login" aria-label="More" title="More">More</button>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Portal>
-                <DropdownMenu.Content className="lv2-nav-menu" sideOffset={6} align="end">
-                  <DropdownMenu.Item asChild>
-                    <a className="lv2-nav-menu-item" href="/blog" target="_blank" rel="noopener noreferrer">
-                      <BookOpen size={14} strokeWidth={1.75} />
-                      <span>Our story</span>
-                    </a>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item asChild>
-                    <a className="lv2-nav-menu-item" href="#faq">
-                      <HelpCircle size={14} strokeWidth={1.75} />
-                      <span>FAQ</span>
-                    </a>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item asChild>
-                    <a className="lv2-nav-menu-item" href="/changelog" target="_blank" rel="noopener noreferrer">
-                      <Sparkles size={14} strokeWidth={1.75} />
-                      <span>What's new</span>
-                    </a>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item asChild>
-                    <a className="lv2-nav-menu-item" href="mailto:support@invoiceprepper.com?subject=Hello">
-                      <Mail size={14} strokeWidth={1.75} />
-                      <span>Contact us</span>
-                    </a>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item asChild>
-                    <a className="lv2-nav-menu-item" href="mailto:support@invoiceprepper.com?subject=Support%20request">
-                      <LifeBuoy size={14} strokeWidth={1.75} />
-                      <span>Support email</span>
-                    </a>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item asChild>
-                    <a className="lv2-nav-menu-item" href="https://tally.so/r/2EJZRM" target="_blank" rel="noopener noreferrer">
-                      <MessageSquare size={14} strokeWidth={1.75} />
-                      <span>Send feedback</span>
-                    </a>
-                  </DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Portal>
-            </DropdownMenu.Root>
             <select
               className="lv2-currency-select"
               value={currency}
@@ -156,14 +113,14 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         <div className="lv2-hero-text">
           <p className="lv2-eyebrow">InvoicePrepper</p>
           <h1 className="lv2-title">The invoice generator<br />for people who<br />just want to get paid.</h1>
-          <p className="lv2-desc">Create professional invoices, email to clients, and track what's paid; all in one place. Built for independent workers, contractors, and small businesses. No bloat, no learning curve.</p>
+          <p className="lv2-desc">Create, send, and track invoices. Free forever. No credit card, no setup, no learning curve.</p>
           <button className="lv2-cta" onClick={() => {
             posthog.capture("cta_clicked", { variant: ctaVariant, location: "hero" });
             onEnter();
           }}>
-            {ctaVariant === "first-invoice" ? "Create Your First Invoice" : "Start Invoicing Free"}
+            Make your first invoice free
           </button>
-          <p className="lv2-sub">Free forever · No credit card required</p>
+          <p className="lv2-sub">Trusted by freelancers and small businesses · No credit card required</p>
         </div>
 
         <div className="lv2-preview-wrap">
@@ -198,7 +155,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
                 disabled={exampleLoading}
                 aria-label="Open a sample PDF"
               >
-                {exampleLoading ? "..." : "Example"}
+                {exampleLoading ? "..." : "See a sample invoice"}
               </button>
             </div>
           </BorderGlow>
@@ -208,7 +165,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       {/* 3: Features */}
 
       {/* 5: How it works */}
-      <section className="lv2-steps">
+      <section id="how-it-works" className="lv2-steps">
         <p className="lv2-steps-eyebrow">How it works</p>
         <h2 className="lv2-steps-title">Invoice sent in under 60 seconds</h2>
         <div className="lv2-steps-grid">
@@ -241,7 +198,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       </div>
 
       {/* 7: Pricing */}
-      <section className="lv2-pricing">
+      <section id="pricing" className="lv2-pricing">
         <h2 className="lv2-pricing-title">Simple pricing</h2>
         <p className="lv2-pricing-sub">Start free. Upgrade when you're ready.</p>
         <div className="lv2-plans">

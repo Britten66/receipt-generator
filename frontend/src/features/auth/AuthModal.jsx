@@ -89,7 +89,7 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
       const cleanRef = refCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
       if (cleanRef) localStorage.setItem("pending_ref_code", cleanRef);
 
-      const { error: err } = await supabase.auth.signUp({
+      const { data: signUpData, error: err } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -99,6 +99,8 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
       });
       if (err) {
         setError(err.message);
+      } else if (signUpData?.session) {
+        if (onClose) onClose();
       } else {
         setMessage("Check your email to confirm your account.");
       }
@@ -208,12 +210,6 @@ export default function AuthModal({ onClose, onBack, initialMode = "signup" }) {
               </div>
             )}
 
-            {mode === "signup" && (
-              <div className="field-group">
-                <label className="field-label" htmlFor="auth-confirm">Confirm Password</label>
-                <input id="auth-confirm" className="auth-field" type="password" placeholder="••••••••" value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
-              </div>
-            )}
 
             {mode === "signup" && (
               <div className="field-group">

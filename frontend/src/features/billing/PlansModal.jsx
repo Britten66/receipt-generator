@@ -13,26 +13,32 @@
     onSelectVoice: called when user clicks "Get Voice AI"
 */
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import posthog from "posthog-js";
 import BorderGlow from "../../layout/BorderGlow";
 
 export default function PlansModal({ profile, darkMode, currency, onClose, onSelectPro, onSelectVoice }) {
   const isProUser = profile?.tier === "pro";
+  const openedAt = useRef(Date.now());
   // Funnel step: the paywall is now on screen.
   useEffect(() => { posthog.capture("plans viewed", { tier: profile?.tier ?? "free" }); }, []);
+
+  function handleClose() {
+    posthog.capture("plans modal closed", { time_open_ms: Date.now() - openedAt.current, tier: profile?.tier ?? "free" });
+    onClose();
+  }
   // Subscriptions are always billed in CAD by Stripe regardless of the user's
   // invoice-currency preference. Showing "CAD" honestly avoids confusion for
   // international users (a "INR $9" label would be nonsense).
   void currency;
 
   return (
-    <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && handleClose()}>
       <div className="modal plans-modal" style={{ maxWidth: 600 }}>
 
         <div className="modal-header">
           <span className="modal-title">{isProUser ? "Upgrade to Voice AI" : "Choose your plan"}</span>
-          <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={onClose}>✕</button>
+          <button className="btn btn-ghost" style={{ padding: "4px 10px" }} onClick={handleClose}>✕</button>
         </div>
 
         <div
@@ -43,6 +49,7 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
           {/* Pro card: only shown to free users */}
           {(profile?.tier === "free" || !profile?.tier) && (
             <BorderGlow
+              onMouseEnter={() => posthog.capture("plan card hovered", { plan: "pro" })}
               borderRadius={0}
               glowColor={darkMode ? "43 78 55" : "43 85 38"}
               glowIntensity={darkMode ? 1.0 : 2.2}
@@ -59,14 +66,14 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
                 <div className="plans-modal-price">$9<span>/mo</span></div>
                 <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed in CAD</p>
                 <ul className="plans-modal-features">
-                  <li className="plans-modal-includes">Everything in Basic</li>
-                  <li>Email invoices to clients with your logo</li>
-                  <li>Invoice due dates</li>
-                  <li>Send payment reminders to clients</li>
-                  <li>CSV export</li>
-                  <li>Custom dashboard themes</li>
-                  <li className="lv2-plan-feature-voice">Text AI parsing: describe an invoice, the form fills itself</li>
-                  <li className="lv2-plan-feature-voice">AI remembers your regular clients and rates</li>
+                  <li className="plans-modal-includes">Everything in Basic, no watermark</li>
+                  <li>Send invoices to clients directly from the app</li>
+                  <li>Your logo on every invoice - look like a real business</li>
+                  <li>Automatic payment reminders so you stop chasing clients</li>
+                  <li>Invoice due dates and late flags</li>
+                  <li>CSV export for tax season</li>
+                  <li>Describe an invoice in a sentence, AI fills the form</li>
+                  <li>AI remembers your regular clients and their rates</li>
                 </ul>
                 <button className="plans-modal-btn plans-modal-btn-pro" onClick={onSelectPro}>
                   Get Pro
@@ -77,6 +84,7 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
 
           {/* Voice AI card: shown to both free and pro users */}
           <BorderGlow
+            onMouseEnter={() => posthog.capture("plan card hovered", { plan: "voice" })}
             borderRadius={0}
             glowColor={darkMode ? "185 75 55" : "185 72 32"}
             glowIntensity={darkMode ? 0.95 : 2.2}

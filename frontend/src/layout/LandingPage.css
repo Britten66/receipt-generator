@@ -74,11 +74,40 @@
 .lv2-nav-left {
   display: flex;
   align-items: center;
+  gap: 24px;
   padding-bottom: 10px;
 }
 
+.lv2-nav-wordmark {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.lv2-nav-link {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.lv2-nav-link:hover { color: var(--text); }
+
 .lv2-nav-left .dark-toggle {
   height: 28px;
+}
+
+@media (max-width: 640px) {
+  .lv2-nav-link { display: none; }
+  .lv2-nav-wordmark { display: none; }
 }
 
 .lv2-nav-controls {
