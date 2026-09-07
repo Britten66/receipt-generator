@@ -30,7 +30,9 @@
     }
     body { font-family: helvetica, arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
     nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; border-bottom: 1px solid var(--border); }
-    .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; }
+    .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .nav-brand-divider { color: var(--text-muted); font-weight: 400; }
+    .nav-brand-chip { display: inline-block; background: var(--text); color: var(--bg); padding: 2px 6px 3px; border-radius: 3px; }
     .nav-right { display: flex; align-items: center; gap: 12px; }
     .nav-link { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); text-decoration: none; }
     .nav-link:hover { color: var(--text); }
@@ -59,7 +61,7 @@
 </head>
 <body>
   <nav>
-    <a href="https://invoiceprepper.com" class="nav-brand">InvoicePrepper</a>
+    <a href="https://invoiceprepper.com" class="nav-brand">Invoice <span class="nav-brand-divider">|</span> <span class="nav-brand-chip">Prepper</span></a>
     <div class="nav-right">
       <a href="https://invoiceprepper.com/blog" class="nav-link">Our story</a>
       <a href="https://invoiceprepper.com/?signup=1" class="nav-cta">Try It Free</a>
@@ -71,6 +73,51 @@
       <div class="eyebrow">Changelog</div>
       <div class="page-title">What's new</div>
       <p class="page-sub">Recent releases. For the full history of how the product has grown, see <a href="https://invoiceprepper.com/blog">our story</a>.</p>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">Aug 13, 2026</div>
+      <div class="entry-title">Backend dependency security updates</div>
+      <ul>
+        <li>Updated backend dependencies, including nanoid and undici, to patch known security advisories. No action needed on your end.</li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">Aug 2, 2026</div>
+      <div class="entry-title">Faster sign up, cleaner landing nav, clearer Pro card</div>
+      <ul>
+        <li>Removed the confirm password field from sign up. One less step to create an account.</li>
+        <li>Simplified the landing page navigation and refreshed the Pro plan card so it is easier to see what you get for $9 per month.</li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">Jul 30, 2026</div>
+      <div class="entry-title">USD pricing accuracy, nav cleanup, and mobile comparison table</div>
+      <ul>
+        <li>Consolidated the landing page's navigation menus into a single "More" menu.</li>
+        <li>Improved tier assignment accuracy for Pro and Voice AI subscribers paying in USD.</li>
+        <li>Hid the plan comparison table on mobile screens where it did not fit well. Full comparison stays available on desktop.</li>
+        <li>Removed the gift icon from the top navigation bar to reduce clutter. Refer a friend is still available from the Pro plan card.</li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">Jul 14, 2026</div>
+      <div class="entry-title">Mobile pricing table and nav polish</div>
+      <ul>
+        <li>The plan comparison table now displays as stacked cards on phones instead of scrolling sideways.</li>
+        <li>Calmed down the navigation icons for a cleaner look.</li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="entry-date">Jun 24, 2026</div>
+      <div class="entry-title">Backend dependency security updates</div>
+      <ul>
+        <li>Updated backend dependencies to patch known security advisories.</li>
+      </ul>
     </div>
 
     <div class="entry">

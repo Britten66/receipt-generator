@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Invoice App for Electricians: Panel Upgrades, EV Chargers, and ESA Permit Fees on One PDF</title>
-  <meta name="description" content="Invoice electrical jobs with ESA permit fees, panel upgrades, and EV charger rough-ins as separate line items. GST and HST auto-calculated. Free forever." />
+  <meta name="description" content="Invoice electrical jobs with ESA permit fees, panel upgrades, and EV charger rough-ins as separate line items. GST and HST auto-calculated. 3 free invoices a month." />
   <link rel="canonical" href="https://invoiceprepper.com/invoice-for-electricians" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
   <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico" />
@@ -12,7 +12,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://invoiceprepper.com/invoice-for-electricians" />
   <meta property="og:title" content="Invoice App for Electricians: Panel Upgrades, EV Chargers, and ESA Permit Fees on One PDF" />
-  <meta property="og:description" content="Bill panel upgrades, EV charger rough-ins, and ESA permit fees on one professional PDF. GST and HST built in. Free forever, no credit card." />
+  <meta property="og:description" content="Bill panel upgrades, EV charger rough-ins, and ESA permit fees on one professional PDF. GST and HST built in. 3 free invoices a month, no credit card." />
   <meta property="og:image" content="https://invoiceprepper.com/og-image.png" />
   <meta property="og:site_name" content="InvoicePrepper" />
   <script type="application/ld+json">
@@ -32,28 +32,23 @@
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "Can I add an ESA permit fee as a line item on an electrical invoice?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Add a line item called ESA Permit Fee and enter the permit cost. Ontario electricians are required to pull an ESA permit for most residential electrical work. Having it clearly itemized on your invoice shows the homeowner exactly what they are paying for and protects you if the inspection record ever comes up." }
+        "name": "Can I include my master electrician licence number on every invoice?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Add your licence number or contractor number in the business details section of your account. It appears on every PDF you generate, which commercial clients and property managers often need for their records." }
       },
       {
         "@type": "Question",
-        "name": "How do I invoice a 200-amp panel upgrade with labour and materials separated?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Add one line for the panel itself at your supply price, a second line for the main disconnect or meter base if replaced, then lines for any conduit, wire, breakers, and hardware. Add your labour separately as hours worked at your rate. The invoice calculates the subtotal and applies your tax rate on everything together." }
+        "name": "How do I bill a job that runs over multiple days?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Add each day's labour as a separate line item with the hours worked, or total all labour on one line at the end of the job. Set a due date on the invoice and use net-15 or net-30 for larger jobs billed to a contractor or developer." }
       },
       {
         "@type": "Question",
-        "name": "Can I bill an EV charger rough-in with the charger unit and the electrical work as separate items?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. If you are supplying the charger unit, add it as its own line. Add the rough-in labour as a separate line. Add the dedicated circuit breaker and any conduit or wire as individual parts lines. Clients applying for government EV rebates may need an itemized invoice showing the wiring cost on its own line." }
+        "name": "Is there a limit on how many line items I can add?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. Add as many line items as the job requires. A large commercial call might have a dozen parts plus labour, a truck charge, and a permit fee. Every line appears on the PDF with quantity, unit price, and line total." }
       },
       {
         "@type": "Question",
-        "name": "Does the invoice handle GST and HST for electrical work across provinces?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. You set your tax rate once in your account. Ontario electricians use 13% HST. Alberta electricians use 5% GST. BC electricians use 5% GST. Quebec uses a combined rate of 14.975%. The invoice automatically calculates the tax amount and shows a clear subtotal, tax line, and total owing." }
-      },
-      {
-        "@type": "Question",
-        "name": "Can I send an electrical invoice from my phone before I leave the job site?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. InvoicePrepper runs in any mobile browser. No app download required. Build the invoice while you are packing up your tools, download the PDF or email it directly to your client, and drive to your next call. The Pro plan at $9 per month CAD adds your logo and direct email sending from the app." }
+        "name": "Do I need to download an app or install anything?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. InvoicePrepper runs in your phone or tablet browser. Safari, Chrome, or any mobile browser works. Sign in with Google in one tap. No download, no lengthy setup, no credit card required to start using it." }
       }
     ]
   }
@@ -67,7 +62,9 @@
     }
     body { font-family: helvetica, arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
     nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; border-bottom: 1px solid var(--border); }
-    .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; }
+    .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .nav-brand-divider { color: var(--text-muted); font-weight: 400; }
+    .nav-brand-chip { display: inline-block; background: var(--text); color: var(--bg); padding: 2px 6px 3px; border-radius: 3px; }
     .nav-cta { display: inline-block; background: var(--text); color: var(--bg); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 7px 14px; text-decoration: none; }
     .wrap { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
     .hero { margin: 64px auto; }
@@ -161,7 +158,7 @@
 </head>
 <body>
   <nav>
-    <a href="https://invoiceprepper.com" class="nav-brand">InvoicePrepper</a>
+    <a href="https://invoiceprepper.com" class="nav-brand">Invoice <span class="nav-brand-divider">|</span> <span class="nav-brand-chip">Prepper</span></a>
     <a href="https://invoiceprepper.com/?signup=1" class="nav-cta">Try It Free</a>
   </nav>
 
@@ -170,7 +167,7 @@
     <h1>Panel upgrade. EV charger rough-in. ESA permit. All on one professional invoice.</h1>
     <p class="lead">Electrical jobs produce more line items than almost any other trade. A 200-amp service upgrade alone can have six separate charges: the panel, the meter base, the service wire, conduit, a ground rod, and the ESA permit. InvoicePrepper handles as many line items as the job requires, applies your provincial tax automatically, and generates a clean PDF from your phone before you leave the site.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
-    <span class="cta-sub">Free to use. No credit card needed to get started.</span>
+    <span class="cta-sub">3 free invoices a month. No credit card needed to get started.</span>
   </div>
 
   <div class="wrap section">
@@ -322,7 +319,7 @@
 
   <div class="final-cta">
     <h2>Send your first electrical invoice today</h2>
-    <p>Free to use. No credit card. No accounting training required.</p>
+    <p>3 free invoices a month. No credit card. No accounting training required.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
     <span class="cta-sub">Upgrade to Pro at $9/mo CAD for logo and email sending.</span>
   </div>
@@ -364,6 +361,8 @@
     <a href="https://invoiceprepper.com/invoice-for-personal-trainers">Personal Trainers</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-handymen">Handymen</a>
+    &nbsp;�&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-designers">Designers</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/terms">Terms</a>
     &nbsp;·&nbsp;

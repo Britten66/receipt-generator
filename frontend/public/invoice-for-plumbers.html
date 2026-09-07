@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Invoice App for Plumbers: Service Calls, Drain Jobs, and Water Heater Replacements</title>
-  <meta name="description" content="Bill plumbing service calls, drain clearing, and water heater installs from your phone. GST and HST auto-calculated by province. Free forever, no credit card." />
+  <meta name="description" content="Bill plumbing service calls, drain clearing, and water heater installs from your phone. GST and HST auto-calculated by province. 3 free invoices a month, no credit card." />
   <link rel="canonical" href="https://invoiceprepper.com/invoice-for-plumbers" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
   <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico" />
@@ -12,7 +12,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://invoiceprepper.com/invoice-for-plumbers" />
   <meta property="og:title" content="Invoice App for Plumbers: Service Calls, Drain Jobs, and Water Heater Replacements" />
-  <meta property="og:description" content="Bill plumbing service calls, drain clearing, and water heater installs from your phone. GST and HST auto-calculated. Free forever." />
+  <meta property="og:description" content="Bill plumbing service calls, drain clearing, and water heater installs from your phone. GST and HST auto-calculated. 3 free invoices a month." />
   <meta property="og:image" content="https://invoiceprepper.com/og-image.png" />
   <meta property="og:site_name" content="InvoicePrepper" />
   <script type="application/ld+json">
@@ -32,28 +32,23 @@
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "How do I invoice a plumbing service call with a flat call fee plus hourly labour and parts?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Add each charge as its own line item. One line for the service call flat fee, a second line for hours worked at your hourly rate, then a separate line for every part used with quantity and unit cost. InvoicePrepper adds them up and applies your GST or HST rate automatically." }
+        "name": "Can I add a parts markup without showing my cost?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Enter whatever price you want for each part. If a valve costs you $18 and you bill it at $28, enter $28. The invoice shows the client price only. Your cost and margin stay private." }
       },
       {
         "@type": "Question",
-        "name": "Can I include an emergency call surcharge or after-hours rate on a plumbing invoice?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Add a line item called After-Hours Surcharge or Emergency Call Premium and enter the flat dollar amount. There is no limit on line items, so you can bill every charge on one clean invoice." }
+        "name": "How do I bill a diagnostic fee separately from repair labour?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Add the service call or diagnostic fee as the first line item at its flat rate. Add repair labour as a second line with hours and your hourly rate. Both appear on the invoice so the homeowner sees what each charge covers." }
       },
       {
         "@type": "Question",
-        "name": "Does InvoicePrepper handle GST and HST correctly for plumbing work in different provinces?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. You enter your tax rate once in your profile. Alberta plumbers set 5% GST. Ontario plumbers set 13% HST. BC plumbers set 5% GST. Quebec plumbers set their combined rate. The invoice calculates the tax amount and shows it clearly on every PDF." }
+        "name": "Can I track which invoices have been paid?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Your invoice dashboard shows every job with its payment status. Mark an invoice paid when the money comes in. Outstanding invoices stay visible so you always know what is owed." }
       },
       {
         "@type": "Question",
-        "name": "Can I send a plumbing invoice from my phone while still at the job site?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. InvoicePrepper runs in any mobile browser. No app download required. Build the invoice in the driveway, download the PDF or email it directly to the homeowner, and leave. The Pro plan at $9 per month CAD adds your logo and direct email sending." }
-      },
-      {
-        "@type": "Question",
-        "name": "How do I invoice a water heater replacement with supply and install separately?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Add one line for the water heater unit at your supply cost or marked-up price, a second line for installation labour by the hour, and additional lines for any fittings, shut-off valves, or dielectric unions used. The invoice handles any number of line items." }
+        "name": "Do I need to download an app or install anything?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. InvoicePrepper runs in your phone browser. Safari, Chrome, or any mobile browser works. Sign in with Google in one tap. No download, no account setup form, no credit card required to start." }
       }
     ]
   }
@@ -67,7 +62,9 @@
     }
     body { font-family: helvetica, arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
     nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; border-bottom: 1px solid var(--border); }
-    .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; }
+    .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .nav-brand-divider { color: var(--text-muted); font-weight: 400; }
+    .nav-brand-chip { display: inline-block; background: var(--text); color: var(--bg); padding: 2px 6px 3px; border-radius: 3px; }
     .nav-cta { display: inline-block; background: var(--text); color: var(--bg); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 7px 14px; text-decoration: none; }
     .wrap { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
     .hero { margin: 64px auto; }
@@ -163,7 +160,7 @@
 </head>
 <body>
   <nav>
-    <a href="https://invoiceprepper.com" class="nav-brand">InvoicePrepper</a>
+    <a href="https://invoiceprepper.com" class="nav-brand">Invoice <span class="nav-brand-divider">|</span> <span class="nav-brand-chip">Prepper</span></a>
     <a href="https://invoiceprepper.com/?signup=1" class="nav-cta">Try It Free</a>
   </nav>
 
@@ -172,7 +169,7 @@
     <h1>Bill the service call, the drain job, and the water heater from the driveway.</h1>
     <p class="lead">Every plumbing job bills differently. A drain call is a flat fee and 45 minutes with the snake. A water heater replacement is supply, install, fittings, and disposal. InvoicePrepper lets you add every charge as its own line item, calculates your provincial tax automatically, and gives you a PDF to hand or email to the homeowner before you drive away.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
-    <span class="cta-sub">Free to use. No credit card needed to get started.</span>
+    <span class="cta-sub">3 free invoices a month. No credit card needed to get started.</span>
   </div>
 
   <div class="wrap section">
@@ -354,7 +351,7 @@
 
   <div class="final-cta">
     <h2>Send your first plumbing invoice in under two minutes</h2>
-    <p>Free to use. No credit card. No accounting software to learn.</p>
+    <p>3 free invoices a month. No credit card. No accounting software to learn.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
     <span class="cta-sub">Upgrade to Pro at $9/mo CAD for logo and email sending.</span>
   </div>
@@ -396,6 +393,8 @@
     <a href="https://invoiceprepper.com/invoice-for-personal-trainers">Personal Trainers</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/invoice-for-handymen">Handymen</a>
+    &nbsp;�&nbsp;
+    <a href="https://invoiceprepper.com/invoice-for-designers">Designers</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/terms">Terms</a>
     &nbsp;·&nbsp;

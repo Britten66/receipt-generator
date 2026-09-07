@@ -36,7 +36,9 @@
     }
     body { font-family: helvetica, arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
     nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; border-bottom: 1px solid var(--border); }
-    .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; }
+    .nav-brand { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .nav-brand-divider { color: var(--text-muted); font-weight: 400; }
+    .nav-brand-chip { display: inline-block; background: var(--text); color: var(--bg); padding: 2px 6px 3px; border-radius: 3px; }
     .nav-cta { display: inline-block; background: var(--text); color: var(--bg); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 7px 14px; text-decoration: none; }
     .wrap { max-width: 680px; margin: 0 auto; padding: 0 32px; }
     .breadcrumb { margin: 32px auto 0; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
@@ -72,12 +74,12 @@
 </head>
 <body>
   <nav>
-    <a href="https://invoiceprepper.com" class="nav-brand">InvoicePrepper</a>
+    <a href="https://invoiceprepper.com" class="nav-brand">Invoice <span class="nav-brand-divider">|</span> <span class="nav-brand-chip">Prepper</span></a>
     <a href="https://invoiceprepper.com/?signup=1" class="nav-cta">Try It Free</a>
   </nav>
 
   <div class="wrap breadcrumb">
-    <a href="https://invoiceprepper.com/blog">Changelog</a> &nbsp;/&nbsp; April 2026
+    <a href="https://invoiceprepper.com/changelog">Changelog</a> &nbsp;/&nbsp; April 2026
   </div>
 
   <div class="wrap header">
@@ -130,7 +132,7 @@
       <p>Not using InvoicePrepper yet? Free to start, no credit card needed.</p>
       <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Free</a>
     </div>
-    <a href="https://invoiceprepper.com/blog" class="back-link">Back to Changelog</a>
+    <a href="https://invoiceprepper.com/changelog" class="back-link">Back to Changelog</a>
   </div>
 
   <footer>
@@ -138,7 +140,7 @@
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/?signup=1">Start Free</a>
     &nbsp;·&nbsp;
-    <a href="https://invoiceprepper.com/blog">Changelog</a>
+    <a href="https://invoiceprepper.com/changelog">What's new</a>
     &nbsp;·&nbsp;
     <a href="https://invoiceprepper.com/terms">Terms</a>
     &nbsp;·&nbsp;

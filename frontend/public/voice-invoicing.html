@@ -57,7 +57,7 @@
       {
         "@type": "Question",
         "name": "How much does voice invoicing cost?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Voice AI is CAD $12 per month. The free plan includes unlimited invoices and PDF download with no credit card required." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Voice AI is CAD $12 per month. The free plan includes 3 invoices a month and PDF download with no credit card required." }
       }
     ]
   }
@@ -114,7 +114,13 @@
       text-transform: uppercase;
       color: var(--text);
       text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
+
+    .nav-brand-divider { color: var(--text-muted); font-weight: 400; }
+    .nav-brand-chip { display: inline-block; background: var(--text); color: var(--bg); padding: 2px 6px 3px; border-radius: 3px; }
 
     .nav-cta {
       display: inline-block;
@@ -379,7 +385,7 @@
 <body>
 
   <nav>
-    <a href="https://invoiceprepper.com" class="nav-brand">InvoicePrepper</a>
+    <a href="https://invoiceprepper.com" class="nav-brand">Invoice <span class="nav-brand-divider">|</span> <span class="nav-brand-chip">Prepper</span></a>
     <a href="https://invoiceprepper.com/?signup=1" class="nav-cta">Try It Free</a>
   </nav>
 
@@ -389,7 +395,7 @@
     <h1>Speak your invoice.<br>AI fills it in.</h1>
     <p class="lead">Stop typing out every line item. Say your client name, what you did, how many hours, and your rate. InvoicePrepper fills in the whole invoice automatically.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
-    <span class="cta-sub">Free forever. No credit card required.</span>
+    <span class="cta-sub">3 free invoices a month. No credit card required.</span>
   </div>
 
   <!-- Example -->
@@ -465,7 +471,7 @@
       </div>
       <div class="faq-item">
         <p class="faq-q">Is it free?</p>
-        <p class="faq-a">Voice AI is part of the Voice AI plan at CAD $12 per month. The free plan includes unlimited invoices and PDF download with no credit card required. Upgrade when you are ready.</p>
+        <p class="faq-a">Voice AI is part of the Voice AI plan at CAD $12 per month. The free plan includes 3 invoices a month and PDF download with no credit card required. Upgrade when you are ready.</p>
       </div>
       <div class="faq-item">
         <p class="faq-q">Need help getting started?</p>
@@ -479,7 +485,7 @@
     <h2>Try it free today</h2>
     <p>No credit card. No setup. Create your first invoice in under two minutes.</p>
     <a href="https://invoiceprepper.com/?signup=1" class="cta-btn">Start Invoicing Free</a>
-    <span class="cta-sub">Free forever. Upgrade when you are ready.</span>
+    <span class="cta-sub">3 free invoices a month. Upgrade when you are ready.</span>
   </div>
 
   <footer>
