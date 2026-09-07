@@ -651,6 +651,17 @@ body,
   letter-spacing: 0.02em;
   padding: 10px 14px;
 }
+.sidebar-limit-hint {
+  margin-top: 8px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--text-muted);
+}
+.sidebar-limit-hint-full {
+  color: var(--voided);
+  font-weight: 600;
+}
 
 /* Sidebar footer: business profile + utility actions. */
 .sidebar-footer {

@@ -21,10 +21,14 @@ export function useTrash({ showToast, onRestored }) {
   async function handleRestore(id) {
     setWorking(id);
     try {
-      await restoreReceipt(id);
-      setDeleted((prev) => prev.filter((r) => r.id !== id));
-      onRestored();
-      showToast("Invoice restored.", "success");
+      const result = await restoreReceipt(id);
+      if (result?.error) {
+        showToast("Could not restore. Try again.", "error");
+      } else {
+        setDeleted((prev) => prev.filter((r) => r.id !== id));
+        onRestored();
+        showToast("Invoice restored.", "success");
+      }
     } catch {
       showToast("Could not restore. Try again.", "error");
     }

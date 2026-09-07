@@ -66,7 +66,7 @@ export default function PlansModal({ profile, darkMode, currency, onClose, onSel
                 <div className="plans-modal-price">$9<span>/mo</span></div>
                 <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>Billed in CAD</p>
                 <ul className="plans-modal-features">
-                  <li className="plans-modal-includes">Everything in Basic, no watermark</li>
+                  <li className="plans-modal-includes">Unlimited invoices, no watermark</li>
                   <li>Send invoices to clients directly from the app</li>
                   <li>Your logo on every invoice - look like a real business</li>
                   <li>Automatic payment reminders so you stop chasing clients</li>

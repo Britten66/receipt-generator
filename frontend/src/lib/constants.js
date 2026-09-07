@@ -1,3 +1,8 @@
+// Free tier: max invoices per calendar month, resets on the 1st. Deleting an
+// invoice does not free up a slot within the same month.
+// Mirrored server-side in supabase/functions/receipts/index.ts - keep in sync.
+export const FREE_INVOICE_LIMIT = 3;
+
 export const STATUS_CONFIG = {
   draft:  { label: "Draft" },
   sent:   { label: "Sent" },

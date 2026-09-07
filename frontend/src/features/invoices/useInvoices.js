@@ -1,15 +1,28 @@
 import { useState, useMemo } from "react";
 import { fetchReceipts, fetchReceiptById, createReceipt, updateReceipt, deleteReceipt } from "../../api/receipts";
-import { STATUS_CONFIG, STATUS_LABELS } from "../../lib/constants";
+import { STATUS_CONFIG, STATUS_LABELS, FREE_INVOICE_LIMIT } from "../../lib/constants";
 import posthog from "posthog-js";
 
-export function useInvoices({ session, profile, showToast }) {
+export function useInvoices({ session, profile, showToast, onLimitReached }) {
   const [receipts, setReceipts]           = useState([]);
   const [loading, setLoading]             = useState(true);
   const [filter, setFilter]               = useState("ALL");
   const [selected, setSelected]           = useState(null);
   const [showForm, setShowForm]           = useState(false);
   const [editingReceipt, setEditingReceipt] = useState(null);
+
+  const isFreeTier = !profile?.tier || profile.tier === "free";
+  // Grandfathered users (signed up before the cap shipped, see migration 018) are
+  // permanently exempt - the cap only applies to accounts created after it went live.
+  const isGrandfathered = !!profile?.legacy_unlimited_invoices;
+  // Monthly cap, not "active invoices right now": monthly_invoice_count is computed
+  // server-side (supabase/functions/profile/index.ts) from invoices created since the
+  // start of the current calendar month, so deleting an invoice does NOT free up a
+  // slot within the same month. That's deliberate - an active-count cap can be beaten
+  // by delete-then-recreate, which would make it useless as a conversion lever. The
+  // count itself resets naturally next month since the window moves.
+  const monthlyInvoiceCount = profile?.monthly_invoice_count ?? 0;
+  const atFreeLimit = isFreeTier && !isGrandfathered && monthlyInvoiceCount >= FREE_INVOICE_LIMIT;
 
   async function loadReceipts() {
     setLoading(true);
@@ -38,6 +51,12 @@ export function useInvoices({ session, profile, showToast }) {
         showToast("Invoice updated.", "success");
       } else {
         const result = await createReceipt(data);
+        if (result?.code === "FREE_LIMIT_REACHED") {
+          setShowForm(false);
+          setEditingReceipt(null);
+          onLimitReached?.();
+          return;
+        }
         if (result?.error) throw new Error(result.error);
         const created = {
           ...result,
@@ -95,7 +114,11 @@ export function useInvoices({ session, profile, showToast }) {
     setReceipts((prev) => prev.map((r) => (r.id === id ? full : r)));
   }
 
-  function openNewReceipt() { setEditingReceipt(null); setShowForm(true); }
+  function openNewReceipt() {
+    if (atFreeLimit) { onLimitReached?.(); return; }
+    setEditingReceipt(null);
+    setShowForm(true);
+  }
 
   async function handleDismissForm(formData) {
     setShowForm(false);
@@ -119,6 +142,13 @@ export function useInvoices({ session, profile, showToast }) {
 
     try {
       const result = await createReceipt({ ...formData, line_items: cleanedItems, status: "draft" });
+      if (result?.code === "FREE_LIMIT_REACHED") {
+        // Unlike other errors here, this one is worth surfacing: the user's
+        // entered data is about to be lost and there's a real, actionable
+        // reason (upgrade or wait for next month), not just a transient failure.
+        onLimitReached?.();
+        return;
+      }
       if (result?.error) throw new Error(result.error);
       setReceipts((prev) => [result, ...prev]);
       showToast("Saved as draft.", "success");
@@ -174,5 +204,6 @@ export function useInvoices({ session, profile, showToast }) {
     handleSaveReceipt, handleDismissForm, handleStatusChange, handleDelete,
     selectFull, openNewReceipt, openEditReceipt,
     counts, revenue, outstanding, filtered,
+    isFreeTier, atFreeLimit, monthlyInvoiceCount, isGrandfathered,
   };
 }

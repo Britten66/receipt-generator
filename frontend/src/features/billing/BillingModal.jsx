@@ -19,6 +19,10 @@ export default function BillingModal({ profile, onClose, onUpgrade }) {
   const tierLabel = stripeTier === "voice" ? "Voice AI" : stripeTier === "pro" ? "Pro" : "Free";
   const tierPrice = stripeTier === "voice" ? "CAD $12 / mo" : "CAD $9 / mo";
   const tierColor = stripeTier === "voice" ? "#4dd8e0" : "#6abf7b";
+  // Grandfathered accounts (existed before the invoice cap shipped, see migration
+  // 018) are permanently exempt - showing them "3 free invoices" here would be
+  // flatly wrong and needlessly scary for people who actually have no limit.
+  const isGrandfathered = !!profile?.legacy_unlimited_invoices;
 
   // Fetch live subscription state from Stripe on open
   useEffect(() => {
@@ -157,13 +161,13 @@ export default function BillingModal({ profile, onClose, onUpgrade }) {
             <>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Free plan</div>
-                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "var(--text-muted)", border: "1px solid var(--border)", padding: "2px 8px", textTransform: "uppercase" }}>FREE</span>
+                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: isGrandfathered ? "var(--accent)" : "var(--text-muted)", border: `1px solid ${isGrandfathered ? "var(--accent)" : "var(--border)"}`, padding: "2px 8px", textTransform: "uppercase" }}>{isGrandfathered ? "UNLIMITED" : "FREE"}</span>
               </div>
 
               {/* What's included on free */}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
-                  { icon: <FileText size={12} />, text: "Unlimited invoices + PDF download" },
+                  { icon: <FileText size={12} />, text: isGrandfathered ? "Unlimited invoices + PDF download" : "3 free invoices a month + PDF download" },
                   { icon: <BarChart2 size={12} />, text: "Track Draft, Sent, and Paid" },
                   { icon: <Link size={12} />, text: "Payment link + QR code on PDFs" },
                 ].map(({ icon, text }) => (
@@ -178,6 +182,7 @@ export default function BillingModal({ profile, onClose, onUpgrade }) {
               <div style={{ borderTop: "1px solid var(--border-light)", paddingTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
                 <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: 4 }}>Unlock on Pro and Voice AI</div>
                 {[
+                  ...(isGrandfathered ? [] : [{ icon: <FileText size={12} />, text: "Unlimited invoices" }]),
                   { icon: <Mail size={12} />,  text: "Email invoices to clients" },
                   { icon: <Image size={12} />, text: "Logo on every PDF" },
                   { icon: <Mic size={12} />,   text: "Voice AI: speak your invoice (Voice AI plan)" },

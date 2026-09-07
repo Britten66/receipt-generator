@@ -73,7 +73,9 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       <nav className={`lv2-topbar${navScrolled ? " lv2-topbar-scrolled" : ""}`} aria-label="Primary">
         <div className="lv2-topbar-inner">
           <div className="lv2-nav-left">
-            <span className="lv2-nav-wordmark">InvoicePrepper</span>
+            <span className="lv2-nav-wordmark">
+              Invoice <span className="lv2-nav-wordmark-divider">|</span> <span className="lv2-nav-wordmark-chip">Prepper</span>
+            </span>
             <a className="lv2-nav-link" href="#how-it-works">How it works</a>
             <a className="lv2-nav-link" href="#pricing">Pricing</a>
             <a className="lv2-nav-link" href="#faq">FAQ</a>
@@ -113,7 +115,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         <div className="lv2-hero-text">
           <p className="lv2-eyebrow">InvoicePrepper</p>
           <h1 className="lv2-title">The invoice generator<br />for people who<br />just want to get paid.</h1>
-          <p className="lv2-desc">Create, send, and track invoices. Free forever. No credit card, no setup, no learning curve.</p>
+          <p className="lv2-desc">Create, send, and track invoices. 3 free a month, no credit card, no setup, no learning curve.</p>
           <button className="lv2-cta" onClick={() => {
             posthog.capture("cta_clicked", { variant: ctaVariant, location: "hero" });
             onEnter();
@@ -220,7 +222,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               <div className="lv2-plan-price">Free</div>
               <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "0 0 8px" }}>No credit card required</p>
               <ul className="lv2-plan-features">
-                <li>Unlimited invoices</li>
+                <li>3 free invoices a month</li>
                 <li>Clean PDF, no watermark</li>
                 <li>Download and share link</li>
                 <li>Pay Now button on invoices</li>
@@ -338,11 +340,9 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
               </tr>
             </thead>
             <tbody>
-              {/* Universal-feature row: ALL tiers and competitors do this.
-                  Establishes that we are a real product, not a stripped trial. */}
               <tr>
-                <td>Unlimited invoices, no caps</td>
-                <td className="lv2-ct-basic" data-label="Basic"><Check size={16} strokeWidth={3} /></td>
+                <td>Unlimited invoices</td>
+                <td className="lv2-ct-no" data-label="Basic"><Minus size={14} strokeWidth={2} /></td>
                 <td className="lv2-ct-pro" data-label="Pro"><Check size={16} strokeWidth={3} /></td>
                 <td className="lv2-ct-voice" data-label="Voice AI"><Check size={16} strokeWidth={3} /></td>
                 <td className="lv2-ct-wave" data-label="Other apps"><Check size={13} strokeWidth={1.5} /></td>
@@ -434,7 +434,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
         <div className="lv2-faq-right">
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Is the free plan really free?</h3>
-            <p className="lv2-faq-a2">Yes, forever. No ads, no watermark, no credit card. Built to solve the pain points other tools create. Just invoices.</p>
+            <p className="lv2-faq-a2">Yes, no credit card required. You get 3 invoices a month, no ads, no watermark. Upgrade to Pro whenever you need more.</p>
           </div>
           <div className="lv2-faq-item2">
             <h3 className="lv2-faq-q2">Can I download my invoices as PDFs?</h3>
@@ -470,7 +470,7 @@ export default function LandingPage({ onEnter, onEnterPro, onEnterVoice, onSignI
       {/* 9: Final CTA */}
       <section className="lv2-final-cta">
         <h2 className="lv2-final-cta-title">Ready to send your first invoice?</h2>
-        <p className="lv2-final-cta-sub">Free forever. No credit card. Takes two minutes.</p>
+        <p className="lv2-final-cta-sub">3 free invoices a month. No credit card. Takes two minutes.</p>
         <button className="lv2-cta" onClick={onEnter}>Start Invoicing Free</button>
       </section>
 

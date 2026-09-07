@@ -52,6 +52,22 @@ export async function fetchSubscriptionStatus() {
   return body; // { status, current_period_end, cancel_at_period_end, cancel_at } or { status: "free" }
 }
 
+// Fire-and-forget: pings an ntfy alert when a plan card is clicked (purchase
+// intent, before checkout starts). Never throws - a failed ping should never
+// block the upgrade flow the user is actually trying to complete.
+export async function notifyInterest(plan = "pro") {
+  try {
+    const headers = await authHeaders();
+    await fetch(`${BASE}/notify-interest`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ plan }),
+    });
+  } catch {
+    // Silent: this is a side-channel notification, not user-facing functionality.
+  }
+}
+
 export async function openBillingPortal() {
   const headers = await authHeaders();
   const res = await fetch(`${BASE}/billing-portal`, {

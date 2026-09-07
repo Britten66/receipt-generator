@@ -1,10 +1,10 @@
-import { NAV, STATUS_CONFIG, fmtStat } from "../lib/constants";
+import { NAV, STATUS_CONFIG, fmtStat, FREE_INVOICE_LIMIT } from "../lib/constants";
 import { Plus, Pencil, CreditCard, FileText, Trash2, HelpCircle } from "lucide-react";
 
 export default function AppSidebar({
   receipts, revenue, outstanding, counts,
   filter, setFilter,
-  profile,
+  profile, isFreeTier, atFreeLimit, monthlyInvoiceCount,
   setShowProfileModal, openNewReceipt,
   setShowBilling, setLegal, setShowHelp, setShowTrash,
 }) {
@@ -16,6 +16,13 @@ export default function AppSidebar({
           <Plus size={16} strokeWidth={2.5} />
           <span>New Invoice</span>
         </button>
+        {isFreeTier && (
+          <div className={`sidebar-limit-hint${atFreeLimit ? " sidebar-limit-hint-full" : ""}`}>
+            {atFreeLimit
+              ? "Monthly free limit reached, upgrade for unlimited invoices"
+              : `${Math.min(monthlyInvoiceCount, FREE_INVOICE_LIMIT)} of ${FREE_INVOICE_LIMIT} free invoices used this month`}
+          </div>
+        )}
       </div>
 
       <div className="sidebar-section sidebar-stats">

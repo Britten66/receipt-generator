@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { isSubjectToFreeLimit, startOfCurrentMonthISO } from "../_shared/freeLimit.ts";
 
 const MAX_BODY_BYTES   = 32 * 1024; // 32 KB
 const VALID_CURRENCIES = new Set(["CAD", "USD", "EUR", "GBP", "AUD", "NZD", "CHF", "JPY", "MXN", "SGD", "HKD", "INR"]);
@@ -55,7 +56,20 @@ Deno.serve(async (req) => {
 
   if (req.method === "GET") {
     const { data } = await supabase.from("profiles").select("*").eq("user_id", user.id).single();
-    if (data) return new Response(JSON.stringify(applyGrantToTier(data)), { headers: corsHeaders });
+    if (data) {
+      // Live count of invoices created this calendar month, for the free-plan
+      // usage hint in the UI. Only computed for users the cap actually applies
+      // to: skip the extra query for Pro/Voice/legacy-exempt/grant-active profiles,
+      // using the same eligibility rule receipts/index.ts enforces with, so the
+      // hint the user sees never disagrees with what actually gets blocked.
+      let monthly_invoice_count = 0;
+      if (isSubjectToFreeLimit(data)) {
+        const { count } = await supabase.from("receipts").select("*", { count: "exact", head: true })
+          .eq("user_id", user.id).gte("created_at", startOfCurrentMonthISO());
+        monthly_invoice_count = count ?? 0;
+      }
+      return new Response(JSON.stringify({ ...applyGrantToTier(data), monthly_invoice_count }), { headers: corsHeaders });
+    }
 
     // No profile yet: create one on first login. Look for a referral code in
     // two places, in priority order:

@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { createPostHogClient, isPostHogConfigured, safeShutdown } from "../_shared/posthog.ts";
+import { isSubjectToFreeLimit, startOfCurrentMonthISO } from "../_shared/freeLimit.ts";
 
 const ALLOWED_FIELDS  = ["vendor_name", "customer_name", "status", "date", "subtotal", "tax", "total", "notes", "currency", "logo_url", "logo_corner", "reminder_at", "due_by", "unit_label", "billing_period"];
 const VALID_STATUSES  = new Set(["draft", "sent", "paid", "voided"]);
@@ -9,6 +10,9 @@ const VALID_UNIT_LABELS = new Set(["Qty", "Hrs", "Days"]);
 const VALID_CURRENCIES = new Set(["CAD", "USD", "EUR", "GBP", "AUD", "NZD", "CHF", "JPY", "MXN", "SGD", "HKD", "INR"]);
 const MAX_BODY_BYTES  = 64 * 1024; // 64 KB
 const MAX_LINE_ITEMS  = 100;
+// Per calendar month, resets on the 1st. Mirrored client-side in
+// frontend/src/lib/constants.js (FREE_INVOICE_LIMIT) - keep in sync.
+const FREE_INVOICE_LIMIT = 3;
 
 // Trims and caps a string field. Returns null if the value is not a string.
 function str(val: unknown, maxLen: number): string | null {
@@ -80,6 +84,29 @@ Deno.serve(async (req) => {
 
   // POST: create receipt + line items
   if (req.method === "POST") {
+    // Free tier: monthly cap, resets on the 1st of each month - deleting an
+    // invoice must not free up a slot within the same month, or a free user
+    // could delete-and-recreate forever and never actually be capped. Client
+    // already blocks this in the UI, but that check is racy across tabs and
+    // skippable by calling this endpoint directly.
+    // Fail open on error (e.g. migration 018 hasn't run yet and the column doesn't
+    // exist): the DB trigger from that same migration is the real backstop, so a
+    // missing/errored read here must never fall through to "treat everyone as free
+    // tier" - that would block paying Pro users from creating invoices too.
+    const { data: limitProfile, error: limitProfileError } = await supabase
+      .from("profiles").select("tier, legacy_unlimited_invoices, pro_grant_until").eq("user_id", user.id).single();
+    if (limitProfileError) console.error("receipts: limit profile lookup failed", limitProfileError.message);
+    if (!limitProfileError && isSubjectToFreeLimit(limitProfile)) {
+      const { count } = await supabase.from("receipts").select("*", { count: "exact", head: true })
+        .eq("user_id", user.id).gte("created_at", startOfCurrentMonthISO());
+      if ((count ?? 0) >= FREE_INVOICE_LIMIT) {
+        return new Response(JSON.stringify({
+          error: "Free plan is limited to 3 invoices per month. Upgrade to Pro for unlimited invoices.",
+          code: "FREE_LIMIT_REACHED",
+        }), { status: 403, headers: corsHeaders });
+      }
+    }
+
     const body = await req.json();
     const vendor_name   = str(body.vendor_name,   200);
     const customer_name = str(body.customer_name, 200);
@@ -122,7 +149,18 @@ Deno.serve(async (req) => {
       user_id: user.id,
     }).select().single();
 
-    if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    if (error) {
+      // Belt-and-suspenders: the app-level check above should catch this first, but
+      // if the DB trigger (018_free_invoice_limit.sql) fires instead - e.g. a race
+      // between concurrent requests - surface the same friendly, machine-readable error.
+      if (error.message.includes("FREE_LIMIT_REACHED")) {
+        return new Response(JSON.stringify({
+          error: "Free plan is limited to 3 invoices per month. Upgrade to Pro for unlimited invoices.",
+          code: "FREE_LIMIT_REACHED",
+        }), { status: 403, headers: corsHeaders });
+      }
+      return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    }
 
     if (raw_items.length) {
       const items = raw_items.map((li: { description: string; quantity: number; unit_price: number; total: number }) => ({
@@ -154,6 +192,10 @@ Deno.serve(async (req) => {
   }
 
   // PATCH ?restore=1: move invoice out of trash
+  // No free-tier cap check needed here: the cap counts every row created this
+  // month regardless of deleted_at (see the POST handler above and
+  // 018_free_invoice_limit.sql), and restoring doesn't create a new row - the
+  // invoice was already counted against its month when it was first created.
   if (req.method === "PATCH" && queryId && url.searchParams.get("restore") === "1") {
     const { error } = await supabase.from("receipts")
       .update({ deleted_at: null })

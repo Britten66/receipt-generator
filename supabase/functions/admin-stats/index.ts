@@ -4,10 +4,10 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 // Founder email is the only address allowed to read this view.
 // Server-enforced: even if the route leaks client-side, the
 // function returns 403 to anyone else.
-// Prefer the FOUNDER_EMAIL secret so the address isn't hardcoded in a
-// public repo. The literal is a fallback so admin access never breaks if
-// the secret is unset; once the secret is set in Supabase it can be dropped.
-const FOUNDER_EMAIL = (Deno.env.get("FOUNDER_EMAIL") ?? "redacted@example.com").toLowerCase();
+// No hardcoded fallback: a literal email here would be public in this repo's
+// source (and git history) forever. Must be set as a Supabase Edge Function
+// secret (supabase secrets set FOUNDER_EMAIL=...) before this route works.
+const FOUNDER_EMAIL = Deno.env.get("FOUNDER_EMAIL")?.toLowerCase();
 
 Deno.serve(async (req) => {
   const origin = req.headers.get("Origin");
@@ -16,6 +16,11 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "GET") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: corsHeaders });
+  }
+  // Fail closed: if the secret isn't configured, deny everyone rather than
+  // fall back to a hardcoded address.
+  if (!FOUNDER_EMAIL) {
+    return new Response(JSON.stringify({ error: "Admin access not configured" }), { status: 503, headers: corsHeaders });
   }
 
   // Identify caller via their JWT against the anon client.

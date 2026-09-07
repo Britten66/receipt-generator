@@ -86,6 +86,22 @@
   text-transform: uppercase;
   color: var(--text);
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lv2-nav-wordmark-divider {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.lv2-nav-wordmark-chip {
+  display: inline-block;
+  background: var(--text);
+  color: var(--bg);
+  padding: 2px 6px 3px;
+  border-radius: 3px;
 }
 
 .lv2-nav-link {

@@ -15,7 +15,7 @@ import ConsentModal        from "./features/auth/ConsentModal";
 import UpgradeThanksModal  from "./features/billing/UpgradeThanksModal";
 import ReferralModal       from "./features/referrals/ReferralModal";
 import posthog             from "posthog-js";
-import { startCheckout }   from "./api/billing";
+import { startCheckout, notifyInterest } from "./api/billing";
 import { fetchProfile, saveProfile } from "./api/profile";
 import { exportInvoicesCSV } from "./services/csvExport";
 import { applyPalette, clearPalette, PALETTE_KEYS, readPaletteFromStorage } from "./lib/themes";
@@ -96,7 +96,14 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
     handleSaveReceipt, handleDismissForm, handleStatusChange, handleDelete,
     selectFull, openNewReceipt, openEditReceipt,
     counts, revenue, outstanding, filtered,
-  } = useInvoices({ session, profile, showToast });
+    isFreeTier, atFreeLimit, monthlyInvoiceCount, isGrandfathered,
+  } = useInvoices({
+    session, profile, showToast,
+    onLimitReached: () => {
+      posthog.capture("upgrade prompt shown", { source: "invoice_limit" });
+      setShowPlansModal(true);
+    },
+  });
 
 // ─── EFFECTS ───────────────────────────────────────────────────────────────
 
@@ -158,6 +165,19 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
     );
     localStorage.setItem("whatsnew_2026_05_16", "1");
   }, [entered, loading, receipts.length]);
+
+  // One-time notice for grandfathered users: the free plan now caps new
+  // signups at 3 invoices a month, but accounts that existed before that
+  // change are permanently exempt. Not a Pro trial, no expiry to explain later.
+  useEffect(() => {
+    if (!entered || profileLoading || !profile?.legacy_unlimited_invoices) return;
+    if (localStorage.getItem("backer_badge_2026_09")) return;
+    showToast(
+      "You're a startup backer: unlimited invoices, forever, no monthly cap. This isn't Pro (no email sending or logo), just our thanks for being here early.",
+      "promo"
+    );
+    localStorage.setItem("backer_badge_2026_09", "1");
+  }, [entered, profileLoading, profile?.legacy_unlimited_invoices]);
 
   // Lock body scroll when any modal is open
   useEffect(() => {
@@ -319,7 +339,7 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
       <AppSidebar
         receipts={receipts} revenue={revenue} outstanding={outstanding} counts={counts}
         filter={filter} setFilter={setFilter}
-        profile={profile}
+        profile={profile} isFreeTier={isFreeTier && !isGrandfathered} atFreeLimit={atFreeLimit} monthlyInvoiceCount={monthlyInvoiceCount}
         setShowProfileModal={setShowProfileModal} openNewReceipt={openNewReceipt}
         setShowBilling={setShowBilling} setLegal={setLegal} setShowHelp={setShowHelp} setShowTrash={setShowTrash}
       />
@@ -429,8 +449,8 @@ const [showProfileModal, setShowProfileModal]           = useState(false);
           darkMode={darkMode}
           currency={profile?.currency || preferredCurrency}
           onClose={() => setShowPlansModal(false)}
-          onSelectPro={()   => { setShowPlansModal(false); openUpgradeConfirm("pro");   }}
-          onSelectVoice={()  => { setShowPlansModal(false); openUpgradeConfirm("voice"); }}
+          onSelectPro={()   => { posthog.capture("plan card clicked", { plan: "pro" });   notifyInterest("pro");   setShowPlansModal(false); openUpgradeConfirm("pro");   }}
+          onSelectVoice={()  => { posthog.capture("plan card clicked", { plan: "voice" }); notifyInterest("voice"); setShowPlansModal(false); openUpgradeConfirm("voice"); }}
         />
       )}
 
