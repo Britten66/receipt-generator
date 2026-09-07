@@ -31,6 +31,18 @@ Deno.serve(async (req) => {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
 
+  // Block a second subscription for a user who already has an active one.
+  // Without this, a double-click or a retried request re-hits Checkout and
+  // Stripe happily creates (and bills) a second subscription.
+  const { data: existingProfile } = await supabase
+    .from("profiles").select("tier, stripe_subscription_id").eq("user_id", user.id).single();
+  if (existingProfile?.stripe_subscription_id && (existingProfile.tier === "pro" || existingProfile.tier === "voice")) {
+    return new Response(
+      JSON.stringify({ error: "You already have an active subscription.", code: "ALREADY_SUBSCRIBED" }),
+      { status: 409, headers: corsHeaders }
+    );
+  }
+
   const { return_url, tier, currency } = await req.json();
 
   const isUSD = currency === "USD";

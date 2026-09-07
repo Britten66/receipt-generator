@@ -4,7 +4,6 @@ import { createPostHogClient, isPostHogConfigured, safeShutdown } from "../_shar
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_BODY_BYTES  = 3 * 1024 * 1024; // 3 MB (covers PDF attachment)
 const MAX_PDF_BYTES   = 2 * 1024 * 1024; // 2 MB base64 ≈ ~1.5 MB PDF
-const MAX_FIELD_LEN   = 500;
 const DAILY_EMAIL_LIMIT = 50; // per-user daily cap; protects Resend bill + domain reputation
 
 function escapeHtml(str: unknown): string {
@@ -45,7 +44,7 @@ Deno.serve(async (req) => {
   // Fetch tier + sender identity + copy-me preference.
   // `email` is the user's preferred reply address; falls back to auth email.
   // `copy_on_send` is the user-facing "Email me a copy" toggle (default true).
-  const { data: profile } = await supabase.from("profiles").select("tier, business_name, email, copy_on_send").eq("user_id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("tier, business_name, email, address, payment_url, copy_on_send").eq("user_id", user.id).single();
   const isPro = profile?.tier === "pro" || profile?.tier === "voice";
   const senderInbox = (profile?.email || user.email || "").trim();
   const wantsCopy = profile?.copy_on_send !== false; // null/undefined treated as true
@@ -74,12 +73,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  const {
-    to, vendor_name, vendor_email, vendor_address,
-    customer_name, receipt_number, date, line_items,
-    subtotal, tax, total, currency, notes, payment_url, pdf_base64,
-    is_reminder, unit_label, billing_period,
-  } = await req.json();
+  const { to, receipt_id, pdf_base64, is_reminder } = await req.json();
   const tier = profile?.tier ?? "free"; // use server-verified tier, not client-supplied
 
   if (!to) return new Response(JSON.stringify({ error: "Recipient email is required" }), { status: 400, headers: corsHeaders });
@@ -87,9 +81,27 @@ Deno.serve(async (req) => {
   if (pdf_base64 && pdf_base64.length > MAX_PDF_BYTES) {
     return new Response(JSON.stringify({ error: "PDF attachment too large" }), { status: 413, headers: corsHeaders });
   }
-  if (notes && String(notes).length > MAX_FIELD_LEN) {
-    return new Response(JSON.stringify({ error: "Notes too long" }), { status: 400, headers: corsHeaders });
+  if (!receipt_id) return new Response(JSON.stringify({ error: "Receipt ID is required" }), { status: 400, headers: corsHeaders });
+
+  // Load the invoice content server-side, scoped to the caller's own receipt.
+  // The email body must never be built from client-supplied vendor/customer/line-item
+  // fields directly: without this, any authenticated user can email arbitrary
+  // "invoice-shaped" content to any address using their own daily send quota.
+  const { data: receipt, error: receiptError } = await supabase
+    .from("receipts").select("*").eq("id", receipt_id).eq("user_id", user.id).single();
+  if (receiptError || !receipt) {
+    return new Response(JSON.stringify({ error: "Receipt not found" }), { status: 404, headers: corsHeaders });
   }
+  const { data: dbLineItems } = await supabase.from("line_items").select("*").eq("receipt_id", receipt_id);
+
+  const {
+    vendor_name, customer_name, receipt_number, date,
+    subtotal, tax, total, currency, notes, unit_label, billing_period,
+  } = receipt;
+  const line_items = dbLineItems ?? [];
+  const vendor_email   = profile?.email   || user.email || "";
+  const vendor_address = profile?.address || "";
+  const payment_url     = profile?.payment_url || null;
 
   const safe = {
     to:             escapeHtml(to),

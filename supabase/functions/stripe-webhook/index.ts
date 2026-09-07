@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ received: true }), { status: 200 });
     }
 
-    let tier: "pro" | "voice" = "pro"; // safe default
+    let tier: "pro" | "voice" = "pro"; // safe default when there's no subscription to inspect
     const voicePriceId = Deno.env.get("STRIPE_VOICE_PRICE_ID");
 
     if (voicePriceId && session.subscription) {
@@ -73,7 +73,12 @@ Deno.serve(async (req) => {
         if (resolved) tier = resolved;
         console.log(`stripe-webhook: checkout: userId=${userId} priceId=${priceId} tier=${tier}`);
       } catch (err) {
-        console.error("stripe-webhook: could not retrieve subscription for checkout", err);
+        // Do NOT fall through to the "pro" default here: a Voice subscriber
+        // would silently be mis-tiered to Pro with no record of the failure.
+        // Returning a non-2xx makes Stripe retry this webhook with backoff
+        // instead of permanently locking in the wrong tier.
+        console.error("stripe-webhook: could not retrieve subscription for checkout, will retry", err);
+        return new Response(JSON.stringify({ error: "subscription lookup failed" }), { status: 500 });
       }
     }
 

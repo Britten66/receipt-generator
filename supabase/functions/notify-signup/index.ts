@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
   }
 
   const authHeader = req.headers.get("authorization") ?? "";
-  if (!authHeader.includes(webhookSecret)) {
+  if (authHeader !== `Bearer ${webhookSecret}`) {
     console.error("notify-signup: unauthorized request");
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
